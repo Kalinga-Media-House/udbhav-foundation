@@ -192,42 +192,44 @@ export function Footer() {
             </div>
           </div>
 
-          {/* B. Quick Links (2 cols on desktop) */}
-          <div className="lg:col-span-2 space-y-4">
-            <h2 className="font-heading text-sm font-bold tracking-wider uppercase text-fresh-green">
-              Quick Links
-            </h2>
-            <ul className="space-y-2.5 text-sm">
-              {FOOTER_QUICK_LINKS.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="text-pure-white/80 hover:text-soft-green transition-colors block py-0.5"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          <div className="grid grid-cols-2 gap-x-8 gap-y-6 md:contents">
+            {/* B. Quick Links (2 cols on desktop) */}
+            <div className="lg:col-span-2 space-y-4">
+              <h2 className="font-heading text-sm font-bold tracking-wider uppercase text-fresh-green">
+                Quick Links
+              </h2>
+              <ul className="space-y-3 text-sm">
+                {FOOTER_QUICK_LINKS.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className="text-pure-white/80 hover:text-soft-green transition-colors block py-0.5"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* C. Explore (2 cols on desktop) */}
-          <div className="lg:col-span-2 space-y-4">
-            <h2 className="font-heading text-sm font-bold tracking-wider uppercase text-fresh-green">
-              Explore
-            </h2>
-            <ul className="space-y-2.5 text-sm">
-              {FOOTER_EXPLORE_LINKS.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="text-pure-white/80 hover:text-soft-green transition-colors block py-0.5"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            {/* C. Explore (2 cols on desktop) */}
+            <div className="lg:col-span-2 space-y-4">
+              <h2 className="font-heading text-sm font-bold tracking-wider uppercase text-fresh-green">
+                Explore
+              </h2>
+              <ul className="space-y-3 text-sm">
+                {FOOTER_EXPLORE_LINKS.map((item) => (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className="text-pure-white/80 hover:text-soft-green transition-colors block py-0.5"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           {/* D. Official Contact Information (4 cols on desktop) */}
@@ -259,7 +261,7 @@ export function Footer() {
                     className="h-4 w-4 shrink-0 mt-0.5 text-fresh-green"
                     aria-hidden="true"
                   />
-                  <span>admin@udbhavfoundation.in</span>
+                  <span className="break-all sm:break-normal">admin@udbhavfoundation.in</span>
                 </a>
               </li>
 
@@ -268,7 +270,7 @@ export function Footer() {
                   className="h-4 w-4 shrink-0 mt-0.5 text-fresh-green"
                   aria-hidden="true"
                 />
-                <span className="leading-relaxed">
+                <span className="leading-relaxed break-words">
                   Plot No. 1519, Bharat Petroleum, 4269/4967, Besides/Above Bandhan
                   Bank, Soubhagya Nagar, Baramunda, Bhubaneswar, Odisha – 751003
                 </span>

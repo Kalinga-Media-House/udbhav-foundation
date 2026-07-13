@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Users,
   Zap,
@@ -13,8 +13,7 @@ import {
   Award,
   Network,
   ChevronDown,
-  Pause,
-  Play,
+  ChevronUp,
 } from "lucide-react";
 import { Container } from "@/components/shared/Container";
 
@@ -145,7 +144,7 @@ function CoreValueCard({
     cardRef.current.style.removeProperty("--cursor-y");
   };
 
-  const staggerDelay = reducedMotion ? 0 : Math.min(index * 90, 360);
+  const staggerDelay = reducedMotion ? 0 : Math.min((index % 4) * 90, 360);
 
   return (
     <article
@@ -205,26 +204,11 @@ function CoreValueCard({
 export function OurCoreValuesSection() {
   const [isVisible, setIsVisible] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
-  const [scrollTop, setScrollTop] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const [isInViewport, setIsInViewport] = useState(false);
-  const [isDocHidden, setIsDocHidden] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const sectionRef = useRef<HTMLElement>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll logic refs
-  const exactScrollTopRef = useRef(0);
-  const isUserInteractingRef = useRef(false);
-  const isLoopingRef = useRef(false);
-  const hasStartedInitialDelayRef = useRef(false);
-  const initialDelayPassedRef = useRef(false);
-
-  const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const loopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const loopReturnTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Detect reduced motion & browser visibility
+  // Detect reduced motion
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     const handleMotionChange = (e: MediaQueryListEvent) => {
@@ -235,14 +219,8 @@ export function OurCoreValuesSection() {
     });
     mediaQuery.addEventListener("change", handleMotionChange);
 
-    const handleVisibilityChange = () => {
-      setIsDocHidden(document.hidden);
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
     return () => {
       mediaQuery.removeEventListener("change", handleMotionChange);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, []);
 
@@ -253,11 +231,11 @@ export function OurCoreValuesSection() {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             setIsVisible(true);
+            observer.disconnect(); // Only need to trigger once
           }
-          setIsInViewport(entry.isIntersecting);
         });
       },
-      { threshold: 0.35 }
+      { threshold: 0.15 }
     );
 
     const currentRef = sectionRef.current;
@@ -270,113 +248,20 @@ export function OurCoreValuesSection() {
     };
   }, []);
 
-  // Handle manual interaction override
-  const handleManualInteraction = useCallback(() => {
-    if (reducedMotion) return;
-
-    if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
-    if (loopTimeoutRef.current) clearTimeout(loopTimeoutRef.current);
-    if (loopReturnTimeoutRef.current) clearTimeout(loopReturnTimeoutRef.current);
-
-    isUserInteractingRef.current = true;
-    isLoopingRef.current = false;
-    setIsPaused(true);
-
-    const el = scrollContainerRef.current;
-    if (el) {
-      exactScrollTopRef.current = el.scrollTop;
-    }
-
-    // Resume autoplay smoothly after 4000ms of inactivity
-    resumeTimeoutRef.current = setTimeout(() => {
-      isUserInteractingRef.current = false;
-      isLoopingRef.current = false;
-      setIsPaused(false);
-      const container = scrollContainerRef.current;
-      if (container) {
-        exactScrollTopRef.current = container.scrollTop;
+  const handleToggle = () => {
+    if (isExpanded) {
+      setIsExpanded(false);
+      if (sectionRef.current) {
+        const yOffset = -80;
+        const y = sectionRef.current.getBoundingClientRect().top + window.scrollY + yOffset;
+        window.scrollTo({ top: y, behavior: reducedMotion ? "auto" : "smooth" });
       }
-    }, 4000);
-  }, [reducedMotion]);
-
-  const handleMobileScroll = () => {
-    const el = scrollContainerRef.current;
-    if (!el) return;
-    setScrollTop(el.scrollTop);
-
-    if (isUserInteractingRef.current) {
-      exactScrollTopRef.current = el.scrollTop;
+    } else {
+      setIsExpanded(true);
     }
   };
 
-  // Main vertical requestAnimationFrame auto-scroll engine (0.25 px/frame)
-  useEffect(() => {
-    if (reducedMotion || isDocHidden || !isInViewport) {
-      return;
-    }
-
-    // Handle initial 2000ms autoplay start delay
-    let initialDelayTimeout: NodeJS.Timeout | null = null;
-    if (!initialDelayPassedRef.current && !hasStartedInitialDelayRef.current) {
-      hasStartedInitialDelayRef.current = true;
-      initialDelayTimeout = setTimeout(() => {
-        initialDelayPassedRef.current = true;
-      }, 2000);
-    }
-
-    let animationFrameId: number;
-
-    const animateScroll = () => {
-      const el = scrollContainerRef.current;
-
-      if (
-        el &&
-        initialDelayPassedRef.current &&
-        !isUserInteractingRef.current &&
-        !isLoopingRef.current
-      ) {
-        const isAtBottom =
-          el.scrollTop + el.clientHeight >= el.scrollHeight - 3;
-
-        if (isAtBottom) {
-          isLoopingRef.current = true;
-
-          // Pause at bottom for 1800ms before returning smoothly to top
-          loopTimeoutRef.current = setTimeout(() => {
-            el.scrollTo({ top: 0, behavior: "smooth" });
-            exactScrollTopRef.current = 0;
-
-            // Wait 800ms after smooth scroll completes to resume automatic scrolling
-            loopReturnTimeoutRef.current = setTimeout(() => {
-              isLoopingRef.current = false;
-            }, 800);
-          }, 1800);
-        } else {
-          // Increment fractional scroll at 0.25 px/frame (~15px/sec at 60fps)
-          exactScrollTopRef.current += 0.25;
-          el.scrollTop = exactScrollTopRef.current;
-        }
-      }
-
-      animationFrameId = requestAnimationFrame(animateScroll);
-    };
-
-    animationFrameId = requestAnimationFrame(animateScroll);
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      if (initialDelayTimeout) clearTimeout(initialDelayTimeout);
-    };
-  }, [isInViewport, isDocHidden, reducedMotion]);
-
-  // Clean up timers on unmount
-  useEffect(() => {
-    return () => {
-      if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
-      if (loopTimeoutRef.current) clearTimeout(loopTimeoutRef.current);
-      if (loopReturnTimeoutRef.current) clearTimeout(loopReturnTimeoutRef.current);
-    };
-  }, []);
+  const displayedValues = isExpanded ? CORE_VALUES_DATA : CORE_VALUES_DATA.slice(0, 4);
 
   return (
     <section
@@ -384,24 +269,6 @@ export function OurCoreValuesSection() {
       aria-labelledby="core-values-heading"
       className="relative w-full overflow-hidden bg-[#FDFCF8] py-10 sm:py-14 md:py-20 lg:py-24 border-b border-soft-border/40"
     >
-      {/* Custom slim green scrollbar for mobile panel */}
-      <style jsx>{`
-        .custom-mobile-scroll::-webkit-scrollbar {
-          width: 5px;
-        }
-        .custom-mobile-scroll::-webkit-scrollbar-track {
-          background: rgba(46, 125, 50, 0.08);
-          border-radius: 9999px;
-        }
-        .custom-mobile-scroll::-webkit-scrollbar-thumb {
-          background: rgba(46, 125, 50, 0.45);
-          border-radius: 9999px;
-        }
-        .custom-mobile-scroll::-webkit-scrollbar-thumb:hover {
-          background: rgba(46, 125, 50, 0.65);
-        }
-      `}</style>
-
       <Container className="relative z-10">
         <div
           className={`transition-all duration-700 ${
@@ -427,117 +294,85 @@ export function OurCoreValuesSection() {
             </p>
           </div>
 
-          {/* ==========================================================
-              MOBILE LAYOUT (< 768px): Compact Auto-Scrolling Container
-              ========================================================== */}
-          <div className="block md:hidden w-full">
-            <div className="max-w-[400px] mx-auto rounded-2xl bg-pure-white/90 border border-impact-green/25 shadow-md p-2.5 sm:p-3 relative overflow-hidden backdrop-blur-sm">
-              {/* Top Fade Mask when scrolled down */}
-              {scrollTop > 10 && (
-                <div
-                  aria-hidden="true"
-                  className="pointer-events-none absolute top-2.5 left-2.5 right-2.5 h-6 bg-gradient-to-b from-pure-white via-pure-white/85 to-transparent z-10 rounded-t-xl transition-opacity duration-300"
-                />
-              )}
+          <div id="core-values-list">
+            {/* MOBILE LAYOUT (< 768px): Single Column Container */}
+            <div className="flex md:hidden flex-col gap-3 max-w-[400px] mx-auto w-full">
+              {displayedValues.map((item, idx) => {
+                const MobileIconComponent = item.icon;
+                const staggerDelay = reducedMotion ? 0 : Math.min((idx % 4) * 90, 360);
+                
+                const hideOnSmallMobile = !isExpanded && idx >= 2 ? "hidden sm:flex" : "flex";
 
-              {/* Internal Scrollable Track (~2 complete cards visible + peek of 3rd) */}
-              <div
-                ref={scrollContainerRef}
-                role="region"
-                aria-label="Our Core Values — scroll to explore all 10 values"
-                tabIndex={0}
-                onScroll={handleMobileScroll}
-                onTouchStart={handleManualInteraction}
-                onTouchMove={handleManualInteraction}
-                onWheel={handleManualInteraction}
-                onKeyDown={handleManualInteraction}
-                onFocus={handleManualInteraction}
-                className="custom-mobile-scroll h-[clamp(380px,54vh,470px)] overflow-y-auto overflow-x-hidden overscroll-contain pr-1 flex flex-col gap-2.5 focus:outline-none focus:ring-1 focus:ring-impact-green/40 rounded-xl"
-                style={{
-                  WebkitOverflowScrolling: "touch",
-                }}
-              >
-                {CORE_VALUES_DATA.map((item) => {
-                  const MobileIconComponent = item.icon;
-                  return (
-                    <article
-                      key={`mobile-${item.number}`}
-                      className="flex flex-col w-full h-auto py-3.5 px-4 rounded-xl bg-gradient-to-br from-pure-white via-pure-white to-soft-green/20 border border-impact-green/20 shadow-2xs shrink-0"
-                    >
-                      <div className="flex items-center justify-between gap-3 mb-2">
-                        <span className="w-7 h-7 rounded-full bg-impact-green text-pure-white font-heading font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
-                          {item.number}
-                        </span>
-                        <div className="w-7 h-7 rounded-full bg-soft-green flex items-center justify-center shrink-0 border border-impact-green/20">
-                          <MobileIconComponent
-                            aria-hidden="true"
-                            className="w-3.5 h-3.5 text-impact-green"
-                          />
-                        </div>
+                return (
+                  <article
+                    key={`mobile-${item.number}`}
+                    style={{ transitionDelay: isVisible ? `${staggerDelay}ms` : "0ms" }}
+                    className={`${hideOnSmallMobile} flex-col w-full h-auto py-3.5 px-4 rounded-xl bg-gradient-to-br from-pure-white via-pure-white to-soft-green/20 border border-impact-green/20 shadow-2xs shrink-0 duration-[650ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] ${
+                      reducedMotion || isVisible
+                        ? "opacity-100 translate-y-0 scale-100"
+                        : "opacity-0 translate-y-5 scale-[0.99]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-3 mb-2">
+                      <span className="w-7 h-7 rounded-full bg-impact-green text-pure-white font-heading font-bold text-xs flex items-center justify-center shrink-0 shadow-2xs">
+                        {item.number}
+                      </span>
+                      <div className="w-7 h-7 rounded-full bg-soft-green flex items-center justify-center shrink-0 border border-impact-green/20">
+                        <MobileIconComponent
+                          aria-hidden="true"
+                          className="w-3.5 h-3.5 text-impact-green"
+                        />
                       </div>
+                    </div>
 
-                      <h4 className="font-heading text-base sm:text-lg font-bold text-udbhav-blue-deep tracking-tight mb-1">
-                        {item.title}
-                      </h4>
+                    <h4 className="font-heading text-base sm:text-lg font-bold text-udbhav-blue-deep tracking-tight mb-1">
+                      {item.title}
+                    </h4>
 
-                      <p className="text-xs sm:text-sm font-semibold text-text-primary leading-snug mb-1">
-                        {item.principle}
+                    <p className="text-xs sm:text-sm font-semibold text-text-primary leading-snug mb-1">
+                      {item.principle}
+                    </p>
+
+                    {item.description && (
+                      <p className="text-xs text-text-secondary leading-relaxed">
+                        {item.description}
                       </p>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
 
-                      {item.description && (
-                        <p className="text-xs text-text-secondary leading-relaxed">
-                          {item.description}
-                        </p>
-                      )}
-                    </article>
-                  );
-                })}
-              </div>
-
-              {/* Bottom Edge Fade Overlay */}
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute bottom-9 left-2.5 right-2.5 h-11 bg-gradient-to-t from-pure-white via-pure-white/85 to-transparent z-10 rounded-b-xl"
-              />
-
-              {/* Bottom Compact Scroll Indicator Hint + Status */}
-              <div className="pt-2 px-1 flex items-center justify-between gap-2 border-t border-soft-border/50 bg-pure-white/95 relative z-20">
-                <span className="inline-flex items-center gap-1.5 text-[11.5px] font-medium text-impact-green">
-                  {reducedMotion ? (
-                    <span>Swipe or scroll to explore all core values</span>
-                  ) : isPaused ? (
-                    <>
-                      <Pause className="w-3 h-3 text-amber-600 shrink-0" />
-                      <span className="text-amber-700 font-semibold">Paused</span>
-                      <span className="text-text-secondary">•</span>
-                      <span>Swipe to explore all 10 core values</span>
-                    </>
-                  ) : (
-                    <>
-                      <Play className="w-3 h-3 text-impact-green shrink-0 fill-impact-green animate-pulse" />
-                      <span>Auto-scrolling • Swipe to explore all 10 core values</span>
-                    </>
-                  )}
-                </span>
-                <ChevronDown className="w-3.5 h-3.5 text-impact-green animate-bounce shrink-0" />
-              </div>
+            {/* DESKTOP & TABLET LAYOUT (>= 768px): Two-Column Grid */}
+            <div className="hidden md:grid grid-cols-2 gap-x-5 lg:gap-x-6 gap-y-4 sm:gap-y-5 items-start">
+              {displayedValues.map((item, idx) => (
+                <CoreValueCard
+                  key={item.number}
+                  item={item}
+                  index={idx}
+                  isVisible={isVisible}
+                  reducedMotion={reducedMotion}
+                />
+              ))}
             </div>
           </div>
-
-          {/* ==========================================================
-              DESKTOP & TABLET LAYOUT (>= 768px): Existing Two-Column Grid
-              ========================================================== */}
-          <div className="hidden md:grid grid-cols-2 gap-x-5 lg:gap-x-6 gap-y-4 sm:gap-y-5 items-start">
-            {CORE_VALUES_DATA.map((item, idx) => (
-              <CoreValueCard
-                key={item.number}
-                item={item}
-                index={idx}
-                isVisible={isVisible}
-                reducedMotion={reducedMotion}
-              />
-            ))}
+          
+          <div className="mt-8 sm:mt-10 md:mt-12 flex justify-center">
+            <button
+              onClick={handleToggle}
+              aria-expanded={isExpanded}
+              aria-controls="core-values-list"
+              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-impact-green hover:bg-[#31851c] text-pure-white font-heading font-semibold text-sm transition-all shadow-md shadow-impact-green/20 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-impact-green focus:ring-offset-2"
+            >
+              <span>{isExpanded ? "Show Less" : "View All Core Values"}</span>
+              {isExpanded ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
+            </button>
           </div>
+
         </div>
       </Container>
     </section>

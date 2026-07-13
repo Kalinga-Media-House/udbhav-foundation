@@ -54,13 +54,27 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 shadow-[0_8px_30px_rgb(23,43,107,0.08)] border border-[#172B6B]/10">
         
         <div className="flex justify-center mb-8 pb-8 border-b border-gray-100">
-          <Image
-            src="/udbhav-logo.svg" 
-            alt="UDBHAV Foundation Logo" 
-            width={140} 
-            height={45} 
-            priority
-          />
+          <div className="bg-white/95 backdrop-blur-sm rounded-xl p-2.5 sm:p-3 shadow-sm border border-gray-100 w-fit">
+            <div className="inline-flex items-center gap-2 sm:gap-3 w-[190px] sm:w-[220px] justify-center">
+              <Image
+                src="/brand/udbhav-logo.png"
+                alt="UDBHAV Foundation and USFACT"
+                width={48}
+                height={48}
+                priority
+                className="w-10 h-10 sm:w-12 sm:h-12 object-contain shrink-0"
+              />
+              <span className="h-8 sm:h-10 w-[1px] bg-gray-200 shrink-0" aria-hidden="true" />
+              <Image
+                src="/brand/usfact-logo.png"
+                alt=""
+                width={132}
+                height={40}
+                priority
+                className="h-6 w-auto sm:h-8 object-contain shrink-0 opacity-95"
+              />
+            </div>
+          </div>
         </div>
 
         <div className="text-center mb-8">
