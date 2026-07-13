@@ -12,6 +12,8 @@ import {
   FileText,
 } from "lucide-react";
 import { Container } from "@/components/shared/Container";
+import { LazyImage } from "@/components/shared/LazyImage";
+import { AnimatedCardWrapper } from "@/components/shared/AnimatedCardWrapper";
 import { PROGRAMME_UPDATE_SUMMARIES } from "@/data/news-data";
 
 export function ProgrammeUpdatesSection() {
@@ -166,18 +168,19 @@ export function ProgrammeUpdatesSection() {
         >
           {summaries.map((item) => {
             return (
-              <div
+              <AnimatedCardWrapper
                 key={item.programmeSlug}
-                className="w-[82vw] sm:w-[300px] md:w-[320px] shrink-0 flex flex-col rounded-2xl bg-[#FDFCF8] border border-[#12245F]/10 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group"
+                index={0}
+                className="w-[82vw] sm:w-[300px] md:w-[320px] shrink-0 flex flex-col rounded-2xl bg-[#FDFCF8] border border-[#12245F]/10 overflow-hidden"
               >
                 {/* Cover Image */}
                 <div className="relative h-40 w-full overflow-hidden bg-[#EAF3FF]">
-                  <Image
+                  <LazyImage
                     src={item.coverImageUrl}
                     alt={item.programmeTitle}
                     fill
                     sizes="320px"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="object-cover group-hover:scale-[1.025]"
                   />
 
                   <div className="absolute top-3 left-3 z-10">
@@ -227,7 +230,7 @@ export function ProgrammeUpdatesSection() {
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                 </div>
-              </div>
+              </AnimatedCardWrapper>
             );
           })}
         </div>

@@ -13,6 +13,8 @@ import {
   Info,
 } from "lucide-react";
 import { Container } from "@/components/shared/Container";
+import { LazyImage } from "@/components/shared/LazyImage";
+import { AnimatedCardWrapper } from "@/components/shared/AnimatedCardWrapper";
 import { UPCOMING_EVENTS } from "@/data/news-data";
 import { EventStatus } from "@/types/news";
 
@@ -216,18 +218,19 @@ export function UpcomingEventsSection() {
               const statusStyles = getStatusBadgeStyles(ev.registrationStatus);
 
               return (
-                <div
+                <AnimatedCardWrapper
                   key={ev.id}
-                  className="w-[84vw] sm:w-[320px] md:w-[350px] shrink-0 flex flex-col rounded-2xl bg-pure-white border border-[#12245F]/10 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden group"
+                  index={0}
+                  className="w-[84vw] sm:w-[320px] md:w-[350px] shrink-0 flex flex-col rounded-2xl bg-pure-white border border-[#12245F]/10 overflow-hidden"
                 >
                   {/* Cover Photo + Overlay Date Badge */}
                   <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-[#EAF3FF]">
-                    <Image
+                    <LazyImage
                       src={ev.imageUrl}
                       alt={ev.title}
                       fill
                       sizes="350px"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover group-hover:scale-[1.025]"
                     />
 
                     {/* Date Badge over image */}
@@ -322,7 +325,7 @@ export function UpcomingEventsSection() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </AnimatedCardWrapper>
               );
             })}
           </div>

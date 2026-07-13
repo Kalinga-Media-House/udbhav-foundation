@@ -92,11 +92,14 @@ export function OurMomentsGallerySection() {
   // Refs for time-based animation and interaction state
   const singleSetWidthRef = useRef<number>(0);
   const exactScrollLeftRef = useRef<number>(0);
-  const isPausedRef = useRef<boolean>(false);
+  const isInteractionPausedRef = useRef<boolean>(false);
+  const isHoveredRef = useRef<boolean>(false);
   const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastTimestampRef = useRef<number | null>(null);
   const animationFrameIdRef = useRef<number | null>(null);
   const isDraggingRef = useRef<boolean>(false);
+  
+  // Desktop drag state
   const dragStartXRef = useRef<number>(0);
   const dragStartScrollLeftRef = useRef<number>(0);
 
@@ -106,6 +109,7 @@ export function OurMomentsGallerySection() {
     if (!track) return;
     const children = track.children;
     const originalCount = HOME_GALLERY_PHOTOS.length;
+    // We render 3 sets, so wait until they exist
     if (children.length >= originalCount * 2) {
       const firstChild = children[0] as HTMLElement;
       const nextSetChild = children[originalCount] as HTMLElement;
@@ -138,10 +142,15 @@ export function OurMomentsGallerySection() {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        isPausedRef.current = true;
+        isInteractionPausedRef.current = true;
       } else {
         lastTimestampRef.current = null;
-        isPausedRef.current = false;
+        isInteractionPausedRef.current = false;
+        
+        // Sync ref when returning to tab
+        if (containerRef.current) {
+          exactScrollLeftRef.current = containerRef.current.scrollLeft;
+        }
       }
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -204,7 +213,7 @@ export function OurMomentsGallerySection() {
 
   // Pause autoplay temporarily on manual interaction and auto-resume after 3 seconds
   const pauseAutoplayTemporarily = useCallback(() => {
-    isPausedRef.current = true;
+    isInteractionPausedRef.current = true;
     if (resumeTimeoutRef.current) {
       clearTimeout(resumeTimeoutRef.current);
     }
@@ -214,10 +223,11 @@ export function OurMomentsGallerySection() {
         exactScrollLeftRef.current = container.scrollLeft;
       }
       lastTimestampRef.current = null;
-      isPausedRef.current = false;
+      isInteractionPausedRef.current = false;
     }, 3000);
   }, []);
 
+  // Clean up timeouts on unmount
   useEffect(() => {
     return () => {
       if (resumeTimeoutRef.current) {
@@ -228,7 +238,7 @@ export function OurMomentsGallerySection() {
 
   // Single stable requestAnimationFrame loop using time-based movement (~30px/sec)
   useEffect(() => {
-    const speedPixelsPerSecond = 30;
+    const speedPixelsPerSecond = 30; // pixels per second
 
     const animate = (timestamp: number) => {
       if (lastTimestampRef.current === null) {
@@ -237,7 +247,7 @@ export function OurMomentsGallerySection() {
 
       const deltaSeconds = Math.min(
         (timestamp - lastTimestampRef.current) / 1000,
-        0.1
+        0.1 // Cap max delta to 100ms so it doesn't jump huge amounts if the tab lags
       );
       lastTimestampRef.current = timestamp;
 
@@ -247,12 +257,19 @@ export function OurMomentsGallerySection() {
       if (
         container &&
         setWidth > 0 &&
-        !isPausedRef.current &&
+        !isInteractionPausedRef.current &&
+        !isHoveredRef.current &&
         !isDraggingRef.current &&
         !reducedMotion
       ) {
+        // Sync if the container was moved natively since last frame
+        if (Math.abs(container.scrollLeft - exactScrollLeftRef.current) > 1.5) {
+          exactScrollLeftRef.current = container.scrollLeft;
+        }
+
         exactScrollLeftRef.current += speedPixelsPerSecond * deltaSeconds;
         container.scrollLeft = exactScrollLeftRef.current;
+        
         normalizeInfiniteScroll();
       }
 
@@ -302,7 +319,22 @@ export function OurMomentsGallerySection() {
     }
   };
 
+  const handleMouseEnter = () => {
+    isHoveredRef.current = true;
+    const container = containerRef.current;
+    if (container) {
+      exactScrollLeftRef.current = container.scrollLeft;
+    }
+  };
+  
+  const handleMouseLeaveContainer = () => {
+    isHoveredRef.current = false;
+    handleMouseUpOrLeave();
+  };
+
   const handleTouchStart = () => {
+    isDraggingRef.current = true;
+    setIsDragging(true);
     pauseAutoplayTemporarily();
   };
 
@@ -310,8 +342,13 @@ export function OurMomentsGallerySection() {
     const container = containerRef.current;
     if (container) {
       exactScrollLeftRef.current = container.scrollLeft;
-      normalizeInfiniteScroll();
     }
+    pauseAutoplayTemporarily();
+  };
+
+  const handleTouchEnd = () => {
+    isDraggingRef.current = false;
+    setIsDragging(false);
     pauseAutoplayTemporarily();
   };
 
@@ -319,7 +356,6 @@ export function OurMomentsGallerySection() {
     const container = containerRef.current;
     if (container) {
       exactScrollLeftRef.current = container.scrollLeft;
-      normalizeInfiniteScroll();
     }
     pauseAutoplayTemporarily();
   };
@@ -329,12 +365,10 @@ export function OurMomentsGallerySection() {
     if (!container) return;
 
     if (e.key === "ArrowRight") {
-      e.preventDefault();
       pauseAutoplayTemporarily();
       container.scrollBy({ left: 280, behavior: "smooth" });
       exactScrollLeftRef.current = container.scrollLeft + 280;
     } else if (e.key === "ArrowLeft") {
-      e.preventDefault();
       pauseAutoplayTemporarily();
       container.scrollBy({ left: -280, behavior: "smooth" });
       exactScrollLeftRef.current = container.scrollLeft - 280;
@@ -395,13 +429,7 @@ export function OurMomentsGallerySection() {
         {/* Synchronized Continuous Gallery Carousel Track with Edge Fade Mask */}
         <RevealCard as="div" index={1} className="relative w-full">
           <div
-            className="w-full overflow-hidden"
-            style={{
-              maskImage:
-                "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
-              WebkitMaskImage:
-                "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
-            }}
+            className="w-full overflow-hidden [mask-image:none] md:[mask-image:linear-gradient(to_right,transparent_0%,black_5%,black_95%,transparent_100%)] md:[-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_5%,black_95%,transparent_100%)]"
           >
             {/* Native Scrollable & Draggable Synchronized Track */}
             <div
@@ -409,20 +437,24 @@ export function OurMomentsGallerySection() {
               role="region"
               aria-label="UDBHAV Foundation photo moments carousel"
               tabIndex={0}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeaveContainer}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUpOrLeave}
-              onMouseLeave={handleMouseUpOrLeave}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
               onWheel={handleWheel}
               onKeyDown={handleKeyDown}
-              className={`w-full overflow-x-auto select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-impact-green py-3 px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+              className={`w-full overflow-x-auto overflow-y-hidden select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-impact-green py-3 px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
                 isDragging ? "cursor-grabbing" : "cursor-grab"
               }`}
               style={{
-                touchAction: "pan-y",
+                touchAction: "pan-x",
                 WebkitOverflowScrolling: "touch",
+                overscrollBehaviorX: "contain",
+                scrollBehavior: "auto",
               }}
             >
               <div
@@ -447,7 +479,7 @@ export function OurMomentsGallerySection() {
                         fill
                         sizes="(max-width: 640px) 255px, (max-width: 1024px) 285px, 305px"
                         draggable={false}
-                        className="object-cover object-center group-hover:scale-[1.02] transition-transform duration-300 select-none"
+                        className="object-cover object-center group-hover:scale-[1.02] transition-transform duration-300 select-none pointer-events-none"
                       />
 
                       {/* Subtle Gradient Overlay & Caption */}

@@ -21,6 +21,7 @@ import {
 } from "@/data/gallery-data";
 import { GalleryPhoto } from "@/types/gallery";
 import { GalleryLightboxModal } from "./GalleryLightboxModal";
+import { GalleryCard } from "./GalleryCard";
 
 export function ImpactGallerySection() {
   const [selectedProgrammeSlug, setSelectedProgrammeSlug] =
@@ -29,9 +30,9 @@ export function ImpactGallerySection() {
   const [sortOption, setSortOption] = useState<SortOption>("newest");
   const [visibleCount, setVisibleCount] = useState<number>(16);
 
-  // Lightbox modal state
   const [lightboxOpen, setLightboxOpen] = useState<boolean>(false);
   const [lightboxIndex, setLightboxIndex] = useState<number>(0);
+  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
 
   // Filter and sort gallery photos
   const filteredPhotos = useMemo(() => {
@@ -47,25 +48,46 @@ export function ImpactGallerySection() {
     return filteredPhotos.slice(0, visibleCount);
   }, [filteredPhotos, visibleCount]);
 
+  const applyFiltersWithTransition = useCallback(
+    (updater: () => void) => {
+      if (isTransitioning) return;
+      setIsTransitioning(true);
+      setTimeout(() => {
+        updater();
+        setIsTransitioning(false);
+      }, 300);
+    },
+    [isTransitioning]
+  );
+
   const handleProgrammeChange = useCallback((slug: string) => {
-    setSelectedProgrammeSlug(slug);
-    setVisibleCount(16);
-  }, []);
+    if (slug === selectedProgrammeSlug) return;
+    applyFiltersWithTransition(() => {
+      setSelectedProgrammeSlug(slug);
+      setVisibleCount(16);
+    });
+  }, [selectedProgrammeSlug, applyFiltersWithTransition]);
 
   const handleSearchChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchQuery(e.target.value);
-      setVisibleCount(16);
+      const val = e.target.value;
+      applyFiltersWithTransition(() => {
+        setSearchQuery(val);
+        setVisibleCount(16);
+      });
     },
-    []
+    [applyFiltersWithTransition]
   );
 
   const handleSortChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
-      setSortOption(e.target.value as SortOption);
-      setVisibleCount(16);
+      const val = e.target.value as SortOption;
+      applyFiltersWithTransition(() => {
+        setSortOption(val);
+        setVisibleCount(16);
+      });
     },
-    []
+    [applyFiltersWithTransition]
   );
 
   const handleLoadMore = useCallback(() => {
@@ -155,8 +177,23 @@ export function ImpactGallerySection() {
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[#5E6B63]" />
             <input
               type="text"
-              value={searchQuery}
-              onChange={handleSearchChange}
+              defaultValue={searchQuery}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  applyFiltersWithTransition(() => {
+                    setSearchQuery(e.currentTarget.value);
+                    setVisibleCount(16);
+                  });
+                }
+              }}
+              onBlur={(e) => {
+                if (e.target.value !== searchQuery) {
+                  applyFiltersWithTransition(() => {
+                    setSearchQuery(e.target.value);
+                    setVisibleCount(16);
+                  });
+                }
+              }}
               placeholder="Search photos, events, programmes or locations…"
               aria-label="Search photos, events, programmes or locations"
               className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#FDFCF8] border border-[#12245F]/15 text-sm font-medium text-[#17231D] placeholder:text-[#5E6B63]/70 focus:outline-none focus:border-[#439B25] transition-colors"
@@ -206,8 +243,10 @@ export function ImpactGallerySection() {
             <button
               type="button"
               onClick={() => {
-                setSelectedProgrammeSlug("all");
-                setSearchQuery("");
+                applyFiltersWithTransition(() => {
+                  setSelectedProgrammeSlug("all");
+                  setSearchQuery("");
+                });
               }}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-heading text-sm font-semibold text-white bg-[#439B25] hover:bg-[#38841F] transition-all shadow-sm cursor-pointer"
             >
@@ -216,87 +255,21 @@ export function ImpactGallerySection() {
             </button>
           </div>
         ) : (
-          <>
+          <div 
+            className={`transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+              isTransitioning ? "opacity-0 scale-[0.98]" : "opacity-100 scale-100"
+            }`}
+          >
             {/* Masonry Columns */}
             <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-4 sm:gap-6">
-              {displayedPhotos.map((photo) => {
+              {displayedPhotos.map((photo, index) => {
                 return (
-                  <div
-                    key={photo.id}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`View photo details: ${photo.title}`}
-                    onClick={() => handlePhotoClick(photo.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        handlePhotoClick(photo.id);
-                      }
-                    }}
-                    className={`break-inside-avoid mb-4 sm:mb-6 rounded-2xl overflow-hidden relative group border border-[#12245F]/10 bg-pure-white shadow-sm transition-all duration-300 hover:shadow-xl cursor-pointer ${getAspectClass(
-                      photo.aspectRatio
-                    )}`}
-                  >
-                    {/* Responsive Next.js Image */}
-                    <Image
-                      src={photo.imageUrl}
-                      alt={photo.altText}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
-                      className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.04]"
-                    />
-
-                    {/* Mobile Compact Always-Visible Badge */}
-                    <div className="absolute top-3 left-3 z-10 lg:hidden">
-                      <span
-                        className="inline-block px-2.5 py-1 rounded-full text-[10px] font-heading font-bold uppercase tracking-wider shadow-sm"
-                        style={{ background: "#439B25", color: "#FFFFFF" }}
-                      >
-                        {photo.programme.title}
-                      </span>
-                    </div>
-
-                    {/* Rich Information Overlay (Bottom-up dark gradient) */}
-                    <div className="absolute inset-0 z-20 flex flex-col justify-end p-4 sm:p-5 bg-gradient-to-t from-[#12245F]/95 via-[#12245F]/65 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-                      {/* Programme Badge */}
-                      <div className="mb-2">
-                        <span
-                          className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-heading font-bold uppercase tracking-wider"
-                          style={{ background: "#439B25", color: "#FFFFFF" }}
-                        >
-                          <FolderOpen className="w-3 h-3" />
-                          {photo.programme.title}
-                        </span>
-                      </div>
-
-                      {/* Photo Title */}
-                      <h3 className="font-heading text-sm sm:text-base font-bold text-white leading-snug mb-2">
-                        {photo.title}
-                      </h3>
-
-                      {/* Location & Date */}
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/90">
-                        <span className="inline-flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5 text-[#439B25]" />
-                          {photo.event.location}
-                        </span>
-                        <span className="inline-flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5 text-[#439B25]" />
-                          {photo.event.eventDate}
-                        </span>
-                        {photo.event.startTime && (
-                          <span className="inline-flex items-center gap-1">
-                            <Clock className="w-3.5 h-3.5 text-[#439B25]" />
-                            {photo.event.startTime}
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="mt-2 pt-2 border-t border-white/15 text-[11px] text-white/75 font-medium truncate">
-                        From: {photo.event.title}
-                      </div>
-                    </div>
-                  </div>
+                  <GalleryCard 
+                    key={`${selectedProgrammeSlug}-${searchQuery}-${sortOption}-${photo.id}`}
+                    photo={photo} 
+                    index={index} 
+                    onClick={handlePhotoClick} 
+                  />
                 );
               })}
             </div>
@@ -319,7 +292,7 @@ export function ImpactGallerySection() {
                 </button>
               )}
             </div>
-          </>
+          </div>
         )}
       </Container>
 

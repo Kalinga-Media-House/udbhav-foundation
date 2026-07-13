@@ -1,7 +1,95 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
+
+function ProgrammeImageSlideshow({
+  images,
+  title,
+  initialDelay = 0,
+  priority = false,
+  className = "",
+}: {
+  images: { src: string; alt: string }[];
+  title: string;
+  initialDelay?: number;
+  priority?: boolean;
+  className?: string;
+}) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setReducedMotion(mediaQuery.matches);
+    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
+
+  useEffect(() => {
+    if (reducedMotion || images.length <= 1) return;
+
+    let interval: NodeJS.Timeout;
+
+    // Start with the requested initial stagger delay
+    const timeout = setTimeout(() => {
+      // Once the delay passes, we trigger the first slide transition
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+      
+      // And start the continuous 4.5s loop
+      interval = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % images.length);
+      }, 4500);
+    }, initialDelay);
+
+    return () => {
+      clearTimeout(timeout);
+      if (interval) clearInterval(interval);
+    };
+  }, [reducedMotion, images.length, initialDelay]);
+
+  return (
+    <div
+      className={`relative h-48 sm:h-56 rounded-2xl overflow-hidden shadow-xl border-2 border-white group transition-transform duration-300 ${className}`}
+    >
+      {images.map((img, idx) => {
+        const isVisible = idx === currentIndex;
+        return (
+          <Image
+            key={img.src}
+            src={img.src}
+            alt={img.alt}
+            fill
+            sizes="(max-width: 1024px) 50vw, 260px"
+            className="object-cover group-hover:scale-105"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              zIndex: isVisible ? 1 : 0,
+              transition: reducedMotion
+                ? "none"
+                : "opacity 900ms ease-in-out, transform 500ms ease",
+            }}
+            priority={priority && idx === 0}
+            aria-hidden={!isVisible}
+          />
+        );
+      })}
+      
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 pointer-events-none"
+        style={{ zIndex: 2 }}
+      />
+      <span
+        className="absolute bottom-3 left-3 right-3 text-white text-xs font-semibold leading-tight drop-shadow pointer-events-none"
+        style={{ zIndex: 3 }}
+      >
+        {title}
+      </span>
+    </div>
+  );
+}
 
 export function IndexHeroSection() {
   const scrollToSection = (id: string) => {
@@ -61,66 +149,54 @@ export function IndexHeroSection() {
           <div className="lg:col-span-5 relative mt-6 lg:mt-0">
             <div className="grid grid-cols-2 gap-4 sm:gap-6 relative">
               {/* Top-Left Image Frame */}
-              <div className="relative h-48 sm:h-56 rounded-2xl overflow-hidden shadow-xl border-2 border-white group transform hover:-translate-y-1 transition-transform duration-300">
-                <Image
-                  src="/hero/hero-02.png"
-                  alt="UDBHAV Siksha Samman felicitation ceremony"
-                  fill
-                  sizes="(max-width: 1024px) 50vw, 260px"
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
-                <span className="absolute bottom-3 left-3 right-3 text-white text-xs font-semibold leading-tight drop-shadow">
-                  UDBHAV Siksha Samman
-                </span>
-              </div>
+              <ProgrammeImageSlideshow
+                title="UDBHAV Siksha Samman"
+                initialDelay={0}
+                priority={true}
+                className="hover:-translate-y-1"
+                images={[
+                  { src: "/hero/hero-02.png", alt: "UDBHAV Siksha Samman felicitation ceremony" },
+                  { src: "/hero/hero-04.png", alt: "Students receiving UDBHAV Siksha Samman awards" },
+                  { src: "/hero/hero-06.png", alt: "Educational excellence award ceremony" }
+                ]}
+              />
 
               {/* Top-Right Image Frame (staggered lower) */}
-              <div className="relative h-48 sm:h-56 rounded-2xl overflow-hidden shadow-xl border-2 border-white group transform translate-y-4 hover:translate-y-3 transition-transform duration-300">
-                <Image
-                  src="/hero/hero-01.png"
-                  alt="UDBHAV Foundation Plantation Drive sapling initiative"
-                  fill
-                  sizes="(max-width: 1024px) 50vw, 260px"
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
-                <span className="absolute bottom-3 left-3 right-3 text-white text-xs font-semibold leading-tight drop-shadow">
-                  Plantation Drive
-                </span>
-              </div>
+              <ProgrammeImageSlideshow
+                title="Plantation Drive"
+                initialDelay={1000}
+                priority={true}
+                className="translate-y-4 hover:translate-y-3"
+                images={[
+                  { src: "/hero/hero-01.png", alt: "UDBHAV Foundation Plantation Drive sapling initiative" },
+                  { src: "/hero/hero-03.png", alt: "Greening urban public spaces" },
+                  { src: "/hero/hero-05.png", alt: "Nurturing fruit orchards for rural schools" }
+                ]}
+              />
 
               {/* Bottom-Left Image Frame */}
-              <div className="relative h-48 sm:h-56 rounded-2xl overflow-hidden shadow-xl border-2 border-white group transform -translate-y-2 hover:-translate-y-3 transition-transform duration-300">
-                <Image
-                  src="/hero/hero-08.png"
-                  alt="Citizens participating in UDBHAV Climate Action Run"
-                  fill
-                  sizes="(max-width: 1024px) 50vw, 260px"
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
-                <span className="absolute bottom-3 left-3 right-3 text-white text-xs font-semibold leading-tight drop-shadow">
-                  Climate Action Run
-                </span>
-              </div>
+              <ProgrammeImageSlideshow
+                title="Climate Action Run"
+                initialDelay={2000}
+                className="-translate-y-2 hover:-translate-y-3"
+                images={[
+                  { src: "/hero/hero-08.png", alt: "Citizens participating in UDBHAV Climate Action Run" },
+                  { src: "/hero/hero-07.png", alt: "Striding forward for climate justice" },
+                  { src: "/hero/hero-03.png", alt: "Youth running for climate consciousness" }
+                ]}
+              />
 
               {/* Bottom-Right Image Frame */}
-              <div className="relative h-48 sm:h-56 rounded-2xl overflow-hidden shadow-xl border-2 border-white group transform translate-y-2 hover:translate-y-1 transition-transform duration-300">
-                <Image
-                  src="/hero/hero-09.png"
-                  alt="Medical specialists at UDBHAV Health Check-up Camp"
-                  fill
-                  sizes="(max-width: 1024px) 50vw, 260px"
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
-                <span className="absolute bottom-3 left-3 right-3 text-white text-xs font-semibold leading-tight drop-shadow">
-                  Health Check-up Camps
-                </span>
-              </div>
+              <ProgrammeImageSlideshow
+                title="Health Check-up Camps"
+                initialDelay={3000}
+                className="translate-y-2 hover:translate-y-1"
+                images={[
+                  { src: "/hero/hero-09.png", alt: "Medical specialists at UDBHAV Health Check-up Camp" },
+                  { src: "/hero/hero-08.png", alt: "Healthcare at the doorstep for rural communities" },
+                  { src: "/hero/hero-01.png", alt: "Specialist pediatric screening camp" }
+                ]}
+              />
             </div>
           </div>
         </div>

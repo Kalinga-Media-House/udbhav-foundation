@@ -14,6 +14,8 @@ import {
   Award,
 } from "lucide-react";
 import { Container } from "@/components/shared/Container";
+import { LazyImage } from "@/components/shared/LazyImage";
+import { AnimatedCardWrapper } from "@/components/shared/AnimatedCardWrapper";
 import { PODCAST_EPISODES } from "@/data/news-data";
 
 function isValidYouTubeUrl(url?: string): boolean {
@@ -334,20 +336,21 @@ export function UDBHAVPodcastSection() {
               const hasValidEpYouTube = isValidYouTubeUrl(ep.youtubeUrl);
 
               return (
-                <div
+                <AnimatedCardWrapper
                   key={ep.id}
-                  className="w-[82vw] sm:w-[290px] md:w-[310px] shrink-0 flex flex-col rounded-2xl bg-white/10 border border-white/15 hover:border-white/30 transition-all duration-300 overflow-hidden group shadow-md hover:shadow-xl"
+                  index={0}
+                  className="w-[82vw] sm:w-[290px] md:w-[310px] shrink-0 flex flex-col rounded-2xl bg-white/10 border border-white/15 overflow-hidden"
                 >
                   <Link
                     href={`/news-and-stories/podcast/${ep.slug}`}
                     className="relative h-44 w-full overflow-hidden bg-black/30 block"
                   >
-                    <Image
+                    <LazyImage
                       src={ep.thumbnailUrl}
                       alt={`${ep.title} — UDBHAV Podcast cover`}
                       fill
                       sizes="310px"
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="object-cover group-hover:scale-[1.025]"
                     />
 
                     <div className="absolute top-3 left-3 z-10">
@@ -404,7 +407,7 @@ export function UDBHAVPodcastSection() {
                       )}
                     </div>
                   </div>
-                </div>
+                </AnimatedCardWrapper>
               );
             })}
           </div>

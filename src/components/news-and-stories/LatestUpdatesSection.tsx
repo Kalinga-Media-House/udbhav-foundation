@@ -3,16 +3,10 @@
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Search,
-  SlidersHorizontal,
-  MapPin,
-  Calendar,
-  ArrowRight,
-  BookOpen,
-  FolderOpen,
-} from "lucide-react";
+import { ArrowRight, BookOpen, Calendar, FolderOpen, MapPin, Search, SlidersHorizontal } from "lucide-react";
 import { Container } from "@/components/shared/Container";
+import { LazyImage } from "@/components/shared/LazyImage";
+import { AnimatedCardWrapper } from "@/components/shared/AnimatedCardWrapper";
 import { NEWS_POSTS } from "@/data/news-data";
 import { NewsCategory } from "@/types/news";
 
@@ -27,25 +21,28 @@ const CATEGORIES: ("All" | NewsCategory)[] = [
 ];
 
 export function LatestUpdatesSection() {
-  const [selectedCategory, setSelectedCategory] = useState<"All" | NewsCategory>(
-    "All"
-  );
+  const [selectedCategory, setSelectedCategory] = useState<"All" | NewsCategory>("All");
+  const [activeCategory, setActiveCategory] = useState<"All" | NewsCategory>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [sortOption, setSortOption] = useState<
-    "latest" | "oldest" | "featured" | "viewed"
-  >("latest");
+  const [activeSearch, setActiveSearch] = useState<string>("");
+  const [sortOption, setSortOption] = useState<"latest" | "oldest" | "featured" | "viewed">("latest");
+  const [activeSort, setActiveSort] = useState<"latest" | "oldest" | "featured" | "viewed">("latest");
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isPageLoaded, setIsPageLoaded] = useState(false);
+
+  React.useEffect(() => {
+    setIsPageLoaded(true);
+  }, []);
 
   const filteredPosts = useMemo(() => {
     let list = [...NEWS_POSTS];
 
-    // Category filter
-    if (selectedCategory !== "All") {
-      list = list.filter((p) => p.category === selectedCategory);
+    if (activeCategory !== "All") {
+      list = list.filter((p) => p.category === activeCategory);
     }
 
-    // Search filter
-    if (searchQuery.trim() !== "") {
-      const q = searchQuery.toLowerCase().trim();
+    if (activeSearch.trim() !== "") {
+      const q = activeSearch.toLowerCase().trim();
       list = list.filter(
         (p) =>
           p.title.toLowerCase().includes(q) ||
@@ -55,24 +52,38 @@ export function LatestUpdatesSection() {
       );
     }
 
-    // Sort
     list.sort((a, b) => {
-      if (sortOption === "featured") {
+      if (activeSort === "featured") {
         return (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0);
-      } else if (sortOption === "oldest") {
-        return (
-          new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime()
-        );
+      } else if (activeSort === "oldest") {
+        return new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime();
       } else {
-        // latest
-        return (
-          new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
-        );
+        return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
       }
     });
 
     return list;
-  }, [selectedCategory, searchQuery, sortOption]);
+  }, [activeCategory, activeSearch, activeSort]);
+
+  const handleFilterChange = (
+    newCategory: "All" | NewsCategory,
+    newSearch: string,
+    newSort: "latest" | "oldest" | "featured" | "viewed"
+  ) => {
+    if (isTransitioning) return;
+    
+    setSelectedCategory(newCategory);
+    setSearchQuery(newSearch);
+    setSortOption(newSort);
+    setIsTransitioning(true);
+    
+    setTimeout(() => {
+      setActiveCategory(newCategory);
+      setActiveSearch(newSearch);
+      setActiveSort(newSort);
+      setIsTransitioning(false);
+    }, 300);
+  };
 
   return (
     <section
@@ -82,7 +93,11 @@ export function LatestUpdatesSection() {
     >
       <Container>
         {/* Section Header */}
-        <div className="max-w-3xl mb-8 sm:mb-10">
+        <div 
+          className={`max-w-3xl mb-8 sm:mb-10 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            isPageLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+          }`}
+        >
           <span
             className="eyebrow-label font-heading text-xs sm:text-sm font-bold tracking-widest uppercase inline-block px-3 py-1 rounded-full bg-[#EEF8E9] border border-[#439B25]/25 mb-3"
             style={{ color: "#439B25" }}
@@ -106,7 +121,11 @@ export function LatestUpdatesSection() {
         </div>
 
         {/* Category Filters */}
-        <div className="mb-6">
+        <div 
+          className={`mb-6 transition-all duration-500 delay-100 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            isPageLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+          }`}
+        >
           <div
             role="tablist"
             aria-label="Filter news and updates by category"
@@ -124,7 +143,7 @@ export function LatestUpdatesSection() {
                   role="tab"
                   aria-selected={isActive}
                   type="button"
-                  onClick={() => setSelectedCategory(cat)}
+                  onClick={() => handleFilterChange(cat, searchQuery, sortOption)}
                   className={`inline-flex items-center whitespace-nowrap px-4 py-2 sm:px-5 sm:py-2.5 rounded-full font-heading text-xs sm:text-sm font-semibold transition-all duration-200 shrink-0 cursor-pointer ${
                     isActive
                       ? "text-white shadow-md scale-[1.02]"
@@ -142,7 +161,11 @@ export function LatestUpdatesSection() {
         </div>
 
         {/* Search and Sort Toolbar */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-2xl bg-pure-white border border-[#12245F]/10 shadow-sm mb-8 sm:mb-10">
+        <div 
+          className={`flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-4 rounded-2xl bg-pure-white border border-[#12245F]/10 shadow-sm mb-8 sm:mb-10 transition-all duration-500 delay-200 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            isPageLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
+          }`}
+        >
           {/* Search Input */}
           <div className="relative flex-1 max-w-xl">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[#5E6B63]" />
@@ -150,6 +173,12 @@ export function LatestUpdatesSection() {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleFilterChange(selectedCategory, searchQuery, sortOption);
+                }
+              }}
+              onBlur={() => handleFilterChange(selectedCategory, searchQuery, sortOption)}
               placeholder="Search news, programmes, stories or locations…"
               aria-label="Search news, programmes, stories or locations"
               className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#FDFCF8] border border-[#12245F]/15 text-sm font-medium text-[#17231D] placeholder:text-[#5E6B63]/70 focus:outline-none focus:border-[#439B25] transition-colors"
@@ -165,7 +194,9 @@ export function LatestUpdatesSection() {
             <select
               value={sortOption}
               onChange={(e) =>
-                setSortOption(
+                handleFilterChange(
+                  selectedCategory,
+                  searchQuery,
                   e.target.value as "latest" | "oldest" | "featured" | "viewed"
                 )
               }
@@ -180,105 +211,110 @@ export function LatestUpdatesSection() {
         </div>
 
         {/* News Grid */}
-        {filteredPosts.length === 0 ? (
-          <div className="w-full py-16 rounded-3xl bg-pure-white border border-[#12245F]/10 text-center px-4">
-            <BookOpen className="w-12 h-12 text-[#439B25] mx-auto mb-3" />
-            <h3 className="font-heading text-xl font-bold text-[#12245F]">
-              No updates match your selected filter.
-            </h3>
-            <p className="text-sm text-[#5E6B63] mt-1">
-              Try clearing your search query or switching to &ldquo;All&rdquo;
-              categories.
-            </p>
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedCategory("All");
-                setSearchQuery("");
-              }}
-              className="mt-4 px-6 py-2.5 rounded-xl font-heading text-sm font-semibold text-white bg-[#439B25] hover:bg-[#38841F] transition-colors cursor-pointer"
-            >
-              Show All Updates
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredPosts.map((post) => {
-              return (
-                <Link
-                  key={post.id}
-                  href={`/news-and-stories/${post.slug}`}
-                  className="flex flex-col rounded-2xl bg-pure-white border border-[#12245F]/10 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:border-[#439B25]/60 active:scale-[0.99] overflow-hidden group"
-                >
-                  {/* Image Header */}
-                  <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-[#EAF3FF]">
-                    <Image
-                      src={post.coverImageUrl}
-                      alt={post.title}
-                      fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+        <div 
+          className={`transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+            isTransitioning ? "opacity-0 scale-[0.98]" : "opacity-100 scale-100"
+          }`}
+        >
+          {filteredPosts.length === 0 ? (
+            <div className="w-full py-16 rounded-3xl bg-pure-white border border-[#12245F]/10 text-center px-4">
+              <BookOpen className="w-12 h-12 text-[#439B25] mx-auto mb-3" />
+              <h3 className="font-heading text-xl font-bold text-[#12245F]">
+                No updates match your selected filter.
+              </h3>
+              <p className="text-sm text-[#5E6B63] mt-1">
+                Try clearing your search query or switching to &ldquo;All&rdquo;
+                categories.
+              </p>
+              <button
+                type="button"
+                onClick={() => handleFilterChange("All", "", "latest")}
+                className="mt-4 px-6 py-2.5 rounded-xl font-heading text-sm font-semibold text-white bg-[#439B25] hover:bg-[#38841F] transition-colors cursor-pointer"
+              >
+                Show All Updates
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredPosts.map((post, index) => {
+                return (
+                  <AnimatedCardWrapper
+                    key={`${activeCategory}-${activeSort}-${post.id}`}
+                    index={index}
+                    href={`/news-and-stories/${post.slug}`}
+                    className="flex flex-col rounded-2xl bg-pure-white border border-[#12245F]/10 overflow-hidden"
+                  >
+                    {/* Image Header */}
+                    <div className="relative h-44 sm:h-48 w-full overflow-hidden bg-[#EAF3FF]">
+                      <LazyImage
+                        src={post.coverImageUrl}
+                        alt={post.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        className="object-cover group-hover:scale-[1.025]"
+                        priority={index < 4}
+                      />
 
-                    {/* Category Badge */}
-                    <div className="absolute top-3 left-3 z-10">
-                      <span className="px-3 py-1 rounded-full text-[11px] font-heading font-bold uppercase tracking-wider bg-[#12245F]/90 text-white backdrop-blur-sm shadow-sm">
-                        {post.category}
-                      </span>
-                    </div>
-
-                    {/* Programme Badge */}
-                    {post.programmeTitle && (
-                      <div className="absolute bottom-3 left-3 z-10">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-heading font-bold uppercase tracking-wider bg-[#439B25] text-white shadow-sm">
-                          <FolderOpen className="w-3 h-3" />
-                          {post.programmeTitle}
+                      {/* Category Badge */}
+                      <div className="absolute top-3 left-3 z-10">
+                        <span className="px-3 py-1 rounded-full text-[11px] font-heading font-bold uppercase tracking-wider bg-[#12245F]/90 text-white backdrop-blur-sm shadow-sm">
+                          {post.category}
                         </span>
                       </div>
-                    )}
-                  </div>
 
-                  {/* Card Content */}
-                  <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
-                    <div>
-                      {/* Meta Date & Reading Time */}
-                      <div className="flex items-center justify-between text-xs font-medium text-[#5E6B63] mb-2.5">
-                        <span className="inline-flex items-center gap-1.5">
-                          <Calendar className="w-3.5 h-3.5 text-[#439B25]" />
-                          {post.activityDate}
+                      {/* Programme Badge */}
+                      {post.programmeTitle && (
+                        <div className="absolute bottom-3 left-3 z-10">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[10px] font-heading font-bold uppercase tracking-wider bg-[#439B25] text-white shadow-sm">
+                            <FolderOpen className="w-3 h-3" />
+                            {post.programmeTitle}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Card Content */}
+                    <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between">
+                      <div>
+                        {/* Meta Date & Reading Time */}
+                        <div className="flex items-center justify-between text-xs font-medium text-[#5E6B63] mb-2.5">
+                          <span className="inline-flex items-center gap-1.5">
+                            <Calendar className="w-3.5 h-3.5 text-[#439B25]" />
+                            {post.activityDate}
+                          </span>
+                          <span>{post.readingTime}</span>
+                        </div>
+
+                        {/* Title */}
+                        <h3 className="font-heading text-base sm:text-lg font-bold text-[#12245F] leading-snug mb-2 group-hover:text-[#439B25] transition-colors">
+                          {post.title}
+                        </h3>
+
+                        {/* Short Description (3 lines clamp) */}
+                        <p className="text-xs sm:text-sm text-[#5E6B63] leading-relaxed line-clamp-3 mb-4">
+                          {post.excerpt}
+                        </p>
+                      </div>
+
+                      {/* Footer Info */}
+                      <div className="pt-3 border-t border-soft-border/40 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1.5 text-[#17231D] font-medium truncate max-w-[65%]">
+                          <MapPin className="w-3.5 h-3.5 text-[#439B25] shrink-0" />
+                          <span className="truncate">{post.location}</span>
+                        </div>
+
+                        <span className="font-heading font-bold text-[#439B25] group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+                          Read Full Story
+                          <ArrowRight className="w-3.5 h-3.5" />
                         </span>
-                        <span>{post.readingTime}</span>
                       </div>
-
-                      {/* Title */}
-                      <h3 className="font-heading text-base sm:text-lg font-bold text-[#12245F] leading-snug mb-2 group-hover:text-[#439B25] transition-colors">
-                        {post.title}
-                      </h3>
-
-                      {/* Short Description (3 lines clamp) */}
-                      <p className="text-xs sm:text-sm text-[#5E6B63] leading-relaxed line-clamp-3 mb-4">
-                        {post.excerpt}
-                      </p>
                     </div>
-
-                    {/* Footer Info */}
-                    <div className="pt-3 border-t border-soft-border/40 flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-1.5 text-[#17231D] font-medium truncate max-w-[65%]">
-                        <MapPin className="w-3.5 h-3.5 text-[#439B25] shrink-0" />
-                        <span className="truncate">{post.location}</span>
-                      </div>
-
-                      <span className="font-heading font-bold text-[#439B25] group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
-                        Read Full Story
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        )}
+                  </AnimatedCardWrapper>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </Container>
     </section>
   );

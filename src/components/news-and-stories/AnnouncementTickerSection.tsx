@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Bell, ChevronRight } from "lucide-react";
 import { ANNOUNCEMENTS } from "@/data/news-data";
 
 export function AnnouncementTickerSection() {
+  const [isPaused, setIsPaused] = useState(false);
   const notices = ANNOUNCEMENTS;
 
   if (notices.length === 0) return null;
@@ -106,14 +107,14 @@ export function AnnouncementTickerSection() {
 
         @media (max-width: 640px) {
           .ticker-track {
-            animation-duration: 24s;
+            animation-duration: 35s;
           }
         }
 
-        @media (hover: hover) and (pointer: fine) {
-          .ticker-viewport:hover .ticker-track {
-            animation-play-state: paused;
-          }
+        .ticker-viewport:hover .ticker-track,
+        .ticker-viewport:active .ticker-track,
+        .ticker-viewport.is-paused .ticker-track {
+          animation-play-state: paused !important;
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -137,7 +138,13 @@ export function AnnouncementTickerSection() {
         </div>
 
         {/* Seamless Infinite Ticker Viewport */}
-        <div className="ticker-viewport h-full flex items-center">
+        <div 
+          className={`ticker-viewport h-full flex items-center ${isPaused ? 'is-paused' : ''}`}
+          onPointerDown={() => setIsPaused(true)}
+          onPointerUp={() => setIsPaused(false)}
+          onPointerCancel={() => setIsPaused(false)}
+          onPointerLeave={() => setIsPaused(false)}
+        >
           <div className="ticker-track">
             {/* First notice group */}
             <div className="ticker-group">

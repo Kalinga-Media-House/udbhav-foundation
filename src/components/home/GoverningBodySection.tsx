@@ -70,23 +70,28 @@ export function GoverningBodySection() {
   // Refs for time-based animation and interaction state
   const singleSetWidthRef = useRef<number>(0);
   const exactScrollLeftRef = useRef<number>(0);
-  const isPausedRef = useRef<boolean>(false);
+  const isInteractionPausedRef = useRef<boolean>(false);
+  const isHoveredRef = useRef<boolean>(false);
   const resumeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastTimestampRef = useRef<number | null>(null);
   const animationFrameIdRef = useRef<number | null>(null);
   const isDraggingRef = useRef<boolean>(false);
+  
+  // Drag threshold
   const dragStartXRef = useRef<number>(0);
   const dragStartScrollLeftRef = useRef<number>(0);
+  const totalDragDistanceRef = useRef<number>(0);
 
   // Measure the width of exactly 1 original member set (11 cards)
   const measureSetWidth = useCallback(() => {
     const track = trackRef.current;
     if (!track) return;
     const children = track.children;
-    if (children.length >= 22) {
+    const originalCount = GOVERNING_BODY_MEMBERS.length;
+    if (children.length >= originalCount * 2) {
       const firstChild = children[0] as HTMLElement;
-      const eleventhChild = children[11] as HTMLElement;
-      const setWidth = eleventhChild.offsetLeft - firstChild.offsetLeft;
+      const nextSetChild = children[originalCount] as HTMLElement;
+      const setWidth = nextSetChild.offsetLeft - firstChild.offsetLeft;
       if (setWidth > 0) {
         singleSetWidthRef.current = setWidth;
         // Initialize scrollLeft at the start of Set 2 so both left and right infinite scroll work
@@ -115,10 +120,15 @@ export function GoverningBodySection() {
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        isPausedRef.current = true;
+        isInteractionPausedRef.current = true;
       } else {
         lastTimestampRef.current = null; // Reset timestamp so delta time does not jump
-        isPausedRef.current = false;
+        isInteractionPausedRef.current = false;
+        
+        // Sync ref when returning to tab
+        if (containerRef.current) {
+          exactScrollLeftRef.current = containerRef.current.scrollLeft;
+        }
       }
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
@@ -181,7 +191,7 @@ export function GoverningBodySection() {
 
   // Pause autoplay temporarily on manual interaction and auto-resume after 3 seconds
   const pauseAutoplayTemporarily = useCallback(() => {
-    isPausedRef.current = true;
+    isInteractionPausedRef.current = true;
     if (resumeTimeoutRef.current) {
       clearTimeout(resumeTimeoutRef.current);
     }
@@ -192,7 +202,7 @@ export function GoverningBodySection() {
         exactScrollLeftRef.current = container.scrollLeft;
       }
       lastTimestampRef.current = null;
-      isPausedRef.current = false;
+      isInteractionPausedRef.current = false;
     }, 3000);
   }, []);
 
@@ -225,10 +235,16 @@ export function GoverningBodySection() {
       if (
         container &&
         setWidth > 0 &&
-        !isPausedRef.current &&
+        !isInteractionPausedRef.current &&
+        !isHoveredRef.current &&
         !isDraggingRef.current &&
         !reducedMotion
       ) {
+        // Sync if the container was moved natively since last frame
+        if (Math.abs(container.scrollLeft - exactScrollLeftRef.current) > 1.5) {
+          exactScrollLeftRef.current = container.scrollLeft;
+        }
+
         exactScrollLeftRef.current += speedPixelsPerSecond * deltaSeconds;
         container.scrollLeft = exactScrollLeftRef.current;
         normalizeInfiniteScroll();
@@ -254,6 +270,7 @@ export function GoverningBodySection() {
 
     isDraggingRef.current = true;
     setIsDragging(true);
+    totalDragDistanceRef.current = 0;
     pauseAutoplayTemporarily();
     dragStartXRef.current = e.pageX - container.offsetLeft;
     dragStartScrollLeftRef.current = container.scrollLeft;
@@ -267,6 +284,7 @@ export function GoverningBodySection() {
 
     const x = e.pageX - container.offsetLeft;
     const walk = (x - dragStartXRef.current) * 1.25;
+    totalDragDistanceRef.current = Math.abs(walk);
     container.scrollLeft = dragStartScrollLeftRef.current - walk;
     exactScrollLeftRef.current = container.scrollLeft;
     normalizeInfiniteScroll();
@@ -280,7 +298,22 @@ export function GoverningBodySection() {
     }
   };
 
+  const handleMouseEnter = () => {
+    isHoveredRef.current = true;
+    const container = containerRef.current;
+    if (container) {
+      exactScrollLeftRef.current = container.scrollLeft;
+    }
+  };
+  
+  const handleMouseLeaveContainer = () => {
+    isHoveredRef.current = false;
+    handleMouseUpOrLeave();
+  };
+
   const handleTouchStart = () => {
+    isDraggingRef.current = true;
+    setIsDragging(true);
     pauseAutoplayTemporarily();
   };
 
@@ -288,8 +321,13 @@ export function GoverningBodySection() {
     const container = containerRef.current;
     if (container) {
       exactScrollLeftRef.current = container.scrollLeft;
-      normalizeInfiniteScroll();
     }
+    pauseAutoplayTemporarily();
+  };
+  
+  const handleTouchEnd = () => {
+    isDraggingRef.current = false;
+    setIsDragging(false);
     pauseAutoplayTemporarily();
   };
 
@@ -297,7 +335,6 @@ export function GoverningBodySection() {
     const container = containerRef.current;
     if (container) {
       exactScrollLeftRef.current = container.scrollLeft;
-      normalizeInfiniteScroll();
     }
     pauseAutoplayTemporarily();
   };
@@ -307,15 +344,20 @@ export function GoverningBodySection() {
     if (!container) return;
 
     if (e.key === "ArrowRight") {
-      e.preventDefault();
       pauseAutoplayTemporarily();
       container.scrollBy({ left: 240, behavior: "smooth" });
       exactScrollLeftRef.current = container.scrollLeft + 240;
     } else if (e.key === "ArrowLeft") {
-      e.preventDefault();
       pauseAutoplayTemporarily();
       container.scrollBy({ left: -240, behavior: "smooth" });
       exactScrollLeftRef.current = container.scrollLeft - 240;
+    }
+  };
+
+  const preventClickWhenDragging = (e: React.MouseEvent) => {
+    if (totalDragDistanceRef.current > 10) {
+      e.preventDefault();
+      e.stopPropagation();
     }
   };
 
@@ -367,13 +409,7 @@ export function GoverningBodySection() {
         >
           {/* Edge Fade Mask Wrapper */}
           <div
-            className="w-full overflow-hidden"
-            style={{
-              maskImage:
-                "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
-              WebkitMaskImage:
-                "linear-gradient(to right, transparent 0%, black 5%, black 95%, transparent 100%)",
-            }}
+            className="w-full overflow-hidden [mask-image:none] md:[mask-image:linear-gradient(to_right,transparent_0%,black_5%,black_95%,transparent_100%)] md:[-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_5%,black_95%,transparent_100%)]"
           >
             {/* Native Scrollable & Draggable Synchronized Track */}
             <div
@@ -381,25 +417,30 @@ export function GoverningBodySection() {
               role="region"
               aria-label="Governing Body member carousel"
               tabIndex={0}
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeaveContainer}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUpOrLeave}
-              onMouseLeave={handleMouseUpOrLeave}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
               onWheel={handleWheel}
               onKeyDown={handleKeyDown}
-              className={`w-full overflow-x-auto select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-impact-green py-3 px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+              className={`w-full overflow-x-auto overflow-y-hidden select-none focus:outline-none focus-visible:ring-2 focus-visible:ring-impact-green py-3 px-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
                 isDragging ? "cursor-grabbing" : "cursor-grab"
               }`}
               style={{
-                touchAction: "pan-y",
+                touchAction: "pan-x",
                 WebkitOverflowScrolling: "touch",
+                overscrollBehaviorX: "contain",
+                scrollBehavior: "auto",
               }}
             >
               <div
                 ref={trackRef}
                 className="flex gap-4 sm:gap-5 w-max items-stretch"
+                onClickCapture={preventClickWhenDragging}
               >
                 {tripleMembers.map((member, idx) => {
                   const isDuplicate = idx < 11 || idx >= 22;

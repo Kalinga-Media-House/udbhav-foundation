@@ -12,6 +12,8 @@ import {
   UserCheck,
 } from "lucide-react";
 import { Container } from "@/components/shared/Container";
+import { LazyImage } from "@/components/shared/LazyImage";
+import { AnimatedCardWrapper } from "@/components/shared/AnimatedCardWrapper";
 import { IMPACT_STORIES } from "@/data/news-data";
 
 export function ImpactStoriesSection() {
@@ -57,14 +59,18 @@ export function ImpactStoriesSection() {
         {/* Stories Grid: 1 Large Featured Story + 3 Supporting Stories */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-stretch">
           {/* Large Featured Story Card (Columns 1-7) */}
-          <div className="lg:col-span-7 flex flex-col rounded-3xl bg-pure-white border border-[#12245F]/15 shadow-md overflow-hidden group">
+          <AnimatedCardWrapper
+            index={0}
+            className="lg:col-span-7 flex flex-col rounded-3xl bg-pure-white border border-[#12245F]/15 overflow-hidden"
+          >
             <div className="relative h-64 sm:h-80 md:h-96 w-full overflow-hidden bg-[#EAF3FF]">
-              <Image
+              <LazyImage
                 src={featuredStory.imageUrl}
                 alt={featuredStory.title}
                 fill
                 sizes="(max-width: 1024px) 100vw, 60vw"
-                className="object-cover group-hover:scale-105 transition-transform duration-700"
+                className="object-cover group-hover:scale-[1.025]"
+                priority={true}
               />
 
               {/* Category Badge */}
@@ -124,25 +130,26 @@ export function ImpactStoriesSection() {
                 </Link>
               </div>
             </div>
-          </div>
+          </AnimatedCardWrapper>
 
           {/* Supporting Stories Column (Columns 8-12) */}
           <div className="lg:col-span-5 flex flex-col justify-between gap-6">
-            {supportingStories.map((story) => {
+            {supportingStories.map((story, index) => {
               return (
-                <Link
+                <AnimatedCardWrapper
                   key={story.id}
+                  index={index + 1}
                   href={`/news-and-stories/${story.slug}`}
-                  className="flex flex-col sm:flex-row items-stretch gap-4 p-4 rounded-2xl bg-pure-white border border-[#12245F]/10 shadow-sm hover:shadow-md hover:border-[#439B25]/60 transition-all group"
+                  className="flex flex-col sm:flex-row items-stretch gap-4 p-4 rounded-2xl bg-pure-white border border-[#12245F]/10 overflow-hidden"
                 >
                   {/* Thumbnail */}
                   <div className="relative w-full sm:w-36 h-40 sm:h-auto rounded-xl overflow-hidden shrink-0 bg-[#EAF3FF]">
-                    <Image
+                    <LazyImage
                       src={story.imageUrl}
                       alt={story.title}
                       fill
                       sizes="150px"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="object-cover group-hover:scale-[1.025]"
                     />
                   </div>
 
@@ -169,7 +176,7 @@ export function ImpactStoriesSection() {
                       </span>
                     </div>
                   </div>
-                </Link>
+                </AnimatedCardWrapper>
               );
             })}
           </div>
