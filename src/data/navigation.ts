@@ -12,7 +12,7 @@ export const MAIN_NAV_ITEMS: NavItem[] = [
   { label: "Home", href: "/", group: "main" },
   { label: "About", href: "/about", group: "main" },
   { label: "Core Team", href: "/core-team", group: "main" },
-  { label: "Index", href: "/index", group: "main" },
+  { label: "Index", href: "/programmes", group: "main" },
   { label: "Volunteers", href: "/volunteers", group: "main" },
   { label: "News & Stories", href: "/news-and-stories", group: "main" },
   { label: "Gallery", href: "/gallery", group: "main" },
@@ -27,7 +27,7 @@ export const FOOTER_QUICK_LINKS: NavItem[] = [
   { label: "Home", href: "/", group: "footer-quick" },
   { label: "About", href: "/about", group: "footer-quick" },
   { label: "Core Team", href: "/core-team", group: "footer-quick" },
-  { label: "Index", href: "/index", group: "footer-quick" },
+  { label: "Index", href: "/programmes", group: "footer-quick" },
   { label: "Volunteers", href: "/volunteers", group: "footer-quick" },
 ];
 

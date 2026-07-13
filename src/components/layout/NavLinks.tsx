@@ -11,7 +11,7 @@ export function NavLinks() {
   return (
     <ul className="flex items-center gap-1 xl:gap-2">
       {MAIN_NAV_ITEMS.map((item) => {
-        // Exact match for "/", prefix match for nested routes like "/index/programme-name"
+        // Exact match for "/", prefix match for nested routes like "/programmes/programme-name"
         const isActive =
           item.href === "/"
             ? pathname === "/"

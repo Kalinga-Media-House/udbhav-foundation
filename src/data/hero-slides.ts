@@ -29,7 +29,7 @@ export const HERO_SLIDES: HeroSlide[] = [
       "Empowering communities through education, inclusion, environmental responsibility and collective action.",
     primaryAction: {
       label: "Explore Our Work",
-      href: "/index",
+      href: "/programmes",
     },
     secondaryAction: {
       label: "Join as a Volunteer",
@@ -48,7 +48,7 @@ export const HERO_SLIDES: HeroSlide[] = [
       "Supporting learning, awareness and equal opportunities so every individual can grow with confidence and dignity.",
     primaryAction: {
       label: "Explore Our Programmes",
-      href: "/index",
+      href: "/programmes",
     },
     secondaryAction: {
       label: "About UDBHAV",
@@ -86,7 +86,7 @@ export const HERO_SLIDES: HeroSlide[] = [
       "Bringing people together to protect the environment and create a more responsible and sustainable future.",
     primaryAction: {
       label: "View Our Initiatives",
-      href: "/index",
+      href: "/programmes",
     },
     secondaryAction: {
       label: "Support Our Mission",

@@ -430,7 +430,7 @@ export const ADHYAYA_FLAGSHIP_DATA: AdhyayaFlagshipData = {
     "/hero/hero-07.png",
   ],
   ctaText: "Discover ADHYAYA",
-  ctaHref: "/index/adhyaya-ramp-of-inclusion",
+  ctaHref: "/programmes/adhyaya-ramp-of-inclusion",
 };
 
 export const INDEX_PROGRAMME_EVENTS: ProgrammeEventItem[] = [

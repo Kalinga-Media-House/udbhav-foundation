@@ -50,10 +50,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       images: [coverImage],
-      url: `https://udbhavfoundation.org/index/${slug}`,
+      url: `https://udbhavfoundation.org/programmes/${slug}`,
     },
     alternates: {
-      canonical: `https://udbhavfoundation.org/index/${slug}`,
+      canonical: `https://udbhavfoundation.org/programmes/${slug}`,
     },
   };
 }

@@ -66,7 +66,7 @@ export function ProgrammeDetailView({
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="mb-6">
             <Link
-              href="/index"
+              href="/programmes"
               className="inline-flex items-center gap-2 text-sm font-heading font-semibold text-white/80 hover:text-[#439B25] transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
@@ -494,7 +494,7 @@ export function ProgrammeDetailView({
                     </div>
 
                     <Link
-                      href={`/index/${rp.slug}`}
+                      href={`/programmes/${rp.slug}`}
                       className="inline-flex items-center justify-between w-full px-4 py-2 rounded-xl font-heading text-xs font-semibold text-[#172B6B] bg-[#EAF3FF] hover:bg-[#172B6B] hover:text-white transition-all"
                     >
                       <span>Explore Programme</span>

@@ -148,7 +148,7 @@ export function ProgrammeDirectorySection() {
 
                     {/* CTA Link */}
                     <Link
-                      href={`/index/${prog.slug}`}
+                      href={`/programmes/${prog.slug}`}
                       className="inline-flex items-center justify-between w-full px-4 py-2.5 rounded-xl font-heading text-xs sm:text-sm font-semibold text-[#172B6B] bg-[#EAF3FF] hover:bg-[#172B6B] hover:text-white transition-all group/btn"
                     >
                       <span>Explore Programme</span>
