@@ -147,7 +147,7 @@ export function Header() {
         {/* Top Slim Information Bar */}
         <div
           ref={upperSectionRef}
-          className="w-full origin-top md:!opacity-100 md:!pointer-events-auto"
+          className="hidden md:block w-full origin-top md:!opacity-100 md:!pointer-events-auto"
           style={{
             opacity: isHeaderHidden ? 0 : 1,
             transition: "opacity 280ms ease",

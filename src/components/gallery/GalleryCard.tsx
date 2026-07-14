@@ -31,7 +31,7 @@ export function GalleryCard({ photo, index, onClick }: GalleryCardProps) {
   // Card Reveal Observer
   useEffect(() => {
     if (reducedMotion) {
-      setIsVisible(true);
+      queueMicrotask(() => setIsVisible(true));
       return;
     }
     const observer = new IntersectionObserver(
@@ -51,7 +51,7 @@ export function GalleryCard({ photo, index, onClick }: GalleryCardProps) {
   // Image Lazy Load Observer (Root margin 200px)
   useEffect(() => {
     if (reducedMotion) {
-      setIsImageInView(true);
+      queueMicrotask(() => setIsImageInView(true));
       return;
     }
     const observer = new IntersectionObserver(

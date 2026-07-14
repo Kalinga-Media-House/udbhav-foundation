@@ -426,11 +426,9 @@ export function OurMomentsGallerySection() {
           </div>
         </RevealCard>
 
-        {/* Synchronized Continuous Gallery Carousel Track with Edge Fade Mask */}
+        {/* Synchronized Continuous Gallery Carousel Track */}
         <RevealCard as="div" index={1} className="relative w-full">
-          <div
-            className="w-full overflow-hidden [mask-image:none] md:[mask-image:linear-gradient(to_right,transparent_0%,black_5%,black_95%,transparent_100%)] md:[-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_5%,black_95%,transparent_100%)]"
-          >
+          <div className="w-full overflow-hidden">
             {/* Native Scrollable & Draggable Synchronized Track */}
             <div
               ref={containerRef}
