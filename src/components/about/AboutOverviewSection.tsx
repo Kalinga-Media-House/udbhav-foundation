@@ -1,28 +1,10 @@
 'use client';
 
+import Image from 'next/image';
 import React from 'react';
 
 import { Container } from '@/components/shared/Container';
 import { RevealCard } from '@/components/shared/RevealCard';
-
-const STAT_ITEMS = [
-  {
-    value: '2020',
-    label: 'Established',
-  },
-  {
-    value: '250 to 300',
-    label: 'Active Members',
-  },
-  {
-    value: '2',
-    label: 'Operational Branches',
-  },
-  {
-    value: '11',
-    label: 'Major Initiatives',
-  },
-];
 
 export function AboutOverviewSection() {
   return (
@@ -71,29 +53,52 @@ export function AboutOverviewSection() {
             </RevealCard>
           </div>
 
-          {/* Right Column: Compact Impact Stat Cards */}
-          <div className="lg:col-span-5">
-            <div className="grid grid-cols-2 gap-4 sm:gap-5">
-              {STAT_ITEMS.map((stat, idx) => (
-                <RevealCard
-                  key={stat.label}
-                  as="div"
-                  index={idx + 2}
-                  className="from-pure-white to-soft-green/30 border-impact-green/20 group relative overflow-hidden rounded-xl border bg-gradient-to-br via-[#FDFCF8] p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md sm:rounded-2xl sm:p-6"
-                >
-                  <div
-                    aria-hidden="true"
-                    className="bg-impact-green pointer-events-none absolute left-0 top-0 h-full w-1.5 rounded-l-xl opacity-80"
+          {/* Right Column: Founder Message Card */}
+          <div className="mt-10 flex items-center lg:col-span-5 lg:mt-0">
+            <RevealCard
+              as="div"
+              index={2}
+              className="bg-pure-white border-soft-border/30 border-t-impact-green group relative flex flex-col rounded-[24px] border-t-[4px] p-6 shadow-sm transition-all duration-300 hover:shadow-lg sm:p-8 lg:p-10"
+            >
+              <div className="mb-6 flex items-center gap-4 sm:gap-5">
+                <div className="border-impact-green/20 relative h-16 w-16 shrink-0 overflow-hidden rounded-full border shadow-sm sm:h-20 sm:w-20">
+                  <Image
+                    src="/images/team/jaysuraj-pattanayak.jpg"
+                    alt="Jaysuraj Pattanayak, Founder of UDBHAV Foundation"
+                    fill
+                    className="object-cover object-center"
+                    sizes="(max-width: 640px) 64px, 80px"
                   />
-                  <div className="text-udbhav-blue-deep mb-1 font-heading text-2xl font-bold tracking-tight sm:text-3xl md:text-[34px]">
-                    {stat.value}
-                  </div>
-                  <div className="text-text-secondary group-hover:text-impact-green text-xs font-medium transition-colors sm:text-sm">
-                    {stat.label}
-                  </div>
-                </RevealCard>
-              ))}
-            </div>
+                </div>
+                <div>
+                  <h3 className="text-udbhav-blue-deep font-heading text-lg font-bold leading-tight sm:text-xl">
+                    Jaysuraj Pattanayak
+                  </h3>
+                  <p className="text-impact-green mt-1 text-sm font-medium">
+                    Founder, UDBHAV Foundation
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <p className="text-udbhav-blue-deep text-base font-semibold leading-relaxed sm:text-lg">
+                  &quot;Real change begins when ordinary people decide to care for one
+                  another.&quot;
+                </p>
+
+                <p className="text-text-primary text-sm leading-relaxed sm:text-[15px]">
+                  I started Udbhav Foundation with a very simple belief. When we take care of our
+                  young ones, give them the tools to learn, and protect the world we all share, we
+                  build stronger communities.
+                </p>
+
+                <p className="text-text-primary text-sm leading-relaxed sm:text-[15px]">
+                  Every project we take on is our way of helping families become stronger, kinder,
+                  and more responsible together. We are building a family of people who care about
+                  each other.
+                </p>
+              </div>
+            </RevealCard>
           </div>
         </div>
       </Container>
