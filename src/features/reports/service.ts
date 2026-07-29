@@ -10,7 +10,17 @@ async function checkPermissions() {
   } = await supabase.auth.getUser();
   if (error || !user) throw new Error('Unauthorized');
 
-  const role = user.user_metadata?.role || user.app_metadata?.role;
+  let role = user.user_metadata?.role || user.app_metadata?.role;
+  if (!role) {
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('is_active, roles(slug)')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .limit(1)
+      .single<{ is_active: boolean; roles: { slug: string } }>();
+    role = roleData?.roles?.slug;
+  }
   const permissions = user.user_metadata?.permissions || user.app_metadata?.permissions || [];
 
   const isSuperAdmin = role === 'super-admin';

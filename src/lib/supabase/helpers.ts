@@ -5,7 +5,6 @@ import { securityLogger } from '../logger/security-logger';
 
 import { createServerSupabaseClient } from './server';
 
-
 /**
  * Safely retrieves the current authenticated user without throwing.
  * Returns null if not authenticated.
@@ -13,8 +12,11 @@ import { createServerSupabaseClient } from './server';
 export const getCurrentUser = async () => {
   try {
     const supabase = await createServerSupabaseClient();
-    const { data: { user }, error } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser();
+
     if (error || !user) return null;
     return user;
   } catch {
@@ -41,16 +43,25 @@ export const requireUser = async () => {
  */
 export const requireRole = async (requiredRole: RoleType) => {
   const user = await requireUser();
-  
-  // NOTE: Role fetching logic will depend on how the database triggers copy roles to user_metadata.
-  // Assuming role is stored in user_metadata for this helper.
-  const userRole = user.user_metadata?.role;
+  const supabase = await createServerSupabaseClient();
+
+  let userRole = user.app_metadata?.role || user.user_metadata?.role;
+  if (!userRole) {
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('is_active, roles(slug)')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .limit(1)
+      .single<{ is_active: boolean; roles: { slug: string } }>();
+    userRole = roleData?.roles?.slug;
+  }
 
   if (userRole !== requiredRole && userRole !== ROLES.SUPER_ADMIN) {
-    securityLogger.logViolation('RLS_VIOLATION', 'unknown', { 
-      userId: user.id, 
-      requiredRole, 
-      actualRole: userRole 
+    securityLogger.logViolation('RLS_VIOLATION', 'unknown', {
+      userId: user.id,
+      requiredRole,
+      actualRole: userRole,
     });
     throw new AuthorizationError(`Role ${requiredRole} required.`);
   }
