@@ -4,7 +4,7 @@ import type { ServiceResult } from '@/contracts/services';
 import type { Pagination, ID } from '@/types';
 
 import { galleryRepository } from './repository';
-import type { AlbumRow, GalleryItemRow, GalleryItemWithMedia } from './repository';
+import type { AlbumRow, GalleryItemRow, GalleryItemWithMedia, AlbumCreate } from './repository';
 import { createAlbumSchema, updateAlbumSchema, addGalleryItemSchema } from './validators';
 import type { CreateAlbumDTO, UpdateAlbumDTO, AddGalleryItemDTO } from './validators';
 
