@@ -12,10 +12,10 @@
 - [x] **Phase 2.10: Donations** - Payment gateway integration and donor management (`src/features/donations`).
 - [x] **Phase 2.11: Admin Finalization** - Role-Based Access Control, Audit Logs, and unified CMS polished.
 - [x] **Phase 3.0: RC1 Production Baseline** - Authentication Sign-Off, Security Audit, & Playwright Runtime Verification (`v1.0.0-rc1`).
+- [x] **Phase 3.1: Analytics & Data Insights** - Cross-module KPI aggregation, visual data insights, and admin telemetry charts.
 
-## Active Development Phase (Post-RC1)
-- [ ] **Phase 3.1: Analytics & Data Insights** - Cross-module KPI aggregation, visual data insights, and admin telemetry charts.
-
-## Future Opportunities (Phase 3.2+)
+## Active Development Phase
 - [ ] **Phase 3.2: Automation** - Automated emails, donor receipts, and notifications.
+
+## Future Opportunities
 - [ ] **Phase 3.3: Reports** - Impact and financial report generation.
