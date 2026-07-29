@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Generic CSV Export Utility
  */
 
@@ -16,8 +16,8 @@ export function exportToCSV<T extends Record<string, any>>(
   let keys: (keyof T)[] = [];
 
   if (columns && columns.length > 0) {
-    headers = columns.map(c => c.label);
-    keys = columns.map(c => c.key);
+    headers = columns.map((c) => c.label);
+    keys = columns.map((c) => c.key);
   } else {
     keys = Object.keys(data[0]) as (keyof T)[];
     headers = keys as string[];
@@ -25,16 +25,17 @@ export function exportToCSV<T extends Record<string, any>>(
 
   // Create CSV string
   const csvRows = [];
-  
+
   // Header row
-  csvRows.push(headers.map(header => escapeCSVValue(String(header))).join(','));
-  
+  csvRows.push(headers.map((header) => escapeCSVValue(String(header))).join(','));
+
   // Data rows
   for (const row of data) {
-    const values = keys.map(key => {
+    const values = keys.map((key) => {
       const val = row[key];
       if (val === null || val === undefined) return '';
-      if (val instanceof Date) return val.toISOString();
+      if (val && typeof val === 'object' && Object.prototype.toString.call(val) === '[object Date]')
+        return (val as any).toISOString();
       if (typeof val === 'object') return JSON.stringify(val);
       return String(val);
     });
@@ -43,19 +44,21 @@ export function exportToCSV<T extends Record<string, any>>(
 
   const csvString = csvRows.join('\n');
   const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-  
+
   // Trigger download
-  const link = document.createElement('url');
   const url = URL.createObjectURL(blob);
-  
+
   const a = document.createElement('a');
   a.setAttribute('href', url);
-  a.setAttribute('download', `${filename.replace(/\.csv$/, '')}_${new Date().toISOString().split('T')[0]}.csv`);
+  a.setAttribute(
+    'download',
+    `${filename.replace(/\.csv$/, '')}_${new Date().toISOString().split('T')[0]}.csv`
+  );
   a.style.visibility = 'hidden';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-  
+
   URL.revokeObjectURL(url);
 }
 

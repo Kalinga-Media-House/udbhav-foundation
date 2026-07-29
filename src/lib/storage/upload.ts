@@ -1,6 +1,6 @@
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 
-import { serverLogger } from "../logger/server-logger";
+import { serverLogger } from '../logger/server-logger';
 
 import { getStorageClient } from './client';
 import { getStorageConfig } from './config';
@@ -22,10 +22,19 @@ export const uploadFile = async (
       throw new UploadError(`File size exceeds maximum allowed size of ${options.maxSizeMB}MB.`);
     }
 
+    // 1.5. Validate MIME Type
+    if (options.allowedMimeTypes && options.allowedMimeTypes.length > 0) {
+      if (!options.contentType || !options.allowedMimeTypes.includes(options.contentType)) {
+        throw new UploadError(
+          `Invalid file type: ${options.contentType}. Allowed types: ${options.allowedMimeTypes.join(', ')}`
+        );
+      }
+    }
+
     // 2. Prepare Config
     const config = getStorageConfig();
     const bucket = options.bucket || config.defaultBucket;
-    
+
     // 3. Generate Path
     const safeFilename = generateUniqueFilename(originalFilename);
     const key = options.folder ? sanitizePath(options.folder, safeFilename) : safeFilename;

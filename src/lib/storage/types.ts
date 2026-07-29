@@ -14,6 +14,7 @@ export interface UploadOptions {
   folder?: string;
   contentType: string;
   maxSizeMB?: number;
+  allowedMimeTypes?: string[];
 }
 
 export interface DownloadOptions {

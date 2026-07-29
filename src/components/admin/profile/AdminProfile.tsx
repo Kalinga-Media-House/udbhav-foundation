@@ -1,8 +1,14 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
-import { getMyProfile, updateMyProfile, updatePassword, uploadAvatar } from '@/features/profiles/actions';
+
+import {
+  getMyProfile,
+  updateMyProfile,
+  updatePassword,
+  uploadAvatar,
+} from '@/features/profiles/actions';
 import type { ProfileRow } from '@/features/profiles/service';
 
 export function AdminProfile() {
@@ -10,93 +16,102 @@ export function AdminProfile() {
   const [profile, setProfile] = useState<ProfileRow | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+
+  const [passwords, setPasswords] = useState({ current: '', new: '', confirm: '' });
+
   useEffect(() => {
-    getMyProfile().then(res => {
-      setProfile(res);
-      setLoading(false);
-    }).catch(err => {
-      toast.error('Failed to load profile');
-      setLoading(false);
-    });
+    getMyProfile()
+      .then((res) => {
+        if (res.success && res.data) {
+          setProfile(res.data);
+          setFirstName(res.data.first_name || '');
+          setLastName(res.data.last_name || '');
+        }
+        setLoading(false);
+      })
+      .catch(() => {
+        toast.error('Failed to load profile');
+        setLoading(false);
+      });
   }, []);
 
-  const handleProfileUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!profile) return;
+  const handleSaveProfile = async () => {
     setSaving(true);
-    const formData = new FormData(e.currentTarget);
-    const updates = {
-      first_name: formData.get('first_name') as string,
-      last_name: formData.get('last_name') as string,
-    };
     try {
-      const updated = await updateMyProfile(updates);
-      setProfile(updated);
-      toast.success('Profile updated successfully');
+      const res = await updateMyProfile({ first_name: firstName, last_name: lastName });
+      if (res.success && res.data) {
+        setProfile(res.data);
+        toast.success('Profile updated successfully');
+      } else {
+        toast.error(res.error || 'Failed to update profile');
+      }
     } catch (err: any) {
-      toast.error(err.message || 'Failed to update profile');
+      toast.error(err.message || 'Error updating profile');
     } finally {
       setSaving(false);
     }
   };
 
-  const handlePasswordUpdate = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const handleSavePassword = async () => {
     if (passwords.new !== passwords.confirm) {
-      toast.error('Passwords do not match');
-      return;
-    }
-    if (passwords.new.length < 6) {
-      toast.error('Password must be at least 6 characters');
-      return;
+      return toast.error('Passwords do not match');
     }
     setSaving(true);
     try {
-      await updatePassword(passwords.new);
-      toast.success('Password updated successfully');
-      setPasswords({ current: '', new: '', confirm: '' });
+      const res = await updatePassword(passwords.new);
+      if (res.success !== false) {
+        toast.success('Password updated successfully');
+        setPasswords({ current: '', new: '', confirm: '' });
+      } else {
+        toast.error(res.error || 'Failed to update password');
+      }
     } catch (err: any) {
-      toast.error(err.message || 'Failed to update password');
+      toast.error(err.message || 'Error updating password');
     } finally {
       setSaving(false);
     }
   };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0y];
+    const file = e.target.files?.[0];
     if (!file) return;
     const formData = new FormData();
     formData.append('avatar', file);
     try {
       toast.loading('Uploading avatar...', { id: 'avatar-upload' });
-      const url = await uploadAvatar(formData);
-      setProfile(prev => prev ? { ...prev, avatar_url: url } : prev);
-      toast.success('Avatar updated', { id: 'avatar-upload' });
+      const res = await uploadAvatar(formData);
+      if (res.success !== false && typeof res.data === 'string') {
+        setProfile((prev) => (prev ? { ...prev, avatar_url: res.data as string } : prev));
+        toast.success('Avatar updated', { id: 'avatar-upload' });
+      } else {
+        throw new Error(res.error || 'Failed to upload');
+      }
     } catch (err: any) {
       toast.error(err.message || 'Failed to upload avatar', { id: 'avatar-upload' });
     }
   };
 
-  if (loading) return <div className="p-8 animate-pulse">Loading profile...</div>;
+  if (loading) return <div className="animate-pulse p-8">Loading profile...</div>;
   if (!profile) return <div className="p-8">Failed to load profile.</div>;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="bg-white darkzbg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Admin Settings</h2>
-        
-        <div className="flex space-x-4 border-b border-gray-200 dark:border-gray-700 mb-6">
-          <button 
-            className={`pb-3 px-1 font-medium text-sm transition-colors ${!activeTab === 'profile' ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}`}
+    <div className="mx-auto max-w-4xl space-y-6">
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <h2 className="mb-6 text-2xl font-bold text-gray-900 dark:text-white">Admin Settings</h2>
+
+        <div className="mb-6 flex space-x-4 border-b border-gray-200 dark:border-gray-700">
+          <button
+            className={`px-1 pb-3 text-sm font-medium transition-colors ${activeTab === 'profile' ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}`}
             onClick={() => setActiveTab('profile')}
           >
             Profile & Avatar
           </button>
-          <button 
-            className={`pb-3 px-1 font-medium text-sm transition-colors ${activeTab === 'security' ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}`}
+          <button
+            className={`px-1 pb-3 text-sm font-medium transition-colors ${activeTab === 'security' ? 'border-b-2 border-blue-500 text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'}`}
             onClick={() => setActiveTab('security')}
           >
             Security & Password
@@ -104,28 +119,145 @@ export function AdminProfile() {
         </div>
 
         {activeTab === 'profile' && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
+          <div className="space-y-6 duration-300 animate-in fade-in slide-in-from-bottom-2">
             <div className="flex items-center space-x-6">
               <div className="relative">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 p-1">
-                  <div className="w-full h-full rounded-full bg-white dark:bg-gray-800 flex items-center justify-center overflow-hidden">
-                    <img src={profile.avatar_url || `https://api.dicebear.com/7.x/avataars/svg?seed=${profile.email}`} alt="Avatar" className="w-full h-full object-cover" />
+                <div className="h-24 w-24 rounded-full bg-gradient-to-tr from-blue-500 to-purple-500 p-1">
+                  <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-white dark:bg-gray-800">
+                    <img
+                      src={
+                        profile.avatar_url ||
+                        `https://api.dicebear.com/7.x/avataars/svg?seed=${profile.email}`
+                      }
+                      alt="Avatar"
+                      className="h-full w-full object-cover"
+                    />
                   </div>
                 </div>
-                <button 
+                <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="absolute bottom-0 right-0 bg-white dark:bg-gray-700 text-gray-700 dark:text-white p-2 rounded-full shadow-lg border border-gray-100 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                  className="absolute bottom-0 right-0 rounded-full border border-gray-100 bg-white p-2 text-gray-700 shadow-lg transition-colors hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
                 </button>
-                <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleAvatarUpload} />
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                />
               </div>
               <div>
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white">Admin Avatar</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">JPG�Q�܈�ˈX^�^�Hو�P�����]ۈ�ې�X��^�
-HO��[R[�]�Y���\��[�˘�X��
-_B��\�Ә[YOH�MKL���Yܘ^KLL\�Θ��Yܘ^KM�ݙ\����Yܘ^KL�\�Κݙ\����Yܘ^KM�^Yܘ^KM�\�Ν^]�]H��[�Y[�^\�H�۝[YY][H�[��][ۋX��ܜȂ���\�Y�]؝]ۏ���]����]�����ܛH۔�X�Z]^�[�T�ٚ[U\]_H�\�Ә[YOH�ܚYܚYX���LHY�ܚYX���L��\M�M���]��\�Ә[YOH��X�K^KL����X�[�\�Ә[YOH�^\�H�۝[YY][H^Yܘ^KM�\�Ν^Yܘ^KL����\���[YO�X�[��[�]�[YOH��\��ۘ[YH�\OH�^�Y�][�[YO^��ٚ[K��\��ۘ[YH	��H�\�Ә[YOH��Y�[MKL���[�Y[��ܙ\��ܙ\�Yܘ^KL�\�Θ�ܙ\�Yܘ^KM���]�]H\�Θ��Yܘ^KM�^Yܘ^KNL\�Ν^]�]H���\Μ�[��L����\Μ�[��X�YKML���\Θ�ܙ\�]�[��\�[��][�K[�ۙH�[��][ۋX[�ς��]���]��\�Ә[YOH��X�K^KL����X�[�\�Ә[YOH�^\�H�۝[YY][H^Yܘ^KM�\�Ν^Yܘ^KL���\��[YO�X�[��[�]�[YOH�\�ۘ[YH�\OH�^�Y�][�[YO^��ٚ[K�\�ۘ[YH	��H�\�Ә[YOH��Y�[MKL���[�Y[��ܙ\��ܙ\�Yܘ^KL�\�Θ�ܙ\�Yܘ^KM���]�]H\�Θ��Yܘ^KM�^Yܘ^KNL\�Ν^]�]H���\Μ�[��L����\Μ�[��X�YKML���\Θ�ܙ\�]�[��\�[��][�K[�ۙH�[��][ۋX[�ς��]���]��\�Ә[YOH��X�K^KL����X�[�\�Ә[YOH�^\�H�۝[YY][H^Yܘ^KM�\�Ν^Yܘ^KL���[XZ[Y�\���X�[��[�]\OH�[XZ[��[YO^��ٚ[K�[XZ[H\�X�Y�\�Ә[YOH��Y�[MKL���[�Y[��ܙ\��ܙ\�Yܘ^KL�\�Θ�ܙ\�Yܘ^KM���Yܘ^KLL\�Θ��Yܘ^KM�^Yܘ^KML\�Ν^Yܘ^KM�][�K[�ۙH�\��܋[��X[��Y�ς��]���]��\�Ә[YOH�Y���\�[�L�L�����]ۈ\�X�Y^��]�[��H\OH��X�Z]��\�Ә[YOH�M�KL��H��X�YKM�ݙ\����X�YKM�^]�]H��[�Y[�^\�H�۝[YY][H�[��][ۋX��ܜ��Y��\�H\�X�Y��X�]KML�����]�[���	��]�[�ˋ����	��]�H�ٚ[I�B�؝]ۏ���]���ٛܛO���]���
-_B���X�]�UX�OOH	��X�\�]I�	��
-�]��\�Ә[YOH��X�K^KM�[�[X]KZ[��YKZ[��YKZ[�Y���KX���KL�\�][ۋL�����ܛH۔�X�Z]^�[�T\���ܙ\]_H�\�Ә[YOH��X�K^KMX^]�[Y���]��\�Ә[YOH��X�K^KL����X�[�\�Ә[YOH�^\�H�۝[YY][H^Yܘ^KM�\�Ν^Yܘ^KL����]�\���ܙ�X�[��[�]�\OH�\���ܙ���[YO^�\���ܙ˛�]�B�ې�[��O^�JHO��]\���ܙ�ˋ��\���ܙ��]ΈK�\��]��[Y_J_B�X�Z�\�H��(��(��(��(��(��(��(��(��(�����������������������9����ܵ�ձ����Ё��ȁɽչ���������ɑ�ȁ��ɑ�ȵ�Ʌ�������ɬ鉽ɑ�ȵ�Ʌ��������ݡ�є���ɬ鉜��Ʌ�����ѕ�е�Ʌ�������ɬ�ѕ�еݡ�є�������ɥ���ȁ������ɥ�����Ք����������鉽ɑ�ȵ�Ʌ����ɕ�Ё��ѱ����������Ʌ�ͥѥ��������(������������������ɕ�եɕ�(������������������(��������������𽑥��(���������������؁�����9�����������Ȉ�(����������������񱅉��������9����ѕ�еʹ����е����մ�ѕ�е�Ʌ�������ɬ�ѕ�е�Ʌ����������ɴ�9�܁A���ݽɐ𽱅����(�������������������Ѐ(���������������������������ݽɐ��(������������������م�Ք������ݽɑ̹�����ɵ�(��������������������������졔�����͕�A���ݽɑ̡츸�����ݽɑ̰������ɴ联�хɝ�йم�Օ���(������������������������������������������������\�Ә[YOH��Y�[MKL���[�Y[��ܙ\��ܙ\�Yܘ^KL�\�Θ�ܙ\�Yܘ^KM���]�]H\�Θ��Yܘ^KM�^Yܘ^KNL\�Ν^]�]H���\Μ�[��L����\Μ�[��X�YKML���\Θ�ܙ\�]�[��\�[��][�K[�ۙH�[��][ۋX[���\]Z\�Y�ς��]����]ۈ\�X�Y^��]�[��H\OH��X�Z]��\�Ә[YOH�]MM�KL��H��X�YKM�ݙ\����X�YKM�^]�]H��[�Y[�^\�H�۝[YY][H�[��][ۋX��ܜ��Y��\�H�Y��X�YKML��\�X�Y��X�]KML�����]�[���	�\][�ˋ����	�\]H\���ܙ	�B�؝]ۏ��ٛܛO���]���
-_B���]����]���
-NB
+                <p className="mb-3 text-sm text-gray-500 dark:text-gray-400">
+                  JPG, GIF or PNG. Max size of 800K
+                </p>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
+                >
+                  Upload New
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6 pt-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-gray-900 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-gray-900 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Email Address (Read-only)
+                </label>
+                <input
+                  type="email"
+                  value={profile.email || ''}
+                  readOnly
+                  className="w-full cursor-not-allowed rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-gray-500 outline-none transition-all dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400"
+                />
+              </div>
+            </div>
+            <button
+              onClick={handleSaveProfile}
+              disabled={saving}
+              className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm shadow-blue-500/30 transition-colors hover:bg-blue-700 disabled:opacity-50"
+            >
+              Save Profile
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'security' && (
+          <div className="space-y-6 duration-300 animate-in fade-in slide-in-from-bottom-2">
+            <div className="max-w-md space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  New Password
+                </label>
+                <input
+                  type="password"
+                  value={passwords.new}
+                  onChange={(e) => setPasswords((p) => ({ ...p, new: e.target.value }))}
+                  placeholder="••••••••"
+                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-gray-900 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Confirm New Password
+                </label>
+                <input
+                  type="password"
+                  value={passwords.confirm}
+                  onChange={(e) => setPasswords((p) => ({ ...p, confirm: e.target.value }))}
+                  placeholder="••••••••"
+                  className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2 text-gray-900 outline-none transition-all focus:border-transparent focus:ring-2 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              <button
+                onClick={handleSavePassword}
+                disabled={saving || !passwords.new}
+                className="mt-4 rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white shadow-sm shadow-blue-500/30 transition-colors hover:bg-blue-700 disabled:opacity-50"
+              >
+                Update Password
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

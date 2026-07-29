@@ -14,6 +14,24 @@ export const applySecurityHeaders = (response: NextResponse): NextResponse => {
   headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
   headers.set('X-XSS-Protection', '1; mode=block');
 
+  const cspHeader = `
+    default-src 'self';
+    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com https://checkout.razorpay.com;
+    style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+    img-src 'self' blob: data: https://api.dicebear.com https://avatars.githubusercontent.com;
+    font-src 'self' https://fonts.gstatic.com;
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.razorpay.com;
+    frame-src 'self' https://js.stripe.com https://checkout.razorpay.com;
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+    frame-ancestors 'none';
+    upgrade-insecure-requests;
+  `
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+
+  headers.set('Content-Security-Policy', cspHeader);
+
   return response;
 };
-

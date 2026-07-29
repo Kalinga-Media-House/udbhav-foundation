@@ -1,5 +1,6 @@
-﻿import { createClient } from "@/lib/supabase/server";
-import { Role, Permission, RolePermission } from "./types";
+﻿import { createClient } from '@/lib/supabase/server';
+
+import { Role, Permission, RolePermission } from './types';
 
 export const rolesRepository = {
   async getAllRoles(): Promise<Role[]> {
@@ -18,7 +19,7 @@ export const rolesRepository = {
 
   async getRolePermissions(): Promise<RolePermission[]> {
     const supabase = await createClient();
-    const { data, error } = await supabase.from('role_permissions').select('*');
+    const { data, error } = await (supabase as any).from('role_permissions').select('*');
     if (error) throw new Error(error.message);
     return data || [];
   },
@@ -26,7 +27,7 @@ export const rolesRepository = {
   async updateRolePermissions(roleId: string, permissionIds: string[]): Promise<void> {
     const supabase = await createClient();
     // Delete existing
-    const { error: deleteError } = await supabase
+    const { error: deleteError } = await (supabase as any)
       .from('role_permissions')
       .delete()
       .eq('role_id', roleId);
@@ -34,10 +35,10 @@ export const rolesRepository = {
 
     if (permissionIds.length > 0) {
       // Insert new
-      const { error: insertError } = await supabase
+      const { error: insertError } = await (supabase as any)
         .from('role_permissions')
-        .insert(permissionIds.map(pid => ({ role_id: roleId, permission_id: pid })));
+        .insert(permissionIds.map((pid) => ({ role_id: roleId, permission_id: pid })));
       if (insertError) throw new Error(insertError.message);
     }
-  }
+  },
 };

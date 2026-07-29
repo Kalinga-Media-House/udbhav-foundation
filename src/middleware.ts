@@ -2,18 +2,23 @@ import { type NextRequest } from 'next/server';
 
 import { enforceAuthentication } from '@/lib/middleware/auth';
 import { applySecurityHeaders } from '@/lib/middleware/headers';
+import { applyRateLimit } from '@/lib/middleware/rate-limit';
 
 /**
  * Next.js Edge Middleware
  * This runs before every request defined in the matcher.
  */
 export async function middleware(request: NextRequest) {
-  // 1. Enforce Authentication & Route Protection (which also syncs cookies)
+  // 1. Rate Limiting (Fast fail for abuse)
+  const rateLimitResponse = applyRateLimit(request);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  // 2. Enforce Authentication & Route Protection (which also syncs cookies)
   let response = await enforceAuthentication(request);
-  
-  // 2. Apply Security Headers (CSP, HSTS, XSS Protection)
+
+  // 3. Apply Security Headers (CSP, HSTS, XSS Protection)
   response = applySecurityHeaders(response);
-  
+
   return response;
 }
 

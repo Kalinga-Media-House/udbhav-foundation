@@ -4,9 +4,10 @@ import { revalidateTag } from 'next/cache';
 
 import { handleAction, requireAuth, CacheTags } from '@/contracts/actions';
 import type { ActionResult } from '@/contracts/actions';
+import { uploadFile } from '@/lib/storage/upload';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 import { profilesService } from './service';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { ProfileRow } from './service';
 
 /**
@@ -43,7 +44,7 @@ export async function updateMyProfile(
 
 export async function updatePassword(password: string): Promise<ActionResult<void>> {
   return handleAction('updatePassword', async () => {
-    const session = await requireAuth();
+    await requireAuth();
     const supabase = await createServerSupabaseClient();
     const { error } = await supabase.auth.updateUser({ password });
     if (error) throw new Error(error.message);
@@ -51,16 +52,19 @@ export async function updatePassword(password: string): Promise<ActionResult<voi
   });
 }
 
-import { uploadFile } from '@/lib/storage/upload';
 export async function uploadAvatar(formData: FormData): Promise<ActionResult<string>> {
   return handleAction('uploadAvatar', async () => {
     const session = await requireAuth();
     const file = formData.get('avatar') as File;
     if (!file) throw new Error('No file');
     const buffer = Buffer.from(await file.arrayBuffer());
-    const res = await uploadFile(buffer, file.name, { folder: 'avatars/' + session.id, contentType: file.type, maxSizeMB: 2 });
+    const res = await uploadFile(buffer, file.name, {
+      folder: 'avatars/' + session.id,
+      contentType: file.type,
+      maxSizeMB: 2,
+    });
     if (res.error) throw new Error(res.error.message);
-    const url = res.data.url;
+    const url = res.data!.url;
     const upd = await profilesService.updateProfile(session.id, { avatar_url: url });
     if (!upd.success) throw new Error(upd.error ?? 'Update failed');
     revalidateTag(CacheTags.profile(session.id));
