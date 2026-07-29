@@ -18,8 +18,8 @@ Please see the `/docs` directory for the comprehensive Enterprise Architecture D
 - [`RC1 Verification Archive`](./docs/verification/rc1/README.md) — Empirical production runtime verification artifacts (HAR, screenshot, automation logs)
 
 ## Current Status
-**✅ Phase 1–3 Completed and Baselined as Release Candidate 1 (RC1).**
-The repository is at version `v1.0.0-rc1`. All core enterprise modules (DB, Auth, CMS, FRM Contacts, Donations, Events) and RBAC security policies have been empirically runtime verified in production.
+**✅ Phase 1–3 Completed and Baselined as Release Candidate 2 (RC2).**
+The repository is at version `v1.0.0-rc2`. All core enterprise modules (DB, Auth, CMS, FRM Contacts, Donations, Events), RBAC security policies, and enterprise analytics dashboards have been empirically runtime verified in production. We have achieved strict Type Safety, standardized Server Action error handling, and hardended all storage/upload services.
 
 ## Local Development
 

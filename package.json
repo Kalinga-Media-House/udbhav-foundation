@@ -1,6 +1,6 @@
 {
   "name": "udbhav-foundation",
-  "version": "1.0.0",
+  "version": "1.0.0-rc2",
   "private": true,
   "description": "UDBHAV Foundation Enterprise Platform",
   "engines": {
