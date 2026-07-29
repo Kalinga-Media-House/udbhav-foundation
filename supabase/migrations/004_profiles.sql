@@ -1,6 +1,6 @@
 -- Migration: 004_profiles.sql
 -- Description: Establishes the enterprise Profiles system for all identity types.
--- Dependencies: 001_extensions.sql (citext, unaccent, pg_trgm), 002_auth_foundation.sql
+-- Dependencies: 001_extensions.sql (extensions.citext, unaccent, pg_trgm), 002_auth_foundation.sql
 
 BEGIN;
 
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     
     -- Core Identity
-    slug citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9_-]+$'),
+    slug extensions.citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9_-]+$'),
     first_name text NOT NULL,
     middle_name text,
     last_name text,
@@ -32,8 +32,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     about text,
     
     -- Contact & Web
-    primary_email citext,
-    alternate_email citext,
+    primary_email extensions.citext,
+    alternate_email extensions.citext,
     phone text CHECK (phone ~ '^\+?[0-9\s\-()]+$'), -- Basic E.164-ish validation
     alternate_phone text CHECK (alternate_phone ~ '^\+?[0-9\s\-()]+$'),
     website text CHECK (website ~ '^https?://.*'),

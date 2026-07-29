@@ -55,8 +55,8 @@ CREATE TABLE IF NOT EXISTS public.gallery_albums (
     id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
     
     -- Identity
-    album_code citext NOT NULL UNIQUE CHECK (album_code ~ '^[A-Z0-9-]+$'),
-    slug citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9_-]+$'),
+    album_code extensions.citext NOT NULL UNIQUE CHECK (album_code ~ '^[A-Z0-9-]+$'),
+    slug extensions.citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9_-]+$'),
     
     -- Content
     title text NOT NULL,
@@ -269,12 +269,12 @@ CREATE TRIGGER trg_gallery_items_activity_log AFTER INSERT OR UPDATE OR DELETE O
 
 -- Purpose: Auto-generate a safe slug from a title if one isn't provided.
 CREATE OR REPLACE FUNCTION public.generate_album_slug(p_title text)
-RETURNS citext
+RETURNS extensions.citext
 LANGUAGE plpgsql
 STABLE
 AS $$
 DECLARE
-  v_slug citext;
+  v_slug extensions.citext;
   v_counter integer := 1;
 BEGIN
   v_slug := lower(regexp_replace(regexp_replace(p_title, '[^a-zA-Z0-9]+', '-', 'g'), '^-+|-+$', '', 'g'));
@@ -326,7 +326,7 @@ CREATE OR REPLACE FUNCTION public.get_featured_gallery(p_collection public.featu
 RETURNS TABLE (
     album_id uuid,
     title text,
-    slug citext,
+    slug extensions.citext,
     cover_image_id uuid,
     media_count integer
 )

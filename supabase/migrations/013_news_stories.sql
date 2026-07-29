@@ -58,8 +58,8 @@ CREATE TABLE IF NOT EXISTS public.news_articles (
     id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
     
     -- Identity
-    article_code citext NOT NULL UNIQUE CHECK (article_code ~ '^[A-Z0-9-]+$'),
-    slug citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9_-]+$'),
+    article_code extensions.citext NOT NULL UNIQUE CHECK (article_code ~ '^[A-Z0-9-]+$'),
+    slug extensions.citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9_-]+$'),
     
     -- Content
     title text NOT NULL,
@@ -282,12 +282,12 @@ CREATE TRIGGER trg_article_authors_activity_log AFTER INSERT OR UPDATE OR DELETE
 
 -- Purpose: Auto-generate a safe slug from a title if one isn't provided.
 CREATE OR REPLACE FUNCTION public.generate_article_slug(p_title text)
-RETURNS citext
+RETURNS extensions.citext
 LANGUAGE plpgsql
 STABLE
 AS $$
 DECLARE
-  v_slug citext;
+  v_slug extensions.citext;
   v_counter integer := 1;
 BEGIN
   v_slug := lower(regexp_replace(regexp_replace(p_title, '[^a-zA-Z0-9]+', '-', 'g'), '^-+|-+$', '', 'g'));
@@ -320,7 +320,7 @@ CREATE OR REPLACE FUNCTION public.get_related_articles(p_article_id uuid, p_limi
 RETURNS TABLE (
     article_id uuid,
     title text,
-    slug citext,
+    slug extensions.citext,
     cover_image_id uuid,
     published_at timestamp with time zone,
     match_reason text

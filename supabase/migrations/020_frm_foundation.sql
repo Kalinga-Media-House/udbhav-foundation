@@ -12,7 +12,7 @@ CREATE SEQUENCE IF NOT EXISTS seq_frm_contacts START 1;
 CREATE SEQUENCE IF NOT EXISTS seq_frm_orgs START 1;
 
 CREATE OR REPLACE FUNCTION public.generate_contact_number()
-RETURNS citext
+RETURNS extensions.citext
 LANGUAGE sql
 VOLATILE
 AS $$
@@ -20,7 +20,7 @@ AS $$
 $$;
 
 CREATE OR REPLACE FUNCTION public.generate_org_number()
-RETURNS citext
+RETURNS extensions.citext
 LANGUAGE sql
 VOLATILE
 AS $$
@@ -34,7 +34,7 @@ $$;
 CREATE TABLE IF NOT EXISTS public.contact_types (
     id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
     name text NOT NULL,
-    slug citext NOT NULL UNIQUE,
+    slug extensions.citext NOT NULL UNIQUE,
     icon text,
     color text,
     display_order integer DEFAULT 0,
@@ -46,7 +46,7 @@ CREATE TABLE IF NOT EXISTS public.contact_types (
 CREATE TABLE IF NOT EXISTS public.tags (
     id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
     name text NOT NULL,
-    slug citext NOT NULL UNIQUE,
+    slug extensions.citext NOT NULL UNIQUE,
     color text,
     icon text,
     display_order integer DEFAULT 0,
@@ -61,12 +61,12 @@ CREATE TABLE IF NOT EXISTS public.tags (
 
 CREATE TABLE IF NOT EXISTS public.organizations (
     id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
-    org_number citext NOT NULL UNIQUE DEFAULT public.generate_org_number(),
+    org_number extensions.citext NOT NULL UNIQUE DEFAULT public.generate_org_number(),
     parent_organization_id uuid REFERENCES public.organizations(id) ON DELETE SET NULL,
     name text NOT NULL,
     organization_type text DEFAULT 'Corporate',
-    website citext,
-    email citext,
+    website extensions.citext,
+    email extensions.citext,
     phone text,
     address text,
     district text,
@@ -101,7 +101,7 @@ CREATE TRIGGER trg_organizations_search BEFORE INSERT OR UPDATE ON public.organi
 
 -- 4.1 Add new columns to existing contacts table
 ALTER TABLE public.contacts 
-    ADD COLUMN IF NOT EXISTS contact_number citext UNIQUE,
+    ADD COLUMN IF NOT EXISTS contact_number extensions.citext UNIQUE,
     ADD COLUMN IF NOT EXISTS photo_media_id uuid REFERENCES public.media_files(id) ON DELETE SET NULL,
     ADD COLUMN IF NOT EXISTS designation text,
     ADD COLUMN IF NOT EXISTS district text,

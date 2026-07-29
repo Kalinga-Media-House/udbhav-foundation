@@ -67,8 +67,8 @@ CREATE TABLE IF NOT EXISTS public.programs (
     id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
     
     -- Identity
-    program_code citext NOT NULL UNIQUE CHECK (program_code ~ '^[A-Z0-9-]+$'),
-    slug citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9_-]+$'),
+    program_code extensions.citext NOT NULL UNIQUE CHECK (program_code ~ '^[A-Z0-9-]+$'),
+    slug extensions.citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9_-]+$'),
     
     -- Content
     title text NOT NULL,
@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS public.program_partners (
     
     name text NOT NULL,
     website text CHECK (website ~ '^https?://.*'),
-    contact_email citext,
+    contact_email extensions.citext,
     contact_phone text,
     
     logo_id uuid REFERENCES public.media_files(id) ON DELETE SET NULL,
@@ -243,7 +243,7 @@ CREATE TRIGGER trg_program_partners_activity_log AFTER INSERT OR UPDATE OR DELET
 
 -- Purpose: Check if a program exists by slug (excluding deleted).
 -- Volatility: STABLE
-CREATE OR REPLACE FUNCTION public.program_exists(p_slug citext)
+CREATE OR REPLACE FUNCTION public.program_exists(p_slug extensions.citext)
 RETURNS boolean
 LANGUAGE sql
 STABLE
@@ -257,12 +257,12 @@ $$;
 -- Purpose: Auto-generate a safe slug from a title if one isn't provided.
 -- Usage: Called from application tier during insert if slug is empty.
 CREATE OR REPLACE FUNCTION public.generate_program_slug(p_title text)
-RETURNS citext
+RETURNS extensions.citext
 LANGUAGE plpgsql
 STABLE
 AS $$
 DECLARE
-  v_slug citext;
+  v_slug extensions.citext;
   v_counter integer := 1;
 BEGIN
   -- Convert to lowercase, replace non-alphanumeric with hyphens, trim multiple hyphens

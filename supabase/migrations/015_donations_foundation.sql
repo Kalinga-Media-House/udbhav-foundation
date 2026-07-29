@@ -70,14 +70,14 @@ CREATE TYPE public.recurring_frequency AS ENUM (
 -- 2.1 DONATION CAMPAIGNS
 CREATE TABLE IF NOT EXISTS public.donation_campaigns (
     id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
-    campaign_code citext NOT NULL UNIQUE CHECK (campaign_code ~ '^[A-Z0-9-]+$'),
-    slug citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9_-]+$'),
+    campaign_code extensions.citext NOT NULL UNIQUE CHECK (campaign_code ~ '^[A-Z0-9-]+$'),
+    slug extensions.citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9_-]+$'),
     title text NOT NULL,
     subtitle text,
     description text,
     goal_amount numeric(15, 2) NOT NULL DEFAULT 0 CHECK (goal_amount >= 0),
     raised_amount numeric(15, 2) NOT NULL DEFAULT 0 CHECK (raised_amount >= 0),
-    currency citext NOT NULL DEFAULT 'INR',
+    currency extensions.citext NOT NULL DEFAULT 'INR',
     cover_image_id uuid REFERENCES public.media_files(id) ON DELETE SET NULL,
     gallery_id uuid REFERENCES public.media_collections(id) ON DELETE SET NULL,
     program_id uuid REFERENCES public.programs(id) ON DELETE SET NULL,
@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS public.recurring_donations (
     program_id uuid REFERENCES public.programs(id) ON DELETE SET NULL,
     
     amount numeric(15, 2) NOT NULL CHECK (amount > 0),
-    currency citext NOT NULL DEFAULT 'INR',
+    currency extensions.citext NOT NULL DEFAULT 'INR',
     frequency public.recurring_frequency NOT NULL DEFAULT 'Monthly',
     
     provider public.payment_provider NOT NULL,
@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS public.donations (
     id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
     
     -- Identity & Linking
-    donation_number citext NOT NULL UNIQUE, -- Human readable (e.g. D-2026-10492)
+    donation_number extensions.citext NOT NULL UNIQUE, -- Human readable (e.g. D-2026-10492)
     contact_id uuid NOT NULL, -- FK added in 020 to link to FRM
     campaign_id uuid REFERENCES public.donation_campaigns(id) ON DELETE SET NULL,
     program_id uuid REFERENCES public.programs(id) ON DELETE SET NULL,
@@ -144,7 +144,7 @@ CREATE TABLE IF NOT EXISTS public.donations (
     -- Core Transaction
     donation_type public.donation_type NOT NULL DEFAULT 'One Time',
     amount numeric(15, 2) NOT NULL CHECK (amount > 0),
-    currency citext NOT NULL DEFAULT 'INR',
+    currency extensions.citext NOT NULL DEFAULT 'INR',
     purpose text, 
     
     -- Payment Fulfillment
@@ -182,7 +182,7 @@ CREATE TABLE IF NOT EXISTS public.financial_ledger (
     donation_id uuid NOT NULL REFERENCES public.donations(id) ON DELETE RESTRICT,
     event_type text NOT NULL, -- 'Donation Created', 'Payment Authorized', 'Payment Captured', 'Refund Requested', 'Refund Completed', 'Adjustment', 'Settlement'
     amount numeric(15, 2) NOT NULL,
-    currency citext NOT NULL DEFAULT 'INR',
+    currency extensions.citext NOT NULL DEFAULT 'INR',
     gateway_reference text,
     metadata jsonb DEFAULT '{}'::jsonb,
     created_at timestamp with time zone NOT NULL DEFAULT now()
@@ -195,9 +195,9 @@ CREATE TABLE IF NOT EXISTS public.tax_receipts (
     id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
     
     donation_id uuid NOT NULL UNIQUE REFERENCES public.donations(id) ON DELETE RESTRICT,
-    receipt_number citext NOT NULL UNIQUE, -- e.g. UDF-2026-000001
+    receipt_number extensions.citext NOT NULL UNIQUE, -- e.g. UDF-2026-000001
     
-    financial_year citext NOT NULL, -- e.g. "2026-2027"
+    financial_year extensions.citext NOT NULL, -- e.g. "2026-2027"
     issue_date date NOT NULL DEFAULT CURRENT_DATE,
     
     pdf_file_id uuid REFERENCES public.media_files(id) ON DELETE SET NULL,
@@ -356,7 +356,7 @@ WHERE is_deleted = false;
 
 -- Purpose: Generate an immutable UDF-YYYY-XXXXXX receipt number
 CREATE OR REPLACE FUNCTION public.generate_receipt_number()
-RETURNS citext
+RETURNS extensions.citext
 LANGUAGE plpgsql
 VOLATILE
 SECURITY DEFINER
@@ -364,7 +364,7 @@ AS $$
 DECLARE
   v_year text;
   v_count integer;
-  v_receipt citext;
+  v_receipt extensions.citext;
 BEGIN
   v_year := to_char(CURRENT_DATE, 'YYYY');
   SELECT count(*) + 1 INTO v_count FROM public.tax_receipts WHERE financial_year LIKE v_year || '%';
@@ -378,7 +378,7 @@ CREATE OR REPLACE FUNCTION public.active_campaigns(p_limit integer DEFAULT 10)
 RETURNS TABLE (
     campaign_id uuid,
     title text,
-    slug citext,
+    slug extensions.citext,
     goal_amount numeric,
     raised_amount numeric,
     cover_image_id uuid

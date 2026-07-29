@@ -94,7 +94,7 @@ COMMENT ON COLUMN public.notifications.action_url IS 'The deep-link or relative 
 CREATE TABLE IF NOT EXISTS public.notification_templates (
     id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
     
-    template_code citext NOT NULL UNIQUE CHECK (template_code ~ '^[a-z0-9_]+$'),
+    template_code extensions.citext NOT NULL UNIQUE CHECK (template_code ~ '^[a-z0-9_]+$'),
     display_name text NOT NULL,
     description text,
     

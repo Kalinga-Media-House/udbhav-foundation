@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS public.contacts (
     -- Identity
     full_name text NOT NULL,
     organization text,
-    email citext,
+    email extensions.citext,
     phone text CHECK (phone ~ '^\+?[0-9\s\-()]+$'),
     
     -- Location
@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS public.enquiries (
     id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
     
     -- Identity
-    enquiry_number citext NOT NULL UNIQUE, -- e.g. TKT-26-00100
+    enquiry_number extensions.citext NOT NULL UNIQUE, -- e.g. TKT-26-00100
     contact_id uuid NOT NULL REFERENCES public.contacts(id) ON DELETE RESTRICT,
     
     -- Content
@@ -346,7 +346,7 @@ ORDER BY ticket_count DESC;
 
 -- Purpose: Generates sequential TKT-YY-XXXXX
 CREATE OR REPLACE FUNCTION public.generate_ticket_number()
-RETURNS citext
+RETURNS extensions.citext
 LANGUAGE plpgsql
 VOLATILE
 SECURITY DEFINER

@@ -87,8 +87,8 @@ CREATE TABLE IF NOT EXISTS public.events (
     program_id uuid REFERENCES public.programs(id) ON DELETE CASCADE,
     
     -- Identity
-    event_code citext NOT NULL UNIQUE CHECK (event_code ~ '^[A-Z0-9-]+$'),
-    slug citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9_-]+$'),
+    event_code extensions.citext NOT NULL UNIQUE CHECK (event_code ~ '^[A-Z0-9-]+$'),
+    slug extensions.citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9_-]+$'),
     
     -- Content
     title text NOT NULL,
@@ -234,9 +234,9 @@ CREATE TABLE IF NOT EXISTS public.event_certificates (
     
     registration_id uuid NOT NULL UNIQUE REFERENCES public.event_registrations(id) ON DELETE CASCADE,
     
-    certificate_number citext NOT NULL UNIQUE,
+    certificate_number extensions.citext NOT NULL UNIQUE,
     template_name text NOT NULL, -- Which design to use
-    verification_code citext NOT NULL UNIQUE, -- Short code for public validation
+    verification_code extensions.citext NOT NULL UNIQUE, -- Short code for public validation
     
     issue_date date NOT NULL DEFAULT CURRENT_DATE,
     issued_by uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
@@ -324,12 +324,12 @@ CREATE TRIGGER trg_event_certificates_activity_log AFTER INSERT OR UPDATE OR DEL
 
 -- Purpose: Auto-generate a safe slug from a title if one isn't provided.
 CREATE OR REPLACE FUNCTION public.generate_event_slug(p_title text)
-RETURNS citext
+RETURNS extensions.citext
 LANGUAGE plpgsql
 STABLE
 AS $$
 DECLARE
-  v_slug citext;
+  v_slug extensions.citext;
   v_counter integer := 1;
 BEGIN
   v_slug := lower(regexp_replace(regexp_replace(p_title, '[^a-zA-Z0-9]+', '-', 'g'), '^-+|-+$', '', 'g'));

@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS public.system_settings (
     id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
     
     -- Identity
-    key_name citext NOT NULL UNIQUE CHECK (key_name ~ '^[a-z0-9_]+$'),
+    key_name extensions.citext NOT NULL UNIQUE CHECK (key_name ~ '^[a-z0-9_]+$'),
     display_name text NOT NULL,
     description text,
     category public.setting_category NOT NULL DEFAULT 'System',

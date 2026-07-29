@@ -12,7 +12,7 @@ BEGIN;
 CREATE TABLE IF NOT EXISTS public.taxonomies (
     id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
     
-    slug citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9_-]+$'),
+    slug extensions.citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9_-]+$'),
     display_name text NOT NULL,
     description text,
     
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS public.taxonomy_terms (
     taxonomy_id uuid NOT NULL REFERENCES public.taxonomies(id) ON DELETE CASCADE,
     parent_id uuid REFERENCES public.taxonomy_terms(id) ON DELETE CASCADE,
     
-    slug citext NOT NULL CHECK (slug ~ '^[a-z0-9_-]+$'),
+    slug extensions.citext NOT NULL CHECK (slug ~ '^[a-z0-9_-]+$'),
     display_name text NOT NULL,
     description text,
     code text, -- Optional strict code for backend integrations
@@ -169,7 +169,7 @@ CREATE OR REPLACE FUNCTION public.get_taxonomy_tree(p_taxonomy_id uuid)
 RETURNS TABLE (
     id uuid,
     parent_id uuid,
-    slug citext,
+    slug extensions.citext,
     display_name text,
     level integer,
     path text[]
@@ -221,7 +221,7 @@ $$;
 CREATE OR REPLACE FUNCTION public.get_term_path(p_term_id uuid)
 RETURNS TABLE (
     id uuid,
-    slug citext,
+    slug extensions.citext,
     display_name text,
     level integer
 )

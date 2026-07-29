@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS public.media_collections (
     
     parent_id uuid REFERENCES public.media_collections(id) ON DELETE CASCADE,
     name text NOT NULL,
-    slug citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9_-]+$'),
+    slug extensions.citext NOT NULL UNIQUE CHECK (slug ~ '^[a-z0-9_-]+$'),
     description text,
     
     cover_image_id uuid REFERENCES public.media_files(id) ON DELETE SET NULL,

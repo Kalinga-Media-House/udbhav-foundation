@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS public.volunteers (
     
     -- Identity binding
     profile_id uuid NOT NULL UNIQUE REFERENCES public.profiles(id) ON DELETE CASCADE,
-    volunteer_code citext NOT NULL UNIQUE CHECK (volunteer_code ~ '^[A-Z0-9-]+$'),
+    volunteer_code extensions.citext NOT NULL UNIQUE CHECK (volunteer_code ~ '^[A-Z0-9-]+$'),
     
     -- Status & Lifecycle
     status public.volunteer_status NOT NULL DEFAULT 'Applied',
@@ -104,7 +104,7 @@ COMMENT ON COLUMN public.volunteers.volunteer_code IS 'Internal organizational I
 CREATE TABLE IF NOT EXISTS public.volunteer_skills (
     id uuid PRIMARY KEY DEFAULT extensions.uuid_generate_v4(),
     
-    skill_name citext NOT NULL UNIQUE,
+    skill_name extensions.citext NOT NULL UNIQUE,
     category text NOT NULL, -- e.g., 'Medical', 'IT', 'Teaching'
     description text,
     is_active boolean NOT NULL DEFAULT true,
@@ -370,7 +370,7 @@ END;
 $$;
 
 -- Purpose: Find available, verified volunteers with a specific skill
-CREATE OR REPLACE FUNCTION public.available_volunteers_by_skill(p_skill_name citext)
+CREATE OR REPLACE FUNCTION public.available_volunteers_by_skill(p_skill_name extensions.citext)
 RETURNS TABLE (
     volunteer_id uuid,
     volunteer_name text,
