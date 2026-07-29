@@ -2,6 +2,7 @@
 
 import { Plus, Search, Edit2, Trash2, FolderTree, Tag, Loader2, Save } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import { exportToCSV } from '@/lib/utils/csv-export';
 
 import { 
   getTaxonomiesAction, 
@@ -20,6 +21,11 @@ export default function LookupManager() {
   const [isLoadingTaxonomies, setIsLoadingTaxonomies] = useState(true);
   const [isLoadingTerms, setIsLoadingTerms] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Pagination & Bulk actions
+  const [selectedTermIds, setSelectedTermIds] = useState<Set<string>>(new Set());
+  const [termPage, setTermPage] = useState(1);
+  const termsPerPage = 10;
 
   // Modals / forms state
   const [isAddingTaxonomy, setIsAddingTaxonomy] = useState(false);
@@ -52,6 +58,8 @@ export default function LookupManager() {
   const handleSelectTaxonomy = async (taxonomy: TaxonomyRow) => {
     setSelectedTaxonomy(taxonomy);
     setIsLoadingTerms(true);
+    setSelectedTermIds(new Set());
+    setTermPage(1);
     try {
       const res = await getTaxonomyTermsAction(taxonomy.id);
       const data = (res as any).data || res || [];
@@ -105,9 +113,31 @@ export default function LookupManager() {
     }
   };
 
+  const handleBulkDeleteTerms = async () => {
+    if (!confirm(`Are you sure you want to delete ${selectedTermIds.size} terms?`)) return;
+    try {
+      for (const id of Array.from(selectedTermIds)) {
+        await deleteTaxonomyTermAction(id);
+      }
+      setSelectedTermIds(new Set());
+      if (selectedTaxonomy) {
+        handleSelectTaxonomy(selectedTaxonomy);
+      }
+    } catch (error) {
+      console.error('Failed to bulk delete terms:', error);
+    }
+  };
+
+  const handleExportTerms = () => {
+    const dataToExport = selectedTermIds.size > 0 ? terms.filter(t => selectedTermIds.has(t.id)) : terms;
+    exportToCSV(dataToExport, `${(selectedTaxonomy as any)?.slug || 'terms'}_export`);
+  };
+
   const filteredTerms = terms.filter(t => 
     (t as any).display_name?.toLowerCase().includes(searchQuery.toLowerCase()) || (t as any).name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  
+  const paginatedTerms = filteredTerms.slice((termPage - 1) * termsPerPage, termPage * termsPerPage);
 
   return (
     <div className="flex h-[calc(100vh-8rem)] bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
@@ -198,10 +228,24 @@ export default function LookupManager() {
                   <Plus className="w-4 h-4" />
                   Add Term
                 </button>
+                <button 
+                  onClick={handleExportTerms}
+                  className="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                >
+                  Export CSV
+                </button>
+                {selectedTermIds.size > 0 && (
+                  <button 
+                    onClick={handleBulkDeleteTerms}
+                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                  >
+                    <Trash2 className="w-4 h-4" /> Delete ({selectedTermIds.size})
+                  </button>
+                )}
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto p-6">
+            <div className="flex-1 overflow-auto p-6 flex flex-col">
               {isAddingTerm && (
                 <div className="mb-6 bg-slate-50 border border-slate-200 p-4 rounded-xl flex items-end gap-4">
                   <div className="flex-1">
@@ -226,46 +270,97 @@ export default function LookupManager() {
               )}
 
               {isLoadingTerms ? (
-                <div className="flex justify-center items-center h-48">
+                <div className="flex justify-center items-center h-48 flex-1">
                   <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
                 </div>
               ) : filteredTerms.length > 0 ? (
-                <div className="border border-slate-200 rounded-xl overflow-hidden">
-                  <table className="w-full text-left text-sm">
-                    <thead className="bg-slate-50 text-slate-600 border-b border-slate-200">
-                      <tr>
-                        <th className="px-4 py-3 font-medium">Term Name</th>
-                        <th className="px-4 py-3 font-medium text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200">
-                      {filteredTerms.map(term => (
-                        <tr key={term.id} className="hover:bg-slate-50/50 transition-colors">
-                          <td className="px-4 py-3 font-medium text-slate-700 flex items-center gap-2">
-                            <Tag className="w-4 h-4 text-slate-400" />
-                            {(term as any).display_name || (term as any).name}
-                          </td>
-                          <td className="px-4 py-3 text-right">
-                            <div className="flex justify-end gap-2">
-                              <button 
-                                className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                                title="Edit term"
-                              >
-                                <Edit2 className="w-4 h-4" />
-                              </button>
-                              <button 
-                                onClick={() => handleDeleteTerm(term.id)}
-                                className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                title="Delete term"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </td>
+                <div className="flex flex-col flex-1">
+                  <div className="border border-slate-200 rounded-xl overflow-hidden flex-1">
+                    <table className="w-full text-left text-sm">
+                      <thead className="bg-slate-50 text-slate-600 border-b border-slate-200">
+                        <tr>
+                          <th className="px-4 py-3 w-[50px]">
+                            <input 
+                              type="checkbox" 
+                              checked={paginatedTerms.length > 0 && selectedTermIds.size === paginatedTerms.length}
+                              onChange={(e) => {
+                                if (e.target.checked) setSelectedTermIds(new Set(paginatedTerms.map(t => t.id)));
+                                else setSelectedTermIds(new Set());
+                              }}
+                              className="rounded border-slate-300"
+                            />
+                          </th>
+                          <th className="px-4 py-3 font-medium">Term Name</th>
+                          <th className="px-4 py-3 font-medium text-right">Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200">
+                        {paginatedTerms.map(term => (
+                          <tr key={term.id} className="hover:bg-slate-50/50 transition-colors">
+                            <td className="px-4 py-3">
+                              <input 
+                                type="checkbox" 
+                                checked={selectedTermIds.has(term.id)}
+                                onChange={(e) => {
+                                  const newSet = new Set(selectedTermIds);
+                                  if (e.target.checked) newSet.add(term.id);
+                                  else newSet.delete(term.id);
+                                  setSelectedTermIds(newSet);
+                                }}
+                                className="rounded border-slate-300"
+                              />
+                            </td>
+                            <td className="px-4 py-3 font-medium text-slate-700">
+                              <div className="flex items-center gap-2">
+                                <Tag className="w-4 h-4 text-slate-400" />
+                                {(term as any).display_name || (term as any).name}
+                              </div>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <div className="flex justify-end gap-2">
+                                <button 
+                                  className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                                  title="Edit term"
+                                >
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button 
+                                  onClick={() => handleDeleteTerm(term.id)}
+                                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                  title="Delete term"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  
+                  {/* Pagination Controls */}
+                  <div className="flex items-center justify-between p-4 border border-slate-200 bg-slate-50 mt-4 rounded-xl">
+                    <div className="text-sm text-slate-500">
+                      Showing {(termPage - 1) * termsPerPage + 1} to {Math.min(termPage * termsPerPage, filteredTerms.length)} of {filteredTerms.length} terms
+                    </div>
+                    <div className="flex gap-2">
+                      <button 
+                        className="px-3 py-1 bg-white border border-slate-300 rounded text-sm disabled:opacity-50"
+                        disabled={termPage === 1}
+                        onClick={() => setTermPage(p => p - 1)}
+                      >
+                        Previous
+                      </button>
+                      <button 
+                        className="px-3 py-1 bg-white border border-slate-300 rounded text-sm disabled:opacity-50"
+                        disabled={termPage * termsPerPage >= filteredTerms.length}
+                        onClick={() => setTermPage(p => p + 1)}
+                      >
+                        Next
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-xl">
