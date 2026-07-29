@@ -17,17 +17,13 @@ export type {
   VolunteerProfileRow,
   EventVolunteerRow,
   NewsArticleRow,
-  SuccessStoryRow,
   GalleryAlbumRow,
   GalleryItemRow,
   MediaObjectRow,
   DonationRow,
   DonationCampaignRow,
-  DonorRow,
   ContactRow,
   EnquiryRow,
-  AuditLogRow,
-  LookupTaxonomyRow,
   SystemSettingRow,
 } from './tables';
 export type {

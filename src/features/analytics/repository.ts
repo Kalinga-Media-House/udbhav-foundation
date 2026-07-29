@@ -151,7 +151,7 @@ export class AnalyticsRepository {
     const { count: openEnquiriesCount, error: enquiryError } = await supabase
       .from('enquiries')
       .select('id', { count: 'exact', head: true })
-      .in('status', ['Open', 'Pending', 'open', 'pending'])
+      .in('status', ['Open', 'Pending'])
       .eq('is_deleted', false);
     if (enquiryError) {
       serverLogger.error(

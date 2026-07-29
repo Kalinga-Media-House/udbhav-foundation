@@ -3,28 +3,13 @@ import { DatabaseError } from '@/errors';
 import { serverLogger } from "@/lib/logger/server-logger";
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { Pagination, ID } from '@/types';
+import type { Database } from '@/types/database/database.generated';
 
 /**
  * Database row shape for gallery albums.
  */
-export type AlbumRow = {
-  id: string;
-  album_code: string;
-  slug: string;
-  title: string;
-  description: string | null;
-  cover_image_id: string | null;
-  program_id: string | null;
-  event_id: string | null;
-  visibility: string;
-  display_order: number;
-  is_featured: boolean;
-  item_count: number;
-  created_by: string | null;
-  updated_by: string | null;
-  created_at: string;
-  updated_at: string;
-  is_deleted: boolean;
+export type AlbumRow = Database['public']['Tables']['gallery_albums']['Row'] & {
+  item_count?: number;
 };
 
 /** Payload for creating a gallery album. */
@@ -38,28 +23,15 @@ export type AlbumUpdate = Partial<Omit<AlbumCreate, 'album_code'>>;
 /**
  * Database row shape for gallery items.
  */
-export type GalleryItemRow = {
-  id: string;
-  album_id: string;
-  media_id: string;
-  title: string | null;
-  caption: string | null;
-  display_order: number;
-  is_featured: boolean;
-  created_by: string | null;
-  updated_by: string | null;
-  created_at: string;
-  updated_at: string;
-  is_deleted: boolean;
-};
+export type GalleryItemRow = Database['public']['Tables']['gallery_items']['Row'];
 
 export type GalleryItemWithMedia = GalleryItemRow & {
   media?: {
     id: string;
-    public_url: string | null;
+    cdn_url: string | null;
     alt_text: string | null;
     caption: string | null;
-    title: string | null;
+    
     width: number | null;
     height: number | null;
   } | null;
@@ -115,9 +87,9 @@ export class GalleryRepository implements IWriteRepository<AlbumRow, AlbumCreate
     const { pagination, sort, filters } = params;
     const supabase = await createServerSupabaseClient();
     let query = supabase.from('gallery_albums').select('*', { count: 'exact' }).eq('is_deleted', false);
-    if (filters?.status) query = query.eq('status', filters.status as string);
-    if (filters?.album_type) query = query.eq('album_type', filters.album_type as string);
-    if (filters?.visibility) query = query.eq('visibility', filters.visibility as string);
+    if (filters?.status) query = query.eq('status', filters.status as any);
+    if (filters?.album_type) query = query.eq('album_type', filters.album_type as any);
+    if (filters?.visibility) query = query.eq('visibility', filters.visibility as any);
     if (filters?.is_featured) query = query.eq('is_featured', true);
     query = query.order(sort?.column ?? 'created_at', { ascending: sort?.order === 'asc' });
     const from = (pagination.page - 1) * pagination.limit;
@@ -153,7 +125,7 @@ export class GalleryRepository implements IWriteRepository<AlbumRow, AlbumCreate
   async update(id: ID, data: AlbumUpdate): Promise<RepositoryResult<AlbumRow>> {
     try {
       const supabase = await createServerSupabaseClient();
-      const { data: row, error } = await (supabase.from('gallery_albums') as any).update(data as any).eq('id', id).eq('is_deleted', false).select().single();
+      const { data: row, error } = await (supabase.from('gallery_albums') as any).update(data as any).eq('id', id).select().single();
       if (error) throw new DatabaseError(error.message);
       return { data: row, error: null };
     } catch (error) {
@@ -254,13 +226,13 @@ export class GalleryRepository implements IWriteRepository<AlbumRow, AlbumCreate
   async listItems(albumId: ID, pagination: Pagination): Promise<PaginatedResult<GalleryItemRow>> {
     const supabase = await createServerSupabaseClient();
     const from = (pagination.page - 1) * pagination.limit;
-    const { data, count, error } = await supabase.from('gallery_items').select('*', { count: 'exact' }).eq('album_id', albumId).eq('is_deleted', false).order('display_order', { ascending: true }).range(from, from + pagination.limit - 1);
+    const { data, count, error } = await supabase.from('gallery_items').select('*', { count: 'exact' }).eq('album_id', albumId).order('display_order', { ascending: true }).range(from, from + pagination.limit - 1);
     if (error) serverLogger.error('GalleryRepository.listItems failed', new DatabaseError(error.message));
     return { data: (data as GalleryItemRow[]) ?? [], total: count ?? 0, page: pagination.page, limit: pagination.limit };
   }
 
   /**
-   * Lists items for a gallery album enriched with media_objects data.
+   * Lists items for a gallery album enriched with media_files data.
    * @param albumId - Album ID.
    * @param pagination - Pagination parameters.
    * @returns Paginated result of gallery items enriched with media info.
@@ -272,7 +244,6 @@ export class GalleryRepository implements IWriteRepository<AlbumRow, AlbumCreate
       .from('gallery_items')
       .select('*', { count: 'exact' })
       .eq('album_id', albumId)
-      .eq('is_deleted', false)
       .order('display_order', { ascending: true })
       .range(from, from + pagination.limit - 1);
 
@@ -287,18 +258,18 @@ export class GalleryRepository implements IWriteRepository<AlbumRow, AlbumCreate
       return { data: [], total: 0, page: pagination.page, limit: pagination.limit };
     }
 
-    const mediaIds = items.map((item) => item.media_id);
+    const mediaIds = items.map((item) => item.media_file_id);
     const { data: rawMediaList } = await supabase
-      .from('media_objects')
-      .select('id, public_url, alt_text, caption, title, width, height')
+      .from('media_files')
+      .select('id, cdn_url, alt_text, caption, width, height')
       .in('id', mediaIds);
 
-    const mediaList = (rawMediaList as { id: string; public_url: string | null; alt_text: string | null; caption: string | null; title: string | null; width: number | null; height: number | null }[]) ?? [];
+    const mediaList = (rawMediaList as { id: string; cdn_url: string | null; alt_text: string | null; caption: string | null;  width: number | null; height: number | null }[]) ?? [];
     const mediaMap = new Map(mediaList.map((m) => [m.id, m]));
 
     const enrichedItems: GalleryItemWithMedia[] = items.map((item) => ({
       ...item,
-      media: mediaMap.get(item.media_id) || null,
+      media: mediaMap.get(item.media_file_id) || null,
     }));
 
     return {

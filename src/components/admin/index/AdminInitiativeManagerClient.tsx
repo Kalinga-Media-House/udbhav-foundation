@@ -78,7 +78,7 @@ export function AdminInitiativeManagerClient({ initialInitiatives }: AdminInitia
       
       if (item.gallery) {
         setGalleryIds(item.gallery.map(g => g.media_id));
-        setGalleryUrls(item.gallery.map(g => ({ id: g.media_id, public_url: g.public_url! })));
+        setGalleryUrls(item.gallery.map(g => ({ id: g.media_id, public_url: g.cdn_url! })));
       } else {
         setGalleryIds([]);
         setGalleryUrls([]);
@@ -123,7 +123,7 @@ export function AdminInitiativeManagerClient({ initialInitiatives }: AdminInitia
       const res = await uploadMedia(formData);
       if (!res.success || !res.data) throw new Error(res.error || 'Upload failed');
       setCoverMediaId(res.data.id);
-      setCoverMediaUrl(res.data.public_url);
+      setCoverMediaUrl(res.data.cdn_url);
     } catch (err: any) {
       setErrorMessage(err.message || 'Image upload failed');
     } finally {
@@ -143,7 +143,7 @@ export function AdminInitiativeManagerClient({ initialInitiatives }: AdminInitia
         const res = await uploadMedia(formData);
         if (!res.success || !res.data) throw new Error(res.error || 'Upload failed for a file');
         setGalleryIds(prev => [...prev, res.data!.id]);
-        setGalleryUrls(prev => [...prev, { id: res.data!.id, public_url: res.data!.public_url! }]);
+        setGalleryUrls(prev => [...prev, { id: res.data!.id, public_url: res.data!.cdn_url! }]);
       }
     } catch (err: any) {
       setErrorMessage(err.message || 'Gallery upload failed');

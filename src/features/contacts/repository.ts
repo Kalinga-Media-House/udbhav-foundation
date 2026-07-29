@@ -3,61 +3,16 @@ import { DatabaseError } from '@/errors';
 import { serverLogger } from '@/lib/logger/server-logger';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { Pagination, ID } from '@/types';
+import type { Database } from '@/types/database/database.generated';
 
-export type EnquiryRow = {
-  id: string;
-  enquiry_number: string;
-  contact_id: string;
-  subject: string;
-  message: string;
-  department: string;
-  category: string;
-  priority: string;
-  status: string;
-  source: string;
-  channel: string | null;
-  assigned_to: string | null;
-  assigned_by: string | null;
-  assignment_time: string | null;
-  resolved_by: string | null;
-  resolved_at: string | null;
-  first_response_time: string | null;
-  expected_resolution: string | null;
-  escalation_level: number;
-  ip_address: string | null;
-  user_agent: string | null;
-  metadata: Record<string, unknown>;
-  created_by: string | null;
-  updated_by: string | null;
-  created_at: string;
-  updated_at: string;
-  is_deleted: boolean;
-};
+export type EnquiryRow = Database['public']['Tables']['enquiries']['Row'];
 
 export type EnquiryCreate = Omit<
   EnquiryRow,
   'id' | 'created_at' | 'updated_at' | 'is_deleted' | 'expected_resolution' | 'escalation_level'
 >;
 
-export type OrganizationRow = {
-  id: string;
-  org_number: string;
-  parent_organization_id: string | null;
-  name: string;
-  organization_type: string;
-  website: string | null;
-  email: string | null;
-  phone: string | null;
-  address: string | null;
-  district: string | null;
-  state: string | null;
-  country: string | null;
-  logo_media_id: string | null;
-  status: string;
-  is_deleted: boolean;
-  created_at: string;
-  updated_at: string;
-};
+export type OrganizationRow = Database['public']['Tables']['organizations']['Row'];
 
 export type ContactTypeRow = {
   id: string;
@@ -69,34 +24,7 @@ export type ContactTypeRow = {
   is_active: boolean;
 };
 
-export type ContactRow = {
-  id: string;
-  contact_number: string;
-  profile_id: string | null;
-  full_name: string;
-  organization_id: string | null;
-  designation: string | null;
-  email: string | null;
-  phone: string | null;
-  alternate_phone: string | null;
-  address: string | null;
-  city: string | null;
-  district: string | null;
-  state: string | null;
-  country: string | null;
-  website: string | null;
-  social_links: Record<string, unknown>;
-  preferred_contact_method: string | null;
-  preferred_language: string | null;
-  photo_media_id: string | null;
-  status: string;
-  is_deleted: boolean;
-  notes: string | null;
-  created_by: string | null;
-  updated_by: string | null;
-  created_at: string;
-  updated_at: string;
-};
+export type ContactRow = Database['public']['Tables']['contacts']['Row'];
 
 export type ContactInteractionRow = {
   id: string;
@@ -178,9 +106,9 @@ export class ContactsRepository {
     const { pagination, filters } = params;
     const supabase = await createServerSupabaseClient();
     let query = supabase.from('enquiries').select('*', { count: 'exact' }).eq('is_deleted', false);
-    if (filters?.status) query = query.eq('status', filters.status as string);
-    if (filters?.department) query = query.eq('department', filters.department as string);
-    if (filters?.priority) query = query.eq('priority', filters.priority as string);
+    if (filters?.status) query = query.eq('status', filters.status as any);
+    if (filters?.department) query = query.eq('department', filters.department as any);
+    if (filters?.priority) query = query.eq('priority', filters.priority as any);
     if (filters?.assigned_to) query = query.eq('assigned_to', filters.assigned_to as string);
     query = query.order('created_at', { ascending: false });
     const from = (pagination.page - 1) * pagination.limit;
@@ -286,7 +214,7 @@ export class ContactsRepository {
     const { pagination, filters } = params;
     const supabase = await createServerSupabaseClient();
     let query = supabase.from('contacts').select('*', { count: 'exact' }).eq('is_deleted', false);
-    if (filters?.status) query = query.eq('status', filters.status as string);
+    if (filters?.status) query = query.eq('status', filters.status as any);
     if (filters?.organization_id) query = query.eq('organization_id', filters.organization_id as string);
     query = query.order('created_at', { ascending: false });
     const from = (pagination.page - 1) * pagination.limit;
@@ -336,7 +264,7 @@ export class ContactsRepository {
     const { pagination, filters } = params;
     const supabase = await createServerSupabaseClient();
     let query = supabase.from('organizations').select('*', { count: 'exact' }).eq('is_deleted', false);
-    if (filters?.status) query = query.eq('status', filters.status as string);
+    if (filters?.status) query = query.eq('status', filters.status as any);
     query = query.order('created_at', { ascending: false });
     const from = (pagination.page - 1) * pagination.limit;
     query = query.range(from, from + pagination.limit - 1);
@@ -386,7 +314,7 @@ export class ContactsRepository {
       ];
 
       for (const table of tablesToUpdate) {
-        await (supabase.from(table) as any).update({ contact_id: survivingId }).eq('contact_id', deletedId);
+        await (supabase.from(table as any) as any).update({ contact_id: survivingId }).eq('contact_id', deletedId);
       }
 
       // Record in contact_merge_history

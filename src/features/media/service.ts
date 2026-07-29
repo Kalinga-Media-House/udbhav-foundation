@@ -51,26 +51,15 @@ export class MediaService {
     }
     const storageObj = uploadResult.data;
     const dbResult = await mediaRepository.create({
-      file_name: storageObj.key.split('/').pop() ?? originalFilename,
-      original_name: originalFilename,
-      file_path: storageObj.key,
+      original_filename: originalFilename,
+      r2_object_key: storageObj.key,
       bucket_name: storageObj.bucket,
-      public_url: storageObj.url,
+      cdn_url: storageObj.url,
       file_size: storageObj.size ?? 0,
       mime_type: contentType,
-      file_type: contentType.startsWith('image')
-        ? 'Image'
-        : contentType.startsWith('video')
-        ? 'Video'
-        : 'Document',
-      entity_type: entityType,
-      entity_id: entityId,
-      alt_text: null,
-      title: null,
-      description: null,
-      metadata: {},
+      status: 'Ready',
       created_by: userId,
-    });
+    } as any);
     return fromRepo(dbResult);
   }
 

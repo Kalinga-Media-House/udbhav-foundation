@@ -51,7 +51,7 @@ export type IndexInitiativeWithMedia = IndexInitiativeRow & {
     media_id: string;
     caption: string | null;
     display_order: number;
-    public_url: string | null;
+    cdn_url: string | null;
     alt_text: string | null;
   }>;
 };
@@ -278,16 +278,16 @@ export class IndexInitiativesRepository
       const initiativeIds = rows.map((r) => r.id);
       const coverMediaIds = rows.map((r) => r.cover_media_id).filter((id): id is string => Boolean(id));
 
-      const mediaMap = new Map<string, { public_url: string | null; alt_text: string | null }>();
+      const mediaMap = new Map<string, { cdn_url: string | null; alt_text: string | null }>();
 
       if (coverMediaIds.length > 0) {
         const { data: coverMedia } = await supabase
           .from('media_files')
-          .select('id, public_url, alt_text')
+          .select('id, cdn_url, alt_text')
           .in('id', coverMediaIds);
         if (coverMedia) {
-          coverMedia.forEach((m: { id: string; public_url: string | null; alt_text: string | null }) => {
-            mediaMap.set(m.id, { public_url: m.public_url, alt_text: m.alt_text });
+          coverMedia.forEach((m: { id: string; cdn_url: string | null; alt_text: string | null }) => {
+            mediaMap.set(m.id, { cdn_url: m.cdn_url, alt_text: m.alt_text });
           });
         }
       }
@@ -302,16 +302,16 @@ export class IndexInitiativesRepository
       if (galleryMediaIds.length > 0) {
         const { data: galMedia } = await supabase
           .from('media_files')
-          .select('id, public_url, alt_text')
+          .select('id, cdn_url, alt_text')
           .in('id', galleryMediaIds);
         if (galMedia) {
-          galMedia.forEach((m: { id: string; public_url: string | null; alt_text: string | null }) => {
-            mediaMap.set(m.id, { public_url: m.public_url, alt_text: m.alt_text });
+          galMedia.forEach((m: { id: string; cdn_url: string | null; alt_text: string | null }) => {
+            mediaMap.set(m.id, { cdn_url: m.cdn_url, alt_text: m.alt_text });
           });
         }
       }
 
-      const galleryMap = new Map<string, Array<{ id: string; media_id: string; caption: string | null; display_order: number; public_url: string | null; alt_text: string | null }>>();
+      const galleryMap = new Map<string, Array<{ id: string; media_id: string; caption: string | null; display_order: number; cdn_url: string | null; alt_text: string | null }>>();
       (galleryItems || []).forEach((item: { id: string; initiative_id: string; media_id: string; caption: string | null; display_order: number }) => {
         const media = mediaMap.get(item.media_id);
         const entry = {
@@ -319,7 +319,7 @@ export class IndexInitiativesRepository
           media_id: item.media_id,
           caption: item.caption,
           display_order: item.display_order,
-          public_url: media?.public_url || null,
+          cdn_url: media?.cdn_url || null,
           alt_text: media?.alt_text || null,
         };
         const list = galleryMap.get(item.initiative_id) || [];
@@ -331,7 +331,7 @@ export class IndexInitiativesRepository
         const coverObj = row.cover_media_id ? mediaMap.get(row.cover_media_id) : undefined;
         return {
           ...row,
-          cover_image_url: coverObj?.public_url || null,
+          cover_image_url: coverObj?.cdn_url || null,
           gallery: galleryMap.get(row.id) || [],
         };
       });

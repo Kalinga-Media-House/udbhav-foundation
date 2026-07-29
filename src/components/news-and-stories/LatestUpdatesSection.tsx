@@ -46,7 +46,7 @@ export function LatestUpdatesSection({ articles }: LatestUpdatesSectionProps = {
         slug: a.slug,
         excerpt: a.summary || a.subtitle || '',
         content: a.content,
-        coverImageUrl: a.cover_image?.public_url || '/images/default-news-cover.jpg',
+        coverImageUrl: a.cover_image?.cdn_url || '/images/default-news-cover.jpg',
         category: a.category || 'Daily Updates',
         location: 'Odisha, India',
         activityDate: a.published_at

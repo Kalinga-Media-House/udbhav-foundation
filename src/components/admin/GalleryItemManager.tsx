@@ -176,10 +176,10 @@ export function GalleryItemManager({ albumId, albumTitle, initialItems }: Galler
             {initialItems.map((item) => (
               <div key={item.id} className="border rounded-lg overflow-hidden flex flex-col bg-gray-50">
                 <div className="relative h-40 w-full bg-gray-200">
-                  {item.media?.public_url ? (
+                  {item.media?.cdn_url ? (
                     <Image
-                      src={item.media.public_url}
-                      alt={item.media.alt_text || item.title || 'Album photo'}
+                      src={item.media.cdn_url}
+                      alt={item.media.alt_text || item.caption || 'Album photo'}
                       fill
                       className="object-cover"
                     />
@@ -197,7 +197,7 @@ export function GalleryItemManager({ albumId, albumTitle, initialItems }: Galler
 
                 <div className="p-3 flex-1 flex flex-col justify-between">
                   <div>
-                    {item.title && <p className="text-xs font-semibold text-gray-800 line-clamp-1">{item.title}</p>}
+                    {item.caption && <p className="text-xs font-semibold text-gray-800 line-clamp-1">{item.caption}</p>}
                     {item.caption && <p className="text-xs text-gray-600 mt-1 line-clamp-2">{item.caption}</p>}
                     <p className="text-xs text-gray-400 mt-1">Order: #{item.display_order}</p>
                   </div>

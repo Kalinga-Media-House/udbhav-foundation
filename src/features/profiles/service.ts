@@ -3,20 +3,14 @@ import type { ServiceResult } from '@/contracts/services';
 import { serverLogger } from "@/lib/logger/server-logger";
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { ID } from '@/types';
+import type { Database } from '@/types/database/database.generated';
 
-export type ProfileRow = {
-  id: string;
-  email: string;
-  role: string;
-  first_name: string | null;
-  last_name: string | null;
-  phone: string | null;
-  avatar_url: string | null;
-  bio: string | null;
-  is_active: boolean;
-  metadata: Record<string, unknown>;
-  created_at: string;
-  updated_at: string;
+export type ProfileRow = Database['public']['Tables']['profiles']['Row'] & {
+  email?: string;
+  role?: string;
+  avatar_url?: string | null;
+  bio?: string | null;
+  is_active?: boolean;
 };
 
 /**

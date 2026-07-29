@@ -83,7 +83,7 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
           is_featured: formData.is_featured || false,
           display_order: formData.display_order || 0,
           cover_image_id: formData.cover_image_id || undefined,
-          metadata: initialData?.metadata || {},
+          metadata: (initialData?.metadata as Record<string, unknown>) || {},
         };
 
         if (initialData) {

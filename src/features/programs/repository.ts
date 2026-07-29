@@ -3,27 +3,12 @@ import { DatabaseError } from '@/errors';
 import { serverLogger } from "@/lib/logger/server-logger";
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { Pagination, ID } from '@/types';
+import type { Database } from '@/types/database/database.generated';
 
-export type ProgramRow = {
-  id: string;
-  program_code: string;
-  slug: string;
-  title: string;
-  subtitle: string | null;
-  description: string | null;
-  status: string;
-  visibility: string;
-  cover_image_id: string | null;
-  start_date: string | null;
-  end_date: string | null;
-  is_featured: boolean;
-  display_order: number;
-  metadata: Record<string, unknown>;
-  created_by: string | null;
-  updated_by: string | null;
-  created_at: string;
-  updated_at: string;
-  is_deleted: boolean;
+export type ProgramRow = Database['public']['Tables']['programs']['Row'] & {
+  subtitle?: string | null;
+  description?: string | null;
+  display_order?: number;
 };
 
 export type ProgramCreate = Omit<ProgramRow, 'id' | 'created_at' | 'updated_at' | 'is_deleted'>;
@@ -72,8 +57,8 @@ export class ProgramsRepository implements IWriteRepository<ProgramRow, ProgramC
     const supabase = await createServerSupabaseClient();
     let query = supabase.from('programs').select('*', { count: 'exact' }).eq('is_deleted', false);
 
-    if (filters?.status) query = query.eq('status', filters.status as string);
-    if (filters?.visibility) query = query.eq('visibility', filters.visibility as string);
+    if (filters?.status) query = query.eq('status', filters.status as Database['public']['Enums']['program_status']);
+    if (filters?.visibility) query = query.eq('visibility', filters.visibility as Database['public']['Enums']['program_visibility']);
     if (filters?.is_featured) query = query.eq('is_featured', true);
 
     const sortCol = sort?.column ?? 'created_at';

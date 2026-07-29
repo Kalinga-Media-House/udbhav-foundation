@@ -65,7 +65,11 @@ export class VolunteersService {
   async register(dto: CreateVolunteerDTO, userId: ID): Promise<ServiceResult<VolunteerRow>> {
     const parsed = createVolunteerSchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
-    return fromRepo(await volunteersRepository.create({ ...parsed.data, created_by: userId, updated_by: userId } as VolunteerCreate));
+    const createData = { ...parsed.data, created_by: userId, updated_by: userId };
+    if (createData.metadata) {
+      createData.metadata = createData.metadata as any;
+    }
+    return fromRepo(await volunteersRepository.create(createData as VolunteerCreate));
   }
 
   /**
@@ -88,7 +92,11 @@ export class VolunteersService {
   async update(id: ID, dto: UpdateVolunteerDTO, userId: ID): Promise<ServiceResult<VolunteerRow>> {
     const parsed = updateVolunteerSchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
-    return fromRepo(await volunteersRepository.update(id, { ...parsed.data, updated_by: userId }));
+    const updateData = { ...parsed.data, updated_by: userId };
+    if (updateData.metadata) {
+      updateData.metadata = updateData.metadata as any;
+    }
+    return fromRepo(await volunteersRepository.update(id, updateData as any));
   }
 
   /**
@@ -177,12 +185,11 @@ export class VolunteersService {
 
         if (!existingVol) {
           const code = await volunteersRepository.generateVolunteerCode();
-          const volCreate: VolunteerCreate = {
+          const volCreate = {
             profile_id: profile.id,
             volunteer_code: code,
             status: 'Active',
-            bio: application.motivation,
-            motivation: application.motivation,
+            biography: application.motivation,
             availability: application.availability,
             metadata: {
               skills: application.skills,
@@ -191,11 +198,11 @@ export class VolunteersService {
               state: application.state,
               occupation: application.occupation,
               application_id: application.id,
-            },
+            } as any,
             created_by: userId,
             updated_by: userId,
           };
-          await volunteersRepository.create(volCreate);
+          await volunteersRepository.create(volCreate as any);
         }
 
         await this.notifyUser(

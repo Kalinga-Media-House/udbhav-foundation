@@ -3,36 +3,10 @@ import { DatabaseError } from '@/errors';
 import { serverLogger } from "@/lib/logger/server-logger";
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { ID } from '@/types';
+import type { Database } from '@/types/database/database.generated';
 
-export type TaxonomyRow = {
-  id: string;
-  slug: string;
-  display_name: string;
-  description: string | null;
-  type: 'flat' | 'hierarchical';
-  status: 'active' | 'inactive' | 'deprecated';
-  visibility: 'public' | 'internal' | 'system';
-  icon: string | null;
-  color: string | null;
-  sort_order: number;
-  metadata: Record<string, unknown>;
-  created_at: string;
-};
-
-export type TaxonomyTermRow = {
-  id: string;
-  taxonomy_id: string;
-  parent_id: string | null;
-  slug: string;
-  display_name: string;
-  description: string | null;
-  code: string | null;
-  icon: string | null;
-  color: string | null;
-  sort_order: number;
-  metadata: Record<string, unknown>;
-  created_at: string;
-};
+export type TaxonomyRow = Database['public']['Tables']['taxonomies']['Row'];
+export type TaxonomyTermRow = Database['public']['Tables']['taxonomy_terms']['Row'];
 
 export class LookupsRepository {
   async getTaxonomies(): Promise<RepositoryResult<TaxonomyRow[]>> {

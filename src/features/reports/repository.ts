@@ -23,7 +23,7 @@ export async function fetchVolunteers() {
 
 export async function fetchUsers() {
   const supabase = await createClient();
-  const { data, error } = await supabase.from('users').select('*').order('created_at', { ascending: false });
+  const { data, error } = await supabase.from('profiles').select('*').order('created_at', { ascending: false });
   if (error) throw new Error(error.message);
   return data;
 }

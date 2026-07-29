@@ -48,7 +48,7 @@ export default async function AlbumDetailPage(props: { params: Promise<{ slug: s
   const items = itemsResult.success && itemsResult.data ? itemsResult.data.data : [];
 
   const initialPhotos: GalleryPhoto[] = items
-    .filter((item) => item.media?.public_url)
+    .filter((item) => item.media?.cdn_url)
     .map((item) => {
       const width = item.media?.width || 0;
       const height = item.media?.height || 0;
@@ -61,10 +61,10 @@ export default async function AlbumDetailPage(props: { params: Promise<{ slug: s
 
       return {
         id: item.id,
-        imageUrl: item.media!.public_url!,
-        title: item.title || album.title,
+        imageUrl: item.media!.cdn_url!,
+        title: item.caption || album.title,
         caption: item.caption || item.media?.caption || '',
-        altText: item.media?.alt_text || item.title || album.title,
+        altText: item.media?.alt_text || item.caption || album.title,
         photographerName: undefined,
         aspectRatio,
         createdAt: item.created_at,

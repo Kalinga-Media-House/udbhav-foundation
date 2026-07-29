@@ -2,6 +2,7 @@ import type { PaginatedResult } from '@/contracts/repositories';
 import { ok, fail, fromRepo } from '@/contracts/services';
 import type { ServiceResult } from '@/contracts/services';
 import type { Pagination, ID } from '@/types';
+import type { Json } from '@/types/database/database.generated';
 import { slugify } from '@/utils/string';
 
 import { programsRepository } from './repository';
@@ -45,10 +46,10 @@ export class ProgramsService {
       end_date: parsed.data.end_date ?? null,
       is_featured: parsed.data.is_featured,
       display_order: parsed.data.display_order,
-      metadata: parsed.data.metadata,
+      metadata: parsed.data.metadata as any,
       created_by: userId,
       updated_by: userId,
-    };
+    } as any;
     return fromRepo(await programsRepository.create(programData));
   }
 
@@ -58,7 +59,11 @@ export class ProgramsService {
     if (!parsed.success) {
       return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
     }
-    return fromRepo(await programsRepository.update(id, { ...parsed.data, updated_by: userId }));
+    const updateData = { ...parsed.data, updated_by: userId };
+    if (updateData.metadata) {
+      updateData.metadata = updateData.metadata as any;
+    }
+    return fromRepo(await programsRepository.update(id, updateData as any));
   }
 
   /** Soft-delete a program. */

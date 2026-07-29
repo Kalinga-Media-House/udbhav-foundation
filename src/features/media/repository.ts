@@ -3,28 +3,9 @@ import { DatabaseError } from '@/errors';
 import { serverLogger } from "@/lib/logger/server-logger";
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { Pagination, ID } from '@/types';
+import type { Database } from '@/types/database/database.generated';
 
-export type MediaFileRow = {
-  id: string;
-  file_name: string;
-  original_name: string;
-  file_path: string;
-  bucket_name: string;
-  public_url: string | null;
-  file_size: number;
-  mime_type: string;
-  file_type: string;
-  entity_type: string | null;
-  entity_id: string | null;
-  alt_text: string | null;
-  title: string | null;
-  description: string | null;
-  metadata: Record<string, unknown>;
-  created_by: string | null;
-  created_at: string;
-  updated_at: string;
-  is_deleted: boolean;
-};
+export type MediaFileRow = Database['public']['Tables']['media_files']['Row'];
 
 export type MediaFileCreate = Omit<
   MediaFileRow,
@@ -76,8 +57,8 @@ export class MediaRepository {
     const { data, count, error } = await supabase
       .from('media_files')
       .select('*', { count: 'exact' })
-      .eq('entity_type', entityType)
-      .eq('entity_id', entityId)
+      .eq('entity_type' as any, entityType)
+      .eq('entity_id' as any, entityId)
       .eq('is_deleted', false)
       .order('created_at', { ascending: false })
       .range(from, from + pagination.limit - 1);

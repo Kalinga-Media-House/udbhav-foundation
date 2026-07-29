@@ -26,8 +26,8 @@ export class SearchRepository {
         // we'll just check if profiles or volunteers table has some fields, let's just use select('*')
         supabase.from('volunteers').select('*').limit(5), 
         supabase.from('donations').select('*').limit(5),
-        supabase.from('campaigns').select('id, title').ilike('title', `%${query}%`).limit(5),
-        supabase.from('media').select('id, file_name, title').ilike('title', `%${query}%`).limit(5),
+        supabase.from('donation_campaigns').select('id, title').ilike('title', `%${query}%`).limit(5),
+        supabase.from('media_files').select('id, original_filename').ilike('original_filename', `%${query}%`).limit(5),
       ];
 
       const results = await Promise.allSettled(searchTasks);

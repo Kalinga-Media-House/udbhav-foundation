@@ -30,7 +30,7 @@ export type ArticleRow = {
 export type ArticleWithMedia = ArticleRow & {
   cover_image?: {
     id: string;
-    public_url: string | null;
+    cdn_url: string | null;
     alt_text: string | null;
     caption: string | null;
     width: number | null;
@@ -86,11 +86,11 @@ export class NewsRepository implements IWriteRepository<ArticleRow, ArticleCreat
       const enriched = enrichArticleMetadata(data as unknown as ArticleRow);
       if (enriched.cover_image_id) {
         const { data: rawMedia } = await supabase
-          .from('media_objects')
-          .select('id, public_url, alt_text, caption, width, height')
+          .from('media_files')
+          .select('id, cdn_url, alt_text, caption, width, height')
           .eq('id', enriched.cover_image_id)
           .single();
-        const media = rawMedia as { id: string; public_url: string | null; alt_text: string | null; caption: string | null; width: number | null; height: number | null } | null;
+        const media = rawMedia as { id: string; cdn_url: string | null; alt_text: string | null; caption: string | null; width: number | null; height: number | null } | null;
         if (media) {
           enriched.cover_image = media;
         }
@@ -120,11 +120,11 @@ export class NewsRepository implements IWriteRepository<ArticleRow, ArticleCreat
       const enriched = enrichArticleMetadata(data as unknown as ArticleRow);
       if (enriched.cover_image_id) {
         const { data: rawMedia } = await supabase
-          .from('media_objects')
-          .select('id, public_url, alt_text, caption, width, height')
+          .from('media_files')
+          .select('id, cdn_url, alt_text, caption, width, height')
           .eq('id', enriched.cover_image_id)
           .single();
-        const media = rawMedia as { id: string; public_url: string | null; alt_text: string | null; caption: string | null; width: number | null; height: number | null } | null;
+        const media = rawMedia as { id: string; cdn_url: string | null; alt_text: string | null; caption: string | null; width: number | null; height: number | null } | null;
         if (media) {
           enriched.cover_image = media;
         }
@@ -159,13 +159,13 @@ export class NewsRepository implements IWriteRepository<ArticleRow, ArticleCreat
       .eq('is_deleted', false);
 
     if (filters?.status) {
-      query = query.eq('status', filters.status as string);
+      query = query.eq('status', filters.status as any);
     }
     if (filters?.is_featured !== undefined) {
       query = query.eq('is_featured', Boolean(filters.is_featured));
     }
     if (filters?.visibility) {
-      query = query.eq('visibility', filters.visibility as string);
+      query = query.eq('visibility', filters.visibility as any);
     }
     if (filters?.category) {
       query = query.eq('metadata->>category', filters.category as string);
@@ -196,15 +196,15 @@ export class NewsRepository implements IWriteRepository<ArticleRow, ArticleCreat
     const enrichedList = rawRows.map(enrichArticleMetadata);
 
     const coverIds = Array.from(new Set(enrichedList.map((a) => a.cover_image_id).filter(Boolean))) as string[];
-    const mediaMap = new Map<string, { id: string; public_url: string | null; alt_text: string | null; caption: string | null; width: number | null; height: number | null }>();
+    const mediaMap = new Map<string, { id: string; cdn_url: string | null; alt_text: string | null; caption: string | null; width: number | null; height: number | null }>();
 
     if (coverIds.length > 0) {
       const { data: rawMediaRows } = await supabase
-        .from('media_objects')
-        .select('id, public_url, alt_text, caption, width, height')
+        .from('media_files')
+        .select('id, cdn_url, alt_text, caption, width, height')
         .in('id', coverIds);
 
-      const mediaRows = (rawMediaRows as { id: string; public_url: string | null; alt_text: string | null; caption: string | null; width: number | null; height: number | null }[]) ?? [];
+      const mediaRows = (rawMediaRows as { id: string; cdn_url: string | null; alt_text: string | null; caption: string | null; width: number | null; height: number | null }[]) ?? [];
       mediaRows.forEach((m) => {
         mediaMap.set(m.id, m);
       });
@@ -356,15 +356,15 @@ export class NewsRepository implements IWriteRepository<ArticleRow, ArticleCreat
     const enrichedList = rawRows.map(enrichArticleMetadata);
 
     const coverIds = Array.from(new Set(enrichedList.map((a) => a.cover_image_id).filter(Boolean))) as string[];
-    const mediaMap = new Map<string, { id: string; public_url: string | null; alt_text: string | null; caption: string | null; width: number | null; height: number | null }>();
+    const mediaMap = new Map<string, { id: string; cdn_url: string | null; alt_text: string | null; caption: string | null; width: number | null; height: number | null }>();
 
     if (coverIds.length > 0) {
       const { data: rawMediaRows } = await supabase
-        .from('media_objects')
-        .select('id, public_url, alt_text, caption, width, height')
+        .from('media_files')
+        .select('id, cdn_url, alt_text, caption, width, height')
         .in('id', coverIds);
 
-      const mediaRows = (rawMediaRows as { id: string; public_url: string | null; alt_text: string | null; caption: string | null; width: number | null; height: number | null }[]) ?? [];
+      const mediaRows = (rawMediaRows as { id: string; cdn_url: string | null; alt_text: string | null; caption: string | null; width: number | null; height: number | null }[]) ?? [];
       mediaRows.forEach((m) => {
         mediaMap.set(m.id, m);
       });

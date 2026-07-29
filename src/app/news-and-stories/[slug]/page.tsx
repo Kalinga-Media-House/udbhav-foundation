@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const seoTitle = ((article.metadata || {}) as Record<string, unknown>).seo_title as string || `${article.title} | UDBHAV FOUNDATION`;
   const seoDesc = ((article.metadata || {}) as Record<string, unknown>).seo_description as string || article.summary || article.subtitle || 'Read this story on UDBHAV FOUNDATION.';
   const canonicalUrl = ((article.metadata || {}) as Record<string, unknown>).canonical_url as string || `/news-and-stories/${article.slug}`;
-  const imageUrl = article.cover_image?.public_url || '/images/default-news-cover.jpg';
+  const imageUrl = article.cover_image?.cdn_url || '/images/default-news-cover.jpg';
 
   return {
     title: seoTitle,
@@ -104,7 +104,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
     '@type': 'NewsArticle',
     headline: article.title,
     description: article.summary || article.subtitle || '',
-    image: article.cover_image?.public_url ? [article.cover_image.public_url] : [],
+    image: article.cover_image?.cdn_url ? [article.cover_image.cdn_url] : [],
     datePublished: article.published_at || article.created_at,
     dateModified: article.updated_at,
     author: {
@@ -200,11 +200,11 @@ export default async function NewsArticlePage({ params }: PageProps) {
         </div>
 
         {/* Hero Cover Image */}
-        {article.cover_image?.public_url && (
+        {article.cover_image?.cdn_url && (
           <div className="max-w-4xl mx-auto mb-10 sm:mb-12">
             <div className="relative h-64 sm:h-96 md:h-110 w-full rounded-3xl overflow-hidden shadow-lg border border-[#12245F]/10 bg-[#EAF3FF]">
               <Image
-                src={article.cover_image.public_url}
+                src={article.cover_image.cdn_url}
                 alt={article.cover_image.alt_text || article.title}
                 fill
                 sizes="(max-width: 1024px) 100vw, 900px"
@@ -305,10 +305,10 @@ export default async function NewsArticlePage({ params }: PageProps) {
                     className="group bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
                   >
                     <div>
-                      {rel.cover_image?.public_url && (
+                      {rel.cover_image?.cdn_url && (
                         <div className="relative h-44 w-full bg-gray-100 overflow-hidden">
                           <Image
-                            src={rel.cover_image.public_url}
+                            src={rel.cover_image.cdn_url}
                             alt={rel.title}
                             fill
                             sizes="300px"

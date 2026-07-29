@@ -3,6 +3,7 @@ import { DatabaseError } from '@/errors';
 import { serverLogger } from "@/lib/logger/server-logger";
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { Pagination, ID } from '@/types';
+import type { Database } from '@/types/database/database.generated';
 
 /**
  * Database row shape for donations.
@@ -27,7 +28,7 @@ export type DonationRow = {
   paid_at: string | null;
   is_80g_eligible: boolean;
   receipt_generated: boolean;
-  metadata: Record<string, unknown>;
+  metadata: Database['public']['Tables']['donation_campaigns']['Row']['metadata'];
   created_by: string | null;
   updated_by: string | null;
   created_at: string;
@@ -62,7 +63,7 @@ export type CampaignRow = {
   visibility: string;
   is_featured: boolean;
   priority: number;
-  metadata: Record<string, unknown>;
+  metadata: Database['public']['Tables']['donation_campaigns']['Row']['metadata'];
   created_by: string | null;
   updated_by: string | null;
   created_at: string;
@@ -106,7 +107,7 @@ export class DonationsRepository {
     const { pagination, filters } = params;
     const supabase = await createServerSupabaseClient();
     let query = supabase.from('donations').select('*', { count: 'exact' }).eq('is_deleted', false);
-    if (filters?.status) query = query.eq('status', filters.status as string);
+    if (filters?.status) query = query.eq('status', filters.status as any);
     if (filters?.contact_id) query = query.eq('contact_id', filters.contact_id as string);
     if (filters?.campaign_id) query = query.eq('campaign_id', filters.campaign_id as string);
     query = query.order('created_at', { ascending: false });

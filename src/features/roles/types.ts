@@ -1,20 +1,7 @@
-﻿export interface Role {
-  id: string;
-  name: string;
-  description: string | null;
-  created_at?: string;
-  updated_at?: string;
-}
+import type { Database } from '@/types/database/database.generated';
 
-export interface Permission {
-  id: string;
-  name: string;
-  description: string | null;
-  created_at?: string;
-  updated_at?: string;
-}
+export type RoleRow = Database['public']['Tables']['roles']['Row'];
 
-export interface RolePermission {
-  role_id: string;
-  permission_id: string;
-}
+export type Role = Database['public']['Tables']['roles']['Row'];
+export type Permission = Database['public']['Tables']['permissions']['Row'];
+export type RolePermission = Database['public']['Tables']['role_permissions']['Row'];

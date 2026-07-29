@@ -3,27 +3,12 @@ import { DatabaseError } from '@/errors';
 import { serverLogger } from "@/lib/logger/server-logger";
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { Pagination } from '@/types';
+import type { Database } from '@/types/database/database.generated';
 
 export type ActivitySeverity = 'info' | 'success' | 'warning' | 'error' | 'critical';
 export type ActivityCategory = 'Authentication' | 'Authorization' | 'Users' | 'Programs' | 'Events' | 'Gallery' | 'News' | 'Volunteers' | 'Donations' | 'Settings' | 'Media' | 'System';
 
-export type ActivityLogRow = {
-  id: string;
-  actor_id: string | null;
-  action: string;
-  category: ActivityCategory;
-  module: string;
-  severity: ActivitySeverity;
-  description: string | null;
-  entity_type: string | null;
-  entity_id: string | null;
-  old_values: Record<string, unknown> | null;
-  new_values: Record<string, unknown> | null;
-  metadata: Record<string, unknown>;
-  ip_address: string | null;
-  user_agent: string | null;
-  created_at: string;
-};
+export type ActivityLogRow = Database['public']['Tables']['activity_logs']['Row'];
 
 export class AuditLogsRepository {
   async listLogs(params: { pagination: Pagination; filters?: FilterMap }): Promise<PaginatedResult<ActivityLogRow>> {
@@ -35,8 +20,8 @@ export class AuditLogsRepository {
     if (filters?.module) query = query.eq('module', filters.module as string);
     if (filters?.entity_type) query = query.eq('entity_type', filters.entity_type as string);
     if (filters?.entity_id) query = query.eq('entity_id', filters.entity_id as string);
-    if (filters?.category) query = query.eq('category', filters.category as string);
-    if (filters?.severity) query = query.eq('severity', filters.severity as string);
+    if (filters?.category) query = query.eq('category', filters.category as any);
+    if (filters?.severity) query = query.eq('severity', filters.severity as any);
 
     query = query.order('created_at', { ascending: false });
 

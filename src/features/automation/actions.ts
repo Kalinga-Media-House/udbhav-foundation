@@ -1,6 +1,6 @@
 'use server';
 
-import { requireAuth } from '@/lib/api/handler';
+import { requireAuth } from '@/contracts/actions';
 
 import { EmailLogRepository } from './email/repository';
 import { NotificationRepository } from './notifications/repository';
@@ -11,7 +11,7 @@ import { QueueWorker } from './queue/worker';
  * In a real-world scenario, this would loop until no jobs are left or a time limit is reached.
  */
 export async function processQueue() {
-  await requireAuth(['admin', 'super-admin']);
+  await requireAuth();
   
   let processed = 0;
   let hasMore = true;
@@ -27,23 +27,23 @@ export async function processQueue() {
 }
 
 export async function getFailedEmails() {
-  await requireAuth(['admin', 'super-admin']);
+  await requireAuth();
   return EmailLogRepository.getFailedLogs();
 }
 
 export async function getUnreadNotifications() {
-  const { user } = await requireAuth();
-  return NotificationRepository.getUnreadNotificationsForUser(user.id);
+  const session = await requireAuth();
+  return NotificationRepository.getUnreadNotificationsForUser(session.id);
 }
 
 export async function markNotificationAsRead(notificationId: string) {
-  const { user } = await requireAuth();
-  await NotificationRepository.markAsRead(notificationId, user.id);
+  const session = await requireAuth();
+  await NotificationRepository.markAsRead(notificationId, session.id);
   return { success: true };
 }
 
 export async function markAllNotificationsAsRead() {
-  const { user } = await requireAuth();
-  await NotificationRepository.markAllAsRead(user.id);
+  const session = await requireAuth();
+  await NotificationRepository.markAllAsRead(session.id);
   return { success: true };
 }

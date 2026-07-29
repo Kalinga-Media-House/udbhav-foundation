@@ -4,27 +4,18 @@ import { serverLogger } from "@/lib/logger/server-logger";
 import { createAdminClient } from '@/lib/supabase/admin';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { Pagination, ID } from '@/types';
+import type { Database } from '@/types/database/database.generated';
 
-export type VolunteerRow = {
-  id: string;
-  profile_id: string;
-  volunteer_code: string;
-  status: string;
-  total_hours: number;
-  event_count: number;
-  bio: string | null;
-  motivation: string | null;
-  availability: string | null;
-  metadata: Record<string, unknown>;
-  created_by: string | null;
-  updated_by: string | null;
-  created_at: string;
-  updated_at: string;
-  is_deleted: boolean;
+export type VolunteerRow = Database['public']['Tables']['volunteers']['Row'] & {
+  total_hours?: number;
+  event_count?: number;
+  bio?: string | null;
+  motivation?: string | null;
+  availability?: string | null;
 };
 
-export type VolunteerCreate = Omit<VolunteerRow, 'id' | 'created_at' | 'updated_at' | 'is_deleted' | 'total_hours' | 'event_count'>;
-export type VolunteerUpdate = Partial<Omit<VolunteerCreate, 'volunteer_code' | 'profile_id'>>;
+export type VolunteerCreate = Database['public']['Tables']['volunteers']['Insert'];
+export type VolunteerUpdate = Database['public']['Tables']['volunteers']['Update'];
 
 export type VolunteerApplicationRow = {
   id: string;
@@ -131,7 +122,7 @@ export class VolunteersRepository implements IWriteRepository<VolunteerRow, Volu
     const { pagination, sort, filters } = params;
     const supabase = await createServerSupabaseClient();
     let query = supabase.from('volunteers').select('*', { count: 'exact' }).eq('is_deleted', false);
-    if (filters?.status) query = query.eq('status', filters.status as string);
+    if (filters?.status) query = query.eq('status', filters.status as any);
     if (filters?.volunteer_type) query = (query as any).eq('volunteer_type', filters.volunteer_type as string);
     const sortCol = sort?.column ?? 'created_at';
     query = query.order(sortCol, { ascending: sort?.order === 'asc' });
@@ -307,7 +298,7 @@ export class VolunteersRepository implements IWriteRepository<VolunteerRow, Volu
       .from('volunteers')
       .select('*', { count: 'exact' })
       .eq('is_deleted', false)
-      .in('status', ['Active', 'Verified', 'Approved']);
+      .in('status', ['Active', 'Verified']);
 
     if (filters?.volunteer_type && filters.volunteer_type !== 'all') {
       query = (query as any).eq('volunteer_type', filters.volunteer_type as string);

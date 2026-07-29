@@ -49,7 +49,7 @@ export class GalleryService {
   async create(dto: CreateAlbumDTO, userId: ID): Promise<ServiceResult<AlbumRow>> {
     const parsed = createAlbumSchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
-    return fromRepo(await galleryRepository.create({ ...parsed.data, created_by: userId, updated_by: userId } as AlbumCreate));
+    return fromRepo(await galleryRepository.create({ ...parsed.data as any, created_by: userId, updated_by: userId } as AlbumCreate));
   }
 
   /**
@@ -62,7 +62,7 @@ export class GalleryService {
   async update(id: ID, dto: UpdateAlbumDTO, userId: ID): Promise<ServiceResult<AlbumRow>> {
     const parsed = updateAlbumSchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
-    return fromRepo(await galleryRepository.update(id, { ...parsed.data, updated_by: userId }));
+    return fromRepo(await galleryRepository.update(id, { ...parsed.data as any, updated_by: userId }));
   }
 
   /**
@@ -94,7 +94,7 @@ export class GalleryService {
   async addItem(dto: AddGalleryItemDTO, userId: ID): Promise<ServiceResult<GalleryItemRow>> {
     const parsed = addGalleryItemSchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
-    return fromRepo(await galleryRepository.addItem({ ...parsed.data, created_by: userId, updated_by: userId } as GalleryItemCreate));
+    return fromRepo(await galleryRepository.addItem({ ...parsed.data as any, created_by: userId, updated_by: userId } as any));
   }
 
   /**

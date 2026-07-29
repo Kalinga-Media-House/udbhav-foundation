@@ -186,7 +186,7 @@ export function InitiativeDetailClient({ initiative, related, adjacent }: Initia
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
             {gallery.map((photo, idx) => {
-              const url = photo.public_url || '/hero/hero-02.png';
+              const url = photo.cdn_url || '/hero/hero-02.png';
               return (
                 <div
                   key={photo.id}
@@ -254,7 +254,7 @@ export function InitiativeDetailClient({ initiative, related, adjacent }: Initia
             <div className="relative max-w-5xl max-h-[85vh] w-full h-full flex flex-col items-center justify-center">
               <div className="relative w-full h-full max-h-[75vh]">
                 <Image
-                  src={gallery[lightboxIndex]!.public_url || '/hero/hero-02.png'}
+                  src={gallery[lightboxIndex]!.cdn_url || '/hero/hero-02.png'}
                   alt={gallery[lightboxIndex]!.alt_text || gallery[lightboxIndex]!.caption || 'Initiative Photo'}
                   fill
                   sizes="100vw"

@@ -35,7 +35,7 @@ export function ImpactStoriesSection({ articles }: ImpactStoriesSectionProps = {
           slug: a.slug,
           excerpt: a.summary || a.subtitle || "",
           content: a.content,
-          imageUrl: a.cover_image?.public_url || "/images/default-news-cover.jpg",
+          imageUrl: a.cover_image?.cdn_url || "/images/default-news-cover.jpg",
           category: "Community Story",
           personName: a.author_name || "Community Member",
           location: "Odisha, India",

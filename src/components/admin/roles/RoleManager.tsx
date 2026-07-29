@@ -44,7 +44,7 @@ export function RoleManager() {
       if (exists) {
         return prev.filter((rp) => !(rp.role_id === roleId && rp.permission_id === permissionId));
       } else {
-        return [...prev, { role_id: roleId, permission_id: permissionId }];
+        return [...prev, { role_id: roleId, permission_id: permissionId, created_at: new Date().toISOString(), created_by: null }];
       }
     });
   };
@@ -67,9 +67,9 @@ export function RoleManager() {
 
   const handleExport = () => {
     const data = roles.map((role) => {
-      const row: any = { Role: role.name };
+      const row: any = { Role: role.display_name };
       permissions.forEach((p) => {
-        row[p.name] = rolePerms.some((rp) => rp.role_id === role.id && rp.permission_id === p.id)
+        row[p.display_name] = rolePerms.some((rp) => rp.role_id === role.id && rp.permission_id === p.id)
           ? 'Yes'
           : 'No';
       });
@@ -101,9 +101,9 @@ export function RoleManager() {
                 <th
                   key={p.id}
                   className="border border-gray-200 px-4 py-2"
-                  title={p.description || p.name}
+                  title={p.description || p.display_name}
                 >
-                  {p.name}
+                  {p.display_name}
                 </th>
               ))}
               <th className="border border-gray-200 px-4 py-2">Actions</th>
@@ -112,7 +112,7 @@ export function RoleManager() {
           <tbody>
             {roles.map((role) => (
               <tr key={role.id}>
-                <td className="border border-gray-200 px-4 py-2 font-medium">{role.name}</td>
+                <td className="border border-gray-200 px-4 py-2 font-medium">{role.display_name}</td>
                 {permissions.map((p) => {
                   const hasPerm = rolePerms.some(
                     (rp) => rp.role_id === role.id && rp.permission_id === p.id

@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     if (res.success && res.data) {
       const programmeRow = res.data;
       const meta = (programmeRow.metadata || {}) as Record<string, unknown>;
-      title = `${programmeRow.display_order.toString().padStart(2, '0')}: ${programmeRow.title} | UDBHAV FOUNDATION`;
+      title = `${(programmeRow.display_order ?? 0).toString().padStart(2, '0')}: ${programmeRow.title} | UDBHAV FOUNDATION`;
       description = programmeRow.description || "Explore UDBHAV Foundation community action programmes.";
       coverImage = (meta.coverImageUrl as string) || coverImage;
     }
@@ -60,7 +60,7 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
     const meta = (p.metadata || {}) as Record<string, unknown>;
     programme = {
       id: p.id,
-      programmeNumber: p.display_order.toString().padStart(2, '0'),
+      programmeNumber: (p.display_order ?? 0).toString().padStart(2, '0'),
       title: p.title,
       tagline: p.subtitle || '',
       category: (meta.category as ProgrammeCategory) || 'Community Support',
@@ -105,7 +105,7 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
         const meta = (p.metadata || {}) as Record<string, unknown>;
         return {
           id: p.id,
-          programmeNumber: (p.display_order ?? 0).toString().padStart(2, '0'),
+          programmeNumber: ((p.display_order ?? 0) ?? 0).toString().padStart(2, '0'),
           title: p.title,
           tagline: p.subtitle || '',
           category: (meta.category as ProgrammeCategory) || 'Community Support',

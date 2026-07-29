@@ -19,7 +19,7 @@ export function VolunteerDashboardClient({ initialData }: Props) {
   const { volunteer, programs, events, certificates, totalHours } = initialData;
 
   const activityLogs: Array<{ id: string; hours: number; notes: string; created_at: string }> =
-    Array.isArray(volunteer.metadata?.activity_logs) ? (volunteer.metadata.activity_logs as any) : [];
+    Array.isArray((volunteer.metadata as any)?.activity_logs) ? ((volunteer.metadata as any)?.activity_logs as any) : [];
 
   return (
     <div className="min-h-screen bg-[#F8FAF9] py-12">

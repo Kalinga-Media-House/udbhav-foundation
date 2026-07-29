@@ -23,10 +23,10 @@ export default async function IndexPage() {
   const activePrograms = result.data.data.filter(p => p.status === 'active' && p.slug !== 'adhyaya-ramp-of-inclusion');
 
   const mappedProgrammes: IndexProgrammeDetail[] = activePrograms.map(p => {
-    const meta = p.metadata || {};
+    const meta = (p.metadata || {}) as any;
     return {
       id: p.id,
-      programmeNumber: p.display_order.toString().padStart(2, '0'),
+      programmeNumber: (p.display_order ?? 0).toString().padStart(2, '0'),
       title: p.title,
       tagline: p.subtitle || '',
       category: (meta.category as ProgrammeCategory) || 'Community Support',

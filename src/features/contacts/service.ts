@@ -59,7 +59,7 @@ export class ContactsService {
   async createContact(dto: CreateContactDTO): Promise<ServiceResult<ContactRow>> {
     const parsed = createContactSchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: any) => e.message).join(', '));
-    const contactData: ContactCreate = {
+    const contactData = {
       profile_id: null,
       full_name: parsed.data.full_name,
       organization_id: parsed.data.organization_id ?? null,
@@ -80,7 +80,7 @@ export class ContactsService {
       status: 'Active',
       notes: parsed.data.notes ?? null,
     };
-    return fromRepo(await contactsRepository.createContact(contactData));
+    return fromRepo(await contactsRepository.createContact(contactData as any));
   }
 
   async updateContact(id: ID, dto: UpdateContactDTO): Promise<ServiceResult<ContactRow>> {
@@ -100,7 +100,7 @@ export class ContactsService {
   async createOrganization(dto: CreateOrganizationDTO): Promise<ServiceResult<OrganizationRow>> {
     const parsed = createOrganizationSchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: any) => e.message).join(', '));
-    const orgData: OrganizationCreate = {
+    const orgData = {
       parent_organization_id: parsed.data.parent_organization_id ?? null,
       name: parsed.data.name,
       organization_type: parsed.data.organization_type,
@@ -114,7 +114,7 @@ export class ContactsService {
       logo_media_id: null,
       status: parsed.data.status,
     };
-    return fromRepo(await contactsRepository.createOrganization(orgData));
+    return fromRepo(await contactsRepository.createOrganization(orgData as any));
   }
 
   async updateOrganization(id: ID, dto: UpdateOrganizationDTO): Promise<ServiceResult<OrganizationRow>> {
