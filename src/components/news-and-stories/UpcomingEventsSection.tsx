@@ -1,8 +1,5 @@
 "use client";
 
-import React, { useRef, useState, useEffect, useCallback } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import {
   Calendar,
   MapPin,
@@ -12,9 +9,12 @@ import {
   ArrowRight,
   Info,
 } from "lucide-react";
+import Link from "next/link";
+import React, { useRef, useState, useEffect, useCallback } from "react";
+
+import { AnimatedCardWrapper } from "@/components/shared/AnimatedCardWrapper";
 import { Container } from "@/components/shared/Container";
 import { LazyImage } from "@/components/shared/LazyImage";
-import { AnimatedCardWrapper } from "@/components/shared/AnimatedCardWrapper";
 import { UPCOMING_EVENTS } from "@/data/news-data";
 import { EventStatus } from "@/types/news";
 

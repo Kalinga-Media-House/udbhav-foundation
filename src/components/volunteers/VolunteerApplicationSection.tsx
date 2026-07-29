@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import {
   HeartHandshake,
   CheckCircle2,
@@ -8,6 +7,8 @@ import {
   Loader2,
   Check,
 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
 

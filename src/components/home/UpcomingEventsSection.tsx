@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
-import Link from "next/link";
 import { ArrowRight, MapPin, Clock, Calendar } from "lucide-react";
-import { RevealCard } from "@/components/shared/RevealCard";
+import Link from "next/link";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
+
 import { AnimatedCardWrapper } from "@/components/shared/AnimatedCardWrapper";
 import { LazyImage } from "@/components/shared/LazyImage";
+import { RevealCard } from "@/components/shared/RevealCard";
 
 // Data Structure
 export interface UpcomingEvent {

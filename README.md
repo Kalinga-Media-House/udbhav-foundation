@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# UDBHAV Foundation Platform
 
-## Getting Started
+This is the enterprise repository for the UDBHAV Foundation platform.
 
-First, run the development server:
+## Architecture & Documentation
 
+Please see the `/docs` directory for the comprehensive Enterprise Architecture Documents, including:
+- [`APPLICATION_SERVICES.md`](./docs/APPLICATION_SERVICES.md) — Backend service layer, repository pattern, and domain contracts
+- [`APPLICATION_SHELL.md`](./docs/APPLICATION_SHELL.md) — UI shell, layouts, and component composition
+- [`DESIGN_SYSTEM.md`](./docs/DESIGN_SYSTEM.md) — Design tokens, Tailwind styling, and UI primitives
+- [`MIDDLEWARE_FOUNDATION.md`](./docs/MIDDLEWARE_FOUNDATION.md) — Edge middleware routing and security headers
+- [`SUPABASE_FOUNDATION.md`](./docs/SUPABASE_FOUNDATION.md) — Database schema, Row-Level Security (RLS), and authentication
+- [`STORAGE_FOUNDATION.md`](./docs/STORAGE_FOUNDATION.md) — Cloudflare R2 media storage architecture
+- [`TYPE_SYSTEM.md`](./docs/TYPE_SYSTEM.md) — Strict TypeScript type definitions and contracts
+- [`ENV_VARS.md`](./docs/ENV_VARS.md) — Environment variable management and validation
+- [`TESTING.md`](./docs/TESTING.md) — Vitest and Playwright quality assurance specifications
+- [`CI_CD.md`](./docs/CI_CD.md) — Continuous integration and deployment workflows
+
+## Current Status
+**✅ Phase 2.8 (Foundation Index) Completed and Baselined.**
+The repository is at version `v1.0.0-foundation-phase-2.8`.
+
+## Local Development
+
+Please refer to [`ENV_VARS.md`](./docs/ENV_VARS.md) and [`SUPABASE_FOUNDATION.md`](./docs/SUPABASE_FOUNDATION.md) for complete setup instructions.
+
+Quickstart:
 ```bash
+# 1. Install dependencies
+npm install
+
+# 2. Setup environment
+cp .env.example .env.local
+# (Fill in your secrets from the secure vault)
+
+# 3. Start local Supabase
+npx supabase start
+
+# 4. Start Next.js Development Server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Quality Gates
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Before opening a PR, ensure you pass the local checks:
+```bash
+npm run lint
+npm run typecheck
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

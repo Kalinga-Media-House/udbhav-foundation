@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import {
   Trees,
   GraduationCap,
@@ -11,6 +10,7 @@ import {
   Droplet,
   Ambulance,
 } from "lucide-react";
+import React from "react";
 
 interface ImpactMetricItem {
   id: string;

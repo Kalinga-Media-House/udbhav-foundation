@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
 import { HeartHandshake, BookOpen, Users, Sparkles } from "lucide-react";
+import React from "react";
+
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
 

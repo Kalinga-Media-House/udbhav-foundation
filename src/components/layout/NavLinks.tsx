@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import React from "react";
+
 import { MAIN_NAV_ITEMS } from "@/data/navigation";
 
 export function NavLinks() {

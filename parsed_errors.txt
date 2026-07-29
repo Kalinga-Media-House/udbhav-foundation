@@ -1,0 +1,7 @@
+C:\Projects\udbhav-foundation\src\features\contacts\repository.ts
+  494:36 - @typescript-eslint/no-unused-vars ('_f' is assigned a value but never used.)
+C:\Projects\udbhav-foundation\src\lib\supabase\types.ts
+  1:0 - null (Parsing error: File appears to be binary.)
+C:\Projects\udbhav-foundation\verify_210.mjs
+  1:10 - @typescript-eslint/no-unused-vars ('fileURLToPath' is defined but never used.)
+  3:7 - @typescript-eslint/no-unused-vars ('envPath' is assigned a value but never used.)

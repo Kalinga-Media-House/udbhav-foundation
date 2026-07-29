@@ -1,24 +1,26 @@
-import type { NextConfig } from "next";
-import path from "path";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: path.resolve(),
+  reactStrictMode: true,
+  
+  // Production optimizations
+  poweredByHeader: false,
+  
+  eslint: {
+    ignoreDuringBuilds: true,
   },
-  async redirects() {
-    return [
+  
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
       {
-        source: '/index',
-        destination: '/programmes',
-        permanent: true,
+        protocol: 'https',
+        hostname: process.env.NEXT_PUBLIC_R2_PUBLIC_URL?.replace('https://', '') || '',
+        pathname: '/**',
       },
-      {
-        source: '/index/:slug',
-        destination: '/programmes/:slug',
-        permanent: true,
-      },
-    ];
+    ],
   },
 };
 
 export default nextConfig;
+

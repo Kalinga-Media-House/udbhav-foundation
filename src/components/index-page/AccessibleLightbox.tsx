@@ -1,7 +1,5 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import Image from "next/image";
 import {
   X,
   ChevronLeft,
@@ -11,6 +9,9 @@ import {
   Clock,
   Camera,
 } from "lucide-react";
+import Image from "next/image";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+
 import { ProgrammePhotoItem } from "@/types/index-programme";
 
 interface AccessibleLightboxProps {

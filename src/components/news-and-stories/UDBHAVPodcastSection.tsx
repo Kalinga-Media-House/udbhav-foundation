@@ -1,8 +1,5 @@
 "use client";
 
-import React, { useRef, useState, useEffect, useCallback } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import {
   Mic,
   Play,
@@ -13,9 +10,13 @@ import {
   Tv,
   Award,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import React, { useRef, useState, useEffect, useCallback } from "react";
+
+import { AnimatedCardWrapper } from "@/components/shared/AnimatedCardWrapper";
 import { Container } from "@/components/shared/Container";
 import { LazyImage } from "@/components/shared/LazyImage";
-import { AnimatedCardWrapper } from "@/components/shared/AnimatedCardWrapper";
 import { PODCAST_EPISODES } from "@/data/news-data";
 
 function isValidYouTubeUrl(url?: string): boolean {
@@ -242,7 +243,7 @@ export function UDBHAVPodcastSection() {
 
               {/* Topics */}
               <div className="flex flex-wrap items-center gap-2 mb-6">
-                {featuredEpisode.topics.map((topic, i) => (
+                {featuredEpisode.topics.map((topic: string, i: number) => (
                   <span
                     key={i}
                     className="px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs font-semibold text-white/90"

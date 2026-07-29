@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import Link from "next/link";
 import { Phone, Mail, Heart, LogIn } from "lucide-react";
-import { Container } from "@/components/shared/Container";
-import { BrandLogo } from "@/components/shared/BrandLogo";
-import { NavLinks } from "@/components/layout/NavLinks";
+import Link from "next/link";
+import React, { useState, useEffect, useRef } from "react";
+
 import { MobileMenu } from "@/components/layout/MobileMenu";
+import { NavLinks } from "@/components/layout/NavLinks";
+import { BrandLogo } from "@/components/shared/BrandLogo";
+import { Container } from "@/components/shared/Container";
 
 export function Header() {
   const [isHeaderHidden, setIsHeaderHidden] = useState(false);
@@ -194,7 +195,7 @@ export function Header() {
               aria-label="UDBHAV Foundation home"
               className="inline-flex items-center rounded-lg focus-visible:outline-2 focus-visible:outline-udbhav-blue transition-opacity hover:opacity-95 shrink-0"
             >
-              <BrandLogo variant="dual" priority />
+              <BrandLogo priority />
             </Link>
 
             {/* Desktop Navigation Links */}

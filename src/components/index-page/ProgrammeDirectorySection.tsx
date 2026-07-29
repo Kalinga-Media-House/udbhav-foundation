@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, useMemo, useEffect, useRef } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import {
   ArrowRight,
   Camera,
   Calendar,
   TrendingUp,
 } from "lucide-react";
-import { OFFICIAL_INDEX_PROGRAMMES } from "@/data/index-programmes-data";
+import Image from "next/image";
+import Link from "next/link";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+
 import { ProgrammeCategory, IndexProgrammeDetail } from "@/types/index-programme";
 
 const CATEGORY_TABS: { label: string; value: string }[] = [
@@ -32,7 +32,6 @@ function AnimatedProgrammeCard({ prog, index }: { prog: IndexProgrammeDetail; in
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setReducedMotion(mediaQuery.matches);
     const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
     mediaQuery.addEventListener("change", handler);
@@ -41,7 +40,6 @@ function AnimatedProgrammeCard({ prog, index }: { prog: IndexProgrammeDetail; in
 
   useEffect(() => {
     if (reducedMotion) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsVisible(true);
       return;
     }
@@ -202,19 +200,19 @@ function AnimatedProgrammeCard({ prog, index }: { prog: IndexProgrammeDetail; in
   );
 }
 
-export function ProgrammeDirectorySection() {
+export function ProgrammeDirectorySection({ programmes }: { programmes: IndexProgrammeDetail[] }) {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const filteredProgrammes = useMemo(() => {
     if (activeCategory === "all") {
-      return OFFICIAL_INDEX_PROGRAMMES;
+      return programmes;
     }
-    return OFFICIAL_INDEX_PROGRAMMES.filter(
+    return programmes.filter(
       (prog) => prog.category === (activeCategory as ProgrammeCategory)
     );
-  }, [activeCategory]);
+  }, [activeCategory, programmes]);
 
   const handleCategoryChange = (newCategory: string) => {
     if (newCategory === selectedCategory || isTransitioning) return;

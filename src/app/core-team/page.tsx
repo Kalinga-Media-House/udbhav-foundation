@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+
+import { CoreTeamAdvisoryBoardSection } from "@/components/core-team/CoreTeamAdvisoryBoardSection";
+import { CoreTeamCtaSection } from "@/components/core-team/CoreTeamCtaSection";
 import { CoreTeamHeroSection } from "@/components/core-team/CoreTeamHeroSection";
-import { LeadershipIntroSection } from "@/components/core-team/LeadershipIntroSection";
 import { FounderSpotlightSection } from "@/components/core-team/FounderSpotlightSection";
 import { GoverningBodyGridSection } from "@/components/core-team/GoverningBodyGridSection";
 import { HowWeLeadSection } from "@/components/core-team/HowWeLeadSection";
-import { CoreTeamAdvisoryBoardSection } from "@/components/core-team/CoreTeamAdvisoryBoardSection";
+import { LeadershipIntroSection } from "@/components/core-team/LeadershipIntroSection";
 import { LeadershipStructureSection } from "@/components/core-team/LeadershipStructureSection";
-import { CoreTeamCtaSection } from "@/components/core-team/CoreTeamCtaSection";
 
 export const metadata: Metadata = {
   title: "Core Team & Governance — UDBHAV Foundation",

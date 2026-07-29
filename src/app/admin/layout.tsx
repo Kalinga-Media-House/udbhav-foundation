@@ -1,5 +1,8 @@
-import React from "react";
 import { redirect } from "next/navigation";
+import React from "react";
+
+import { AdminSidebar } from "@/components/admin/layout/AdminSidebar";
+import { GlobalSearch } from "@/components/admin/layout/GlobalSearch";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminLayout({
@@ -20,7 +23,7 @@ export default async function AdminLayout({
   }
 
   // Authoritative server-side role check
-  const { data: roleData, error: roleError } = await supabase
+  const { data: roleData, error: roleError } = await (supabase as any)
     .from("user_roles")
     .select("role, is_active")
     .eq("user_id", user.id)
@@ -45,6 +48,17 @@ export default async function AdminLayout({
     redirect("/login?error=unauthorized");
   }
 
+
   // If authorized, render the admin dashboard or nested admin pages
-  return <div className="min-h-screen bg-gray-50">{children}</div>;
+  return (
+    <div className="flex h-screen overflow-hidden bg-gray-50 font-sans text-gray-900">
+      <GlobalSearch />
+      <AdminSidebar />
+      <div className="flex-1 overflow-y-auto">
+        <main className="h-full p-4 md:p-8">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
 }

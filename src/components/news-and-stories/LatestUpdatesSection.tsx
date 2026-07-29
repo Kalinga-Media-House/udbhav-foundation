@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import { ArrowRight, BookOpen, Calendar, FolderOpen, MapPin, Search, SlidersHorizontal } from "lucide-react";
+import React, { useState, useMemo } from "react";
+
+import { AnimatedCardWrapper } from "@/components/shared/AnimatedCardWrapper";
 import { Container } from "@/components/shared/Container";
 import { LazyImage } from "@/components/shared/LazyImage";
-import { AnimatedCardWrapper } from "@/components/shared/AnimatedCardWrapper";
 import { NEWS_POSTS } from "@/data/news-data";
-import { NewsCategory } from "@/types/news";
+import type { ArticleWithMedia } from "@/features/news/repository";
+import { NewsCategory, NewsPostItem } from "@/types/news";
 
 const CATEGORIES: ("All" | NewsCategory)[] = [
   "All",
@@ -20,7 +20,11 @@ const CATEGORIES: ("All" | NewsCategory)[] = [
   "Media Coverage",
 ];
 
-export function LatestUpdatesSection() {
+interface LatestUpdatesSectionProps {
+  articles?: ArticleWithMedia[];
+}
+
+export function LatestUpdatesSection({ articles }: LatestUpdatesSectionProps = {}) {
   const [selectedCategory, setSelectedCategory] = useState<"All" | NewsCategory>("All");
   const [activeCategory, setActiveCategory] = useState<"All" | NewsCategory>("All");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -34,8 +38,36 @@ export function LatestUpdatesSection() {
     setIsPageLoaded(true);
   }, []);
 
+  const sourcePosts: NewsPostItem[] = useMemo(() => {
+    if (articles && articles.length > 0) {
+      return articles.map((a) => ({
+        id: a.id,
+        title: a.title,
+        slug: a.slug,
+        excerpt: a.summary || a.subtitle || '',
+        content: a.content,
+        coverImageUrl: a.cover_image?.public_url || '/images/default-news-cover.jpg',
+        category: a.category || 'Daily Updates',
+        location: 'Odisha, India',
+        activityDate: a.published_at
+          ? new Date(a.published_at).toLocaleDateString('en-IN', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })
+          : new Date(a.created_at).toLocaleDateString('en-IN'),
+        activityTime: '',
+        publishedAt: a.published_at || a.created_at,
+        readingTime: `${a.reading_time || 1} min read`,
+        author: a.author_name || 'UDBHAV Foundation',
+        isFeatured: a.is_featured,
+      }));
+    }
+    return NEWS_POSTS;
+  }, [articles]);
+
   const filteredPosts = useMemo(() => {
-    let list = [...NEWS_POSTS];
+    let list = [...sourcePosts];
 
     if (activeCategory !== "All") {
       list = list.filter((p) => p.category === activeCategory);
@@ -63,7 +95,7 @@ export function LatestUpdatesSection() {
     });
 
     return list;
-  }, [activeCategory, activeSearch, activeSort]);
+  }, [sourcePosts, activeCategory, activeSearch, activeSort]);
 
   const handleFilterChange = (
     newCategory: "All" | NewsCategory,

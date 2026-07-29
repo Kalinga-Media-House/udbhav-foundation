@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
 import Image from "next/image";
+import React, { useState, useEffect } from "react";
 
 function ProgrammeImageSlideshow({
   images,
@@ -21,7 +21,6 @@ function ProgrammeImageSlideshow({
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setReducedMotion(mediaQuery.matches);
     const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
     mediaQuery.addEventListener("change", handler);

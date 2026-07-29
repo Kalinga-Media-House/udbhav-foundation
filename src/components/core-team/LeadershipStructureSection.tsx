@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
 import { ArrowDown } from "lucide-react";
+import React from "react";
+
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
 
@@ -20,7 +21,7 @@ const STRUCTURE_LEVELS = [
   },
   {
     level: "Volunteer and Community Coordinators",
-    role: "Grassroots Engagement, Mobilization & Youth Wing (USFACT)",
+    role: "Grassroots Engagement, Mobilization & Youth Wing",
   },
   {
     level: "Advisory Board & Strategic Guidance",

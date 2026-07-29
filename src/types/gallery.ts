@@ -1,31 +1,24 @@
-export type IndexProgrammeSlug =
-  | "udbhav-siksha-samman"
-  | "free-civil-services-coaching"
-  | "plantation-drive"
-  | "climate-action-run"
-  | "books-study-materials-distribution"
-  | "cyber-safety-awareness"
-  | "mental-health-awareness"
-  | "health-checkup-camps"
-  | "sanitation-dengue-awareness"
-  | "blood-donation-camp"
-  | "emergency-blood-donation";
+/**
+ * @file gallery.ts
+ * @description Re-export of domain gallery types and view model types for gallery displays.
+ */
+
+export * from './domain/gallery';
 
 export interface IndexProgramme {
   id: string;
   title: string;
-  slug: IndexProgrammeSlug;
-  icon?: string;
+  slug: string;
+  category: string;
   accentColor?: string;
-  category: "Education" | "Environment" | "Health" | "Community";
 }
 
-export interface GalleryEvent {
+export interface GalleryPhotoEvent {
   id: string;
   title: string;
   slug: string;
   location: string;
-  eventDate: string; // ISO format or human readable
+  eventDate: string;
   startTime?: string;
   endTime?: string;
 }
@@ -33,13 +26,12 @@ export interface GalleryEvent {
 export interface GalleryPhoto {
   id: string;
   imageUrl: string;
-  thumbnailUrl?: string;
   title: string;
-  caption?: string;
+  caption: string;
   altText: string;
   photographerName?: string;
-  aspectRatio: "landscape" | "portrait" | "square";
+  aspectRatio?: 'portrait' | 'landscape' | 'square' | string;
   createdAt: string;
-  event: GalleryEvent;
   programme: IndexProgramme;
+  event: GalleryPhotoEvent;
 }

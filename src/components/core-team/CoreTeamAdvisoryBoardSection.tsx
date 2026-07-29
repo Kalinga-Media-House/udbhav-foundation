@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import Image from "next/image";
 import { User, ChevronDown } from "lucide-react";
-import { Container } from "@/components/shared/Container";
-import { RevealCard } from "@/components/shared/RevealCard";
+import Image from "next/image";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+
 import {
   ADVISORY_BOARD_MEMBERS,
   type AdvisoryBoardMember,
 } from "@/components/home/AdvisoryBoardSection";
+import { Container } from "@/components/shared/Container";
+import { RevealCard } from "@/components/shared/RevealCard";
 
 function AdvisorHorizontalCard({
   member,

@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+
 import { Container } from "@/components/shared/Container";
 import { HERO_SLIDES, type HeroSlide } from "@/data/hero-slides";
 

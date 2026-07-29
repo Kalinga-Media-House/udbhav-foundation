@@ -1,3 +1,5 @@
+import { INDEX_PROGRAMMES } from "@/data/gallery-data";
+import { IndexProgramme } from "@/types/gallery";
 import {
   AnnouncementItem,
   UpcomingEventItem,
@@ -6,8 +8,6 @@ import {
   ImpactStoryItem,
   PodcastEpisodeItem,
 } from "@/types/news";
-import { IndexProgramme } from "@/types/gallery";
-import { INDEX_PROGRAMMES } from "@/data/gallery-data";
 
 export const ANNOUNCEMENTS: AnnouncementItem[] = [
   {

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
-import Image from "next/image";
 import { User } from "lucide-react";
+import Image from "next/image";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 
 export interface GoverningBodyMember {
   name: string;

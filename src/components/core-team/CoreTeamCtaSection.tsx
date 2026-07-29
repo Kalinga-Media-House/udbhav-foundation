@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
-import Link from "next/link";
 import { ArrowRight, Heart } from "lucide-react";
+import Link from "next/link";
+import React from "react";
+
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
 

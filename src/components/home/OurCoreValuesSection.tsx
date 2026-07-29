@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
 import {
   Users,
   Zap,
@@ -15,6 +14,8 @@ import {
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+
 import { Container } from "@/components/shared/Container";
 
 interface CoreValueData {

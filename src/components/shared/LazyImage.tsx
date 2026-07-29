@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
 import Image, { ImageProps } from "next/image";
+import React, { useState } from "react";
 
 export interface LazyImageProps extends Omit<ImageProps, "onLoad" | "loading"> {
   priority?: boolean;

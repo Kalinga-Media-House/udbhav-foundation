@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   GraduationCap,
   Trees,
@@ -12,6 +11,8 @@ import {
   ShieldAlert,
   ArrowRight,
 } from "lucide-react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
 

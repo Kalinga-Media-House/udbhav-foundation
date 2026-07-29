@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, ArrowRight, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useState } from "react";
+
+import { createClient } from "@/lib/supabase/client";
+
 
 export function AdminLoginForm() {
   const router = useRouter();
@@ -87,7 +89,7 @@ export function AdminLoginForm() {
           .from("user_roles")
           .select("role, is_active")
           .eq("user_id", data.user.id)
-          .single();
+          .single<{ role: string; is_active: boolean }>();
 
         const validRoles = ["super_admin", "admin", "content_admin", "programme_admin"];
 

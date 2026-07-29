@@ -1,13 +1,5 @@
 "use client";
 
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  useCallback,
-} from "react";
-import Image from "next/image";
-import Link from "next/link";
 import {
   GraduationCap,
   BookOpen,
@@ -21,6 +13,15 @@ import {
   HeartPulse,
   Siren,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+} from "react";
+
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
 

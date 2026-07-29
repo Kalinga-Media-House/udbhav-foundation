@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import React from "react";
-import { VolunteerHeroSection } from "@/components/volunteers/VolunteerHeroSection";
-import { WhyVolunteerSection } from "@/components/volunteers/WhyVolunteerSection";
-import { VolunteerOpportunitiesSection } from "@/components/volunteers/VolunteerOpportunitiesSection";
+
 import { HowVolunteeringWorksSection } from "@/components/volunteers/HowVolunteeringWorksSection";
-import { WhoCanJoinSection } from "@/components/volunteers/WhoCanJoinSection";
+import { PublicVolunteerDirectorySection } from "@/components/volunteers/PublicVolunteerDirectorySection";
 import { VolunteerApplicationSection } from "@/components/volunteers/VolunteerApplicationSection";
-import { VolunteerPromiseSection } from "@/components/volunteers/VolunteerPromiseSection";
 import { VolunteerFaqSection } from "@/components/volunteers/VolunteerFaqSection";
+import { VolunteerHeroSection } from "@/components/volunteers/VolunteerHeroSection";
+import { VolunteerOpportunitiesSection } from "@/components/volunteers/VolunteerOpportunitiesSection";
+import { VolunteerPromiseSection } from "@/components/volunteers/VolunteerPromiseSection";
+import { WhoCanJoinSection } from "@/components/volunteers/WhoCanJoinSection";
+import { WhyVolunteerSection } from "@/components/volunteers/WhyVolunteerSection";
 
 export const metadata: Metadata = {
   title: "Volunteer With UDBHAV Foundation | Join Our Community",
@@ -21,6 +23,7 @@ export default function VolunteersPage() {
       <VolunteerHeroSection />
       <WhyVolunteerSection />
       <VolunteerOpportunitiesSection />
+      <PublicVolunteerDirectorySection />
       <HowVolunteeringWorksSection />
       <WhoCanJoinSection />
       <VolunteerApplicationSection />

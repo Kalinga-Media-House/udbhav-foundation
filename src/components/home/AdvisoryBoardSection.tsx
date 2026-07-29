@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import Image from "next/image";
 import { User, ChevronDown, ChevronUp } from "lucide-react";
+import Image from "next/image";
+import React, { useState, useRef, useEffect } from "react";
+
 import { RevealCard } from "@/components/shared/RevealCard";
 
 export interface AdvisoryBoardMember {

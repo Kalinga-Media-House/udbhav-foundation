@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import { GalleryPhoto } from "@/types/gallery";
 import { MapPin, Calendar, Clock, FolderOpen } from "lucide-react";
+import Image from "next/image";
+import React, { useEffect, useRef, useState } from "react";
+
+import { GalleryPhoto } from "@/types/gallery";
+
 
 interface GalleryCardProps {
   photo: GalleryPhoto;

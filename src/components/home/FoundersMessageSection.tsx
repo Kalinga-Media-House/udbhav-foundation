@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import Image from "next/image";
 import { Quote } from "lucide-react";
+import Image from "next/image";
+import React, { useState } from "react";
 
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";

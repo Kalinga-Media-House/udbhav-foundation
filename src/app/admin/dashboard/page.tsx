@@ -1,10 +1,15 @@
-import React from "react";
+import { Metadata } from 'next';
+import React from 'react';
+
+import { UnifiedAdminDashboard } from '@/components/admin/UnifiedAdminDashboard';
+
+export const metadata: Metadata = {
+  title: 'Admin Dashboard | UDBHAV Foundation',
+  description: 'Enterprise administrative portal',
+};
 
 export default function AdminDashboardPage() {
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-      <p>Welcome to the UDBHAV Foundation Admin Portal.</p>
-    </div>
+    <UnifiedAdminDashboard />
   );
 }

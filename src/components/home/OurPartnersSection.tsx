@@ -1,12 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import React, {
   useEffect,
   useRef,
   useState,
   useCallback,
 } from "react";
-import Image from "next/image";
+
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
 

@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
-import { createClient } from "@/lib/supabase/client";
 import { Mail, AlertCircle, CheckCircle2, Loader2, ArrowLeft } from "lucide-react";
-import Image from "next/image";
+import Link from "next/link";
+import React, { useState } from "react";
+
+import { BrandLogo } from "@/components/shared/BrandLogo";
+import { clientLogger } from "@/lib/logger/client-logger";
+import { createClient } from "@/lib/supabase/client";
 
 export default function ForgotPasswordPage() {
   const supabase = createClient();
@@ -35,7 +37,7 @@ export default function ForgotPasswordPage() {
 
       if (resetError) {
         // Do not leak existence. Log generic error or proceed if rate limited.
-        console.error("Password reset error:", resetError.message);
+        clientLogger.error("Password reset error", resetError);
       }
 
       // Generic success message to prevent account enumeration
@@ -55,25 +57,7 @@ export default function ForgotPasswordPage() {
         
         <div className="flex justify-center mb-8 pb-8 border-b border-gray-100">
           <div className="bg-white/95 backdrop-blur-sm rounded-xl p-2.5 sm:p-3 shadow-sm border border-gray-100 w-fit">
-            <div className="inline-flex items-center gap-2 sm:gap-3 w-[190px] sm:w-[220px] justify-center">
-              <Image
-                src="/brand/udbhav-logo.png"
-                alt="UDBHAV Foundation and USFACT"
-                width={48}
-                height={48}
-                priority
-                className="w-10 h-10 sm:w-12 sm:h-12 object-contain shrink-0"
-              />
-              <span className="h-8 sm:h-10 w-[1px] bg-gray-200 shrink-0" aria-hidden="true" />
-              <Image
-                src="/brand/usfact-logo.png"
-                alt=""
-                width={132}
-                height={40}
-                priority
-                className="h-6 w-auto sm:h-8 object-contain shrink-0 opacity-95"
-              />
-            </div>
+            <BrandLogo />
           </div>
         </div>
 

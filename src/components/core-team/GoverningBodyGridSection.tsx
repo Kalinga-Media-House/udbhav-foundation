@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
-import Image from "next/image";
 import { User, Award } from "lucide-react";
-import { Container } from "@/components/shared/Container";
-import { RevealCard } from "@/components/shared/RevealCard";
+import Image from "next/image";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+
 import {
   GOVERNING_BODY_MEMBERS,
   type GoverningBodyMember,
 } from "@/components/home/GoverningBodySection";
+import { Container } from "@/components/shared/Container";
+import { RevealCard } from "@/components/shared/RevealCard";
 
 function GoverningBodyCarouselCard({
   member,

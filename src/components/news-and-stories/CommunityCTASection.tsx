@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
 import { Sparkles, Heart, Mic, Users } from "lucide-react";
+import Link from "next/link";
+import React, { useState } from "react";
+
 import { Container } from "@/components/shared/Container";
+
 import { StorySubmissionModal } from "./StorySubmissionModal";
 
 export function CommunityCTASection() {

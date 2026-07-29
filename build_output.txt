@@ -1,0 +1,99 @@
+
+> udbhav-foundation@1.0.0 build
+> next build
+
+  ▲ Next.js 15.0.0
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Skipping linting
+   Checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/37) ...
+   Generating static pages (9/37) 
+   Generating static pages (18/37) 
+   Generating static pages (27/37) 
+{"timestamp":"2026-07-29T02:35:31.706Z","level":"error","message":"NewsRepository.findMany failed","error":{"name":"o","message":"Could not find the table 'public.news_articles' in the schema cache"}}
+ ✓ Generating static pages (37/37)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                Size     First Load JS
+┌ ○ /                                      3.17 kB         158 kB
+├ ○ /_not-found                            170 B          99.6 kB
+├ ○ /about                                 12.7 kB         126 kB
+├ ƒ /admin/dashboard                       126 kB          232 kB
+├ ƒ /admin/dashboard/activity              1.51 kB         101 kB
+├ ƒ /admin/dashboard/audit-logs            7.96 kB         155 kB
+├ ƒ /admin/dashboard/campaigns             212 B           120 kB
+├ ƒ /admin/dashboard/contact-types         170 B          99.6 kB
+├ ƒ /admin/dashboard/donations             212 B           120 kB
+├ ƒ /admin/dashboard/events                207 B           109 kB
+├ ƒ /admin/dashboard/events/[id]/edit      141 B           112 kB
+├ ƒ /admin/dashboard/events/new            141 B           112 kB
+├ ƒ /admin/dashboard/gallery               207 B           109 kB
+├ ƒ /admin/dashboard/gallery/[id]/edit     141 B           111 kB
+├ ƒ /admin/dashboard/gallery/[id]/items    5.65 kB         126 kB
+├ ƒ /admin/dashboard/gallery/new           141 B           111 kB
+├ ƒ /admin/dashboard/index                 6.38 kB         111 kB
+├ ƒ /admin/dashboard/interactions          170 B          99.6 kB
+├ ƒ /admin/dashboard/lookups               3.92 kB         103 kB
+├ ƒ /admin/dashboard/media                 3.27 kB         103 kB
+├ ƒ /admin/dashboard/news                  6.12 kB         121 kB
+├ ƒ /admin/dashboard/news/[id]/edit        144 B           114 kB
+├ ƒ /admin/dashboard/news/new              144 B           114 kB
+├ ƒ /admin/dashboard/notifications         5.25 kB         119 kB
+├ ƒ /admin/dashboard/organizations         207 B           109 kB
+├ ƒ /admin/dashboard/organizations/[id]    208 B           151 kB
+├ ƒ /admin/dashboard/profile               2.12 kB         102 kB
+├ ƒ /admin/dashboard/programmes            207 B           109 kB
+├ ƒ /admin/dashboard/programmes/[id]/edit  143 B           120 kB
+├ ƒ /admin/dashboard/programmes/new        144 B           120 kB
+├ ƒ /admin/dashboard/relationships         2.35 kB         153 kB
+├ ƒ /admin/dashboard/relationships/[id]    4.78 kB         153 kB
+├ ƒ /admin/dashboard/relationships/new     16.6 kB         178 kB
+├ ƒ /admin/dashboard/reports               1.52 kB         101 kB
+├ ƒ /admin/dashboard/roles                 1.41 kB         101 kB
+├ ƒ /admin/dashboard/settings              6.84 kB         125 kB
+├ ƒ /admin/dashboard/tags                  170 B          99.6 kB
+├ ƒ /admin/dashboard/tax-receipts          193 B           111 kB
+├ ƒ /admin/dashboard/volunteers            4.87 kB         104 kB
+├ ƒ /api/monitoring/health                 170 B          99.6 kB
+├ ƒ /api/public/volunteers                 170 B          99.6 kB
+├ ƒ /api/volunteer-application             170 B          99.6 kB
+├ ƒ /api/webhooks/razorpay                 170 B          99.6 kB
+├ ○ /campaigns                             194 B           114 kB
+├ ƒ /campaigns/[slug]                      202 B           126 kB
+├ ○ /contributors                          207 B           109 kB
+├ ○ /core-team                             14.3 kB         128 kB
+├ ○ /donate                                178 B           112 kB
+├ ƒ /events                                207 B           109 kB
+├ ƒ /events/[slug]                         207 B           109 kB
+├ ƒ /gallery                               3.29 kB         117 kB
+├ ƒ /gallery/[slug]                        5.61 kB         119 kB
+├ ƒ /index                                 0 B                0 B
+├ ƒ /index/[slug]                          6.2 kB          161 kB
+├ ○ /login                                 3.53 kB         194 kB
+├ ○ /login/forgot-password                 3.47 kB         194 kB
+├ ○ /login/update-password                 3.2 kB          185 kB
+├ ○ /news-and-stories                      22.3 kB         141 kB
+├ ƒ /news-and-stories/[slug]               194 B           114 kB
+├ ƒ /news-and-stories/podcast/[slug]       194 B           114 kB
+├ ○ /privacy-policy                        207 B           109 kB
+├ ƒ /programmes                            8.08 kB         122 kB
+├ ƒ /programmes/[slug]                     6.07 kB         120 kB
+├ ○ /terms-of-use                          207 B           109 kB
+├ ○ /volunteers                            16.8 kB         121 kB
+└ ƒ /volunteers/dashboard                  3.16 kB         103 kB
++ First Load JS shared by all              99.4 kB
+  ├ chunks/4bd1b696-1f1c119f7751410f.js    52.6 kB
+  ├ chunks/6215-244e0240bb101c5e.js        44.9 kB
+  └ other shared chunks (total)            1.94 kB
+
+
+ƒ Middleware                               99.3 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

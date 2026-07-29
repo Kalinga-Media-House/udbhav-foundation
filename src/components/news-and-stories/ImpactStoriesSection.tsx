@@ -1,8 +1,5 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
-import Link from "next/link";
 import {
   Heart,
   MapPin,
@@ -11,14 +8,50 @@ import {
   ArrowRight,
   UserCheck,
 } from "lucide-react";
+import Link from "next/link";
+import React from "react";
+
+import { AnimatedCardWrapper } from "@/components/shared/AnimatedCardWrapper";
 import { Container } from "@/components/shared/Container";
 import { LazyImage } from "@/components/shared/LazyImage";
-import { AnimatedCardWrapper } from "@/components/shared/AnimatedCardWrapper";
 import { IMPACT_STORIES } from "@/data/news-data";
+import type { ArticleWithMedia } from "@/features/news/repository";
+import type { ImpactStoryItem } from "@/types/news";
 
-export function ImpactStoriesSection() {
-  const featuredStory = IMPACT_STORIES.find((s) => s.isFeatured) || IMPACT_STORIES[0];
-  const supportingStories = IMPACT_STORIES.filter(
+interface ImpactStoriesSectionProps {
+  articles?: ArticleWithMedia[];
+}
+
+export function ImpactStoriesSection({ articles }: ImpactStoriesSectionProps = {}) {
+  const storiesFromDb = React.useMemo(() => {
+    if (articles && articles.length > 0) {
+      const storyArticles = articles.filter(
+        (a) => a.category === "Story" || a.category === "Community Stories"
+      );
+      if (storyArticles.length > 0) {
+        return storyArticles.map((a): ImpactStoryItem => ({
+          id: a.id,
+          title: a.title,
+          slug: a.slug,
+          excerpt: a.summary || a.subtitle || "",
+          content: a.content,
+          imageUrl: a.cover_image?.public_url || "/images/default-news-cover.jpg",
+          category: "Community Story",
+          personName: a.author_name || "Community Member",
+          location: "Odisha, India",
+          publishedAt: a.published_at || a.created_at,
+          isFeatured: a.is_featured,
+          programmeTitle: undefined,
+          programmeSlug: undefined,
+        }));
+      }
+    }
+    return null;
+  }, [articles]);
+
+  const activeStories = storiesFromDb || IMPACT_STORIES;
+  const featuredStory = activeStories.find((s) => s.isFeatured) || activeStories[0];
+  const supportingStories = activeStories.filter(
     (s) => s.id !== featuredStory?.id
   ).slice(0, 3);
 

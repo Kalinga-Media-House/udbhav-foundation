@@ -1,13 +1,15 @@
-import React from "react";
 import type { Metadata } from "next";
-import { NewsHeroSection } from "@/components/news-and-stories/NewsHeroSection";
+import React from "react";
+
 import { AnnouncementTickerSection } from "@/components/news-and-stories/AnnouncementTickerSection";
-import { UpcomingEventsSection } from "@/components/news-and-stories/UpcomingEventsSection";
-import { LatestUpdatesSection } from "@/components/news-and-stories/LatestUpdatesSection";
-import { ProgrammeUpdatesSection } from "@/components/news-and-stories/ProgrammeUpdatesSection";
-import { ImpactStoriesSection } from "@/components/news-and-stories/ImpactStoriesSection";
-import { UDBHAVPodcastSection } from "@/components/news-and-stories/UDBHAVPodcastSection";
 import { CommunityCTASection } from "@/components/news-and-stories/CommunityCTASection";
+import { ImpactStoriesSection } from "@/components/news-and-stories/ImpactStoriesSection";
+import { LatestUpdatesSection } from "@/components/news-and-stories/LatestUpdatesSection";
+import { NewsHeroSection } from "@/components/news-and-stories/NewsHeroSection";
+import { ProgrammeUpdatesSection } from "@/components/news-and-stories/ProgrammeUpdatesSection";
+import { UDBHAVPodcastSection } from "@/components/news-and-stories/UDBHAVPodcastSection";
+import { UpcomingEventsSection } from "@/components/news-and-stories/UpcomingEventsSection";
+import { listPublicArticles } from "@/features/news/actions";
 
 export const metadata: Metadata = {
   title:
@@ -22,7 +24,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function NewsAndStoriesPage() {
+export default async function NewsAndStoriesPage() {
+  const result = await listPublicArticles({ page: 1, limit: 50 });
+  const articles = result.success && result.data ? result.data.data : [];
+
   return (
     <main className="min-h-screen flex flex-col bg-pure-white">
       {/* 1. Compact News Hero */}
@@ -35,13 +40,13 @@ export default function NewsAndStoriesPage() {
       <UpcomingEventsSection />
 
       {/* 4. Latest from UDBHAV (News, Activities & Community Updates) */}
-      <LatestUpdatesSection />
+      <LatestUpdatesSection articles={articles} />
 
       {/* 5. Programme Updates (From Our 11 Initiatives) */}
       <ProgrammeUpdatesSection />
 
       {/* 6. Impact Stories (Real People. Real Change.) */}
-      <ImpactStoriesSection />
+      <ImpactStoriesSection articles={articles} />
 
       {/* 7. UDBHAV Podcast (Voices That Inspire) */}
       <UDBHAVPodcastSection />

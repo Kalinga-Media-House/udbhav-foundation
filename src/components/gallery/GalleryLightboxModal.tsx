@@ -1,7 +1,5 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import {
   X,
   ChevronLeft,
@@ -12,6 +10,9 @@ import {
   Camera,
   FolderOpen,
 } from "lucide-react";
+import Image from "next/image";
+import React, { useEffect, useRef, useState } from "react";
+
 import { GalleryPhoto } from "@/types/gallery";
 
 interface GalleryLightboxModalProps {

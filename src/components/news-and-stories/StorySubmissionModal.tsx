@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
 import { X, Send, CheckCircle2, Heart, Mic } from "lucide-react";
+import React, { useState } from "react";
 
 interface StorySubmissionModalProps {
   isOpen: boolean;

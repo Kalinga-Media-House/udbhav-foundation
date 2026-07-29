@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
-import Link from "next/link";
 import { HeartHandshake, ArrowRight } from "lucide-react";
+import Link from "next/link";
+import React from "react";
+
 import { RevealCard } from "@/components/shared/RevealCard";
 
 export function JoinOurCommunitySection() {

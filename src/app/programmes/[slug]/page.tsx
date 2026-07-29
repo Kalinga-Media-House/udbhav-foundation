@@ -1,26 +1,16 @@
-import React from "react";
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import {
-  OFFICIAL_INDEX_PROGRAMMES,
-  ADHYAYA_FLAGSHIP_DATA,
-  INDEX_PROGRAMME_EVENTS,
-  INDEX_PROGRAMME_PHOTOS,
-} from "@/data/index-programmes-data";
+import { notFound } from "next/navigation";
+import React from "react";
+
 import { ProgrammeDetailView } from "@/components/index-page/ProgrammeDetailView";
-import { IndexProgrammeDetail } from "@/types/index-programme";
+import { INDEX_PROGRAMME_EVENTS, INDEX_PROGRAMME_PHOTOS } from "@/data/index-programmes-data";
+import { getProgramBySlug, listPrograms } from "@/features/programs/actions";
+import type { IndexProgrammeDetail, ProgrammeCategory } from "@/types/index-programme";
+
+export const dynamic = 'force-dynamic';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
-}
-
-export async function generateStaticParams() {
-  const programmeSlugs = OFFICIAL_INDEX_PROGRAMMES.map((p) => ({
-    slug: p.slug,
-  }));
-  const adhyayaSlug = { slug: ADHYAYA_FLAGSHIP_DATA.slug };
-
-  return [...programmeSlugs, adhyayaSlug];
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -30,17 +20,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   let description = "Explore UDBHAV Foundation community action programmes.";
   let coverImage = "/hero/hero-01.png";
 
-  if (slug === ADHYAYA_FLAGSHIP_DATA.slug) {
-    title = `${ADHYAYA_FLAGSHIP_DATA.title} | UDBHAV FOUNDATION`;
-    description = ADHYAYA_FLAGSHIP_DATA.description;
-    coverImage = ADHYAYA_FLAGSHIP_DATA.coverImageUrl;
-  } else {
-    const programme = OFFICIAL_INDEX_PROGRAMMES.find((p) => p.slug === slug);
-    if (programme) {
-      title = `${programme.programmeNumber}: ${programme.title} | UDBHAV FOUNDATION Index`;
-      description = programme.shortDescription;
-      coverImage = programme.coverImageUrl;
+  try {
+    const res = await getProgramBySlug(slug);
+    if (res.success && res.data) {
+      const programmeRow = res.data;
+      const meta = (programmeRow.metadata || {}) as Record<string, unknown>;
+      title = `${programmeRow.display_order.toString().padStart(2, '0')}: ${programmeRow.title} | UDBHAV FOUNDATION`;
+      description = programmeRow.description || "Explore UDBHAV Foundation community action programmes.";
+      coverImage = (meta.coverImageUrl as string) || coverImage;
     }
+  } catch {
+    // Keep defaults
   }
 
   return {
@@ -61,53 +51,43 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function ProgrammeDetailPage({ params }: PageProps) {
   const { slug } = await params;
 
-  let programme: IndexProgrammeDetail | undefined =
-    OFFICIAL_INDEX_PROGRAMMES.find((p) => p.slug === slug);
+  let programme: IndexProgrammeDetail | undefined;
 
-  // If slug matches ADHYAYA flagship inclusion initiative, adapt it cleanly
-  if (!programme && slug === ADHYAYA_FLAGSHIP_DATA.slug) {
+  try {
+    const res = await getProgramBySlug(slug);
+    if (!res.success || !res.data) throw new Error();
+    const p = res.data;
+    const meta = (p.metadata || {}) as Record<string, unknown>;
     programme = {
-      id: "adhyaya-flagship",
-      programmeNumber: "FLAGSHIP",
-      title: ADHYAYA_FLAGSHIP_DATA.title,
-      tagline: ADHYAYA_FLAGSHIP_DATA.subtitle,
-      slug: ADHYAYA_FLAGSHIP_DATA.slug,
-      category: "Community Support",
-      shortDescription:
-        "Odisha’s First Ramp of Inclusion celebrating diversity, dignity, and representation.",
-      fullDescription: ADHYAYA_FLAGSHIP_DATA.description,
-      coverImageUrl: ADHYAYA_FLAGSHIP_DATA.coverImageUrl,
-      accentColor: "#3C9D23",
-      impactPreview: "Shared Stage for Marginalised Communities",
-      impactStats: [
-        { id: "adh-1", label: "Inclusion Ambassadors", value: "120+" },
-        { id: "adh-2", label: "Community Groups Represented", value: "15" },
-        { id: "adh-3", label: "Audience & Supporters", value: "1,500+" },
-      ],
-      purpose:
-        "To break sociocultural barriers and provide an empowered public platform for persons with disabilities and underrepresented voices.",
-      communityNeed:
-        "Marginalized individuals rarely receive inclusive public spaces to demonstrate leadership, artistic excellence, and dignity.",
-      approach:
-        "Collaborative runway, performance, and storytelling showcases bringing together designers, activists, and diverse community leaders.",
-      targetBeneficiaries: [
-        "Persons with disabilities across Odisha",
-        "Transgender community members and grassroots artisans",
-      ],
-      majorActivities: [
-        "ADHYAYA Inclusion Runway & Leadership Showcase",
-        "Accessible Fashion & Design Mentorship Workshops",
-        "Community Storytelling & Dignity Forums",
-      ],
-      photoCount: 6,
-      eventCount: 2,
+      id: p.id,
+      programmeNumber: p.display_order.toString().padStart(2, '0'),
+      title: p.title,
+      tagline: p.subtitle || '',
+      category: (meta.category as ProgrammeCategory) || 'Community Support',
+      slug: p.slug,
+      shortDescription: p.description || '',
+      fullDescription: (meta.fullDescription as string) || p.description || '',
+      coverImageUrl: (meta.coverImageUrl as string) || '/hero/hero-01.png',
+      accentColor: (meta.accentColor as string) || '#172B6B',
+      impactPreview: (meta.impactPreview as string) || '',
+      impactStats: (meta.impactStats as any) || [],
+      purpose: (meta.purpose as string) || '',
+      communityNeed: (meta.communityNeed as string) || '',
+      approach: (meta.approach as string) || '',
+      targetBeneficiaries: (meta.targetBeneficiaries as string[]) || [],
+      majorActivities: (meta.majorActivities as string[]) || [],
+      photoCount: (meta.photoCount as number) || 0,
+      eventCount: (meta.eventCount as number) || 0,
     };
+  } catch {
+    notFound();
   }
 
   if (!programme) {
     notFound();
   }
 
+  // Events & Photos (Mocked until those modules are built)
   const events = INDEX_PROGRAMME_EVENTS.filter(
     (e) => e.programmeSlug === slug || e.programmeId === programme.id
   );
@@ -116,9 +96,39 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
     (p) => p.programmeSlug === slug || p.programmeId === programme.id
   );
 
-  const relatedProgrammes = OFFICIAL_INDEX_PROGRAMMES.filter(
-    (p) => p.slug !== slug
-  ).slice(0, 3);
+  // Fetch related programs
+  let relatedProgrammes: IndexProgrammeDetail[] = [];
+  try {
+    const allRes = await listPrograms({ page: 1, limit: 4 }, { visibility: 'public' });
+    if (allRes.success && allRes.data) {
+      relatedProgrammes = allRes.data.data.filter(p => p.slug !== slug).slice(0, 3).map(p => {
+        const meta = (p.metadata || {}) as Record<string, unknown>;
+        return {
+          id: p.id,
+          programmeNumber: (p.display_order ?? 0).toString().padStart(2, '0'),
+          title: p.title,
+          tagline: p.subtitle || '',
+          category: (meta.category as ProgrammeCategory) || 'Community Support',
+          slug: p.slug,
+          shortDescription: p.description || '',
+          fullDescription: (meta.fullDescription as string) || p.description || '',
+          coverImageUrl: (meta.coverImageUrl as string) || '/hero/hero-01.png',
+          accentColor: (meta.accentColor as string) || '#172B6B',
+          impactPreview: (meta.impactPreview as string) || '',
+          impactStats: (meta.impactStats as any) || [],
+          purpose: (meta.purpose as string) || '',
+          communityNeed: (meta.communityNeed as string) || '',
+          approach: (meta.approach as string) || '',
+          targetBeneficiaries: (meta.targetBeneficiaries as string[]) || [],
+          majorActivities: (meta.majorActivities as string[]) || [],
+          photoCount: (meta.photoCount as number) || 0,
+          eventCount: (meta.eventCount as number) || 0,
+        }
+      });
+    }
+  } catch {
+    // Ignore error for related programs
+  }
 
   return (
     <ProgrammeDetailView

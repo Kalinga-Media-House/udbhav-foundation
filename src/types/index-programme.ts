@@ -1,66 +1,30 @@
-export type ProgrammeCategory =
-  | "Education"
-  | "Environment"
-  | "Health & Well-being"
-  | "Awareness & Safety"
-  | "Community Support";
+/**
+ * @file index-programme.ts
+ * @description Domain and view model types for public website programme displays and ADHYAYA flagship data.
+ */
 
-export interface ProgrammeImpactStat {
+export type ProgrammeCategory = "All" | "Education" | "Environment" | "Health" | "Community" | "Flagship" | string;
+
+export interface IndexProgrammeStat {
   id: string;
   label: string;
   value: string;
-  iconName?: string;
-}
-
-export interface ProgrammePhotoItem {
-  id: string;
-  programmeId: string;
-  programmeSlug: string;
-  eventId?: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  thumbnailUrl: string;
-  location: string;
-  photoDate: string;
-  photoTime?: string;
-  photographerName?: string;
-  altText: string;
-  isFeatured?: boolean;
-}
-
-export interface ProgrammeEventItem {
-  id: string;
-  programmeId: string;
-  programmeSlug: string;
-  title: string;
-  slug: string;
-  shortDescription: string;
-  fullDescription: string;
-  coverImageUrl: string;
-  location: string;
-  venue?: string;
-  eventDate: string;
-  startTime?: string;
-  endTime?: string;
-  status: "upcoming" | "completed";
-  photoCount: number;
 }
 
 export interface IndexProgrammeDetail {
   id: string;
-  programmeNumber: string; // e.g., "01", "02", ...
+  programmeNumber: string;
   title: string;
   tagline: string;
+  category: string;
   slug: string;
-  category: ProgrammeCategory;
+  partnerText?: string;
   shortDescription: string;
   fullDescription: string;
   coverImageUrl: string;
-  accentColor?: string;
-  partnerText?: string;
-  impactPreview: string; // e.g., "30 Students Supported Annually"
-  impactStats: ProgrammeImpactStat[];
+  accentColor: string;
+  impactPreview: string;
+  impactStats: IndexProgrammeStat[];
   purpose: string;
   communityNeed: string;
   approach: string;
@@ -80,4 +44,39 @@ export interface AdhyayaFlagshipData {
   secondaryImageUrls: string[];
   ctaText: string;
   ctaHref: string;
+}
+
+export interface ProgrammeEventItem {
+  id: string;
+  programmeId: string;
+  programmeSlug: string;
+  title: string;
+  slug: string;
+  shortDescription: string;
+  fullDescription: string;
+  coverImageUrl: string;
+  location: string;
+  venue: string;
+  eventDate: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+  photoCount: number;
+}
+
+export interface ProgrammePhotoItem {
+  id: string;
+  programmeId: string;
+  programmeSlug: string;
+  eventId?: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  thumbnailUrl: string;
+  location: string;
+  photoDate: string;
+  photoTime: string;
+  photographerName?: string;
+  altText: string;
+  isFeatured?: boolean;
 }

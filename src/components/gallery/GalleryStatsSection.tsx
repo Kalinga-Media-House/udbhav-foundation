@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
 import { Camera, Calendar, Layers, MapPin } from "lucide-react";
+import React from "react";
+
 import { Container } from "@/components/shared/Container";
 import { getGalleryStats } from "@/data/gallery-data";
 

@@ -1,17 +1,13 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
-import Image from "next/image";
 import {
   Search,
   SlidersHorizontal,
-  MapPin,
-  Calendar,
-  Clock,
-  FolderOpen,
   Camera,
   RefreshCw,
 } from "lucide-react";
+import React, { useState, useMemo, useCallback } from "react";
+
 import { Container } from "@/components/shared/Container";
 import {
   ALL_GALLERY_PHOTOS,
@@ -19,9 +15,9 @@ import {
   filterAndSortGalleryPhotos,
   SortOption,
 } from "@/data/gallery-data";
-import { GalleryPhoto } from "@/types/gallery";
-import { GalleryLightboxModal } from "./GalleryLightboxModal";
+
 import { GalleryCard } from "./GalleryCard";
+import { GalleryLightboxModal } from "./GalleryLightboxModal";
 
 export function ImpactGallerySection() {
   const [selectedProgrammeSlug, setSelectedProgrammeSlug] =
@@ -68,17 +64,6 @@ export function ImpactGallerySection() {
     });
   }, [selectedProgrammeSlug, applyFiltersWithTransition]);
 
-  const handleSearchChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const val = e.target.value;
-      applyFiltersWithTransition(() => {
-        setSearchQuery(val);
-        setVisibleCount(16);
-      });
-    },
-    [applyFiltersWithTransition]
-  );
-
   const handleSortChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) => {
       const val = e.target.value as SortOption;
@@ -114,18 +99,6 @@ export function ImpactGallerySection() {
       })),
     ];
   }, []);
-
-  const getAspectClass = (ratio: GalleryPhoto["aspectRatio"]) => {
-    switch (ratio) {
-      case "portrait":
-        return "aspect-[3/4]";
-      case "square":
-        return "aspect-square";
-      case "landscape":
-      default:
-        return "aspect-[4/3]";
-    }
-  };
 
   return (
     <section

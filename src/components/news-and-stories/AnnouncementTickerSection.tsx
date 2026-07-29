@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import Link from "next/link";
 import { Bell, ChevronRight } from "lucide-react";
+import Link from "next/link";
+import React, { useState } from "react";
+
 import { ANNOUNCEMENTS } from "@/data/news-data";
 
 export function AnnouncementTickerSection() {

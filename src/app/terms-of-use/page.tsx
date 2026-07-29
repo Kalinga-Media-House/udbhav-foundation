@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+
 import { SectionPlaceholder } from "@/components/shared/SectionPlaceholder";
 
 export const metadata: Metadata = {

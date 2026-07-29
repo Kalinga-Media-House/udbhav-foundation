@@ -1,28 +1,19 @@
-import { IndexProgrammeSlug } from "./gallery";
+/**
+ * @file news.ts
+ * @description Re-export of domain news types and view model types for news and story displays.
+ */
 
-export type NewsCategory =
-  | "Daily Updates"
-  | "Programme Activities"
-  | "Announcements"
-  | "Achievements"
-  | "Community Stories"
-  | "Media Coverage";
+export * from './domain/news';
 
-export type EventStatus =
-  | "Registration Open"
-  | "Coming Soon"
-  | "Registration Closing Soon"
-  | "Registration Closed"
-  | "Completed"
-  | "Cancelled";
+export type NewsCategory = "All" | "Achievements" | "Announcements" | "Programme Activities" | "Community Stories" | "Daily Updates" | string;
+export type EventStatus = "All" | "Upcoming" | "Registration Open" | "Completed" | "Coming Soon" | string;
 
 export interface AnnouncementItem {
   id: string;
   text: string;
-  linkUrl?: string;
-  priority: "high" | "normal";
+  linkUrl: string;
+  priority: 'high' | 'normal' | 'low' | string;
   publishedAt: string;
-  expiresAt?: string;
 }
 
 export interface UpcomingEventItem {
@@ -30,15 +21,15 @@ export interface UpcomingEventItem {
   title: string;
   slug: string;
   category: string;
-  programmeSlug?: IndexProgrammeSlug;
+  programmeSlug?: string;
   description: string;
   imageUrl: string;
   location: string;
-  eventDate: string; // e.g. "20 July 2026"
+  eventDate: string;
   dayMonthBadge: { day: string; month: string };
-  startTime: string; // e.g. "7:00 AM"
+  startTime?: string;
   endTime?: string;
-  registrationStatus: EventStatus;
+  registrationStatus: string;
   registrationDeadline?: string;
   registrationUrl?: string;
 }
@@ -50,21 +41,20 @@ export interface NewsPostItem {
   excerpt: string;
   content: string;
   coverImageUrl: string;
-  category: NewsCategory;
-  programmeSlug?: IndexProgrammeSlug;
+  category: string;
+  programmeSlug?: string;
   programmeTitle?: string;
   location: string;
-  activityDate: string; // e.g. "12 July 2026"
-  activityTime?: string;
+  activityDate: string;
+  activityTime: string;
   publishedAt: string;
-  readingTime: string; // e.g. "3 min read"
+  readingTime: string;
   author: string;
   isFeatured?: boolean;
-  viewCount?: number;
 }
 
 export interface ProgrammeUpdateSummary {
-  programmeSlug: IndexProgrammeSlug;
+  programmeSlug: string;
   programmeTitle: string;
   iconName: string;
   coverImageUrl: string;
@@ -82,7 +72,7 @@ export interface ImpactStoryItem {
   excerpt: string;
   content: string;
   imageUrl: string;
-  programmeSlug?: IndexProgrammeSlug;
+  programmeSlug?: string;
   programmeTitle?: string;
   location: string;
   publishedAt: string;
@@ -102,21 +92,16 @@ export interface PodcastGuest {
 
 export interface PodcastEpisodeItem {
   id: string;
-  episodeNumber: string; // e.g. "EPISODE 01"
+  episodeNumber: string;
   title: string;
   slug: string;
   excerpt: string;
   description: string;
   thumbnailUrl: string;
   guest: PodcastGuest;
-  duration: string; // e.g. "42:15"
+  duration: string;
   releaseDate: string;
-  /** Separate direct YouTube video URL for this episode */
-  youtubeUrl?: string;
-  /** @deprecated Spotify URL is deprecated as podcast is YouTube-only */
-  spotifyUrl?: string;
-  /** @deprecated Apple Podcast URL is deprecated as podcast is YouTube-only */
-  applePodcastUrl?: string;
+  youtubeUrl: string;
   topics: string[];
   isFeatured?: boolean;
 }

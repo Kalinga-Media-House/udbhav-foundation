@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
 import { Sparkles, ArrowDown, Mic } from "lucide-react";
+import Image from "next/image";
+import React from "react";
+
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
 

@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import { ArrowRight, Sparkles, Award } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Sparkles, Award } from "lucide-react";
+import React from "react";
+
 import { ADHYAYA_FLAGSHIP_DATA } from "@/data/index-programmes-data";
 
 export function AdhyayaFlagshipSection() {

@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
 import { Flag, Users, Globe, Award } from "lucide-react";
+import React from "react";
+
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
 

@@ -1,7 +1,5 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
 import {
   HeartHandshake,
   ArrowDownRight,
@@ -10,6 +8,9 @@ import {
   MapPin,
   Target,
 } from "lucide-react";
+import Image from "next/image";
+import React, { useState, useEffect } from "react";
+
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
 

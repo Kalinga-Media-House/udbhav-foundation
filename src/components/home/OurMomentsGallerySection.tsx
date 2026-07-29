@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
+
 import { RevealCard } from "@/components/shared/RevealCard";
 
 export interface GalleryPhoto {

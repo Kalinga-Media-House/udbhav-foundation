@@ -1,62 +1,49 @@
-import type { Metadata } from "next";
-import { Inter, Manrope } from "next/font/google";
-import "./globals.css";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
+import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
+import { Footer } from '@/components/layout/Footer';
+import { Header } from '@/components/layout/Header';
+import { APPLICATION } from '@/constants/application';
+import { METADATA } from '@/constants/metadata';
+import { RootProviders } from '@/providers';
+import './globals.css';
 
-const manrope = Manrope({
-  variable: "--font-manrope",
-  subsets: ["latin"],
-  display: "swap",
-});
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: 'white' },
+    { media: '(prefers-color-scheme: dark)', color: 'black' },
+  ],
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+};
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://udbhavfoundation.in"),
   title: {
-    default: "UDBHAV Foundation | Growing Together for an Inclusive Future",
-    template: "%s | UDBHAV Foundation",
+    default: METADATA.DEFAULT_TITLE,
+    template: METADATA.TITLE_TEMPLATE,
   },
-  description:
-    "UDBHAV Foundation is a community-rooted nonprofit organization working in education, environment, mental well-being, inclusion and community empowerment.",
-  keywords: [
-    "UDBHAV Foundation",
-    "UDBHAV Foundation Odisha",
-    "NGO in Bhubaneswar",
-    "nonprofit organization Odisha",
-    "education NGO Odisha",
-    "environment NGO Odisha",
-    "volunteer opportunities Bhubaneswar",
-    "community development Odisha",
-  ],
-  applicationName: "UDBHAV Foundation",
-  authors: [{ name: "UDBHAV Foundation", url: "https://udbhavfoundation.in" }],
-  creator: "UDBHAV Foundation",
-  publisher: "UDBHAV Foundation",
+  description: METADATA.DEFAULT_DESCRIPTION,
+  applicationName: APPLICATION.BRAND_NAME,
   openGraph: {
-    title: "UDBHAV Foundation | Growing Together for an Inclusive Future",
-    description:
-      "A community-rooted nonprofit creating meaningful change through education, environmental responsibility, mental well-being, inclusion and collective action.",
-    url: "https://udbhavfoundation.in",
-    siteName: "UDBHAV Foundation",
-    locale: "en_IN",
-    type: "website",
+    type: 'website',
+    locale: 'en_IN',
+    url: METADATA.BASE_URL,
+    siteName: APPLICATION.BRAND_NAME,
+    title: METADATA.DEFAULT_TITLE,
+    description: METADATA.DEFAULT_DESCRIPTION,
   },
   twitter: {
-    card: "summary_large_image",
-    title: "UDBHAV Foundation | Growing Together for an Inclusive Future",
-    description:
-      "A community-rooted nonprofit creating meaningful change through education, environmental responsibility, mental well-being, inclusion and collective action.",
+    card: 'summary_large_image',
+    title: METADATA.DEFAULT_TITLE,
+    description: METADATA.DEFAULT_DESCRIPTION,
   },
-  robots: {
-    index: true,
-    follow: true,
+  icons: {
+    icon: '/icon.svg',
   },
+  metadataBase: new URL(METADATA.BASE_URL),
 };
 
 export default function RootLayout({
@@ -65,14 +52,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} ${manrope.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-warm-white text-text-primary font-body">
-        <Header />
-        <div className="flex-1 flex flex-col">{children}</div>
-        <Footer />
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.variable} min-h-screen bg-background font-sans antialiased`}>
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-background focus:text-foreground">
+          Skip to main content
+        </a>
+        <RootProviders>
+          <Header />
+          <div id="main-content" className="relative flex flex-1 flex-col">
+            {children}
+          </div>
+          <Footer />
+        </RootProviders>
       </body>
     </html>
   );

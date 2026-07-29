@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
 import { Eye, Target } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
+
 import { Container } from "@/components/shared/Container";
 
 

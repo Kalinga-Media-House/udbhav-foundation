@@ -1,8 +1,9 @@
-import React from "react";
-import Link from "next/link";
 import { Phone, Mail, MapPin, Heart, Users } from "lucide-react";
-import { Container } from "@/components/shared/Container";
+import Link from "next/link";
+import React from "react";
+
 import { BrandLogo } from "@/components/shared/BrandLogo";
+import { Container } from "@/components/shared/Container";
 import {
   FOOTER_QUICK_LINKS,
   FOOTER_EXPLORE_LINKS,
@@ -104,7 +105,7 @@ export function Footer() {
           {/* A. Organization Identity & Description (4 cols on desktop) */}
           <div className="lg:col-span-4 space-y-5">
             <div className="inline-block p-2.5 rounded-xl bg-pure-white/95 shadow-md">
-              <BrandLogo variant="dual" />
+              <BrandLogo />
             </div>
 
             <p className="font-heading text-lg sm:text-xl font-bold text-soft-green tracking-tight">

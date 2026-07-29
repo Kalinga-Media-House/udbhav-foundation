@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Menu, X, Heart, LogIn } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, Heart, LogIn } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+
 import { MAIN_NAV_ITEMS } from "@/data/navigation";
 
 export function MobileMenu() {

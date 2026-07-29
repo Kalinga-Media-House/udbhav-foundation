@@ -1,0 +1,18 @@
+export const PERMISSIONS = {
+  // Users
+  CREATE_USER: 'CREATE_USER',
+  READ_USER: 'READ_USER',
+  UPDATE_USER: 'UPDATE_USER',
+  DELETE_USER: 'DELETE_USER',
+  
+  // Events
+  CREATE_EVENT: 'CREATE_EVENT',
+  READ_EVENT: 'READ_EVENT',
+  UPDATE_EVENT: 'UPDATE_EVENT',
+  DELETE_EVENT: 'DELETE_EVENT',
+
+  // Settings
+  MANAGE_SYSTEM: 'MANAGE_SYSTEM',
+} as const;
+
+export type PermissionType = typeof PERMISSIONS[keyof typeof PERMISSIONS];

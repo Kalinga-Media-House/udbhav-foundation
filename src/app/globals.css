@@ -1,5 +1,6 @@
 @import "tailwindcss";
 
+
 @theme {
   --color-udbhav-blue: #37389B;
   --color-udbhav-blue-deep: #24266F;
@@ -142,33 +143,7 @@ body {
     animation: heroButtonsReveal 600ms cubic-bezier(0.22, 1, 0.36, 1) 240ms both;
   }
 
-  @keyframes usfactCardFloatMobile {
-    0%, 100% {
-      transform: translate3d(0, 0, 0);
-    }
-    50% {
-      transform: translate3d(0, -4px, 0);
-    }
-  }
 
-  @keyframes usfactCardFloatDesktop {
-    0%, 100% {
-      transform: translate3d(0, 0, 0);
-    }
-    50% {
-      transform: translate3d(0, -7px, 0);
-    }
-  }
-
-  .animate-usfact-float {
-    animation: usfactCardFloatMobile 7s ease-in-out infinite;
-  }
-
-    @media (min-width: 768px) {
-      .animate-usfact-float {
-        animation: usfactCardFloatDesktop 6s ease-in-out infinite;
-      }
-    }
 
     @keyframes marqueeRtl {
       0% {

@@ -1,8 +1,3 @@
-import React from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { notFound } from "next/navigation";
-import type { Metadata } from "next";
 import {
   ArrowLeft,
   Clock,
@@ -11,6 +6,12 @@ import {
   Award,
   Play,
 } from "lucide-react";
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import React from "react";
+
 import { Container } from "@/components/shared/Container";
 import { PODCAST_EPISODES } from "@/data/news-data";
 
@@ -149,7 +150,7 @@ export default async function PodcastEpisodePage({ params }: PageProps) {
               </p>
 
               <div className="flex flex-wrap items-center gap-2 mb-6">
-                {episode.topics.map((t, idx) => (
+                {episode.topics.map((t: string, idx: number) => (
                   <span
                     key={idx}
                     className="px-3 py-1 rounded-full bg-white/10 border border-white/15 text-xs font-semibold text-white/90"

@@ -1,8 +1,5 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import Image from "next/image";
-import Link from "next/link";
 import {
   ArrowLeft,
   ArrowRight,
@@ -15,12 +12,16 @@ import {
   Users,
   CheckCircle2,
 } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import React, { useState, useMemo } from "react";
+
+import { AccessibleLightbox } from "@/components/index-page/AccessibleLightbox";
 import {
   IndexProgrammeDetail,
   ProgrammeEventItem,
   ProgrammePhotoItem,
 } from "@/types/index-programme";
-import { AccessibleLightbox } from "@/components/index-page/AccessibleLightbox";
 
 interface ProgrammeDetailViewProps {
   programme: IndexProgrammeDetail;

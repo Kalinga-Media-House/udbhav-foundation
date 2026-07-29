@@ -1,8 +1,9 @@
-import React, { Suspense } from "react";
-import type { Metadata } from "next";
-import Image from "next/image";
-import { AdminLoginForm } from "@/components/auth/AdminLoginForm";
 import { ShieldCheck, Calendar, Users, Activity } from "lucide-react";
+import type { Metadata } from "next";
+import React, { Suspense } from "react";
+
+import { AdminLoginForm } from "@/components/auth/AdminLoginForm";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 
 export const metadata: Metadata = {
   title: "Admin Portal Sign In | UDBHAV FOUNDATION",
@@ -21,27 +22,9 @@ export default function LoginPage() {
           <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-[#EAF3FF]/5 blur-2xl" />
           
           <div className="relative z-10">
-            {/* White rounded container for the combined logo */}
+            {/* White rounded container for the brand logo */}
             <div className="bg-white/95 backdrop-blur-sm rounded-[14px] p-3 sm:p-4 w-fit mb-10 shadow-sm border border-white/40">
-              <div className="inline-flex items-center gap-3 w-full max-w-[220px] lg:max-w-[250px]">
-                <Image
-                  src="/brand/udbhav-logo.png"
-                  alt="UDBHAV Foundation and USFACT"
-                  width={54}
-                  height={54}
-                  priority
-                  className="w-10 h-10 sm:w-12 sm:h-12 lg:w-[54px] lg:h-[54px] object-contain shrink-0"
-                />
-                <span className="h-8 lg:h-[38px] w-[1px] bg-gray-200 shrink-0" aria-hidden="true" />
-                <Image
-                  src="/brand/usfact-logo.png"
-                  alt=""
-                  width={142}
-                  height={44}
-                  priority
-                  className="h-6 w-auto sm:h-7 lg:h-[44px] object-contain shrink-0 opacity-95"
-                />
-              </div>
+              <BrandLogo />
             </div>
 
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-[10px] sm:text-xs font-heading font-bold tracking-wider uppercase mb-5">
@@ -93,25 +76,7 @@ export default function LoginPage() {
           {/* Mobile Header (Hidden on Desktop) */}
           <div className="md:hidden flex flex-col items-center text-center mb-8 pb-8 border-b border-gray-100">
             <div className="bg-white/95 backdrop-blur-sm rounded-xl p-2.5 sm:p-3 mb-4 shadow-sm border border-gray-100 w-fit mx-auto">
-              <div className="inline-flex items-center gap-2 max-w-[200px]">
-                <Image
-                  src="/brand/udbhav-logo.png"
-                  alt="UDBHAV Foundation and USFACT"
-                  width={40}
-                  height={40}
-                  priority
-                  className="w-8 h-8 sm:w-10 sm:h-10 object-contain shrink-0"
-                />
-                <span className="h-6 sm:h-8 w-[1px] bg-gray-200 shrink-0" aria-hidden="true" />
-                <Image
-                  src="/brand/usfact-logo.png"
-                  alt=""
-                  width={110}
-                  height={34}
-                  priority
-                  className="h-5 w-auto sm:h-6 object-contain shrink-0 opacity-95"
-                />
-              </div>
+              <BrandLogo />
             </div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#172B6B] text-white text-[10px] font-heading font-bold tracking-wider uppercase">
               <ShieldCheck className="w-3 h-3" />
