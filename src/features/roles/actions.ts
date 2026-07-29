@@ -1,8 +1,14 @@
-"use server";
+'use server';
 
-import { handleAction, requireAuth, requirePermission, type ActionResult } from '@/contracts/actions';
-import { rolesService } from "./service";
-import type { Role, Permission, RolePermission } from "./types";
+import {
+  handleAction,
+  requireAuth,
+  requirePermission,
+  type ActionResult,
+} from '@/contracts/actions';
+
+import { rolesService } from './service';
+import type { Role, Permission, RolePermission } from './types';
 
 export async function fetchAllRoles(): Promise<ActionResult<Role[]>> {
   return handleAction('fetchAllRoles', async () => {
@@ -28,7 +34,10 @@ export async function fetchRolePermissions(): Promise<ActionResult<RolePermissio
   });
 }
 
-export async function updateRolePermissions(roleId: string, permissionIds: string[]): Promise<ActionResult<void>> {
+export async function updateRolePermissions(
+  roleId: string,
+  permissionIds: string[]
+): Promise<ActionResult<void>> {
   return handleAction('updateRolePermissions', async () => {
     const session = await requireAuth();
     requirePermission(session, 'roles.manage');

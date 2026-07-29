@@ -2,7 +2,6 @@ import type { PaginatedResult } from '@/contracts/repositories';
 import { ok, fail, fromRepo } from '@/contracts/services';
 import type { ServiceResult } from '@/contracts/services';
 import type { Pagination, ID } from '@/types';
-import type { Json } from '@/types/database/database.generated';
 import { slugify } from '@/utils/string';
 
 import { programsRepository } from './repository';
@@ -22,7 +21,10 @@ export class ProgramsService {
   }
 
   /** List programs with pagination and optional filters. */
-  async list(pagination: Pagination, filters?: Record<string, unknown>): Promise<ServiceResult<PaginatedResult<ProgramRow>>> {
+  async list(
+    pagination: Pagination,
+    filters?: Record<string, unknown>
+  ): Promise<ServiceResult<PaginatedResult<ProgramRow>>> {
     const result = await programsRepository.findMany({ pagination, filters });
     return ok(result);
   }
@@ -77,7 +79,10 @@ export class ProgramsService {
   }
 
   /** Full-text search across programs. */
-  async search(query: string, pagination: Pagination): Promise<ServiceResult<PaginatedResult<ProgramRow>>> {
+  async search(
+    query: string,
+    pagination: Pagination
+  ): Promise<ServiceResult<PaginatedResult<ProgramRow>>> {
     const result = await programsRepository.search(query, pagination);
     return ok(result);
   }

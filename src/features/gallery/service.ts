@@ -4,7 +4,7 @@ import type { ServiceResult } from '@/contracts/services';
 import type { Pagination, ID } from '@/types';
 
 import { galleryRepository } from './repository';
-import type { AlbumRow, GalleryItemRow, GalleryItemWithMedia, AlbumCreate, GalleryItemCreate } from './repository';
+import type { AlbumRow, GalleryItemRow, GalleryItemWithMedia } from './repository';
 import { createAlbumSchema, updateAlbumSchema, addGalleryItemSchema } from './validators';
 import type { CreateAlbumDTO, UpdateAlbumDTO, AddGalleryItemDTO } from './validators';
 
@@ -36,7 +36,10 @@ export class GalleryService {
    * @param filters - Optional criteria filters.
    * @returns Service result containing paginated album rows.
    */
-  async list(pagination: Pagination, filters?: Record<string, unknown>): Promise<ServiceResult<PaginatedResult<AlbumRow>>> {
+  async list(
+    pagination: Pagination,
+    filters?: Record<string, unknown>
+  ): Promise<ServiceResult<PaginatedResult<AlbumRow>>> {
     return ok(await galleryRepository.findMany({ pagination, filters }));
   }
 
@@ -48,8 +51,15 @@ export class GalleryService {
    */
   async create(dto: CreateAlbumDTO, userId: ID): Promise<ServiceResult<AlbumRow>> {
     const parsed = createAlbumSchema.safeParse(dto);
-    if (!parsed.success) return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
-    return fromRepo(await galleryRepository.create({ ...parsed.data as any, created_by: userId, updated_by: userId } as AlbumCreate));
+    if (!parsed.success)
+      return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
+    return fromRepo(
+      await galleryRepository.create({
+        ...(parsed.data as any),
+        created_by: userId,
+        updated_by: userId,
+      } as AlbumCreate)
+    );
   }
 
   /**
@@ -61,8 +71,11 @@ export class GalleryService {
    */
   async update(id: ID, dto: UpdateAlbumDTO, userId: ID): Promise<ServiceResult<AlbumRow>> {
     const parsed = updateAlbumSchema.safeParse(dto);
-    if (!parsed.success) return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
-    return fromRepo(await galleryRepository.update(id, { ...parsed.data as any, updated_by: userId }));
+    if (!parsed.success)
+      return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
+    return fromRepo(
+      await galleryRepository.update(id, { ...(parsed.data as any), updated_by: userId })
+    );
   }
 
   /**
@@ -81,7 +94,10 @@ export class GalleryService {
    * @param pagination - Pagination configuration.
    * @returns Service result with paginated album matches.
    */
-  async search(query: string, pagination: Pagination): Promise<ServiceResult<PaginatedResult<AlbumRow>>> {
+  async search(
+    query: string,
+    pagination: Pagination
+  ): Promise<ServiceResult<PaginatedResult<AlbumRow>>> {
     return ok(await galleryRepository.search(query, pagination));
   }
 
@@ -93,8 +109,15 @@ export class GalleryService {
    */
   async addItem(dto: AddGalleryItemDTO, userId: ID): Promise<ServiceResult<GalleryItemRow>> {
     const parsed = addGalleryItemSchema.safeParse(dto);
-    if (!parsed.success) return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
-    return fromRepo(await galleryRepository.addItem({ ...parsed.data as any, created_by: userId, updated_by: userId } as any));
+    if (!parsed.success)
+      return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
+    return fromRepo(
+      await galleryRepository.addItem({
+        ...(parsed.data as any),
+        created_by: userId,
+        updated_by: userId,
+      } as any)
+    );
   }
 
   /**
@@ -112,7 +135,10 @@ export class GalleryService {
    * @param pagination - Pagination options.
    * @returns Service result with paginated album items.
    */
-  async listItems(albumId: ID, pagination: Pagination): Promise<ServiceResult<PaginatedResult<GalleryItemRow>>> {
+  async listItems(
+    albumId: ID,
+    pagination: Pagination
+  ): Promise<ServiceResult<PaginatedResult<GalleryItemRow>>> {
     return ok(await galleryRepository.listItems(albumId, pagination));
   }
 
@@ -122,7 +148,10 @@ export class GalleryService {
    * @param pagination - Pagination options.
    * @returns Service result with paginated album items and media.
    */
-  async listItemsWithMedia(albumId: ID, pagination: Pagination): Promise<ServiceResult<PaginatedResult<GalleryItemWithMedia>>> {
+  async listItemsWithMedia(
+    albumId: ID,
+    pagination: Pagination
+  ): Promise<ServiceResult<PaginatedResult<GalleryItemWithMedia>>> {
     return ok(await galleryRepository.listItemsWithMedia(albumId, pagination));
   }
 }

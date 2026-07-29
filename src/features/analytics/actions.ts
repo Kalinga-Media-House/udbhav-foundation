@@ -6,7 +6,13 @@
  * analytical data slices.
  */
 
-import { handleAction, requireAuth, requirePermission, type ActionResult } from '@/contracts/actions';
+import {
+  handleAction,
+  requireAuth,
+  requirePermission,
+  type ActionResult,
+} from '@/contracts/actions';
+
 import { AnalyticsService } from './service';
 import type {
   TimeRange,
@@ -21,7 +27,9 @@ import type {
 
 const analyticsService = new AnalyticsService();
 
-export async function refreshMaterializedViewsAction(): Promise<ActionResult<{ refreshed: boolean }>> {
+export async function refreshMaterializedViewsAction(): Promise<
+  ActionResult<{ refreshed: boolean }>
+> {
   return handleAction('refreshMaterializedViews', async () => {
     const session = await requireAuth();
     requirePermission(session, 'dashboard.admin');
@@ -31,7 +39,9 @@ export async function refreshMaterializedViewsAction(): Promise<ActionResult<{ r
   });
 }
 
-export async function fetchExecutiveKPIsAction(timeRange: TimeRange = 'all'): Promise<ActionResult<ExecutiveKPIs>> {
+export async function fetchExecutiveKPIsAction(
+  timeRange: TimeRange = 'all'
+): Promise<ActionResult<ExecutiveKPIs>> {
   return handleAction('fetchExecutiveKPIs', async () => {
     const session = await requireAuth();
     requirePermission(session, 'dashboard.admin');
@@ -41,7 +51,9 @@ export async function fetchExecutiveKPIsAction(timeRange: TimeRange = 'all'): Pr
   });
 }
 
-export async function fetchDonationTimeSeriesAction(timeRange: TimeRange = '1y'): Promise<ActionResult<TimeSeriesPoint[]>> {
+export async function fetchDonationTimeSeriesAction(
+  timeRange: TimeRange = '1y'
+): Promise<ActionResult<TimeSeriesPoint[]>> {
   return handleAction('fetchDonationTimeSeries', async () => {
     const session = await requireAuth();
     requirePermission(session, 'dashboard.admin');
@@ -51,7 +63,9 @@ export async function fetchDonationTimeSeriesAction(timeRange: TimeRange = '1y')
   });
 }
 
-export async function fetchUserGrowthTimeSeriesAction(timeRange: TimeRange = '1y'): Promise<ActionResult<TimeSeriesPoint[]>> {
+export async function fetchUserGrowthTimeSeriesAction(
+  timeRange: TimeRange = '1y'
+): Promise<ActionResult<TimeSeriesPoint[]>> {
   return handleAction('fetchUserGrowthTimeSeries', async () => {
     const session = await requireAuth();
     requirePermission(session, 'dashboard.admin');
@@ -61,7 +75,9 @@ export async function fetchUserGrowthTimeSeriesAction(timeRange: TimeRange = '1y
   });
 }
 
-export async function fetchProgramPerformanceAction(): Promise<ActionResult<ProgramPerformanceItem[]>> {
+export async function fetchProgramPerformanceAction(): Promise<
+  ActionResult<ProgramPerformanceItem[]>
+> {
   return handleAction('fetchProgramPerformance', async () => {
     const session = await requireAuth();
     requirePermission(session, 'dashboard.admin');
@@ -71,7 +87,9 @@ export async function fetchProgramPerformanceAction(): Promise<ActionResult<Prog
   });
 }
 
-export async function fetchEventParticipationAction(limit = 10): Promise<ActionResult<EventParticipationItem[]>> {
+export async function fetchEventParticipationAction(
+  limit = 10
+): Promise<ActionResult<EventParticipationItem[]>> {
   return handleAction('fetchEventParticipation', async () => {
     const session = await requireAuth();
     requirePermission(session, 'dashboard.admin');
@@ -91,7 +109,9 @@ export async function fetchCRMHelpdeskMetricsAction(): Promise<ActionResult<CRMH
   });
 }
 
-export async function fetchVolunteerEngagementSummaryAction(): Promise<ActionResult<VolunteerEngagementSummary>> {
+export async function fetchVolunteerEngagementSummaryAction(): Promise<
+  ActionResult<VolunteerEngagementSummary>
+> {
   return handleAction('fetchVolunteerEngagementSummary', async () => {
     const session = await requireAuth();
     requirePermission(session, 'dashboard.admin');
@@ -101,7 +121,9 @@ export async function fetchVolunteerEngagementSummaryAction(): Promise<ActionRes
   });
 }
 
-export async function fetchAnalyticsOverviewAction(timeRange: TimeRange = '1y'): Promise<ActionResult<AnalyticsOverviewPayload>> {
+export async function fetchAnalyticsOverviewAction(
+  timeRange: TimeRange = '1y'
+): Promise<ActionResult<AnalyticsOverviewPayload>> {
   return handleAction('fetchAnalyticsOverview', async () => {
     const session = await requireAuth();
     requirePermission(session, 'dashboard.admin');

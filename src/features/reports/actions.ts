@@ -1,6 +1,12 @@
-"use server";
+'use server';
 
-import { handleAction, requireAuth, requirePermission, type ActionResult } from '@/contracts/actions';
+import {
+  handleAction,
+  requireAuth,
+  requirePermission,
+  type ActionResult,
+} from '@/contracts/actions';
+
 import * as service from './service';
 
 export async function fetchDonationsAction(): Promise<ActionResult<any>> {

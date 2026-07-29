@@ -5,22 +5,62 @@ import type { Pagination, ID } from '@/types';
 
 import { contactsRepository } from './repository';
 import type { ContactTypeRow, TagRow } from './repository';
-import type { EnquiryRow, ContactRow, ContactCreate, OrganizationRow, OrganizationCreate, ContactNoteRow, ContactInteractionRow } from './repository';
-import { createContactTypeSchema, updateContactTypeSchema, createTagSchema, updateTagSchema } from './validators';
-import { createEnquirySchema, createContactSchema, updateContactSchema, createOrganizationSchema, updateOrganizationSchema, mergeContactsSchema, addNoteSchema, addInteractionSchema } from './validators';
-import type { CreateContactTypeDTO, UpdateContactTypeDTO, CreateTagDTO, UpdateTagDTO } from './validators';
-import type { CreateEnquiryDTO, CreateContactDTO, UpdateContactDTO, CreateOrganizationDTO, UpdateOrganizationDTO, MergeContactsDTO, AddNoteDTO, AddInteractionDTO } from './validators';
+import type {
+  EnquiryRow,
+  ContactRow,
+  OrganizationRow,
+  ContactNoteRow,
+  ContactInteractionRow,
+} from './repository';
+import {
+  createContactTypeSchema,
+  updateContactTypeSchema,
+  createTagSchema,
+  updateTagSchema,
+} from './validators';
+import {
+  createEnquirySchema,
+  createContactSchema,
+  updateContactSchema,
+  createOrganizationSchema,
+  updateOrganizationSchema,
+  mergeContactsSchema,
+  addNoteSchema,
+  addInteractionSchema,
+} from './validators';
+import type {
+  CreateContactTypeDTO,
+  UpdateContactTypeDTO,
+  CreateTagDTO,
+  UpdateTagDTO,
+} from './validators';
+import type {
+  CreateEnquiryDTO,
+  CreateContactDTO,
+  UpdateContactDTO,
+  CreateOrganizationDTO,
+  UpdateOrganizationDTO,
+  MergeContactsDTO,
+  AddNoteDTO,
+  AddInteractionDTO,
+} from './validators';
 
 export class ContactsService {
   async getEnquiry(id: ID): Promise<ServiceResult<EnquiryRow>> {
     return fromRepo(await contactsRepository.findEnquiryById(id));
   }
 
-  async listEnquiries(pagination: Pagination, filters?: Record<string, unknown>): Promise<ServiceResult<PaginatedResult<EnquiryRow>>> {
+  async listEnquiries(
+    pagination: Pagination,
+    filters?: Record<string, unknown>
+  ): Promise<ServiceResult<PaginatedResult<EnquiryRow>>> {
     return ok(await contactsRepository.listEnquiries({ pagination, filters }));
   }
 
-  async createEnquiry(dto: CreateEnquiryDTO, userId: ID | null): Promise<ServiceResult<EnquiryRow>> {
+  async createEnquiry(
+    dto: CreateEnquiryDTO,
+    userId: ID | null
+  ): Promise<ServiceResult<EnquiryRow>> {
     const parsed = createEnquirySchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: any) => e.message).join(', '));
     return fromRepo(
@@ -31,7 +71,12 @@ export class ContactsService {
         user_agent: parsed.data.user_agent ?? null,
         created_by: userId,
         updated_by: userId,
-        assigned_to: null, assigned_by: null, assignment_time: null, resolved_by: null, resolved_at: null, first_response_time: null,
+        assigned_to: null,
+        assigned_by: null,
+        assignment_time: null,
+        resolved_by: null,
+        resolved_at: null,
+        first_response_time: null,
       } as any)
     );
   }
@@ -44,7 +89,10 @@ export class ContactsService {
     return fromRepo(await contactsRepository.updateEnquiryStatus(id, 'Resolved', userId));
   }
 
-  async searchEnquiries(query: string, pagination: Pagination): Promise<ServiceResult<PaginatedResult<EnquiryRow>>> {
+  async searchEnquiries(
+    query: string,
+    pagination: Pagination
+  ): Promise<ServiceResult<PaginatedResult<EnquiryRow>>> {
     return ok(await contactsRepository.searchEnquiries(query, pagination));
   }
 
@@ -52,7 +100,10 @@ export class ContactsService {
     return fromRepo(await contactsRepository.getContact(id));
   }
 
-  async listContacts(pagination: Pagination, filters?: Record<string, unknown>): Promise<ServiceResult<PaginatedResult<ContactRow>>> {
+  async listContacts(
+    pagination: Pagination,
+    filters?: Record<string, unknown>
+  ): Promise<ServiceResult<PaginatedResult<ContactRow>>> {
     return ok(await contactsRepository.listContacts({ pagination, filters }));
   }
 
@@ -93,7 +144,10 @@ export class ContactsService {
     return fromRepo(await contactsRepository.getOrganization(id));
   }
 
-  async listOrganizations(pagination: Pagination, filters?: Record<string, unknown>): Promise<ServiceResult<PaginatedResult<OrganizationRow>>> {
+  async listOrganizations(
+    pagination: Pagination,
+    filters?: Record<string, unknown>
+  ): Promise<ServiceResult<PaginatedResult<OrganizationRow>>> {
     return ok(await contactsRepository.listOrganizations({ pagination, filters }));
   }
 
@@ -117,7 +171,10 @@ export class ContactsService {
     return fromRepo(await contactsRepository.createOrganization(orgData as any));
   }
 
-  async updateOrganization(id: ID, dto: UpdateOrganizationDTO): Promise<ServiceResult<OrganizationRow>> {
+  async updateOrganization(
+    id: ID,
+    dto: UpdateOrganizationDTO
+  ): Promise<ServiceResult<OrganizationRow>> {
     const parsed = updateOrganizationSchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: any) => e.message).join(', '));
     return fromRepo(await contactsRepository.updateOrganization(id, parsed.data));
@@ -126,50 +183,62 @@ export class ContactsService {
   async addContactNote(dto: AddNoteDTO, userId: ID): Promise<ServiceResult<ContactNoteRow>> {
     const parsed = addNoteSchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: any) => e.message).join(', '));
-    return fromRepo(await contactsRepository.createContactNote({
-      contact_id: parsed.data.contact_id,
-      note_content: parsed.data.note_content,
-      is_pinned: parsed.data.is_pinned,
-      note_type: parsed.data.note_type,
-      created_by: userId,
-    }));
+    return fromRepo(
+      await contactsRepository.createContactNote({
+        contact_id: parsed.data.contact_id,
+        note_content: parsed.data.note_content,
+        is_pinned: parsed.data.is_pinned,
+        note_type: parsed.data.note_type,
+        created_by: userId,
+      })
+    );
   }
 
-  async addContactInteraction(dto: AddInteractionDTO, userId: ID): Promise<ServiceResult<ContactInteractionRow>> {
+  async addContactInteraction(
+    dto: AddInteractionDTO,
+    userId: ID
+  ): Promise<ServiceResult<ContactInteractionRow>> {
     const parsed = addInteractionSchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: any) => e.message).join(', '));
-    return fromRepo(await contactsRepository.createContactInteraction({
-      contact_id: parsed.data.contact_id,
-      interaction_type: parsed.data.interaction_type,
-      description: parsed.data.description,
-      interaction_date: parsed.data.interaction_date || new Date().toISOString(),
-      created_by: userId,
-    }));
+    return fromRepo(
+      await contactsRepository.createContactInteraction({
+        contact_id: parsed.data.contact_id,
+        interaction_type: parsed.data.interaction_type,
+        description: parsed.data.description,
+        interaction_date: parsed.data.interaction_date || new Date().toISOString(),
+        created_by: userId,
+      })
+    );
   }
 
   async mergeContacts(dto: MergeContactsDTO, userId: ID): Promise<ServiceResult<boolean>> {
     const parsed = mergeContactsSchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: any) => e.message).join(', '));
-    return fromRepo(await contactsRepository.mergeContacts(
-      parsed.data.surviving_contact_id,
-      parsed.data.deleted_contact_id,
-      parsed.data.reason || 'User initiated merge',
-      userId
-    ));
+    return fromRepo(
+      await contactsRepository.mergeContacts(
+        parsed.data.surviving_contact_id,
+        parsed.data.deleted_contact_id,
+        parsed.data.reason || 'User initiated merge',
+        userId
+      )
+    );
   }
 
   // Contact Types
   async listContactTypes(): Promise<ServiceResult<ContactTypeRow[]>> {
     return fromRepo(await contactsRepository.listContactTypes());
   }
-  
+
   async createContactType(dto: CreateContactTypeDTO): Promise<ServiceResult<ContactTypeRow>> {
     const parsed = createContactTypeSchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: any) => e.message).join(', '));
     return fromRepo(await contactsRepository.createContactType(parsed.data as any));
   }
 
-  async updateContactType(id: ID, dto: UpdateContactTypeDTO): Promise<ServiceResult<ContactTypeRow>> {
+  async updateContactType(
+    id: ID,
+    dto: UpdateContactTypeDTO
+  ): Promise<ServiceResult<ContactTypeRow>> {
     const parsed = updateContactTypeSchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: any) => e.message).join(', '));
     return fromRepo(await contactsRepository.updateContactType(id, parsed.data as any));
@@ -193,10 +262,12 @@ export class ContactsService {
   }
 
   // Interactions Global
-  async listInteractions(pagination: Pagination, filters?: Record<string, unknown>): Promise<ServiceResult<PaginatedResult<ContactInteractionRow>>> {
+  async listInteractions(
+    pagination: Pagination,
+    filters?: Record<string, unknown>
+  ): Promise<ServiceResult<PaginatedResult<ContactInteractionRow>>> {
     return fromRepo(await contactsRepository.listInteractions({ pagination, filters }));
   }
 }
 
 export const contactsService = new ContactsService();
-
