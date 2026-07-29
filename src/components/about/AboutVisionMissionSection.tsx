@@ -1,27 +1,27 @@
-"use client";
+'use client';
 
-import { Eye, Target, Sparkles } from "lucide-react";
-import React from "react";
+import { Eye, Target, Sparkles } from 'lucide-react';
+import React from 'react';
 
-import { Container } from "@/components/shared/Container";
-import { RevealCard } from "@/components/shared/RevealCard";
+import { Container } from '@/components/shared/Container';
+import { RevealCard } from '@/components/shared/RevealCard';
 
 export function AboutVisionMissionSection() {
   return (
     <section
       aria-labelledby="about-vision-mission-heading"
-      className="relative w-full overflow-hidden bg-gradient-to-b from-pure-white via-[#FDFCF8] to-warm-white py-12 sm:py-16 md:py-20 border-b border-soft-border/40"
+      className="from-pure-white to-warm-white border-soft-border/40 relative w-full overflow-hidden border-b bg-gradient-to-b via-[#FDFCF8] py-12 sm:py-16 md:py-20"
     >
       <Container>
         {/* Section Header */}
-        <div className="max-w-2xl mx-auto text-center mb-10 sm:mb-14">
+        <div className="mx-auto mb-10 max-w-2xl text-center sm:mb-14">
           <RevealCard as="div" index={0}>
-            <span className="eyebrow-label text-impact-green font-heading text-xs sm:text-sm font-bold tracking-widest uppercase block mb-2">
+            <span className="eyebrow-label text-impact-green mb-2 block font-heading text-xs font-bold uppercase tracking-widest sm:text-sm">
               GUIDING PRINCIPLES
             </span>
             <h2
               id="about-vision-mission-heading"
-              className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold text-udbhav-blue-deep tracking-tight"
+              className="text-udbhav-blue-deep font-heading text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl"
             >
               Our Vision & Mission
             </h2>
@@ -29,32 +29,31 @@ export function AboutVisionMissionSection() {
         </div>
 
         {/* Stacked Compact Horizontal Cards */}
-        <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
+        <div className="mx-auto max-w-4xl space-y-6 sm:space-y-8">
           {/* CARD 1: VISION */}
           <RevealCard
             as="div"
             index={1}
-            className="group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-pure-white via-[#FDFCF8] to-soft-green/25 border border-impact-green/25 p-6 sm:p-8 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+            className="from-pure-white to-soft-green/25 border-impact-green/25 group relative overflow-hidden rounded-2xl border bg-gradient-to-br via-[#FDFCF8] p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md sm:rounded-3xl sm:p-8"
           >
-            <div className="flex flex-col sm:flex-row items-start gap-5 sm:gap-8">
+            <div className="flex flex-col items-start gap-5 sm:flex-row sm:gap-8">
               {/* Icon Side */}
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-soft-green/60 border border-impact-green/30 flex items-center justify-center shrink-0">
-                <Eye className="w-7 h-7 sm:w-8 sm:h-8 text-impact-green" />
+              <div className="bg-soft-green/60 border-impact-green/30 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border sm:h-16 sm:w-16">
+                <Eye className="text-impact-green h-7 w-7 sm:h-8 sm:w-8" />
               </div>
 
               {/* Content Side */}
               <div className="flex-1 space-y-2">
-                <span className="eyebrow-label text-impact-green font-heading text-xs font-bold tracking-widest uppercase block">
+                <span className="eyebrow-label text-impact-green block font-heading text-xs font-bold uppercase tracking-widest">
                   OUR VISION
                 </span>
-                <h3 className="font-heading text-xl sm:text-2xl font-bold text-udbhav-blue-deep tracking-tight">
+                <h3 className="text-udbhav-blue-deep font-heading text-xl font-bold tracking-tight sm:text-2xl">
                   A Future Where Everyone Can Thrive
                 </h3>
-                <p className="text-sm sm:text-base text-text-primary leading-relaxed pt-1">
-                  To build a world where every mind is heard, every individual
-                  is empowered through education, and every community lives in
-                  harmony with nature—creating a future that is compassionate,
-                  conscious, and sustainable.
+                <p className="text-text-primary pt-1 text-sm leading-relaxed sm:text-base">
+                  To build a world where every person feels heard, where everyone has the chance to
+                  learn and grow, and where our communities live in harmony with nature. We want to
+                  help create a future that is compassionate, conscious, and sustainable.
                 </p>
               </div>
             </div>
@@ -64,45 +63,44 @@ export function AboutVisionMissionSection() {
           <RevealCard
             as="div"
             index={2}
-            className="group relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-pure-white via-[#FDFCF8] to-soft-green/25 border border-impact-green/25 p-6 sm:p-8 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+            className="from-pure-white to-soft-green/25 border-impact-green/25 group relative overflow-hidden rounded-2xl border bg-gradient-to-br via-[#FDFCF8] p-6 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md sm:rounded-3xl sm:p-8"
           >
-            <div className="flex flex-col sm:flex-row items-start gap-5 sm:gap-8">
+            <div className="flex flex-col items-start gap-5 sm:flex-row sm:gap-8">
               {/* Icon Side */}
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-soft-green/60 border border-impact-green/30 flex items-center justify-center shrink-0">
-                <Target className="w-7 h-7 sm:w-8 sm:h-8 text-impact-green" />
+              <div className="bg-soft-green/60 border-impact-green/30 flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border sm:h-16 sm:w-16">
+                <Target className="text-impact-green h-7 w-7 sm:h-8 sm:w-8" />
               </div>
 
               {/* Content Side */}
               <div className="flex-1 space-y-3">
                 <div>
-                  <span className="eyebrow-label text-impact-green font-heading text-xs font-bold tracking-widest uppercase block mb-1">
+                  <span className="eyebrow-label text-impact-green mb-1 block font-heading text-xs font-bold uppercase tracking-widest">
                     OUR MISSION
                   </span>
-                  <h3 className="font-heading text-xl sm:text-2xl font-bold text-udbhav-blue-deep tracking-tight">
+                  <h3 className="text-udbhav-blue-deep font-heading text-xl font-bold tracking-tight sm:text-2xl">
                     Turning Awareness into Meaningful Action
                   </h3>
                 </div>
 
-                <div className="space-y-2.5 text-sm sm:text-base text-text-primary leading-relaxed">
+                <div className="text-text-primary space-y-2.5 text-sm leading-relaxed sm:text-base">
                   <p>
-                    At UDBHAV Foundation, our mission is to create meaningful
-                    change by nurturing mental well-being, expanding access to
-                    quality education, and fostering environmental responsibility.
+                    Our mission is to create real, lasting change by supporting mental well-being,
+                    making quality education available to more children, and taking care of our
+                    environment.
                   </p>
                   <p>
-                    We work at the grassroots to turn awareness into
-                    action—breaking stigma, opening doors to opportunity, and
-                    inspiring individuals to become active participants in
-                    building a better world.
+                    We work closely with local neighborhoods to turn good ideas into daily actions.
+                    By breaking down barriers and opening new doors, we hope to inspire people to
+                    step up and help build a better world together.
                   </p>
                 </div>
 
                 {/* Highlight box */}
-                <div className="mt-3 inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-soft-green/50 border border-impact-green/30 text-xs sm:text-sm font-semibold text-udbhav-blue-deep">
-                  <Sparkles className="w-4 h-4 text-impact-green shrink-0" />
+                <div className="bg-soft-green/50 border-impact-green/30 text-udbhav-blue-deep mt-3 inline-flex items-center gap-2.5 rounded-xl border px-4 py-2.5 text-xs font-semibold sm:text-sm">
+                  <Sparkles className="text-impact-green h-4 w-4 shrink-0" />
                   <span>
-                    Our approach is simple yet powerful: listen deeply, act
-                    responsibly, and grow together.
+                    We believe lasting change begins by listening to people, understanding their
+                    needs, and working together to build a better future.
                   </span>
                 </div>
               </div>

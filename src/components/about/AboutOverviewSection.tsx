@@ -1,26 +1,26 @@
-"use client";
+'use client';
 
-import React from "react";
+import React from 'react';
 
-import { Container } from "@/components/shared/Container";
-import { RevealCard } from "@/components/shared/RevealCard";
+import { Container } from '@/components/shared/Container';
+import { RevealCard } from '@/components/shared/RevealCard';
 
 const STAT_ITEMS = [
   {
-    value: "2020",
-    label: "Established",
+    value: '2020',
+    label: 'Established',
   },
   {
-    value: "250–300",
-    label: "Active Members",
+    value: '250 to 300',
+    label: 'Active Members',
   },
   {
-    value: "2",
-    label: "Operational Branches",
+    value: '2',
+    label: 'Operational Branches',
   },
   {
-    value: "11",
-    label: "Major Initiatives",
+    value: '11',
+    label: 'Major Initiatives',
   },
 ];
 
@@ -28,19 +28,19 @@ export function AboutOverviewSection() {
   return (
     <section
       aria-labelledby="about-overview-heading"
-      className="relative w-full overflow-hidden bg-gradient-to-b from-[#FDFCF8] via-pure-white to-warm-white py-12 sm:py-16 md:py-20 border-b border-soft-border/40"
+      className="via-pure-white to-warm-white border-soft-border/40 relative w-full overflow-hidden border-b bg-gradient-to-b from-[#FDFCF8] py-12 sm:py-16 md:py-20"
     >
       <Container>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-12 lg:gap-12">
           {/* Left Column: About UDBHAV Narrative */}
-          <div className="lg:col-span-7 space-y-4 sm:space-y-5">
+          <div className="space-y-4 sm:space-y-5 lg:col-span-7">
             <RevealCard as="div" index={0}>
-              <span className="eyebrow-label text-impact-green font-heading text-xs sm:text-sm font-bold tracking-widest uppercase block mb-2">
+              <span className="eyebrow-label text-impact-green mb-2 block font-heading text-xs font-bold uppercase tracking-widest sm:text-sm">
                 WHO WE ARE
               </span>
               <h2
                 id="about-overview-heading"
-                className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold text-udbhav-blue-deep tracking-tight"
+                className="text-udbhav-blue-deep font-heading text-2xl font-bold tracking-tight sm:text-3xl md:text-4xl"
               >
                 About UDBHAV
               </h2>
@@ -49,23 +49,24 @@ export function AboutOverviewSection() {
             <RevealCard
               as="div"
               index={1}
-              className="space-y-4 text-base sm:text-lg text-text-primary leading-relaxed"
+              className="text-text-primary space-y-4 text-base leading-relaxed sm:text-lg"
             >
               <p>
-                UDBHAV is a community-rooted non-profit organization established
-                in 2020, with a core mission to promote inclusivity, compassion,
-                and empowerment through education, environment, and cultural
-                initiatives.
+                We started Udbhav Foundation in 2020 because we care deeply about our community. Our
+                goal is simple. We want to create a world where everyone belongs, people look out
+                for one another, and everyone has the chance to thrive. We focus on education,
+                protecting our environment, and celebrating our shared culture.
               </p>
               <p>
-                Since its inception, UDBHAV has flourished into a vibrant
-                collective of 250–300 active members, including professionals,
-                student volunteers, and changemakers from various backgrounds.
+                Over the years, our small family has grown into a wonderful community of around 300
+                active members. We are students, professionals, and everyday people from all walks
+                of life, brought together by a shared desire to make a difference.
               </p>
               <p>
-                With operational branches in Bhubaneswar and Khordha, we are
-                deeply engaged in community development, awareness drives, and
-                social inclusion programmes across urban and rural areas.
+                From our homes in Bhubaneswar and Khordha, we work hand in hand with neighborhoods
+                across both cities and villages. Whether we are running awareness campaigns or
+                organizing support programs, our heart is always in building stronger, more
+                connected communities.
               </p>
             </RevealCard>
           </div>
@@ -78,16 +79,16 @@ export function AboutOverviewSection() {
                   key={stat.label}
                   as="div"
                   index={idx + 2}
-                  className="group relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br from-pure-white via-[#FDFCF8] to-soft-green/30 border border-impact-green/20 p-5 sm:p-6 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+                  className="from-pure-white to-soft-green/30 border-impact-green/20 group relative overflow-hidden rounded-xl border bg-gradient-to-br via-[#FDFCF8] p-5 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md sm:rounded-2xl sm:p-6"
                 >
                   <div
                     aria-hidden="true"
-                    className="pointer-events-none absolute top-0 left-0 w-1.5 h-full bg-impact-green rounded-l-xl opacity-80"
+                    className="bg-impact-green pointer-events-none absolute left-0 top-0 h-full w-1.5 rounded-l-xl opacity-80"
                   />
-                  <div className="text-2xl sm:text-3xl md:text-[34px] font-heading font-bold text-udbhav-blue-deep tracking-tight mb-1">
+                  <div className="text-udbhav-blue-deep mb-1 font-heading text-2xl font-bold tracking-tight sm:text-3xl md:text-[34px]">
                     {stat.value}
                   </div>
-                  <div className="text-xs sm:text-sm font-medium text-text-secondary group-hover:text-impact-green transition-colors">
+                  <div className="text-text-secondary group-hover:text-impact-green text-xs font-medium transition-colors sm:text-sm">
                     {stat.label}
                   </div>
                 </RevealCard>
