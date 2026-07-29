@@ -1,6 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
+import { exportToCSV } from '@/lib/utils/csv-export';
+import { 
+  fetchDonationsAction, 
+  fetchContactsAction, 
+  fetchVolunteersAction, 
+  fetchUsersAction 
+} from '@/features/reports/actions';
 
 const REPORT_TYPES = [
   {
@@ -13,7 +20,8 @@ const REPORT_TYPES = [
       </svg>
     ),
     color: 'text-emerald-600 dark:text-emerald-400',
-    bg: 'bg-emerald-100 dark:bg-emerald-900/30'
+    bg: 'bg-emerald-100 dark:bg-emerald-900/30',
+    action: fetchDonationsAction
   },
   {
     id: 'contacts',
@@ -25,7 +33,8 @@ const REPORT_TYPES = [
       </svg>
     ),
     color: 'text-blue-600 dark:text-blue-400',
-    bg: 'bg-blue-100 dark:bg-blue-900/30'
+    bg: 'bg-blue-100 dark:bg-blue-900/30',
+    action: fetchContactsAction
   },
   {
     id: 'volunteers',
@@ -37,7 +46,8 @@ const REPORT_TYPES = [
       </svg>
     ),
     color: 'text-purple-600 dark:text-purple-400',
-    bg: 'bg-purple-100 dark:bg-purple-900/30'
+    bg: 'bg-purple-100 dark:bg-purple-900/30',
+    action: fetchVolunteersAction
   },
   {
     id: 'users',
@@ -49,16 +59,44 @@ const REPORT_TYPES = [
       </svg>
     ),
     color: 'text-orange-600 dark:text-orange-400',
-    bg: 'bg-orange-100 dark:bg-orange-900/30'
+    bg: 'bg-orange-100 dark:bg-orange-900/30',
+    action: fetchUsersAction
   }
 ];
 
 export const ReportsDashboard = () => {
+  const [loading, setLoading] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleExport = async (report: any) => {
+    setLoading(report.id);
+    setError(null);
+    try {
+      const response = await report.action();
+      if (response.error) {
+        setError(response.error);
+      } else if (response.data) {
+        exportToCSV(response.data, report.id);
+      } else {
+        setError('No data found for this report');
+      }
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during export');
+    } finally {
+      setLoading(null);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Reports &amp; Exports</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Generate and download CSV reports for different modules.</p>
+        {error && (
+          <div className="mt-4 p-4 text-sm text-red-800 bg-red-100 rounded-lg dark:bg-red-900/30 dark:text-red-400">
+            {error}
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
@@ -76,11 +114,22 @@ export const ReportsDashboard = () => {
               </div>
             </div>
             <div className="mt-6 pt-4 border-t border-gray-100 dark:border-gray-700/50 flex justify-end">
-              <button className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 transition-colors shadow-sm">
-                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                Export CSV
+              <button 
+                onClick={() => handleExport(report)}
+                disabled={loading !== null}
+                className="flex items-center px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-900 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading === report.id ? (
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-700 dark:text-gray-200" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                )}
+                {loading === report.id ? 'Exporting...' : 'Export CSV'}
               </button>
             </div>
           </div>
