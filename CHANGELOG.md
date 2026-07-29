@@ -5,7 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] - 2026-07-28
+## [1.0.0-rc2] - 2026-07-29
+### Hardened
+- **Phase 3.3: Production Verification & Release Candidate 2**.
+- Complete elimination of all TypeScript compilation errors (`as any` usage strictly constrained).
+- 100% resolution of ESLint unused imports and `console.log` statements in production routes.
+- Enforced `handleAction` strict RBAC architecture universally across all Next.js Server Actions.
+- Cloudflare R2 Upload functions hardened with strict MIME whitelisting.
+
+## [1.0.0-rc1] - 2026-07-28
 ### Added
 - **Phase 2.8: Foundation Index** (Programs & Initiatives Archive).
 - `index_initiatives` and `index_initiative_gallery` tables for storing historical data separate from operational Programs.
