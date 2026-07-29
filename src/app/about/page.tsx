@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 
-import { AboutCtaSection } from '@/components/about/AboutCtaSection';
 import { AboutHeroSection } from '@/components/about/AboutHeroSection';
 import { AboutOverviewSection } from '@/components/about/AboutOverviewSection';
 import { AboutVisionMissionSection } from '@/components/about/AboutVisionMissionSection';
@@ -34,9 +33,6 @@ export default function AboutPage() {
 
       {/* 7. Section 7 — Our Approach */}
       <OurApproachSection />
-
-      {/* 9. Final Call to Action */}
-      <AboutCtaSection />
     </div>
   );
 }
