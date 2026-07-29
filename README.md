@@ -15,10 +15,11 @@ Please see the `/docs` directory for the comprehensive Enterprise Architecture D
 - [`ENV_VARS.md`](./docs/ENV_VARS.md) — Environment variable management and validation
 - [`TESTING.md`](./docs/TESTING.md) — Vitest and Playwright quality assurance specifications
 - [`CI_CD.md`](./docs/CI_CD.md) — Continuous integration and deployment workflows
+- [`RC1 Verification Archive`](./docs/verification/rc1/README.md) — Empirical production runtime verification artifacts (HAR, screenshot, automation logs)
 
 ## Current Status
-**✅ Phase 2.8 (Foundation Index) Completed and Baselined.**
-The repository is at version `v1.0.0-foundation-phase-2.8`.
+**✅ Phase 1–3 Completed and Baselined as Release Candidate 1 (RC1).**
+The repository is at version `v1.0.0-rc1`. All core enterprise modules (DB, Auth, CMS, FRM Contacts, Donations, Events) and RBAC security policies have been empirically runtime verified in production.
 
 ## Local Development
 
