@@ -1,6 +1,6 @@
 'use client';
 
-import { Eye, Target, Sparkles } from 'lucide-react';
+import { Eye, Target } from 'lucide-react';
 import React from 'react';
 
 import { Container } from '@/components/shared/Container';
@@ -96,8 +96,7 @@ export function AboutVisionMissionSection() {
                 </div>
 
                 {/* Highlight box */}
-                <div className="bg-soft-green/50 border-impact-green/30 text-udbhav-blue-deep mt-3 inline-flex items-center gap-2.5 rounded-xl border px-4 py-2.5 text-xs font-semibold sm:text-sm">
-                  <Sparkles className="text-impact-green h-4 w-4 shrink-0" />
+                <div className="bg-soft-green/50 border-impact-green/30 text-udbhav-blue-deep mt-3 flex items-center justify-center rounded-xl border px-4 py-3 text-center text-xs font-semibold sm:justify-start sm:text-left sm:text-sm">
                   <span>
                     We believe lasting change begins by listening to people, understanding their
                     needs, and working together to build a better future.
