@@ -1,102 +1,131 @@
-'use client';
+﻿"use client";
 
-import React, { useState } from 'react';
+import { useEffect, useState } from "react";
+import { Role, Permission, RolePermission } from "@/features/roles/types";
+import { fetchAllRoles, fetchAllPermissions, fetchRolePermissions, updateRolePermissions } from "@/features/roles/actions";
+import { exportToCSV } from "@/lib/utils/csv-export";
 
-const ROLES = [
-  { id: 'super_admin', name: 'Super Admin', description: 'Full access to all system features.' },
-  { id: 'admin', name: 'Admin', description: 'Access to most features, cannot manage super admins.' },
-  { id: 'content_admin', name: 'Content Admin', description: 'Can manage pages, posts, and media only.' },
-];
+export function RoleManager() {
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [permissions, setPermissions] = useState<Permission[]>([]);
+  const [rolePerms, setRolePerms] = useState<RolePermission[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
-const PERMISSIONS = [
-  'view_users',
-  'manage_users',
-  'view_donations',
-  'manage_donations',
-  'view_content',
-  'manage_content',
-  'view_reports',
-];
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [r, p, rp] = await Promise.all([
+          fetchAllRoles(),
+          fetchAllPermissions(),
+          fetchRolePermissions()
+        ]);
+        setRoles(r);
+        setPermissions(p);
+        setRolePerms(rp);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
 
-const INITIAL_MAPPING: Record<string, string[]> = {
-  super_admin: [...PERMISSIONS],
-  admin: ['view_users', 'manage_users', 'view_donations', 'view_content', 'manage_content', 'view_reports'],
-  content_admin: ['view_content', 'manage_content'],
-};
-
-export const RoleManager = () => {
-  const [rolePermissions, setRolePermissions] = useState(INITIAL_MAPPING);
-
-  const togglePermission = (roleId: string, permission: string) => {
-    setRolePermissions(prev => {
-      const perms = prev[roleId] || [];
-      if (perms.includes(permission)) {
-        return { ...prev, [roleId]: perms.filter(p => p !== permission) };
+  const handleToggle = (roleId: string, permissionId: string) => {
+    setRolePerms(prev => {
+      const exists = prev.find(rp => rp.role_id === roleId && rp.permission_id === permissionId);
+      if (exists) {
+        return prev.filter(rp => !(rp.role_id === roleId && rp.permission_id === permissionId));
       } else {
-        return { ...prev, [roleId]: [...perms, permission] };
+        return [...prev, { role_id: roleId, permission_id: permissionId }];
       }
     });
   };
 
+  const handleSave = async (roleId: string) => {
+    try {
+      setSaving(true);
+      const permsForRole = rolePerms.filter(rp => rp.role_id === roleId).map(rp => rp.permission_id);
+      await updateRolePermissions(roleId, permsForRole);
+      alert("Saved successfully!");
+    } catch (error) {
+      console.error(error);
+      alert("Error saving permissions");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleExport = () => {
+    const data = roles.map(role => {
+      const row: any = { Role: role.name };
+      permissions.forEach(p => {
+        row[p.name] = rolePerms.some(rp => rp.role_id === role.id && rp.permission_id === p.id) ? "Yes" : "No";
+      });
+      return row;
+    });
+    exportToCSV("role_permissions.csv", data);
+  };
+
+  if (loading) return <div>Loading...</div>;
+
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Role Management</h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Configure access control levels and permissions.</p>
+    <div className="p-6 bg-white rounded shadow text-black">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-xl font-bold">Role & Permission Manager</h2>
+        <button 
+          onClick={handleExport}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Export to CSV
+        </button>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 shadow-sm rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-900/50">
-              <tr>
-                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                  Role
+      <div className="overflow-x-auto">
+        <table className="min-w-full table-auto border-collapse border border-gray-200">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border border-gray-200 px-4 py-2">Role</th>
+              {permissions.map(p => (
+                <th key={p.id} className="border border-gray-200 px-4 py-2" title={p.description || p.name}>
+                  {p.name}
                 </th>
-                {PERMISSIONS.map(perm => (
-                  <th key={perm} scope="col" className="px-6 py-4 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    {perm.replace('_', ' ')}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-              {ROLES.map((role) => (
-                <tr key={role.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-gray-900 dark:text-white">{role.name}</span>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">{role.description}</span>
-                    </div>
-                  </td>
-                  {PERMISSIONS.map(perm => {
-                    const isGranted = (rolePermissions[role.id] || []).includes(perm);
-                    return (
-                      <td key={perm} className="px-6 py-4 whitespace-nowrap text-center">
-                        <label className="inline-flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            className="sr-only peer"
-                            checked={isGranted}
-                            onChange={() => togglePermission(role.id, perm)}
-                            disabled={role.id === 'super_admin'}
-                          />
-                          <div className={`w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 ${role.id === 'super_admin' ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
-                        </label>
-                      </td>
-                    );
-                  })}
-                </tr>
               ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="px-6 py-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700 flex justify-end">
-          <button className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors shadow-sm focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900">
-            Save Changes
-          </button>
-        </div>
+              <th className="border border-gray-200 px-4 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {roles.map(role => (
+              <tr key={role.id}>
+                <td className="border border-gray-200 px-4 py-2 font-medium">{role.name}</td>
+                {permissions.map(p => {
+                  const hasPerm = rolePerms.some(rp => rp.role_id === role.id && rp.permission_id === p.id);
+                  return (
+                    <td key={p.id} className="border border-gray-200 px-4 py-2 text-center">
+                      <input 
+                        type="checkbox"
+                        checked={hasPerm}
+                        onChange={() => handleToggle(role.id, p.id)}
+                        className="w-4 h-4"
+                      />
+                    </td>
+                  );
+                })}
+                <td className="border border-gray-200 px-4 py-2 text-center">
+                  <button 
+                    onClick={() => handleSave(role.id)}
+                    disabled={saving}
+                    className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 disabled:opacity-50"
+                  >
+                    Save
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
-};
+}
