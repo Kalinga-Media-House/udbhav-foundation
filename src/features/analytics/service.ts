@@ -6,14 +6,9 @@
 
 import { revalidatePath } from 'next/cache';
 
-import { ROLES } from '@/constants';
 import { ok, fail } from '@/contracts/services';
 import type { ServiceResult } from '@/contracts/services';
-import { AuthorizationError } from '@/errors';
-import { securityLogger } from '@/lib/logger/security-logger';
 import { serverLogger } from '@/lib/logger/server-logger';
-import { requireUser } from '@/lib/supabase/helpers';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 import { AnalyticsRepository } from './repository';
 import type {
@@ -26,38 +21,6 @@ import type {
   VolunteerEngagementSummary,
   AnalyticsOverviewPayload,
 } from './types';
-
-const ALLOWED_ANALYTICS_ROLES = [ROLES.SUPER_ADMIN, ROLES.ADMIN, 'finance-manager', 'director'];
-
-/**
- * Asserts that the authenticated user holds an authorized administrative role.
- */
-async function assertAnalyticsAccess(): Promise<void> {
-  const user = await requireUser();
-  const supabase = await createServerSupabaseClient();
-
-  let userRole = user.app_metadata?.role || user.user_metadata?.role;
-  if (!userRole) {
-    const { data: roleData } = await supabase
-      .from('user_roles')
-      .select('is_active, roles(slug)')
-      .eq('user_id', user.id)
-      .eq('is_active', true)
-      .limit(1)
-      .single<{ is_active: boolean; roles: { slug: string } }>();
-    userRole = roleData?.roles?.slug;
-  }
-
-  if (!userRole || !ALLOWED_ANALYTICS_ROLES.includes(userRole as any)) {
-    securityLogger.logViolation('RLS_VIOLATION', 'unknown', {
-      userId: user.id,
-      requiredRoles: ALLOWED_ANALYTICS_ROLES,
-      actualRole: userRole || 'none',
-    });
-    throw new AuthorizationError('Insufficient permissions to access enterprise analytics.');
-  }
-}
-
 export class AnalyticsService {
   private repository = new AnalyticsRepository();
 
@@ -67,7 +30,6 @@ export class AnalyticsService {
    */
   async refreshMaterializedViews(): Promise<ServiceResult<{ refreshed: boolean }>> {
     try {
-      await assertAnalyticsAccess();
       await this.repository.refreshMaterializedViews();
       revalidatePath('/admin/dashboard');
       revalidatePath('/admin/analytics');
@@ -83,7 +45,6 @@ export class AnalyticsService {
    */
   async getExecutiveKPIs(timeRange: TimeRange = 'all'): Promise<ServiceResult<ExecutiveKPIs>> {
     try {
-      await assertAnalyticsAccess();
       const kpis = await this.repository.getExecutiveKPIs(timeRange);
       return ok(kpis);
     } catch (error) {
@@ -99,7 +60,6 @@ export class AnalyticsService {
     timeRange: TimeRange = '1y'
   ): Promise<ServiceResult<TimeSeriesPoint[]>> {
     try {
-      await assertAnalyticsAccess();
       const points = await this.repository.getDonationTimeSeries(timeRange);
       return ok(points);
     } catch (error) {
@@ -115,7 +75,6 @@ export class AnalyticsService {
     timeRange: TimeRange = '1y'
   ): Promise<ServiceResult<TimeSeriesPoint[]>> {
     try {
-      await assertAnalyticsAccess();
       const points = await this.repository.getUserGrowthTimeSeries(timeRange);
       return ok(points);
     } catch (error) {
@@ -129,7 +88,6 @@ export class AnalyticsService {
    */
   async getProgramPerformance(): Promise<ServiceResult<ProgramPerformanceItem[]>> {
     try {
-      await assertAnalyticsAccess();
       const items = await this.repository.getProgramPerformance();
       return ok(items);
     } catch (error) {
@@ -143,7 +101,6 @@ export class AnalyticsService {
    */
   async getEventParticipation(limit = 10): Promise<ServiceResult<EventParticipationItem[]>> {
     try {
-      await assertAnalyticsAccess();
       const items = await this.repository.getEventParticipation(limit);
       return ok(items);
     } catch (error) {
@@ -157,7 +114,6 @@ export class AnalyticsService {
    */
   async getCRMHelpdeskMetrics(): Promise<ServiceResult<CRMHelpdeskMetric[]>> {
     try {
-      await assertAnalyticsAccess();
       const metrics = await this.repository.getCRMHelpdeskMetrics();
       return ok(metrics);
     } catch (error) {
@@ -171,7 +127,6 @@ export class AnalyticsService {
    */
   async getVolunteerEngagementSummary(): Promise<ServiceResult<VolunteerEngagementSummary>> {
     try {
-      await assertAnalyticsAccess();
       const summary = await this.repository.getVolunteerEngagementSummary();
       return ok(summary);
     } catch (error) {
@@ -193,7 +148,6 @@ export class AnalyticsService {
     timeRange: TimeRange = '1y'
   ): Promise<ServiceResult<AnalyticsOverviewPayload>> {
     try {
-      await assertAnalyticsAccess();
       const overview = await this.repository.getAnalyticsOverview(timeRange);
       return ok(overview);
     } catch (error) {

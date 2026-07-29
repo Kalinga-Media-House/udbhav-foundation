@@ -48,10 +48,11 @@ export function AuditLogViewer() {
       const res = await listAuditLogsAction({ limit: 15, offset: (currentPage - 1) * 15 } as any, filters);
       
       if (res.success && res.data) {
-        setLogs(res.data as any);
-        setHasMore((res.data as any).length === 15);
-        if ((res as any).metadata?.totalCount !== undefined) {
-          setTotal((res as any).metadata.totalCount);
+        const paginatedData = res.data;
+        setLogs(paginatedData.data as any);
+        setHasMore(paginatedData.data.length === 15);
+        if (paginatedData.total !== undefined) {
+          setTotal(paginatedData.total);
         }
       } else {
         toast.error(res.error || 'Failed to fetch audit logs');

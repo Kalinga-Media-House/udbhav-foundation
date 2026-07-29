@@ -15,7 +15,7 @@ export function ActivityTimeline() {
         const pagination: Pagination = { page: 1, limit: 20 };
         const res = await listAuditLogsAction(pagination);
         if (res.success && res.data) {
-          setLogs(res.data as any);
+          setLogs(res.data.data as any);
         }
       } catch (error) {
         console.error('Failed to fetch activity logs:', error);

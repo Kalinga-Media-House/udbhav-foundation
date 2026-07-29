@@ -45,6 +45,17 @@ export class MediaService {
       contentType,
       folder,
       maxSizeMB: 10,
+      allowedMimeTypes: [
+        'image/jpeg',
+        'image/png',
+        'image/webp',
+        'image/gif',
+        'image/svg+xml',
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'text/csv',
+      ],
     });
     if (uploadResult.error || !uploadResult.data) {
       return fail(uploadResult.error?.message ?? 'Upload failed');

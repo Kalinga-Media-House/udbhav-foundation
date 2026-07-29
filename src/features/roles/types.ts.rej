@@ -1,0 +1,10 @@
+diff a/src/features/roles/types.ts b/src/features/roles/types.ts	(rejected hunks)
+@@ -1,7 +1 @@
+-∩╗┐export interface Role {
+-  id: string;
+-  name: string;
+-  description: string | null;
+-  created_at?: string;
+-  updated_at?: string;
+-}
++import type { Database } from '@/types/database/database.generated';

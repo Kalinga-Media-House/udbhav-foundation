@@ -6,8 +6,7 @@
  * analytical data slices.
  */
 
-import type { ServiceResult } from '@/contracts/services';
-
+import { handleAction, requireAuth, requirePermission, type ActionResult } from '@/contracts/actions';
 import { AnalyticsService } from './service';
 import type {
   TimeRange,
@@ -22,82 +21,92 @@ import type {
 
 const analyticsService = new AnalyticsService();
 
-/**
- * Refreshes analytical materialized views in Postgres.
- * READ-ONLY: Never modifies operational records.
- */
-export async function refreshMaterializedViewsAction(): Promise<
-  ServiceResult<{ refreshed: boolean }>
-> {
-  return analyticsService.refreshMaterializedViews();
+export async function refreshMaterializedViewsAction(): Promise<ActionResult<{ refreshed: boolean }>> {
+  return handleAction('refreshMaterializedViews', async () => {
+    const session = await requireAuth();
+    requirePermission(session, 'dashboard.admin');
+    const res = await analyticsService.refreshMaterializedViews();
+    if (!res.success) throw new Error(res.error || 'Failed');
+    return res.data!;
+  });
 }
 
-/**
- * Fetches executive KPI summary metrics for a given time range.
- */
-export async function fetchExecutiveKPIsAction(
-  timeRange: TimeRange = 'all'
-): Promise<ServiceResult<ExecutiveKPIs>> {
-  return analyticsService.getExecutiveKPIs(timeRange);
+export async function fetchExecutiveKPIsAction(timeRange: TimeRange = 'all'): Promise<ActionResult<ExecutiveKPIs>> {
+  return handleAction('fetchExecutiveKPIs', async () => {
+    const session = await requireAuth();
+    requirePermission(session, 'dashboard.admin');
+    const res = await analyticsService.getExecutiveKPIs(timeRange);
+    if (!res.success) throw new Error(res.error || 'Failed');
+    return res.data!;
+  });
 }
 
-/**
- * Fetches donation time-series data for chart rendering.
- */
-export async function fetchDonationTimeSeriesAction(
-  timeRange: TimeRange = '1y'
-): Promise<ServiceResult<TimeSeriesPoint[]>> {
-  return analyticsService.getDonationTimeSeries(timeRange);
+export async function fetchDonationTimeSeriesAction(timeRange: TimeRange = '1y'): Promise<ActionResult<TimeSeriesPoint[]>> {
+  return handleAction('fetchDonationTimeSeries', async () => {
+    const session = await requireAuth();
+    requirePermission(session, 'dashboard.admin');
+    const res = await analyticsService.getDonationTimeSeries(timeRange);
+    if (!res.success) throw new Error(res.error || 'Failed');
+    return res.data!;
+  });
 }
 
-/**
- * Fetches user registration growth time-series data.
- */
-export async function fetchUserGrowthTimeSeriesAction(
-  timeRange: TimeRange = '1y'
-): Promise<ServiceResult<TimeSeriesPoint[]>> {
-  return analyticsService.getUserGrowthTimeSeries(timeRange);
+export async function fetchUserGrowthTimeSeriesAction(timeRange: TimeRange = '1y'): Promise<ActionResult<TimeSeriesPoint[]>> {
+  return handleAction('fetchUserGrowthTimeSeries', async () => {
+    const session = await requireAuth();
+    requirePermission(session, 'dashboard.admin');
+    const res = await analyticsService.getUserGrowthTimeSeries(timeRange);
+    if (!res.success) throw new Error(res.error || 'Failed');
+    return res.data!;
+  });
 }
 
-/**
- * Fetches program reach and fundraising impact metrics.
- */
-export async function fetchProgramPerformanceAction(): Promise<
-  ServiceResult<ProgramPerformanceItem[]>
-> {
-  return analyticsService.getProgramPerformance();
+export async function fetchProgramPerformanceAction(): Promise<ActionResult<ProgramPerformanceItem[]>> {
+  return handleAction('fetchProgramPerformance', async () => {
+    const session = await requireAuth();
+    requirePermission(session, 'dashboard.admin');
+    const res = await analyticsService.getProgramPerformance();
+    if (!res.success) throw new Error(res.error || 'Failed');
+    return res.data!;
+  });
 }
 
-/**
- * Fetches event capacity utilization and volunteer attendance metrics.
- */
-export async function fetchEventParticipationAction(
-  limit = 10
-): Promise<ServiceResult<EventParticipationItem[]>> {
-  return analyticsService.getEventParticipation(limit);
+export async function fetchEventParticipationAction(limit = 10): Promise<ActionResult<EventParticipationItem[]>> {
+  return handleAction('fetchEventParticipation', async () => {
+    const session = await requireAuth();
+    requirePermission(session, 'dashboard.admin');
+    const res = await analyticsService.getEventParticipation(limit);
+    if (!res.success) throw new Error(res.error || 'Failed');
+    return res.data!;
+  });
 }
 
-/**
- * Fetches CRM helpdesk resolution efficiency and ticket SLA metrics.
- */
-export async function fetchCRMHelpdeskMetricsAction(): Promise<ServiceResult<CRMHelpdeskMetric[]>> {
-  return analyticsService.getCRMHelpdeskMetrics();
+export async function fetchCRMHelpdeskMetricsAction(): Promise<ActionResult<CRMHelpdeskMetric[]>> {
+  return handleAction('fetchCRMHelpdeskMetrics', async () => {
+    const session = await requireAuth();
+    requirePermission(session, 'dashboard.admin');
+    const res = await analyticsService.getCRMHelpdeskMetrics();
+    if (!res.success) throw new Error(res.error || 'Failed');
+    return res.data!;
+  });
 }
 
-/**
- * Fetches volunteer engagement summary and top skills.
- */
-export async function fetchVolunteerEngagementSummaryAction(): Promise<
-  ServiceResult<VolunteerEngagementSummary>
-> {
-  return analyticsService.getVolunteerEngagementSummary();
+export async function fetchVolunteerEngagementSummaryAction(): Promise<ActionResult<VolunteerEngagementSummary>> {
+  return handleAction('fetchVolunteerEngagementSummary', async () => {
+    const session = await requireAuth();
+    requirePermission(session, 'dashboard.admin');
+    const res = await analyticsService.getVolunteerEngagementSummary();
+    if (!res.success) throw new Error(res.error || 'Failed');
+    return res.data!;
+  });
 }
 
-/**
- * Fetches the unified executive analytics overview payload.
- */
-export async function fetchAnalyticsOverviewAction(
-  timeRange: TimeRange = '1y'
-): Promise<ServiceResult<AnalyticsOverviewPayload>> {
-  return analyticsService.getAnalyticsOverview(timeRange);
+export async function fetchAnalyticsOverviewAction(timeRange: TimeRange = '1y'): Promise<ActionResult<AnalyticsOverviewPayload>> {
+  return handleAction('fetchAnalyticsOverview', async () => {
+    const session = await requireAuth();
+    requirePermission(session, 'dashboard.admin');
+    const res = await analyticsService.getAnalyticsOverview(timeRange);
+    if (!res.success) throw new Error(res.error || 'Failed');
+    return res.data!;
+  });
 }

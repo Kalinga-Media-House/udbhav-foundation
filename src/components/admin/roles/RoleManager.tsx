@@ -21,14 +21,14 @@ export function RoleManager() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [r, p, rp] = await Promise.all([
+        const [rRes, pRes, rpRes] = await Promise.all([
           fetchAllRoles(),
           fetchAllPermissions(),
           fetchRolePermissions(),
         ]);
-        setRoles(r);
-        setPermissions(p);
-        setRolePerms(rp);
+        if (rRes.success && rRes.data) setRoles(rRes.data);
+        if (pRes.success && pRes.data) setPermissions(pRes.data);
+        if (rpRes.success && rpRes.data) setRolePerms(rpRes.data);
       } catch (error) {
         console.error(error);
       } finally {
@@ -55,8 +55,12 @@ export function RoleManager() {
       const permsForRole = rolePerms
         .filter((rp) => rp.role_id === roleId)
         .map((rp) => rp.permission_id);
-      await updateRolePermissions(roleId, permsForRole);
-      alert('Saved successfully!');
+      const res = await updateRolePermissions(roleId, permsForRole);
+      if (res.success) {
+        alert('Saved successfully!');
+      } else {
+        alert(res.error || 'Error saving permissions');
+      }
     } catch (error) {
       console.error(error);
       alert('Error saving permissions');
