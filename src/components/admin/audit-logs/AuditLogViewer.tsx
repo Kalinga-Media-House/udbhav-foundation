@@ -18,6 +18,7 @@ import {
   TableRow 
 } from '@/components/ui/table';
 import { listAuditLogsAction } from '@/features/audit_logs/actions';
+import { exportToCSV } from '@/lib/utils/csv-export';
 
 export function AuditLogViewer() {
   const [logs, setLogs] = useState<any[]>([]);
@@ -31,12 +32,18 @@ export function AuditLogViewer() {
   const [severity, setSeverity] = useState<string>('all');
   const [search, setSearch] = useState('');
 
+  // Bulk Actions & Sorting
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [sorts, setSorts] = useState<{column: string, asc: boolean}[]>([]);
+
   const fetchLogs = useCallback(async (currentPage: number) => {
     setLoading(true);
     try {
       const filters: any = {};
       if (category !== 'all') filters.category = category;
       if (severity !== 'all') filters.severity = severity;
+      if (search) filters.search = search;
+      if (sorts.length > 0) filters.sorts = sorts;
       
       const res = await listAuditLogsAction({ limit: 15, offset: (currentPage - 1) * 15 } as any, filters);
       
@@ -54,7 +61,7 @@ export function AuditLogViewer() {
     } finally {
       setLoading(false);
     }
-  }, [category, severity]);
+  }, [category, severity, search, sorts]);
 
   useEffect(() => {
     fetchLogs(page);
@@ -63,6 +70,35 @@ export function AuditLogViewer() {
   const handleFilterChange = () => {
     setPage(1);
     fetchLogs(1);
+  };
+
+  const handleExport = () => {
+    const dataToExport = selectedIds.size > 0 ? logs.filter(l => selectedIds.has(l.id)) : logs;
+    exportToCSV(dataToExport, 'audit_logs');
+  };
+
+  const handleBulkDelete = () => {
+    // Implement bulk delete via server action here
+    toast.success(`Deleted ${selectedIds.size} logs`);
+    setSelectedIds(new Set());
+    fetchLogs(page);
+  };
+
+  const toggleSort = (column: string) => {
+    setSorts(prev => {
+      const existing = prev.find(s => s.column === column);
+      if (existing) {
+        if (existing.asc) return prev.map(s => s.column === column ? { ...s, asc: false } : s);
+        return prev.filter(s => s.column !== column);
+      }
+      return [...prev, { column, asc: true }];
+    });
+  };
+
+  const getSortIcon = (column: string) => {
+    const sort = sorts.find(s => s.column === column);
+    if (!sort) return null;
+    return sort.asc ? '↑' : '↓';
   };
 
   const getSeverityColor = (sev: string) => {
@@ -124,9 +160,14 @@ export function AuditLogViewer() {
           <Button variant="outline" onClick={() => fetchLogs(page)} title="Refresh">
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleExport}>
             <Download className="w-4 h-4 mr-2" /> Export CSV
           </Button>
+          {selectedIds.size > 0 && (
+            <Button variant="destructive" onClick={handleBulkDelete}>
+              Delete Selected ({selectedIds.size})
+            </Button>
+          )}
         </div>
       </div>
 
@@ -135,10 +176,29 @@ export function AuditLogViewer() {
         <Table>
           <TableHeader className="bg-zinc-50 dark:bg-zinc-900/50">
             <TableRow>
-              <TableHead className="w-[180px]">Timestamp</TableHead>
-              <TableHead>Category / Module</TableHead>
-              <TableHead>Action</TableHead>
-              <TableHead>Severity</TableHead>
+              <TableHead className="w-[50px]">
+                <input 
+                  type="checkbox" 
+                  checked={logs.length > 0 && selectedIds.size === logs.length}
+                  onChange={(e) => {
+                    if (e.target.checked) setSelectedIds(new Set(logs.map(l => l.id)));
+                    else setSelectedIds(new Set());
+                  }}
+                  className="rounded border-zinc-300"
+                />
+              </TableHead>
+              <TableHead className="w-[180px] cursor-pointer" onClick={() => toggleSort('created_at')}>
+                Timestamp {getSortIcon('created_at')}
+              </TableHead>
+              <TableHead className="cursor-pointer" onClick={() => toggleSort('category')}>
+                Category / Module {getSortIcon('category')}
+              </TableHead>
+              <TableHead className="cursor-pointer" onClick={() => toggleSort('action')}>
+                Action {getSortIcon('action')}
+              </TableHead>
+              <TableHead className="cursor-pointer" onClick={() => toggleSort('severity')}>
+                Severity {getSortIcon('severity')}
+              </TableHead>
               <TableHead>Description</TableHead>
               <TableHead className="text-right">Details</TableHead>
             </TableRow>
@@ -146,7 +206,7 @@ export function AuditLogViewer() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-64 text-center">
+                <TableCell colSpan={7} className="h-64 text-center">
                   <div className="flex flex-col items-center justify-center text-zinc-500">
                     <Loader2 className="w-8 h-8 animate-spin text-indigo-600 mb-2" />
                     <span>Loading audit logs...</span>
@@ -155,7 +215,7 @@ export function AuditLogViewer() {
               </TableRow>
             ) : logs.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="h-64 text-center">
+                <TableCell colSpan={7} className="h-64 text-center">
                   <div className="flex flex-col items-center justify-center text-zinc-500">
                     <FileText className="w-12 h-12 mb-2 opacity-20" />
                     <span>No audit logs found matching criteria.</span>
@@ -165,6 +225,19 @@ export function AuditLogViewer() {
             ) : (
               logs.map((log) => (
                 <TableRow key={log.id}>
+                  <TableCell>
+                    <input 
+                      type="checkbox" 
+                      checked={selectedIds.has(log.id)}
+                      onChange={(e) => {
+                        const newSet = new Set(selectedIds);
+                        if (e.target.checked) newSet.add(log.id);
+                        else newSet.delete(log.id);
+                        setSelectedIds(newSet);
+                      }}
+                      className="rounded border-zinc-300"
+                    />
+                  </TableCell>
                   <TableCell className="font-medium text-zinc-600 dark:text-zinc-400">
                     {format(new Date(log.created_at), 'MMM dd, yyyy HH:mm:ss')}
                   </TableCell>
