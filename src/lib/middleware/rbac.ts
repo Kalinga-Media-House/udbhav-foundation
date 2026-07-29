@@ -1,4 +1,4 @@
-import { ROLES } from '@/constants/roles';
+import { ROLES, ADMIN_ROLES } from '@/constants/roles';
 
 /**
  * Validates if the user's role permits them to access the specific route.
@@ -6,7 +6,7 @@ import { ROLES } from '@/constants/roles';
  */
 export const checkRoleAccess = (pathname: string, userRole?: string): boolean => {
   if (!userRole) return false;
-  
+
   // Super Admins bypass everything
   if (userRole === ROLES.SUPER_ADMIN) return true;
 
@@ -16,5 +16,5 @@ export const checkRoleAccess = (pathname: string, userRole?: string): boolean =>
   }
 
   // By default, if they hit this function, they are authenticated and trying to hit /admin
-  return userRole === ROLES.ADMIN || userRole === ROLES.EDITOR || userRole === ROLES.MEMBER;
+  return (ADMIN_ROLES as ReadonlySet<string>).has(userRole);
 };

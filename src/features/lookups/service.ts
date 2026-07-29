@@ -8,11 +8,20 @@ import { lookupsRepository, type TaxonomyRow, type TaxonomyTermRow } from './rep
 export class LookupsService {
   private async ensureAdmin(): Promise<boolean> {
     const supabase = await createServerSupabaseClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) return false;
-    
-    const { data: roleData } = await (supabase as any).from('user_roles').select('role').eq('user_id', user.id).single();
-    return roleData?.role === 'admin' || roleData?.role === 'superadmin' || roleData?.role === 'super_admin';
+
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('is_active, roles(slug)')
+      .eq('user_id', user.id)
+      .eq('is_active', true)
+      .limit(1)
+      .single<{ is_active: boolean; roles: { slug: string } }>();
+    const roleSlug = roleData?.roles?.slug;
+    return roleSlug === 'super-admin' || roleSlug === 'admin';
   }
 
   async getTaxonomies(): Promise<ServiceResult<TaxonomyRow[]>> {
@@ -30,12 +39,17 @@ export class LookupsService {
     return fromRepo(await lookupsRepository.getTaxonomyTerms(taxonomyId));
   }
 
-  async createTaxonomyTerm(data: Partial<TaxonomyTermRow>): Promise<ServiceResult<TaxonomyTermRow>> {
+  async createTaxonomyTerm(
+    data: Partial<TaxonomyTermRow>
+  ): Promise<ServiceResult<TaxonomyTermRow>> {
     if (!(await this.ensureAdmin())) return fail('Forbidden: Admin access required');
     return fromRepo(await lookupsRepository.createTaxonomyTerm(data));
   }
 
-  async updateTaxonomyTerm(id: ID, data: Partial<TaxonomyTermRow>): Promise<ServiceResult<TaxonomyTermRow>> {
+  async updateTaxonomyTerm(
+    id: ID,
+    data: Partial<TaxonomyTermRow>
+  ): Promise<ServiceResult<TaxonomyTermRow>> {
     if (!(await this.ensureAdmin())) return fail('Forbidden: Admin access required');
     return fromRepo(await lookupsRepository.updateTaxonomyTerm(id, data));
   }
