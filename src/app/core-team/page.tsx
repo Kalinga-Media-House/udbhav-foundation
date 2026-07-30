@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { CoreTeamAdvisoryBoardSection } from '@/components/core-team/CoreTeamAdvisoryBoardSection';
 import { CoreTeamHeroSection } from '@/components/core-team/CoreTeamHeroSection';
 import { GoverningBodyGridSection } from '@/components/core-team/GoverningBodyGridSection';
-import { HowWeLeadSection } from '@/components/core-team/HowWeLeadSection';
 import { LeadershipIntroSection } from '@/components/core-team/LeadershipIntroSection';
 
 export const metadata: Metadata = {
@@ -23,9 +22,6 @@ export default function CoreTeamPage() {
 
       {/* 4. Governing Body Grid */}
       <GoverningBodyGridSection />
-
-      {/* 5. Leadership Philosophy — How We Lead */}
-      <HowWeLeadSection />
 
       {/* 6. Advisory Board */}
       <CoreTeamAdvisoryBoardSection />
