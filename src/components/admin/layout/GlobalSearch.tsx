@@ -93,7 +93,7 @@ export function GlobalSearch() {
                   id: `program_${p.id}`,
                   title: p.title,
                   type: 'content',
-                  href: `/admin/dashboard/programs/${p.id}`,
+                  href: `/admin/programs/${p.id}`,
                 })
               );
             }
@@ -143,7 +143,7 @@ export function GlobalSearch() {
                   id: `volunteer_${v.id}`,
                   title: `Volunteer ID: ${v.id}`,
                   type: 'user',
-                  href: `/admin/dashboard/volunteers`,
+                  href: `/admin/volunteers`,
                 })
               );
             }
@@ -254,19 +254,19 @@ export function GlobalSearch() {
             </h3>
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => handleSelect('/admin/dashboard/news/new')}
+                onClick={() => handleSelect('/admin/news/new')}
                 className="inline-flex items-center rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
               >
                 Create News
               </button>
               <button
-                onClick={() => handleSelect('/admin/dashboard/volunteers')}
+                onClick={() => handleSelect('/admin/volunteers')}
                 className="inline-flex items-center rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
               >
                 Manage Volunteers
               </button>
               <button
-                onClick={() => handleSelect('/admin/dashboard/settings')}
+                onClick={() => handleSelect('/admin/settings')}
                 className="inline-flex items-center rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
               >
                 Settings

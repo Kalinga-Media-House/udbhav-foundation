@@ -18,8 +18,10 @@ export default async function EditProgramPage(props: { params: Promise<{ id: str
   return (
     <div className="p-8">
       <div className="mb-8">
-        <div className="text-sm text-gray-500 mb-2">
-          <Link href="/admin/dashboard/programmes" className="hover:underline">Programmes</Link>
+        <div className="mb-2 text-sm text-gray-500">
+          <Link href="/admin/dashboard/programmes" className="hover:underline">
+            Programmes
+          </Link>
           <span className="mx-2">/</span>
           <span>Edit</span>
         </div>

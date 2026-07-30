@@ -18,17 +18,16 @@ export default async function AlbumItemsPage(props: { params: Promise<{ id: stri
     notFound();
   }
 
-  const items = itemsResult.success && itemsResult.data
-    ? itemsResult.data.data
-    : [];
+  const items = itemsResult.success && itemsResult.data ? itemsResult.data.data : [];
 
   return (
     <div className="p-8">
-      <div className="flex justify-between items-center mb-8">
+      <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Manage Album Photos</h1>
           <p className="text-sm text-gray-500">
-            Album: <span className="font-semibold">{albumResult.data.title}</span> ({albumResult.data.album_code})
+            Album: <span className="font-semibold">{albumResult.data.title}</span> (
+            {albumResult.data.album_code})
           </p>
         </div>
         <div className="space-x-3">

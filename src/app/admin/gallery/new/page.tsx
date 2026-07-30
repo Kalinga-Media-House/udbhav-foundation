@@ -10,13 +10,15 @@ export default async function NewGalleryAlbumPage() {
     listEvents({ page: 1, limit: 100 }),
   ]);
 
-  const programs = programsResult.success && programsResult.data
-    ? programsResult.data.data.map((p) => ({ id: p.id, title: p.title }))
-    : [];
+  const programs =
+    programsResult.success && programsResult.data
+      ? programsResult.data.data.map((p) => ({ id: p.id, title: p.title }))
+      : [];
 
-  const events = eventsResult.success && eventsResult.data
-    ? eventsResult.data.data.map((e) => ({ id: e.id, title: e.title }))
-    : [];
+  const events =
+    eventsResult.success && eventsResult.data
+      ? eventsResult.data.data.map((e) => ({ id: e.id, title: e.title }))
+      : [];
 
   return (
     <div className="p-8">
