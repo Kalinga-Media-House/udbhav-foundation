@@ -1,41 +1,36 @@
-"use client";
+'use client';
 
-import {
-  ArrowRight,
-  Camera,
-  Calendar,
-  TrendingUp,
-} from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import { ArrowRight, Camera, Calendar, TrendingUp } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 
-import { ProgrammeCategory, IndexProgrammeDetail } from "@/types/index-programme";
+import { ProgrammeCategory, IndexProgrammeDetail } from '@/types/index-programme';
 
 const CATEGORY_TABS: { label: string; value: string }[] = [
-  { label: "All Programmes", value: "all" },
-  { label: "Education", value: "Education" },
-  { label: "Environment", value: "Environment" },
-  { label: "Health & Well-being", value: "Health & Well-being" },
-  { label: "Awareness & Safety", value: "Awareness & Safety" },
-  { label: "Community Support", value: "Community Support" },
+  { label: 'All Programmes', value: 'all' },
+  { label: 'Education', value: 'Education' },
+  { label: 'Environment', value: 'Environment' },
+  { label: 'Health & Well-being', value: 'Health & Well-being' },
+  { label: 'Awareness & Safety', value: 'Awareness & Safety' },
+  { label: 'Community Support', value: 'Community Support' },
 ];
 
 function AnimatedProgrammeCard({ prog, index }: { prog: IndexProgrammeDetail; index: number }) {
   const [isVisible, setIsVisible] = useState(false);
-  const [pressState, setPressState] = useState<"idle" | "pressed" | "released">("idle");
+  const [pressState, setPressState] = useState<'idle' | 'pressed' | 'released'>('idle');
   const [btnPressed, setBtnPressed] = useState(false);
-  
+
   const cardRef = useRef<HTMLElement>(null);
   const releaseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [reducedMotion, setReducedMotion] = useState(false);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     setReducedMotion(mediaQuery.matches);
     const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mediaQuery.addEventListener("change", handler);
-    return () => mediaQuery.removeEventListener("change", handler);
+    mediaQuery.addEventListener('change', handler);
+    return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
   useEffect(() => {
@@ -51,7 +46,7 @@ function AnimatedProgrammeCard({ prog, index }: { prog: IndexProgrammeDetail; in
           observer.disconnect();
         }
       },
-      { threshold: 0.10 } // 10% visible to trigger early enough
+      { threshold: 0.1 } // 10% visible to trigger early enough
     );
 
     if (cardRef.current) {
@@ -64,26 +59,26 @@ function AnimatedProgrammeCard({ prog, index }: { prog: IndexProgrammeDetail; in
   const handlePointerDown = () => {
     if (reducedMotion) return;
     if (releaseTimeoutRef.current) clearTimeout(releaseTimeoutRef.current);
-    setPressState("pressed");
+    setPressState('pressed');
   };
 
   const handlePointerUp = () => {
-    if (reducedMotion || pressState !== "pressed") return;
-    setPressState("released");
+    if (reducedMotion || pressState !== 'pressed') return;
+    setPressState('released');
     releaseTimeoutRef.current = setTimeout(() => {
-      setPressState("idle");
+      setPressState('idle');
     }, 300);
   };
 
   const handlePointerCancel = () => {
     if (reducedMotion) return;
-    setPressState("idle");
+    setPressState('idle');
   };
 
   // Entrance stagger: Max delay of 600ms so users don't wait too long
   const staggerDelay = Math.min(index * 100, 600);
-  const isPressed = pressState === "pressed";
-  const isReleased = pressState === "released";
+  const isPressed = pressState === 'pressed';
+  const isReleased = pressState === 'released';
 
   return (
     <article
@@ -91,11 +86,12 @@ function AnimatedProgrammeCard({ prog, index }: { prog: IndexProgrammeDetail; in
       className="h-full"
       style={{
         opacity: isVisible || reducedMotion ? 1 : 0,
-        transform: isVisible || reducedMotion ? "translateY(0) scale(1)" : "translateY(28px) scale(0.97)",
-        transition: reducedMotion 
-          ? "none" 
+        transform:
+          isVisible || reducedMotion ? 'translateY(0) scale(1)' : 'translateY(28px) scale(0.97)',
+        transition: reducedMotion
+          ? 'none'
           : `opacity 800ms cubic-bezier(0.22, 1, 0.36, 1) ${staggerDelay}ms, transform 800ms cubic-bezier(0.22, 1, 0.36, 1) ${staggerDelay}ms`,
-        willChange: isVisible ? "auto" : "transform, opacity",
+        willChange: isVisible ? 'auto' : 'transform, opacity',
       }}
     >
       <div
@@ -103,73 +99,73 @@ function AnimatedProgrammeCard({ prog, index }: { prog: IndexProgrammeDetail; in
         onPointerUp={handlePointerUp}
         onPointerLeave={handlePointerCancel}
         onPointerCancel={handlePointerCancel}
-        style={{ WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
-        className={`group flex flex-col h-full rounded-2xl bg-white border overflow-hidden shadow-sm ease-[cubic-bezier(0.22,1,0.36,1)] transition-all will-change-transform ${
+        style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
+        className={`ease-[cubic-bezier(0.22,1,0.36,1)] group flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition-all will-change-transform ${
           isPressed
-            ? "scale-[0.975] border-[#3C9D23]/25 duration-150"
+            ? 'scale-[0.975] border-[#3C9D23]/25 duration-150'
             : isReleased
-            ? "scale-[1.015] shadow-lg border-[#3C9D23]/40 duration-[200ms]"
-            : "scale-100 border-[#3C9D23]/25 duration-[300ms] hover:-translate-y-[5px] hover:scale-[1.008] hover:shadow-xl hover:border-[#3C9D23]/50"
+              ? 'duration-[200ms] scale-[1.015] border-[#3C9D23]/40 shadow-lg'
+              : 'duration-[300ms] scale-100 border-[#3C9D23]/25 hover:-translate-y-[5px] hover:scale-[1.008] hover:border-[#3C9D23]/50 hover:shadow-xl'
         }`}
       >
         {/* Image Header with Number Badge */}
-        <div className="relative h-48 w-full overflow-hidden bg-gray-100 shrink-0">
+        <div className="relative h-48 w-full shrink-0 overflow-hidden bg-gray-100">
           <Image
             src={prog.coverImageUrl}
             alt={prog.title}
             fill
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="object-cover scale-100 group-hover:scale-[1.025] transition-transform duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transform-none"
+            className="duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] scale-100 object-cover transition-transform group-hover:scale-[1.025] motion-reduce:transform-none"
           />
 
           {/* Programme Number Badge */}
-          <div className="absolute top-3.5 left-3.5 z-10">
-            <span className="px-3 py-1 rounded-full text-xs font-heading font-bold uppercase bg-[#172B6B] text-white shadow-md">
+          <div className="absolute left-3.5 top-3.5 z-10">
+            <span className="rounded-full bg-[#172B6B] px-3 py-1 font-heading text-xs font-bold uppercase text-white shadow-md">
               {prog.programmeNumber}
             </span>
           </div>
 
           {/* Category Badge */}
-          <div className="absolute top-3.5 right-3.5 z-10">
-            <span className="px-3 py-1 rounded-full text-xs font-heading font-semibold bg-[#3C9D23] text-white shadow-md">
+          <div className="absolute right-3.5 top-3.5 z-10">
+            <span className="rounded-full bg-[#3C9D23] px-3 py-1 font-heading text-xs font-semibold text-white shadow-md">
               {prog.category}
             </span>
           </div>
         </div>
 
         {/* Card Body */}
-        <div className="p-5 sm:p-6 flex flex-col flex-1 justify-between">
+        <div className="flex flex-1 flex-col justify-between p-5 sm:p-6">
           <div>
-            <h3 className="font-heading text-lg sm:text-xl font-bold text-[#172B6B] mb-1.5 leading-snug group-hover:text-[#202B78] transition-colors">
+            <h3 className="mb-1.5 font-heading text-lg font-bold leading-snug text-[#172B6B] transition-colors group-hover:text-[#202B78] sm:text-xl">
               {prog.title}
             </h3>
 
-            <p className="text-xs font-semibold text-[#3C9D23] uppercase tracking-wide mb-3">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#3C9D23]">
               {prog.tagline}
             </p>
 
-            <p className="text-xs sm:text-sm text-gray-600 leading-relaxed line-clamp-3 mb-5">
+            <p className="mb-5 line-clamp-3 text-xs leading-relaxed text-gray-600 sm:text-sm">
               {prog.shortDescription}
             </p>
           </div>
 
           <div>
             {/* Compact Impact Preview */}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#F1F9ED] border border-[#3C9D23]/25 mb-4">
-              <TrendingUp className="w-4 h-4 text-[#3C9D23] shrink-0" />
-              <span className="text-xs font-heading font-bold text-[#172B6B] truncate">
+            <div className="mb-4 flex items-center gap-2 rounded-xl border border-[#3C9D23]/25 bg-[#F1F9ED] px-3 py-2">
+              <TrendingUp className="h-4 w-4 shrink-0 text-[#3C9D23]" />
+              <span className="truncate font-heading text-xs font-bold text-[#172B6B]">
                 {prog.impactPreview}
               </span>
             </div>
 
             {/* Metadata counts row */}
-            <div className="flex items-center justify-between text-xs text-gray-500 border-t border-gray-100 pt-3 mb-4">
+            <div className="mb-4 flex items-center justify-between border-t border-gray-100 pt-3 text-xs text-gray-500">
               <span className="flex items-center gap-1.5">
-                <Camera className="w-3.5 h-3.5 text-gray-400" />
+                <Camera className="h-3.5 w-3.5 text-gray-400" />
                 {prog.photoCount} Photos
               </span>
               <span className="flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-gray-400" />
+                <Calendar className="h-3.5 w-3.5 text-gray-400" />
                 {prog.eventCount} Activities
               </span>
             </div>
@@ -184,14 +180,14 @@ function AnimatedProgrammeCard({ prog, index }: { prog: IndexProgrammeDetail; in
               onPointerUp={() => setBtnPressed(false)}
               onPointerLeave={() => setBtnPressed(false)}
               onPointerCancel={() => setBtnPressed(false)}
-              className={`inline-flex items-center justify-between w-full px-4 py-2.5 rounded-xl font-heading text-xs sm:text-sm font-semibold text-[#172B6B] bg-[#EAF3FF] transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] group/btn ${
+              className={`ease-[cubic-bezier(0.22,1,0.36,1)] group/btn inline-flex w-full items-center justify-between rounded-xl bg-[#EAF3FF] px-4 py-2.5 font-heading text-xs font-semibold text-[#172B6B] transition-all duration-300 sm:text-sm ${
                 btnPressed
-                  ? "scale-[0.98] brightness-95"
-                  : "scale-100 hover:bg-[#172B6B] hover:text-white hover:brightness-110"
+                  ? 'scale-[0.98] brightness-95'
+                  : 'scale-100 hover:bg-[#172B6B] hover:text-white hover:brightness-110'
               }`}
             >
               <span>Explore Programme</span>
-              <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-300 motion-reduce:transform-none" />
+              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1 motion-reduce:transform-none" />
             </Link>
           </div>
         </div>
@@ -201,25 +197,23 @@ function AnimatedProgrammeCard({ prog, index }: { prog: IndexProgrammeDetail; in
 }
 
 export function ProgrammeDirectorySection({ programmes }: { programmes: IndexProgrammeDetail[] }) {
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [activeCategory, setActiveCategory] = useState<string>('all');
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const filteredProgrammes = useMemo(() => {
-    if (activeCategory === "all") {
+    if (activeCategory === 'all') {
       return programmes;
     }
-    return programmes.filter(
-      (prog) => prog.category === (activeCategory as ProgrammeCategory)
-    );
+    return programmes.filter((prog) => prog.category === (activeCategory as ProgrammeCategory));
   }, [activeCategory, programmes]);
 
   const handleCategoryChange = (newCategory: string) => {
     if (newCategory === selectedCategory || isTransitioning) return;
-    
+
     setSelectedCategory(newCategory);
     setIsTransitioning(true);
-    
+
     setTimeout(() => {
       setActiveCategory(newCategory);
       setIsTransitioning(false);
@@ -227,29 +221,10 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
   };
 
   return (
-    <section
-      id="programmes"
-      className="py-16 sm:py-20 md:py-24 bg-[#FCFCF8] scroll-mt-20"
-    >
+    <section id="programmes" className="scroll-mt-20 bg-[#FCFCF8] py-16 sm:py-20 md:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#3C9D23]/15 border border-[#3C9D23]/30 text-[#3C9D23] text-xs font-heading font-bold tracking-wider uppercase mb-4">
-            OUR AREAS OF ACTION
-          </div>
-
-          <h2 className="text-3xl sm:text-4xl font-heading font-bold text-[#172B6B] leading-tight mb-4">
-            11 Programmes. One Shared Purpose.
-          </h2>
-
-          <p className="text-base sm:text-lg text-gray-700 font-normal">
-            Each initiative responds to a real community need while contributing to
-            a more inclusive, aware, healthy, educated, and sustainable society.
-          </p>
-        </div>
-
         {/* Dynamic Category Filter Tabs */}
-        <div className="flex items-center justify-start sm:justify-center overflow-x-auto pb-4 mb-10 sm:mb-12 no-scrollbar gap-2">
+        <div className="no-scrollbar mb-10 flex items-center justify-start gap-2 overflow-x-auto pb-4 sm:mb-12 sm:justify-center">
           {CATEGORY_TABS.map((tab) => {
             const isActive = selectedCategory === tab.value;
             return (
@@ -257,10 +232,10 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
                 key={tab.value}
                 type="button"
                 onClick={() => handleCategoryChange(tab.value)}
-                className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-heading font-semibold transition-all duration-300 whitespace-nowrap cursor-pointer shrink-0 ${
+                className={`shrink-0 cursor-pointer whitespace-nowrap rounded-full px-5 py-2.5 font-heading text-xs font-semibold transition-all duration-300 sm:text-sm ${
                   isActive
-                    ? "bg-[#172B6B] text-white shadow-md scale-105"
-                    : "bg-white text-gray-700 hover:bg-[#EAF3FF] border border-gray-200"
+                    ? 'scale-105 bg-[#172B6B] text-white shadow-md'
+                    : 'border border-gray-200 bg-white text-gray-700 hover:bg-[#EAF3FF]'
                 }`}
               >
                 {tab.label}
@@ -270,17 +245,13 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
         </div>
 
         {/* Responsive Programme Card Grid */}
-        <div 
-          className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-7 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-            isTransitioning ? "opacity-0 scale-[0.98]" : "opacity-100 scale-100"
+        <div
+          className={`ease-[cubic-bezier(0.22,1,0.36,1)] grid grid-cols-1 gap-6 transition-all duration-300 sm:grid-cols-2 sm:gap-7 lg:grid-cols-3 xl:grid-cols-4 ${
+            isTransitioning ? 'scale-[0.98] opacity-0' : 'scale-100 opacity-100'
           }`}
         >
           {filteredProgrammes.map((prog, index) => (
-            <AnimatedProgrammeCard 
-              key={`${activeCategory}-${prog.id}`} 
-              prog={prog} 
-              index={index} 
-            />
+            <AnimatedProgrammeCard key={`${activeCategory}-${prog.id}`} prog={prog} index={index} />
           ))}
         </div>
       </div>
