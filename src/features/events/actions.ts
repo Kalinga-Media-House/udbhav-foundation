@@ -24,7 +24,10 @@ export async function createEvent(dto: CreateEventDTO): Promise<ActionResult<Eve
 }
 
 /** Server action to update an existing event. Requires events.update permission. */
-export async function updateEvent(id: string, dto: UpdateEventDTO): Promise<ActionResult<EventRow>> {
+export async function updateEvent(
+  id: string,
+  dto: UpdateEventDTO
+): Promise<ActionResult<EventRow>> {
   return handleAction('updateEvent', async () => {
     const session = await requireAuth();
     requirePermission(session, 'events.update');
@@ -50,7 +53,10 @@ export async function deleteEvent(id: string): Promise<ActionResult<EventRow>> {
 }
 
 /** Server action to list events with pagination and filtering. */
-export async function listEvents(pagination: Pagination, filters?: Record<string, unknown>): Promise<ActionResult<PaginatedResult<EventRow>>> {
+export async function listEvents(
+  pagination: Pagination,
+  filters?: Record<string, unknown>
+): Promise<ActionResult<PaginatedResult<EventRow>>> {
   return handleAction('listEvents', async () => {
     const result = await eventsService.list(pagination, filters);
     if (!result.success) throw new Error(result.error ?? 'List failed');
@@ -59,7 +65,10 @@ export async function listEvents(pagination: Pagination, filters?: Record<string
 }
 
 /** Server action to search events using full-text search. */
-export async function searchEvents(query: string, pagination: Pagination): Promise<ActionResult<PaginatedResult<EventRow>>> {
+export async function searchEvents(
+  query: string,
+  pagination: Pagination
+): Promise<ActionResult<PaginatedResult<EventRow>>> {
   return handleAction('searchEvents', async () => {
     const result = await eventsService.search(query, pagination);
     if (!result.success) throw new Error(result.error ?? 'Search failed');
@@ -96,7 +105,7 @@ export async function uploadEventImage(formData: FormData): Promise<ActionResult
 
     const { uploadFile } = await import('@/lib/storage/upload');
     const buffer = Buffer.from(await file.arrayBuffer());
-    
+
     // Upload to R2
     const uploadResult = await uploadFile(buffer, file.name, {
       contentType: file.type,
@@ -116,7 +125,7 @@ export async function uploadEventImage(formData: FormData): Promise<ActionResult
       original_filename: file.name,
       stored_filename: uploadResult.data.key.split('/').pop() || file.name,
       mime_type: file.type,
-      type: file.type.startsWith('image/') ? 'image' : 'other',
+      type: file.type.startsWith('image/') ? 'image' : 'document',
       file_size: file.size,
       cdn_url: uploadResult.data.url,
       created_by: session.id,

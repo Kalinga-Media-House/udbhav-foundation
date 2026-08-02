@@ -19,8 +19,8 @@ export default async function EditProgramPage(props: { params: Promise<{ id: str
     <div className="p-8">
       <div className="mb-8">
         <div className="mb-2 text-sm text-gray-500">
-          <Link href="/admin/dashboard/programmes" className="hover:underline">
-            Programmes
+          <Link href="/admin/programs" className="hover:underline">
+            Programs
           </Link>
           <span className="mx-2">/</span>
           <span>Edit</span>

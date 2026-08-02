@@ -26,7 +26,10 @@ export async function createProgram(dto: CreateProgramDTO): Promise<ActionResult
 }
 
 /** Server action to update an existing program. Requires programs.update permission. */
-export async function updateProgram(id: string, dto: UpdateProgramDTO): Promise<ActionResult<ProgramRow>> {
+export async function updateProgram(
+  id: string,
+  dto: UpdateProgramDTO
+): Promise<ActionResult<ProgramRow>> {
   return handleAction('updateProgram', async () => {
     const session = await requireAuth();
     requirePermission(session, 'programs.update');
@@ -52,7 +55,10 @@ export async function deleteProgram(id: string): Promise<ActionResult<ProgramRow
 }
 
 /** Server action to list programs with pagination and filtering. */
-export async function listPrograms(pagination: Pagination, filters?: Record<string, unknown>): Promise<ActionResult<PaginatedResult<ProgramRow>>> {
+export async function listPrograms(
+  pagination: Pagination,
+  filters?: Record<string, unknown>
+): Promise<ActionResult<PaginatedResult<ProgramRow>>> {
   return handleAction('listPrograms', async () => {
     const result = await programsService.list(pagination, filters);
     if (!result.success) throw new Error(result.error ?? 'List failed');
@@ -61,7 +67,10 @@ export async function listPrograms(pagination: Pagination, filters?: Record<stri
 }
 
 /** Server action to search programs using full-text search. */
-export async function searchPrograms(query: string, pagination: Pagination): Promise<ActionResult<PaginatedResult<ProgramRow>>> {
+export async function searchPrograms(
+  query: string,
+  pagination: Pagination
+): Promise<ActionResult<PaginatedResult<ProgramRow>>> {
   return handleAction('searchPrograms', async () => {
     const result = await programsService.search(query, pagination);
     if (!result.success) throw new Error(result.error ?? 'Search failed');
@@ -97,7 +106,7 @@ export async function uploadProgramImage(formData: FormData): Promise<ActionResu
     if (!file) throw new Error('No file provided');
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    
+
     // Upload to R2
     const uploadResult = await uploadFile(buffer, file.name, {
       contentType: file.type,
@@ -116,7 +125,7 @@ export async function uploadProgramImage(formData: FormData): Promise<ActionResu
       original_filename: file.name,
       stored_filename: uploadResult.data.key.split('/').pop() || file.name,
       mime_type: file.type,
-      type: file.type.startsWith('image/') ? 'image' : 'other',
+      type: file.type.startsWith('image/') ? 'image' : 'document',
       file_size: file.size,
       cdn_url: uploadResult.data.url,
       created_by: session.id,

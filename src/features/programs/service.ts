@@ -39,15 +39,15 @@ export class ProgramsService {
       program_code: parsed.data.program_code,
       slug: parsed.data.slug ? slugify(parsed.data.slug) : slugify(parsed.data.title),
       title: parsed.data.title,
-      subtitle: parsed.data.subtitle ?? null,
-      description: parsed.data.description ?? null,
+      short_description: parsed.data.subtitle ?? null,
+      full_description: parsed.data.description ?? null,
       status: parsed.data.status,
       visibility: parsed.data.visibility,
       cover_image_id: parsed.data.cover_image_id ?? null,
       start_date: parsed.data.start_date ?? null,
       end_date: parsed.data.end_date ?? null,
       is_featured: parsed.data.is_featured,
-      display_order: parsed.data.display_order,
+      sort_order: parsed.data.display_order,
       metadata: parsed.data.metadata as any,
       created_by: userId,
       updated_by: userId,
@@ -61,10 +61,23 @@ export class ProgramsService {
     if (!parsed.success) {
       return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
     }
-    const updateData = { ...parsed.data, updated_by: userId };
-    if (updateData.metadata) {
-      updateData.metadata = updateData.metadata as any;
+    const { subtitle, description, display_order, ...restParsed } = parsed.data as any;
+    const updateData: Record<string, unknown> = { ...restParsed, updated_by: userId };
+
+    // Remap DTO field names → DB column names
+    if (subtitle !== undefined) {
+      updateData.short_description = subtitle;
+      delete updateData.subtitle;
     }
+    if (description !== undefined) {
+      updateData.full_description = description;
+      delete updateData.description;
+    }
+    if (display_order !== undefined) {
+      updateData.sort_order = display_order;
+      delete updateData.display_order;
+    }
+
     return fromRepo(await programsRepository.update(id, updateData as any));
   }
 

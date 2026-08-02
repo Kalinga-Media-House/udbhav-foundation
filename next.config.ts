@@ -2,14 +2,20 @@ import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  
+
   // Production optimizations
   poweredByHeader: false,
-  
+
   eslint: {
     ignoreDuringBuilds: true,
   },
-  
+
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
+
   images: {
     formats: ['image/avif', 'image/webp'],
     remotePatterns: [
@@ -23,4 +29,3 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
-
