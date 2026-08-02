@@ -6,7 +6,8 @@ import { useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { createEvent, updateEvent, uploadEventImage } from '@/features/events/actions';
+import { createEvent, updateEvent } from '@/features/events/actions';
+import { ImageUploader } from '@/components/admin/ImageUploader';
 import type { EventRow } from '@/features/events/repository';
 import type { CreateEventDTO } from '@/features/events/validators';
 
@@ -49,27 +50,8 @@ export function EventForm({ initialData, programs }: EventFormProps) {
     registration_deadline: initialMetadata.registration_deadline ? new Date(initialMetadata.registration_deadline).toISOString().slice(0, 16) : '',
   });
 
-  const [uploadingImage, setUploadingImage] = useState(false);
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setUploadingImage(true);
-      setError(null);
-      
-      const formDataUpload = new FormData();
-      formDataUpload.append('file', file);
-      
-      const res = await uploadEventImage(formDataUpload);
-      if (!res.success || !res.data) throw new Error(res.error || 'Upload failed');
-      setFormData(prev => ({ ...prev, cover_image_id: res.data }));
-    } catch (err: any) {
-      setError(err.message || 'Image upload failed.');
-    } finally {
-      setUploadingImage(false);
-    }
+  const handleUploadComplete = (result: any) => {
+    setFormData((prev) => ({ ...prev, cover_image_id: result.id }));
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -259,10 +241,12 @@ export function EventForm({ initialData, programs }: EventFormProps) {
 
       {/* MEDIA */}
       <h3 className="text-lg font-semibold border-b pb-2 pt-4">Media</h3>
-      <div className="space-y-2">
+      <div className="space-y-2 mb-4">
         <Label htmlFor="cover_image">Cover Image Upload</Label>
-        <Input id="cover_image" type="file" accept="image/*" onChange={handleImageUpload} disabled={uploadingImage || isPending} />
-        {uploadingImage && <p className="text-sm text-blue-600">Uploading image...</p>}
+        <ImageUploader 
+          folder="events" 
+          onUploadComplete={handleUploadComplete} 
+        />
         {formData.cover_image_id && <p className="text-sm text-green-600">Image attached successfully.</p>}
       </div>
 

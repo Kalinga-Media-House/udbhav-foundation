@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { createAlbum, updateAlbum } from '@/features/gallery/actions';
 import type { AlbumRow } from '@/features/gallery/repository';
 import type { CreateAlbumDTO } from '@/features/gallery/validators';
-import { uploadMedia } from '@/features/media/actions';
+import { ImageUploader } from '@/components/admin/ImageUploader';
 
 interface GalleryAlbumFormProps {
   initialData?: AlbumRow;
@@ -21,10 +21,9 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
 
   const [formData, setFormData] = useState<Partial<CreateAlbumDTO>>({
-    album_code: initialData?.album_code || '',
+    album_code: initialData?.album_code || `GAL-${Date.now().toString().slice(-6)}`,
     slug: initialData?.slug || '',
     title: initialData?.title || '',
     description: initialData?.description || '',
@@ -36,28 +35,8 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
     display_order: initialData?.display_order || 0,
   });
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setUploadingImage(true);
-      setError(null);
-      const data = new FormData();
-      data.append('file', file);
-      data.append('folder', 'gallery-covers');
-
-      const result = await uploadMedia(data);
-      if (!result.success || !result.data) {
-        throw new Error(result.error || 'Failed to upload cover image');
-      }
-
-      setFormData((prev) => ({ ...prev, cover_image_id: result.data!.id }));
-    } catch (err: any) {
-      setError(err.message || 'Error uploading cover image');
-    } finally {
-      setUploadingImage(false);
-    }
+  const handleUploadComplete = (result: any) => {
+    setFormData((prev) => ({ ...prev, cover_image_id: result.id }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -240,14 +219,10 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
 
       <div className="space-y-2">
         <Label htmlFor="cover_image">Cover Image</Label>
-        <Input
-          id="cover_image"
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          disabled={isPending || uploadingImage}
+        <ImageUploader 
+          folder="gallery-covers" 
+          onUploadComplete={handleUploadComplete} 
         />
-        {uploadingImage && <p className="text-sm text-gray-500">Uploading image to R2 storage...</p>}
         {formData.cover_image_id && (
           <p className="text-sm text-green-600">Cover image uploaded (ID: {formData.cover_image_id})</p>
         )}
@@ -258,11 +233,11 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
           type="button"
           variant="outline"
           onClick={() => router.push('/admin/dashboard/gallery')}
-          disabled={isPending || uploadingImage}
+          disabled={isPending}
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isPending || uploadingImage}>
+        <Button type="submit" disabled={isPending}>
           {isPending ? 'Saving...' : initialData ? 'Update Album' : 'Create Album'}
         </Button>
       </div>

@@ -6,7 +6,8 @@ import { useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { createProgram, updateProgram, uploadProgramImage } from '@/features/programs/actions';
+import { createProgram, updateProgram } from '@/features/programs/actions';
+import { ImageUploader } from '@/components/admin/ImageUploader';
 import type { ProgramRow } from '@/features/programs/repository';
 import type { CreateProgramDTO } from '@/features/programs/validators';
 
@@ -33,27 +34,9 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
     cover_image_id: initialData?.cover_image_id || undefined,
   });
 
-  const [uploadingImage, setUploadingImage] = useState(false);
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setUploadingImage(true);
-      setError(null);
-
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const res = await uploadProgramImage(formData);
-      if (!res.success || !res.data) throw new Error(res.error || 'Upload failed');
-      setFormData((prev) => ({ ...prev, cover_image_id: res.data }));
-    } catch (err: any) {
-      setError(err.message || 'Image upload failed.');
-    } finally {
-      setUploadingImage(false);
-    }
+  // ImageUploader handles its own state, we just receive the ID when it completes
+  const handleUploadComplete = (result: any) => {
+    setFormData((prev) => ({ ...prev, cover_image_id: result.id }));
   };
 
   const handleChange = (
@@ -235,14 +218,10 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
 
       <div className="space-y-2 border-t border-gray-100 pt-4">
         <Label htmlFor="cover_image">Cover Image Upload</Label>
-        <Input
-          id="cover_image"
-          type="file"
-          accept="image/*"
-          onChange={handleImageUpload}
-          disabled={uploadingImage || isPending}
+        <ImageUploader 
+          folder="programs" 
+          onUploadComplete={handleUploadComplete} 
         />
-        {uploadingImage && <p className="text-sm text-blue-600">Uploading image...</p>}
         {formData.cover_image_id && (
           <p className="text-sm text-green-600">Image attached successfully.</p>
         )}

@@ -7,8 +7,8 @@ import {
   getMyProfile,
   updateMyProfile,
   updatePassword,
-  uploadAvatar,
 } from '@/features/profiles/actions';
+import { requestImageUpload, processUploadedImage } from '@/features/media/upload-actions';
 import type { ProfileRow } from '@/features/profiles/service';
 
 export function AdminProfile() {
@@ -79,17 +79,52 @@ export function AdminProfile() {
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const formData = new FormData();
-    formData.append('avatar', file);
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File too large (max 5MB)', { id: 'avatar-upload' });
+      return;
+    }
+
     try {
-      toast.loading('Uploading avatar...', { id: 'avatar-upload' });
-      const res = await uploadAvatar(formData);
-      if (res.success !== false && typeof res.data === 'string') {
-        setProfile((prev) => (prev ? { ...prev, avatar_url: res.data as string } : prev));
-        toast.success('Avatar updated', { id: 'avatar-upload' });
-      } else {
-        throw new Error(res.error || 'Failed to upload');
-      }
+      toast.loading('Requesting upload URL...', { id: 'avatar-upload' });
+      
+      // Phase 1: Request URL
+      const req = await requestImageUpload({
+        filename: file.name,
+        size: file.size,
+        contentType: file.type,
+        folder: 'avatars',
+      });
+      const reqData = req.data;
+      if (!req.success || !reqData) throw new Error(req.error || 'Failed to get upload URL');
+
+      toast.loading('Uploading image...', { id: 'avatar-upload' });
+      
+      // Phase 2: Upload to presigned URL
+      const xhr = new XMLHttpRequest();
+      await new Promise<void>((resolve, reject) => {
+        xhr.open('PUT', reqData.url);
+        xhr.setRequestHeader('Content-Type', file.type);
+        xhr.onload = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error('Upload failed')));
+        xhr.onerror = () => reject(new Error('Network error'));
+        xhr.send(file);
+      });
+
+      toast.loading('Optimizing image...', { id: 'avatar-upload' });
+
+      // Phase 3: Server process and save
+      const processRes = await processUploadedImage(reqData.storageKey, file.name, 'avatars');
+      const processData = processRes.data;
+      if (!processRes.success || !processData) throw new Error(processRes.error || 'Optimization failed');
+
+      toast.loading('Updating profile...', { id: 'avatar-upload' });
+
+      // Phase 4: Link to profile
+      const updateRes = await updateMyProfile({ avatar_url: processData.cdnUrl });
+      if (!updateRes.success) throw new Error(updateRes.error || 'Failed to link avatar');
+
+      setProfile((prev) => (prev ? { ...prev, avatar_url: processData.cdnUrl } : prev));
+      toast.success('Avatar updated successfully', { id: 'avatar-upload' });
     } catch (err: any) {
       toast.error(err.message || 'Failed to upload avatar', { id: 'avatar-upload' });
     }

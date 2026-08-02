@@ -11,7 +11,7 @@ import {
   manageIndexInitiativeGallery,
 } from '@/features/index/actions';
 import type { IndexInitiativeWithMedia } from '@/features/index/repository';
-import { uploadMedia } from '@/features/media/actions';
+import { ImageUploader } from '@/components/admin/ImageUploader';
 
 interface AdminInitiativeManagerClientProps {
   initialInitiatives: IndexInitiativeWithMedia[];
@@ -52,7 +52,6 @@ export function AdminInitiativeManagerClient({ initialInitiatives }: AdminInitia
   const [status, setStatus] = useState<'Draft' | 'Published' | 'Archived'>('Published');
   
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadingImage, setUploadingImage] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const resetForm = (item?: IndexInitiativeWithMedia) => {
@@ -112,44 +111,18 @@ export function AdminInitiativeManagerClient({ initialInitiatives }: AdminInitia
     setIsModalOpen(true);
   };
 
-  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      setUploadingImage(true);
-      setErrorMessage(null);
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await uploadMedia(formData);
-      if (!res.success || !res.data) throw new Error(res.error || 'Upload failed');
-      setCoverMediaId(res.data.id);
-      setCoverMediaUrl(res.data.cdn_url);
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Image upload failed');
-    } finally {
-      setUploadingImage(false);
-    }
+  const handleCoverUploadComplete = (result: any) => {
+    setCoverMediaId(result.id);
+    setCoverMediaUrl(result.cdnUrl);
   };
 
-  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
-    try {
-      setUploadingImage(true);
-      setErrorMessage(null);
-      for (const file of files) {
-        const formData = new FormData();
-        formData.append('file', file);
-        const res = await uploadMedia(formData);
-        if (!res.success || !res.data) throw new Error(res.error || 'Upload failed for a file');
-        setGalleryIds(prev => [...prev, res.data!.id]);
-        setGalleryUrls(prev => [...prev, { id: res.data!.id, public_url: res.data!.cdn_url! }]);
-      }
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Gallery upload failed');
-    } finally {
-      setUploadingImage(false);
-    }
+  const handleGalleryUploadComplete = (results: any | any[]) => {
+    const uploadedArray = Array.isArray(results) ? results : [results];
+    const newIds = uploadedArray.map(r => r.id);
+    const newUrls = uploadedArray.map(r => ({ id: r.id, public_url: r.cdnUrl }));
+    
+    setGalleryIds(prev => [...prev, ...newIds]);
+    setGalleryUrls(prev => [...prev, ...newUrls]);
   };
 
   const removeGalleryImage = (idToRemove: string) => {
@@ -426,11 +399,10 @@ export function AdminInitiativeManagerClient({ initialInitiatives }: AdminInitia
                         </div>
                       )}
                       
-                      <label className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold rounded-lg cursor-pointer transition-colors">
-                        <Upload className="w-4 h-4" />
-                        {uploadingImage ? 'Uploading...' : coverMediaUrl ? 'Change Cover Image' : 'Select Cover Image'}
-                        <input type="file" className="hidden" accept="image/*" onChange={handleCoverUpload} disabled={uploadingImage} />
-                      </label>
+                      <ImageUploader 
+                        folder="initiatives" 
+                        onUploadComplete={handleCoverUploadComplete} 
+                      />
                       <p className="text-xs text-gray-500 mt-3">High resolution landscape image (16:9 ratio recommended)</p>
                     </div>
                   </div>
@@ -495,12 +467,13 @@ export function AdminInitiativeManagerClient({ initialInitiatives }: AdminInitia
                   <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
                     <h3 className="text-lg font-bold text-gray-900 mb-4">5. Photo Gallery</h3>
                     <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center">
-                      <label className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold rounded-lg cursor-pointer transition-colors mb-4">
-                        <Upload className="w-4 h-4" />
-                        {uploadingImage ? 'Uploading...' : 'Add Gallery Photos'}
-                        <input type="file" multiple className="hidden" accept="image/*" onChange={handleGalleryUpload} disabled={uploadingImage} />
-                      </label>
-                      
+                      <div className="mb-4 text-left">
+                        <ImageUploader 
+                          folder="initiatives-gallery" 
+                          multiple={true}
+                          onUploadComplete={handleGalleryUploadComplete} 
+                        />
+                      </div>
                       {galleryUrls.length > 0 && (
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 text-left">
                           {galleryUrls.map(img => (
@@ -565,7 +538,7 @@ export function AdminInitiativeManagerClient({ initialInitiatives }: AdminInitia
               <button
                 type="submit"
                 form="initiative-form"
-                disabled={isSubmitting || uploadingImage}
+                disabled={isSubmitting}
                 className="px-5 py-2 text-sm font-semibold bg-[#439B25] text-white rounded-lg hover:bg-[#38851E] disabled:opacity-50 flex items-center gap-1 transition-colors shadow-sm"
               >
                 {isSubmitting ? 'Saving...' : currentStep === totalSteps ? 'Save & Publish' : <>Next Step <ChevronRight className="w-4 h-4" /></>}

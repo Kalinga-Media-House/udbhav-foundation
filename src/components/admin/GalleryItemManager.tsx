@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { addGalleryItem, removeGalleryItem } from '@/features/gallery/actions';
 import type { GalleryItemWithMedia } from '@/features/gallery/repository';
-import { uploadMedia } from '@/features/media/actions';
+import { ImageUploader } from '@/components/admin/ImageUploader';
 
 interface GalleryItemManagerProps {
   albumId: string;
@@ -28,41 +28,31 @@ export function GalleryItemManager({ albumId, albumTitle, initialItems }: Galler
   const [displayOrder, setDisplayOrder] = useState(0);
   const [isFeatured, setIsFeatured] = useState(false);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const handleUploadComplete = async (results: any | any[]) => {
     try {
       setUploading(true);
       setError(null);
+      
+      const uploadResults = Array.isArray(results) ? results : [results];
 
-      const data = new FormData();
-      data.append('file', file);
-      data.append('folder', 'gallery-items');
+      for (const result of uploadResults) {
+        const addResult = await addGalleryItem({
+          album_id: albumId,
+          media_id: result.id,
+          title: title || result.originalFilename || 'Gallery Image',
+          caption: caption || null,
+          display_order: displayOrder,
+          is_featured: isFeatured,
+        });
 
-      const uploadResult = await uploadMedia(data);
-      if (!uploadResult.success || !uploadResult.data) {
-        throw new Error(uploadResult.error || 'Failed to upload media to R2');
-      }
-
-      const mediaId = uploadResult.data.id;
-
-      const addResult = await addGalleryItem({
-        album_id: albumId,
-        media_id: mediaId,
-        title: title || file.name,
-        caption: caption || null,
-        display_order: displayOrder,
-        is_featured: isFeatured,
-      });
-
-      if (!addResult.success || !addResult.data) {
-        throw new Error(addResult.error || 'Failed to associate image with album');
+        if (!addResult.success || !addResult.data) {
+          throw new Error(addResult.error || 'Failed to associate image with album');
+        }
       }
 
       setCaption('');
       setTitle('');
-      setDisplayOrder(items.length + 1);
+      setDisplayOrder(items.length + uploadResults.length);
       setIsFeatured(false);
 
       router.refresh();
@@ -70,7 +60,6 @@ export function GalleryItemManager({ albumId, albumTitle, initialItems }: Galler
       setError(err.message || 'Error adding gallery item');
     } finally {
       setUploading(false);
-      e.target.value = '';
     }
   };
 
@@ -149,18 +138,13 @@ export function GalleryItemManager({ albumId, albumTitle, initialItems }: Galler
         </div>
 
         <div>
-          <Label htmlFor="file_upload" className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
-            <Upload className="w-4 h-4" />
-            {uploading ? 'Uploading...' : 'Select & Upload Photo'}
-          </Label>
-          <Input
-            id="file_upload"
-            type="file"
-            accept="image/*"
-            onChange={handleFileUpload}
-            disabled={uploading}
-            className="hidden"
+          <ImageUploader
+            folder="gallery-items"
+            multiple={true}
+            onUploadComplete={handleUploadComplete}
+            maxSizeMB={25}
           />
+          {uploading && <p className="text-sm text-gray-500 mt-2 text-center animate-pulse">Saving to album...</p>}
         </div>
       </div>
 

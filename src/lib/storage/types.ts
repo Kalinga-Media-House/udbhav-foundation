@@ -36,3 +36,21 @@ export interface StorageResponse<T> {
   data: T | null;
   error: Error | null;
 }
+
+export interface ImageUploadMetadata {
+  filename: string;
+  size: number;
+  contentType: string;
+  folder: string;
+}
+
+export interface ImageUploadResult {
+  id: string;
+  cdnUrl: string;
+  width: number;
+  height: number;
+  format: string;
+  originalSize: number;
+  optimizedSize: number;
+  compressionRatio: number;
+}

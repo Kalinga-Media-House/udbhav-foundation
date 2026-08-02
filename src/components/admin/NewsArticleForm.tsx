@@ -7,7 +7,7 @@ import { useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { uploadMedia } from '@/features/media/actions';
+import { ImageUploader } from '@/components/admin/ImageUploader';
 import { createArticle, updateArticle } from '@/features/news/actions';
 import type { ArticleWithMedia } from '@/features/news/repository';
 import type { CreateArticleDTO } from '@/features/news/validators';
@@ -22,7 +22,7 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
+
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
   const [tagInput, setTagInput] = useState('');
 
@@ -65,31 +65,11 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
     }));
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      setUploadingImage(true);
-      setError(null);
-      const data = new FormData();
-      data.append('file', file);
-      data.append('folder', 'news-covers');
-
-      const result = await uploadMedia(data);
-      if (!result.success || !result.data) {
-        throw new Error(result.error || 'Failed to upload cover image');
-      }
-
-      setFormData((prev) => ({
-        ...prev,
-        cover_image_id: result.data!.id,
-      }));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed');
-    } finally {
-      setUploadingImage(false);
-    }
+  const handleUploadComplete = (result: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      cover_image_id: result.id,
+    }));
   };
 
   const handleAddTag = () => {
@@ -355,16 +335,13 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
           {/* Cover Image Upload */}
           <div className="border border-gray-200 rounded-md p-4 bg-gray-50 space-y-3">
             <Label>Cover Image</Label>
-            <div className="flex items-center gap-4">
-              <label className="cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-md text-sm font-medium hover:bg-gray-50">
-                {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                {uploadingImage ? 'Uploading to R2...' : 'Upload Cover Image'}
-                <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={uploadingImage} />
-              </label>
-              {formData.cover_image_id && (
-                <span className="text-xs text-green-600 font-medium">✓ Cover Image Attached ({formData.cover_image_id})</span>
-              )}
-            </div>
+            <ImageUploader 
+              folder="news-covers" 
+              onUploadComplete={handleUploadComplete} 
+            />
+            {formData.cover_image_id && (
+              <span className="text-xs text-green-600 font-medium block">✓ Cover Image Attached ({formData.cover_image_id})</span>
+            )}
           </div>
 
           {/* Tags Manager */}
@@ -481,7 +458,7 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isPending || uploadingImage}>
+            <Button type="submit" disabled={isPending}>
               {isPending ? 'Saving...' : initialData ? 'Update Article' : 'Create Article'}
             </Button>
           </div>

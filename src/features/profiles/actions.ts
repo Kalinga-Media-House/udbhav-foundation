@@ -4,7 +4,6 @@ import { revalidateTag } from 'next/cache';
 
 import { handleAction, requireAuth, CacheTags } from '@/contracts/actions';
 import type { ActionResult } from '@/contracts/actions';
-import { uploadFile } from '@/lib/storage/upload';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 import { profilesService } from './service';
@@ -52,22 +51,4 @@ export async function updatePassword(password: string): Promise<ActionResult<voi
   });
 }
 
-export async function uploadAvatar(formData: FormData): Promise<ActionResult<string>> {
-  return handleAction('uploadAvatar', async () => {
-    const session = await requireAuth();
-    const file = formData.get('avatar') as File;
-    if (!file) throw new Error('No file');
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const res = await uploadFile(buffer, file.name, {
-      folder: 'avatars/' + session.id,
-      contentType: file.type,
-      maxSizeMB: 2,
-    });
-    if (res.error) throw new Error(res.error.message);
-    const url = res.data!.url;
-    const upd = await profilesService.updateProfile(session.id, { avatar_url: url });
-    if (!upd.success) throw new Error(upd.error ?? 'Update failed');
-    revalidateTag(CacheTags.profile(session.id));
-    return url;
-  });
-}
+
