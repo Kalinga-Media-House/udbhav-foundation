@@ -76,10 +76,10 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
       try {
         const payload: CreateProgramDTO = {
           program_code: formData.program_code || '',
-          slug: formData.slug || undefined, // undefined will auto-generate in service
+          slug: formData.slug || '', // undefined causes Next.js serialization crash
           title: formData.title || '',
-          subtitle: formData.subtitle || undefined,
-          description: formData.description || undefined,
+          subtitle: formData.subtitle || '', // undefined causes Next.js serialization crash
+          description: formData.description || '', // undefined causes Next.js serialization crash
           status: formData.status as any,
           visibility: formData.visibility as any,
           is_featured: formData.is_featured || false,
