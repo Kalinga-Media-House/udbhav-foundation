@@ -18,6 +18,7 @@ export async function createProgram(dto: CreateProgramDTO): Promise<ActionResult
   return handleAction('createProgram', async () => {
     const session = await requireAuth();
     requirePermission(session, 'programs.create');
+
     const result = await programsService.create(dto, session.id);
     if (!result.success) throw new Error(result.error ?? 'Creation failed');
     (revalidateTag as any)(CacheTags.programs());

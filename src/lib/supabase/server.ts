@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { createClient as createSupabaseJsClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
+import { cache } from 'react';
 
 import { env } from '@/config/env';
 import type { Database } from '@/types/database/database.generated';
@@ -26,11 +27,13 @@ export const createStaticSupabaseClient = () => {
 /**
  * Creates a Supabase client for Server Components, Server Actions, and Route Handlers.
  * Automatically handles cookie reading and writing via Next.js `cookies()`.
+ * Wrapped in React `cache` to ensure the same client instance (and its in-memory token)
+ * is shared across the entire request lifecycle, preventing stale cookie bugs after token refreshes.
  */
-export const createServerSupabaseClient = async () => {
+export const createServerSupabaseClient = cache(async () => {
   const cookieStore = await cookies();
 
-  return createServerClient<Database>(
+  const client = createServerClient<Database>(
     env.NEXT_PUBLIC_SUPABASE_URL,
     env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
     {
@@ -49,8 +52,21 @@ export const createServerSupabaseClient = async () => {
           }
         },
       },
+      global: {
+        fetch: async (url, options) => {
+          const headers = new Headers(options?.headers);
+          const auth = headers.get('Authorization');
+          console.log(`[SUPABASE_FETCH] ${options?.method || 'GET'} ${url}`);
+          console.log(
+            `[SUPABASE_FETCH] Auth Header Present: ${!!auth}, StartsWithBearer: ${auth?.startsWith('Bearer ')}`
+          );
+          return fetch(url, options);
+        },
+      },
     }
   );
-};
+
+  return client;
+});
 
 export const createClient = createServerSupabaseClient;

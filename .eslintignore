@@ -1,3 +1,6 @@
-**/*types.ts 
-
+**/*types.ts
 next-env.d.ts
+diagnostics/**
+scratch/**
+diagnostics  
+scratch 
