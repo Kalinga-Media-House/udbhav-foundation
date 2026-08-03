@@ -1,15 +1,15 @@
 'use client';
 
-import { Trash2, Upload, Star } from 'lucide-react';
+import { Star, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+import { ImageUploader } from '@/components/admin/ImageUploader';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { addGalleryItem, removeGalleryItem } from '@/features/gallery/actions';
 import type { GalleryItemWithMedia } from '@/features/gallery/repository';
-import { ImageUploader } from '@/components/admin/ImageUploader';
 
 interface GalleryItemManagerProps {
   albumId: string;
@@ -32,7 +32,7 @@ export function GalleryItemManager({ albumId, albumTitle, initialItems }: Galler
     try {
       setUploading(true);
       setError(null);
-      
+
       const uploadResults = Array.isArray(results) ? results : [results];
 
       for (const result of uploadResults) {
@@ -80,16 +80,16 @@ export function GalleryItemManager({ albumId, albumTitle, initialItems }: Galler
 
   return (
     <div className="space-y-6">
-      <div className="bg-white p-6 rounded-lg shadow space-y-4">
-        <h2 className="text-lg font-semibold text-gray-900">Add New Photo to &ldquo;{albumTitle}&rdquo;</h2>
+      <div className="space-y-4 rounded-lg bg-white p-6 shadow">
+        <h2 className="text-lg font-semibold text-gray-900">
+          Add New Photo to &ldquo;{albumTitle}&rdquo;
+        </h2>
 
         {error && (
-          <div className="p-4 bg-red-50 text-red-700 rounded-md border border-red-200">
-            {error}
-          </div>
+          <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-700">{error}</div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
             <Label htmlFor="item_title">Title / Credit (Optional)</Label>
             <Input
@@ -145,21 +145,28 @@ export function GalleryItemManager({ albumId, albumTitle, initialItems }: Galler
             maxSizeMB={25}
             maxFiles={50}
           />
-          {uploading && <p className="text-sm text-gray-500 mt-2 text-center animate-pulse">Saving to album...</p>}
+          {uploading && (
+            <p className="mt-2 animate-pulse text-center text-sm text-gray-500">
+              Saving to album...
+            </p>
+          )}
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+      <div className="rounded-lg bg-white p-6 shadow">
+        <h3 className="mb-4 text-lg font-semibold text-gray-900">
           Album Photos ({initialItems.length})
         </h3>
 
         {initialItems.length === 0 ? (
-          <p className="text-gray-500 py-6 text-center">No photos in this album yet.</p>
+          <p className="py-6 text-center text-gray-500">No photos in this album yet.</p>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {initialItems.map((item) => (
-              <div key={item.id} className="border rounded-lg overflow-hidden flex flex-col bg-gray-50">
+              <div
+                key={item.id}
+                className="flex flex-col overflow-hidden rounded-lg border bg-gray-50"
+              >
                 <div className="relative h-40 w-full bg-gray-200">
                   {item.media?.cdn_url ? (
                     <Image
@@ -169,32 +176,38 @@ export function GalleryItemManager({ albumId, albumTitle, initialItems }: Galler
                       className="object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+                    <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
                       No Preview
                     </div>
                   )}
                   {item.is_featured && (
-                    <span className="absolute top-2 left-2 bg-yellow-500 text-white p-1 rounded-full shadow">
-                      <Star className="w-3.5 h-3.5 fill-current" />
+                    <span className="absolute left-2 top-2 rounded-full bg-yellow-500 p-1 text-white shadow">
+                      <Star className="h-3.5 w-3.5 fill-current" />
                     </span>
                   )}
                 </div>
 
-                <div className="p-3 flex-1 flex flex-col justify-between">
+                <div className="flex flex-1 flex-col justify-between p-3">
                   <div>
-                    {item.caption && <p className="text-xs font-semibold text-gray-800 line-clamp-1">{item.caption}</p>}
-                    {item.caption && <p className="text-xs text-gray-600 mt-1 line-clamp-2">{item.caption}</p>}
-                    <p className="text-xs text-gray-400 mt-1">Order: #{item.display_order}</p>
+                    {item.caption && (
+                      <p className="line-clamp-1 text-xs font-semibold text-gray-800">
+                        {item.caption}
+                      </p>
+                    )}
+                    {item.caption && (
+                      <p className="mt-1 line-clamp-2 text-xs text-gray-600">{item.caption}</p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-400">Order: #{item.display_order}</p>
                   </div>
 
-                  <div className="flex justify-end mt-3 pt-2 border-t border-gray-200">
+                  <div className="mt-3 flex justify-end border-t border-gray-200 pt-2">
                     <button
                       type="button"
                       onClick={() => handleRemove(item.id)}
-                      className="text-red-600 hover:text-red-800 p-1"
+                      className="p-1 text-red-600 hover:text-red-800"
                       title="Remove Photo"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
                 </div>

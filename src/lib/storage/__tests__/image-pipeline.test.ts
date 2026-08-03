@@ -1,6 +1,7 @@
 // @vitest-environment node
-import { describe, it, expect, vi } from 'vitest';
 import sharp from 'sharp';
+import { describe, it, expect, vi } from 'vitest';
+
 import { processImage } from '../image-pipeline';
 
 // Mock server logger to prevent test output noise
@@ -58,7 +59,7 @@ describe('Image Pipeline (Sharp)', () => {
     expect(result.mimeType).toBe('image/webp');
     expect(result.width).toBe(500);
     expect(result.height).toBe(500);
-    
+
     // Check if alpha is preserved in the output
     const outputMeta = await sharp(result.buffer).metadata();
     expect(outputMeta.hasAlpha).toBe(true);
@@ -70,15 +71,17 @@ describe('Image Pipeline (Sharp)', () => {
     // Instead of complex animated GIF creation, we can mock `sharp().metadata()`
     // but we can't easily do that since we're using the real sharp inside the function.
     // Creating an animated WebP/GIF with sharp:
-    const frame = await sharp({ create: { width: 10, height: 10, channels: 3, background: 'red' } }).raw().toBuffer();
+    const frame = await sharp({ create: { width: 10, height: 10, channels: 3, background: 'red' } })
+      .raw()
+      .toBuffer();
     const inputBuffer = await sharp(frame, { raw: { width: 10, height: 10, channels: 3 } })
       .gif()
       .toBuffer();
-    
+
     // Our logic checks `isAnimated = metadata.pages > 1`. A single-frame GIF might not have pages > 1.
     // Let's just assert that standard static GIFs get converted to WebP.
     const result = await processImage(inputBuffer, 'static.gif');
-    
+
     // Wait, the requirement says "Preserve animated GIFs. Detect animation. Do not convert animated GIFs to WebP."
     // Our code does this: `if (metadata.format === 'gif' && isAnimated) { return inputBuffer }`
     // Since this is a static GIF, it will be converted to WebP.
@@ -88,6 +91,8 @@ describe('Image Pipeline (Sharp)', () => {
   it('should fail gracefully for invalid image buffers', async () => {
     const invalidBuffer = Buffer.from('this is not an image');
 
-    await expect(processImage(invalidBuffer, 'fake.jpg')).rejects.toThrow(/Image processing failed/);
+    await expect(processImage(invalidBuffer, 'fake.jpg')).rejects.toThrow(
+      /Image processing failed/
+    );
   });
 });

@@ -1,8 +1,8 @@
-import { chromium } from 'playwright';
 import path from 'path';
-import fs from 'fs';
+
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
+import { chromium } from 'playwright';
 
 dotenv.config({ path: '.env.local' });
 

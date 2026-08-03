@@ -3,11 +3,11 @@
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
+import { ImageUploader } from '@/components/admin/ImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createProgram, updateProgram } from '@/features/programs/actions';
-import { ImageUploader } from '@/components/admin/ImageUploader';
 import type { ProgramRow } from '@/features/programs/repository';
 import type { CreateProgramDTO } from '@/features/programs/validators';
 
@@ -218,10 +218,7 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
 
       <div className="space-y-2 border-t border-gray-100 pt-4">
         <Label htmlFor="cover_image">Cover Image Upload</Label>
-        <ImageUploader 
-          folder="programs" 
-          onUploadComplete={handleUploadComplete} 
-        />
+        <ImageUploader folder="programs" onUploadComplete={handleUploadComplete} />
         {formData.cover_image_id && (
           <p className="text-sm text-green-600">Image attached successfully.</p>
         )}

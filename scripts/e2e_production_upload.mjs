@@ -1,10 +1,10 @@
-import { chromium, firefox, webkit, devices } from 'playwright';
-import path from 'path';
 import fs from 'fs';
-import { createClient } from '@supabase/supabase-js';
-import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
-import dotenv from 'dotenv';
+import path from 'path';
 
+import { S3Client, ListObjectsV2Command } from '@aws-sdk/client-s3';
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+import { chromium } from 'playwright';
 dotenv.config({ path: '.env.local' });
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -16,9 +16,8 @@ const s3 = new S3Client({
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
   },
 });
-const bucket = process.env.R2_BUCKET_NAME;
 
-const BASE_URL = 'http://localhost:3001';
+const BASE_URL = 'https://udbhavfoundation.in';
 const TEST_EMAIL = process.env.TEST_ADMIN_EMAIL || 'admin@udbhav.org';
 const TEST_PASSWORD = process.env.TEST_ADMIN_PASSWORD || 'password123';
 
@@ -51,7 +50,7 @@ async function login(page) {
   console.log('Login successful.');
 }
 
-async function verifyUpload(page, fileName, moduleUrl, inputSelector, submitSelector) {
+async function verifyUpload(page, fileName, moduleUrl, inputSelector, _submitSelector) {
   console.log(`\n--- Testing upload: ${fileName} on ${moduleUrl} ---`);
   await page.goto(`${BASE_URL}${moduleUrl}`);
   
@@ -73,7 +72,7 @@ async function verifyUpload(page, fileName, moduleUrl, inputSelector, submitSele
   try {
     fileInputLocator = page.locator(inputSelector || 'input[type="file"]');
     await fileInputLocator.waitFor({ state: 'attached', timeout: 15000 });
-  } catch (e) {
+  } catch {
     console.error(`File input not found on ${moduleUrl}`);
     await page.screenshot({ path: `debug_${moduleUrl.replace(/[\/\\]/g, '_')}.png` });
     return;
@@ -86,7 +85,7 @@ async function verifyUpload(page, fileName, moduleUrl, inputSelector, submitSele
   // Our ImageUploader usually shows a checkmark or removes the upload progress text.
   try {
     await page.waitForSelector('.lucide-check-circle2, img.object-cover, .success-message', { timeout: 30000 });
-  } catch(e) {
+  } catch {
     console.log('Upload indicator timeout, continuing anyway to check DB...');
   }
   
@@ -129,7 +128,6 @@ async function verifyUpload(page, fileName, moduleUrl, inputSelector, submitSele
 
   // Verify R2 Bucket Objects
   console.log('Verifying R2 Bucket...');
-  const prefix = `temp/${media.original_filename}`; // check if temp object exists
   const tempCommand = new ListObjectsV2Command({ Bucket: process.env.R2_BUCKET_NAME, Prefix: 'temp/' });
   const finalCommand = new ListObjectsV2Command({ Bucket: process.env.R2_BUCKET_NAME, Prefix: media.folder_path.replace(/^\//, '') });
   

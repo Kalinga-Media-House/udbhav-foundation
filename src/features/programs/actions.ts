@@ -5,8 +5,6 @@ import { revalidateTag } from 'next/cache';
 import { handleAction, requireAuth, requirePermission, CacheTags } from '@/contracts/actions';
 import type { ActionResult } from '@/contracts/actions';
 import type { PaginatedResult } from '@/contracts/repositories';
-import { uploadFile } from '@/lib/storage/upload';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { Pagination } from '@/types';
 
 import type { ProgramRow } from './repository';

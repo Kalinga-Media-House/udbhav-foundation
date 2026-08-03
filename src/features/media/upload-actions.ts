@@ -2,17 +2,17 @@
 
 import { revalidateTag } from 'next/cache';
 
-import { handleAction, requireAuth, requirePermission, CacheTags } from '@/contracts/actions';
-import type { ActionResult } from '@/contracts/actions';
-import { generatePresignedUploadUrl } from '@/lib/storage/presigned';
-import { downloadFileInternal } from '@/lib/storage/download-internal';
-import { processImage } from '@/lib/storage/image-pipeline';
-import { uploadFile } from '@/lib/storage/upload';
-import { deleteFile } from '@/lib/storage/delete';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
-import type { ImageUploadMetadata, ImageUploadResult } from '@/lib/storage/types';
 import { STORAGE } from '@/constants';
+import { handleAction, requireAuth, CacheTags } from '@/contracts/actions';
+import type { ActionResult } from '@/contracts/actions';
+import { deleteFile } from '@/lib/storage/delete';
+import { downloadFileInternal } from '@/lib/storage/download-internal';
 import { isValidImageFormat } from '@/lib/storage/image';
+import { processImage } from '@/lib/storage/image-pipeline';
+import { generatePresignedUploadUrl } from '@/lib/storage/presigned';
+import type { ImageUploadMetadata, ImageUploadResult } from '@/lib/storage/types';
+import { uploadFile } from '@/lib/storage/upload';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 interface PresignedUploadResponse {
   url: string;
@@ -71,8 +71,8 @@ export async function processUploadedImage(
   tempStorageKey: string,
   originalFilename: string,
   folder: string,
-  entityType?: string,
-  entityId?: string
+  _entityType?: string,
+  _entityId?: string
 ): Promise<ActionResult<ImageUploadResult>> {
   return handleAction('processUploadedImage', async () => {
     const session = await requireAuth();
@@ -80,7 +80,9 @@ export async function processUploadedImage(
     // 1. Download the raw file internally from R2
     const downloadRes = await downloadFileInternal(tempStorageKey);
     if (!downloadRes.data) {
-      throw new Error('Failed to retrieve the uploaded file for processing. It may have expired or failed to upload.');
+      throw new Error(
+        'Failed to retrieve the uploaded file for processing. It may have expired or failed to upload.'
+      );
     }
     const rawBuffer = downloadRes.data;
 
@@ -92,7 +94,7 @@ export async function processUploadedImage(
     const baseName = originalFilename.substring(0, originalFilename.lastIndexOf('.'));
     const finalExtension = processed.format === 'gif' ? '.gif' : `.${processed.format}`;
     const finalFilename = `${baseName}${finalExtension}`;
-    
+
     const uploadRes = await uploadFile(processed.buffer, finalFilename, {
       contentType: processed.mimeType,
       folder,

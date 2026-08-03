@@ -1,14 +1,10 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-import {
-  getMyProfile,
-  updateMyProfile,
-  updatePassword,
-} from '@/features/profiles/actions';
-import { requestImageUpload, processUploadedImage } from '@/features/media/upload-actions';
+import { processUploadedImage, requestImageUpload } from '@/features/media/upload-actions';
+import { getMyProfile, updateMyProfile, updatePassword } from '@/features/profiles/actions';
 import type { ProfileRow } from '@/features/profiles/service';
 
 export function AdminProfile() {
@@ -87,7 +83,7 @@ export function AdminProfile() {
 
     try {
       toast.loading('Requesting upload URL...', { id: 'avatar-upload' });
-      
+
       // Phase 1: Request URL
       const req = await requestImageUpload({
         filename: file.name,
@@ -99,13 +95,14 @@ export function AdminProfile() {
       if (!req.success || !reqData) throw new Error(req.error || 'Failed to get upload URL');
 
       toast.loading('Uploading image...', { id: 'avatar-upload' });
-      
+
       // Phase 2: Upload to presigned URL
       const xhr = new XMLHttpRequest();
       await new Promise<void>((resolve, reject) => {
         xhr.open('PUT', reqData.url);
         xhr.setRequestHeader('Content-Type', file.type);
-        xhr.onload = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error('Upload failed')));
+        xhr.onload = () =>
+          xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error('Upload failed'));
         xhr.onerror = () => reject(new Error('Network error'));
         xhr.send(file);
       });
@@ -115,7 +112,8 @@ export function AdminProfile() {
       // Phase 3: Server process and save
       const processRes = await processUploadedImage(reqData.storageKey, file.name, 'avatars');
       const processData = processRes.data;
-      if (!processRes.success || !processData) throw new Error(processRes.error || 'Optimization failed');
+      if (!processRes.success || !processData)
+        throw new Error(processRes.error || 'Optimization failed');
 
       toast.loading('Updating profile...', { id: 'avatar-upload' });
 

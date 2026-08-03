@@ -3,13 +3,13 @@
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
+import { ImageUploader } from '@/components/admin/ImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createAlbum, updateAlbum } from '@/features/gallery/actions';
 import type { AlbumRow } from '@/features/gallery/repository';
 import type { CreateAlbumDTO } from '@/features/gallery/validators';
-import { ImageUploader } from '@/components/admin/ImageUploader';
 
 interface GalleryAlbumFormProps {
   initialData?: AlbumRow;
@@ -47,7 +47,13 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
       try {
         const payload: CreateAlbumDTO = {
           album_code: formData.album_code || `GAL-${Date.now().toString().slice(-6)}`,
-          slug: formData.slug || formData.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || '',
+          slug:
+            formData.slug ||
+            formData.title
+              ?.toLowerCase()
+              .replace(/[^a-z0-9]+/g, '-')
+              .replace(/(^-|-$)/g, '') ||
+            '',
           title: formData.title || '',
           description: formData.description || null,
           visibility: (formData.visibility as any) || 'Public',
@@ -79,11 +85,9 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl bg-white p-6 rounded-lg shadow">
+    <form onSubmit={handleSubmit} className="max-w-3xl space-y-6 rounded-lg bg-white p-6 shadow">
       {error && (
-        <div className="p-4 bg-red-50 text-red-700 rounded-md border border-red-200">
-          {error}
-        </div>
+        <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-700">{error}</div>
       )}
 
       <div className="grid grid-cols-2 gap-4">
@@ -131,7 +135,7 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
           value={formData.description || ''}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           rows={3}
-          className="w-full px-3 py-2 border rounded-md"
+          className="w-full rounded-md border px-3 py-2"
           placeholder="Detailed summary of the album..."
           disabled={isPending}
         />
@@ -144,7 +148,7 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
             id="program_id"
             value={formData.program_id || ''}
             onChange={(e) => setFormData({ ...formData, program_id: e.target.value || null })}
-            className="w-full px-3 py-2 border rounded-md"
+            className="w-full rounded-md border px-3 py-2"
             disabled={isPending}
           >
             <option value="">None</option>
@@ -162,7 +166,7 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
             id="event_id"
             value={formData.event_id || ''}
             onChange={(e) => setFormData({ ...formData, event_id: e.target.value || null })}
-            className="w-full px-3 py-2 border rounded-md"
+            className="w-full rounded-md border px-3 py-2"
             disabled={isPending}
           >
             <option value="">None</option>
@@ -182,7 +186,7 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
             id="visibility"
             value={formData.visibility || 'public'}
             onChange={(e) => setFormData({ ...formData, visibility: e.target.value as any })}
-            className="w-full px-3 py-2 border rounded-md"
+            className="w-full rounded-md border px-3 py-2"
             disabled={isPending}
           >
             <option value="public">Public</option>
@@ -199,7 +203,9 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
             type="number"
             min={0}
             value={formData.display_order || 0}
-            onChange={(e) => setFormData({ ...formData, display_order: parseInt(e.target.value, 10) || 0 })}
+            onChange={(e) =>
+              setFormData({ ...formData, display_order: parseInt(e.target.value, 10) || 0 })
+            }
             disabled={isPending}
           />
         </div>
@@ -219,16 +225,15 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
 
       <div className="space-y-2">
         <Label htmlFor="cover_image">Cover Image</Label>
-        <ImageUploader 
-          folder="gallery-covers" 
-          onUploadComplete={handleUploadComplete} 
-        />
+        <ImageUploader folder="gallery-covers" onUploadComplete={handleUploadComplete} />
         {formData.cover_image_id && (
-          <p className="text-sm text-green-600">Cover image uploaded (ID: {formData.cover_image_id})</p>
+          <p className="text-sm text-green-600">
+            Cover image uploaded (ID: {formData.cover_image_id})
+          </p>
         )}
       </div>
 
-      <div className="flex justify-end gap-3 pt-4 border-t">
+      <div className="flex justify-end gap-3 border-t pt-4">
         <Button
           type="button"
           variant="outline"

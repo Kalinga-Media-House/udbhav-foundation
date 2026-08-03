@@ -1,7 +1,8 @@
 import fs from 'fs';
-import path from 'path';
-import sharp from 'sharp';
 import https from 'https';
+import path from 'path';
+
+import sharp from 'sharp';
 
 const testAssetsDir = path.join(process.cwd(), 'test-assets');
 if (!fs.existsSync(testAssetsDir)) {
@@ -12,7 +13,7 @@ if (!fs.existsSync(testAssetsDir)) {
 async function downloadBase() {
   const dest = path.join(testAssetsDir, 'base.jpg');
   if (fs.existsSync(dest)) return dest;
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve, _reject) => {
     https.get('https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Landscape_8.jpg', (res) => {
       const file = fs.createWriteStream(dest);
       res.pipe(file);
@@ -56,7 +57,7 @@ async function generate() {
     const bmpBuffer = await sharp(base).png().toBuffer(); // Fake BMP header
     // We will just rename a PNG to BMP for the upload test (server will detect it as PNG via magic bytes)
     fs.writeFileSync(path.join(testAssetsDir, 'fake.bmp'), bmpBuffer);
-  } catch(e) {}
+  } catch {}
 
   // 6. HEIC
   // Sharp only supports HEIC if libvips is compiled with libheif.
