@@ -129,8 +129,8 @@ export default async function AdminProgramsPage(props: {
                   if (prog.status === 'completed') statusColor = 'bg-blue-100 text-blue-800';
                   if (prog.status === 'draft') statusColor = 'bg-amber-100 text-amber-800';
 
-                  const dateStr = prog.program_date 
-                    ? new Date(prog.program_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                  const dateStr = prog.start_date 
+                    ? new Date(prog.start_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
                     : 'N/A';
                   
                   const locationStr = prog.location || 'N/A';
@@ -162,6 +162,7 @@ export default async function AdminProgramsPage(props: {
                             />
                           </div>
                           <div>
+                            <div className="text-xs text-gray-500 line-clamp-1">{prog.short_description || '-'}</div>
                             <div className="font-semibold text-gray-900 transition-colors group-hover:text-primary">
                               {prog.title}
                             </div>

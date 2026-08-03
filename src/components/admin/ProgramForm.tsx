@@ -23,15 +23,15 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
   // Form State
   const [formData, setFormData] = useState<Partial<CreateProgramDTO>>({
     title: initialData?.title || '',
-    subtitle: initialData?.subtitle || '',
-    description: initialData?.description || '',
+    short_description: initialData?.short_description || '',
+    full_description: initialData?.full_description || '',
     status: (initialData?.status as any) || 'draft',
     visibility: (initialData?.visibility as any) || 'public',
     program_type: (initialData?.program_type as any) || 'General',
     is_featured: initialData?.is_featured || false,
-    display_order: initialData?.display_order || 0,
+    sort_order: initialData?.sort_order || 0,
     cover_image_id: initialData?.cover_image_id || undefined,
-    program_date: initialData?.program_date || new Date().toISOString().split('T')[0],
+    start_date: initialData?.start_date || new Date().toISOString().split('T')[0],
     location: initialData?.location || '',
   });
 
@@ -60,15 +60,15 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
       try {
         const payload: CreateProgramDTO = {
           title: formData.title || '',
-          subtitle: formData.subtitle || '', // undefined causes Next.js serialization crash
-          description: formData.description || '', // undefined causes Next.js serialization crash
+          short_description: formData.short_description || '', // undefined causes Next.js serialization crash
+          full_description: formData.full_description || '', // undefined causes Next.js serialization crash
           status: formData.status as any,
           visibility: formData.visibility as any,
           program_type: formData.program_type as any,
           is_featured: formData.is_featured || false,
-          display_order: formData.display_order || 0,
+          sort_order: formData.sort_order || 0,
           cover_image_id: formData.cover_image_id || null,
-          program_date: formData.program_date || new Date().toISOString().split('T')[0],
+          start_date: formData.start_date || new Date().toISOString().split('T')[0],
           location: formData.location || '',
           metadata: (initialData?.metadata as Record<string, unknown>) || {},
         };
@@ -143,11 +143,11 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="subtitle">Subtitle / Tagline</Label>
+        <Label htmlFor="short_description">Subtitle / Tagline</Label>
         <Input
-          id="subtitle"
-          name="subtitle"
-          value={formData.subtitle || ''}
+          id="short_description"
+          name="short_description"
+          value={formData.short_description || ''}
           onChange={handleChange}
           placeholder="Short tagline for the program"
         />
@@ -155,15 +155,15 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="program_date">Program Date *</Label>
+          <Label htmlFor="start_date">Program Date *</Label>
           <Input
-            id="program_date"
-            name="program_date"
+            id="start_date"
+            name="start_date"
             type="date"
             value={
-              formData.program_date instanceof Date
-                ? formData.program_date.toISOString().split('T')[0]
-                : (formData.program_date as string) || ''
+              formData.start_date instanceof Date
+                ? formData.start_date.toISOString().split('T')[0]
+                : (formData.start_date as string) || ''
             }
             onChange={handleChange}
             required
@@ -174,7 +174,7 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
           <Input
             id="location"
             name="location"
-            value={formData.location}
+            value={formData.location || ''}
             onChange={handleChange}
             placeholder="e.g. Bhubaneswar, Odisha"
             required
@@ -183,11 +183,11 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Full Description</Label>
+        <Label htmlFor="full_description">Full Description</Label>
         <textarea
-          id="description"
-          name="description"
-          value={formData.description || ''}
+          id="full_description"
+          name="full_description"
+          value={formData.full_description || ''}
           onChange={handleChange}
           rows={6}
           className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -232,13 +232,13 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="display_order">Display Order</Label>
+          <Label htmlFor="sort_order">Display Order</Label>
           <Input
-            id="display_order"
-            name="display_order"
+            id="sort_order"
+            name="sort_order"
             type="number"
             min={0}
-            value={formData.display_order}
+            value={formData.sort_order}
             onChange={handleChange}
           />
         </div>

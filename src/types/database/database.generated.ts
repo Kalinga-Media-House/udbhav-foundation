@@ -3850,7 +3850,7 @@ export type Database = {
           short_title: string | null
           slug: string
           sort_order: number
-          program_date: string
+          start_date: string | null
           status: Database["public"]["Enums"]["program_status"]
           title: string
           updated_at: string
@@ -3884,7 +3884,7 @@ export type Database = {
           short_title?: string | null
           slug: string
           sort_order?: number
-          program_date?: string
+          start_date?: string | null
           status?: Database["public"]["Enums"]["program_status"]
           title: string
           updated_at?: string
@@ -3918,7 +3918,7 @@ export type Database = {
           short_title?: string | null
           slug?: string
           sort_order?: number
-          program_date?: string
+          start_date?: string | null
           status?: Database["public"]["Enums"]["program_status"]
           title?: string
           updated_at?: string

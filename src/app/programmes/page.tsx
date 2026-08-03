@@ -32,13 +32,13 @@ export default async function IndexPage() {
 
     return {
       id: p.id,
-      programmeNumber: (p.display_order ?? 0).toString().padStart(2, '0'),
+      programmeNumber: (p.sort_order ?? 0).toString().padStart(2, '0'),
       title: p.title,
-      tagline: p.subtitle || '',
+      tagline: p.short_description || '',
       category: (meta.category as ProgrammeCategory) || 'Community Support',
       slug: p.slug,
-      shortDescription: p.description || '',
-      fullDescription: (meta.fullDescription as string) || p.description || '',
+      shortDescription: p.short_description || '',
+      fullDescription: (meta.fullDescription as string) || p.full_description || '',
       coverImageUrl: resolvedCover,
       accentColor: (meta.accentColor as string) || '#172B6B',
       impactPreview: (meta.impactPreview as string) || '',

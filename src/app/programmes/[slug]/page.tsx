@@ -25,8 +25,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     if (res.success && res.data) {
       const programmeRow = res.data;
       const meta = (programmeRow.metadata || {}) as Record<string, unknown>;
-      title = `${(programmeRow.display_order ?? 0).toString().padStart(2, '0')}: ${programmeRow.title} | UDBHAV FOUNDATION`;
-      description = programmeRow.description || "Explore UDBHAV Foundation community action programmes.";
+      title = `${(programmeRow.sort_order ?? 0).toString().padStart(2, '0')}: ${programmeRow.title} | UDBHAV FOUNDATION`;
+      description = programmeRow.short_description || "Explore UDBHAV Foundation community action programmes.";
       const r2Url = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || 'https://media.udbhavfoundation.in';
       const resolvedCover = programmeRow.cover_image?.r2_object_key 
         ? `${r2Url}/${programmeRow.cover_image.r2_object_key}`
@@ -69,16 +69,16 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
 
     programme = {
       id: p.id,
-      programmeNumber: (p.display_order ?? 0).toString().padStart(2, '0'),
+      programmeNumber: (p.sort_order ?? 0).toString().padStart(2, '0'),
       title: p.title,
-      tagline: p.subtitle || '',
+      tagline: p.short_description || '',
       category: (meta.category as ProgrammeCategory) || 'Community Support',
       slug: p.slug,
-      shortDescription: p.description || '',
-      fullDescription: (meta.fullDescription as string) || p.description || '',
+      shortDescription: p.short_description || '',
+      fullDescription: (meta.fullDescription as string) || p.full_description || '',
       coverImageUrl: resolvedCover,
       accentColor: (meta.accentColor as string) || '#172B6B',
-      programDate: p.program_date || undefined,
+      programDate: p.start_date || undefined,
       location: p.location || undefined,
       impactPreview: (meta.impactPreview as string) || '',
       impactStats: (meta.impactStats as any) || [],
@@ -120,13 +120,13 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
           : (meta.coverImageUrl as string) || '/hero/hero-01.png';
         return {
           id: p.id,
-          programmeNumber: ((p.display_order ?? 0) ?? 0).toString().padStart(2, '0'),
+          programmeNumber: ((p.sort_order ?? 0) ?? 0).toString().padStart(2, '0'),
           title: p.title,
-          tagline: p.subtitle || '',
+          tagline: p.short_description || '',
           category: (meta.category as ProgrammeCategory) || 'Community Support',
           slug: p.slug,
-          shortDescription: p.description || '',
-          fullDescription: (meta.fullDescription as string) || p.description || '',
+          shortDescription: p.short_description || '',
+          fullDescription: (meta.fullDescription as string) || p.full_description || '',
           coverImageUrl: relCover,
           accentColor: (meta.accentColor as string) || '#172B6B',
           impactPreview: (meta.impactPreview as string) || '',

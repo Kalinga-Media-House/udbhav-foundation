@@ -6,9 +6,6 @@ import type { Pagination, ID } from '@/types';
 import type { Database } from '@/types/database/database.generated';
 
 export type ProgramRow = Database['public']['Tables']['programs']['Row'] & {
-  subtitle?: string | null;
-  description?: string | null;
-  display_order?: number;
   cover_image?: { r2_object_key: string | null } | null;
 };
 

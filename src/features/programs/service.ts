@@ -69,16 +69,16 @@ export class ProgramsService {
       program_code,
       slug,
       title: parsed.data.title,
-      short_description: parsed.data.subtitle ?? null,
-      full_description: parsed.data.description ?? null,
+      short_description: parsed.data.short_description ?? null,
+      full_description: parsed.data.full_description ?? null,
       status: parsed.data.status,
       visibility: parsed.data.visibility,
       program_type: parsed.data.program_type as any,
       cover_image_id: parsed.data.cover_image_id ?? null,
-      program_date: parsed.data.program_date instanceof Date ? parsed.data.program_date.toISOString() : parsed.data.program_date,
-      location: parsed.data.location,
+      start_date: parsed.data.start_date instanceof Date ? parsed.data.start_date.toISOString() : (parsed.data.start_date ?? null),
+      location: parsed.data.location ?? null,
       is_featured: parsed.data.is_featured,
-      sort_order: parsed.data.display_order,
+      sort_order: parsed.data.sort_order,
       metadata: parsed.data.metadata as any,
       created_by: userId,
       updated_by: userId,
@@ -92,24 +92,10 @@ export class ProgramsService {
     if (!parsed.success) {
       return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
     }
-    const { subtitle, description, display_order, ...restParsed } = parsed.data as any;
-    const updateData: Record<string, unknown> = { ...restParsed, updated_by: userId };
+    const updateData: Record<string, unknown> = { ...parsed.data, updated_by: userId };
 
-    // Remap DTO field names → DB column names
-    if (subtitle !== undefined) {
-      updateData.short_description = subtitle;
-      delete updateData.subtitle;
-    }
-    if (description !== undefined) {
-      updateData.full_description = description;
-      delete updateData.description;
-    }
-    if (display_order !== undefined) {
-      updateData.sort_order = display_order;
-      delete updateData.display_order;
-    }
-    if (updateData.program_date instanceof Date) {
-      updateData.program_date = updateData.program_date.toISOString();
+    if (updateData.start_date instanceof Date) {
+      updateData.start_date = updateData.start_date.toISOString();
     }
 
     return fromRepo(await programsRepository.update(id, updateData as any));

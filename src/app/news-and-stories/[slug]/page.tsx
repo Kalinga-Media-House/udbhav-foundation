@@ -376,7 +376,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
                         {prog.title}
                       </h3>
                       <p className="text-sm text-gray-600 line-clamp-2">
-                        {prog.description}
+                        {prog.short_description}
                       </p>
                     </div>
                     <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between text-xs font-semibold text-[#12245F] group-hover:text-[#439B25]">

@@ -21,15 +21,16 @@ export interface ProgramEntity {
   program_code: string;
   slug: string;
   title: string;
-  subtitle: string | null;
-  description: string | null;
+  short_description: string | null;
+  full_description: string | null;
   status: string;
   visibility: string;
   cover_image_id: string | null;
   start_date: string | null;
   end_date: string | null;
+  location: string;
   is_featured: boolean;
-  display_order: number;
+  sort_order: number;
   metadata: Record<string, unknown>;
   created_by: string | null;
   updated_by: string | null;
@@ -46,15 +47,16 @@ export interface Program {
   programCode: string;
   slug: string;
   title: string;
-  subtitle?: string | null;
-  description?: string | null;
+  shortDescription?: string | null;
+  fullDescription?: string | null;
   status: StatusEnum;
   visibility: VisibilityEnum;
   coverImageId?: MediaId | null;
   startDate?: ISODate | null;
   endDate?: ISODate | null;
+  location: string;
   isFeatured: boolean;
-  displayOrder: number;
+  sortOrder: number;
   metadata: Record<string, unknown>;
   createdBy?: UserId | null;
   updatedBy?: UserId | null;
@@ -71,15 +73,16 @@ export interface ProgramViewModel {
   programCode: string;
   slug: string;
   title: string;
-  subtitle?: string | null;
-  description?: string | null;
+  shortDescription?: string | null;
+  fullDescription?: string | null;
   statusLabel: string;
   visibilityLabel: string;
   coverImageUrl?: string | null;
   formattedStartDate?: string;
   formattedEndDate?: string;
+  location: string;
   isFeatured: boolean;
-  displayOrder: number;
+  sortOrder: number;
   excerpt?: string;
 }
 
@@ -88,15 +91,16 @@ export interface ProgramViewModel {
  */
 export interface ProgramCreateDTO {
   title: string;
-  subtitle?: string | null;
-  description?: string | null;
+  short_description?: string | null;
+  full_description?: string | null;
   status?: StatusEnum;
   visibility?: VisibilityEnum;
-  coverImageId?: string | null;
-  startDate?: string | null;
-  endDate?: string | null;
-  isFeatured?: boolean;
-  displayOrder?: number;
+  cover_image_id?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  location: string;
+  is_featured?: boolean;
+  sort_order?: number;
   metadata?: Record<string, unknown>;
 }
 
