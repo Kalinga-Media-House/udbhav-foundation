@@ -3836,7 +3836,7 @@ export type Database = {
           id: string
           is_deleted: boolean
           is_featured: boolean
-          location: string | null
+          location: string
           metadata: Json | null
           mission: string | null
           objectives: Json | null
@@ -3850,7 +3850,7 @@ export type Database = {
           short_title: string | null
           slug: string
           sort_order: number
-          start_date: string | null
+          program_date: string
           status: Database["public"]["Enums"]["program_status"]
           title: string
           updated_at: string
@@ -3870,7 +3870,7 @@ export type Database = {
           id?: string
           is_deleted?: boolean
           is_featured?: boolean
-          location?: string | null
+          location?: string
           metadata?: Json | null
           mission?: string | null
           objectives?: Json | null
@@ -3884,7 +3884,7 @@ export type Database = {
           short_title?: string | null
           slug: string
           sort_order?: number
-          start_date?: string | null
+          program_date?: string
           status?: Database["public"]["Enums"]["program_status"]
           title: string
           updated_at?: string
@@ -3904,7 +3904,7 @@ export type Database = {
           id?: string
           is_deleted?: boolean
           is_featured?: boolean
-          location?: string | null
+          location?: string
           metadata?: Json | null
           mission?: string | null
           objectives?: Json | null
@@ -3918,7 +3918,7 @@ export type Database = {
           short_title?: string | null
           slug?: string
           sort_order?: number
-          start_date?: string | null
+          program_date?: string
           status?: Database["public"]["Enums"]["program_status"]
           title?: string
           updated_at?: string

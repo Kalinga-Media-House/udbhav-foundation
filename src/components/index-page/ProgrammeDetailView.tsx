@@ -100,6 +100,25 @@ export function ProgrammeDetailView({
                 {programme.tagline}
               </p>
 
+              {(programme.programDate || programme.location) && (
+                <div className="flex flex-wrap items-center gap-6 mb-6">
+                  {programme.programDate && (
+                    <div className="flex items-center gap-2 text-white/90">
+                      <Calendar className="w-5 h-5 text-[#439B25]" />
+                      <span className="font-medium">
+                        {new Date(programme.programDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </span>
+                    </div>
+                  )}
+                  {programme.location && (
+                    <div className="flex items-center gap-2 text-white/90">
+                      <MapPin className="w-5 h-5 text-[#439B25]" />
+                      <span className="font-medium">{programme.location}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <p className="text-base sm:text-lg text-white/85 leading-relaxed mb-8 max-w-2xl">
                 {programme.fullDescription}
               </p>

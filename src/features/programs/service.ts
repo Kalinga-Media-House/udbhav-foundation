@@ -35,17 +35,48 @@ export class ProgramsService {
     if (!parsed.success) {
       return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
     }
+    
+    // Generate Program Code
+    const year = new Date().getFullYear();
+    const prefix = `PRG-${year}-`;
+    const { data: latestPrograms } = await programsRepository.findMany({ 
+      pagination: { page: 1, limit: 1 }, 
+      sort: { column: 'created_at', order: 'desc' }
+    });
+    
+    let nextNum = 1;
+    if (latestPrograms && latestPrograms.length > 0) {
+      const latestCode = latestPrograms[0].program_code;
+      if (latestCode && latestCode.startsWith(prefix)) {
+        const numPart = parseInt(latestCode.replace(prefix, ''), 10);
+        if (!isNaN(numPart)) nextNum = numPart + 1;
+      }
+    }
+    const program_code = `${prefix}${nextNum.toString().padStart(4, '0')}`;
+
+    // Generate Unique Slug
+    let baseSlug = slugify(parsed.data.title);
+    let slug = baseSlug;
+    let slugExists = await programsRepository.findBySlug(slug);
+    let counter = 2;
+    while (slugExists.data) {
+      slug = `${baseSlug}-${counter}`;
+      slugExists = await programsRepository.findBySlug(slug);
+      counter++;
+    }
+
     const programData: ProgramCreate = {
-      program_code: parsed.data.program_code,
-      slug: parsed.data.slug ? slugify(parsed.data.slug) : slugify(parsed.data.title),
+      program_code,
+      slug,
       title: parsed.data.title,
       short_description: parsed.data.subtitle ?? null,
       full_description: parsed.data.description ?? null,
       status: parsed.data.status,
       visibility: parsed.data.visibility,
+      program_type: parsed.data.program_type as any,
       cover_image_id: parsed.data.cover_image_id ?? null,
-      start_date: parsed.data.start_date ?? null,
-      end_date: parsed.data.end_date ?? null,
+      program_date: parsed.data.program_date instanceof Date ? parsed.data.program_date.toISOString() : parsed.data.program_date,
+      location: parsed.data.location,
       is_featured: parsed.data.is_featured,
       sort_order: parsed.data.display_order,
       metadata: parsed.data.metadata as any,
@@ -76,6 +107,9 @@ export class ProgramsService {
     if (display_order !== undefined) {
       updateData.sort_order = display_order;
       delete updateData.display_order;
+    }
+    if (updateData.program_date instanceof Date) {
+      updateData.program_date = updateData.program_date.toISOString();
     }
 
     return fromRepo(await programsRepository.update(id, updateData as any));

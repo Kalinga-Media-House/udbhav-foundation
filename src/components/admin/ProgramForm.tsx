@@ -22,16 +22,17 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
 
   // Form State
   const [formData, setFormData] = useState<Partial<CreateProgramDTO>>({
-    program_code: initialData?.program_code || '',
-    slug: initialData?.slug || '',
     title: initialData?.title || '',
     subtitle: initialData?.subtitle || '',
     description: initialData?.description || '',
     status: (initialData?.status as any) || 'draft',
     visibility: (initialData?.visibility as any) || 'public',
+    program_type: (initialData?.program_type as any) || 'General',
     is_featured: initialData?.is_featured || false,
     display_order: initialData?.display_order || 0,
     cover_image_id: initialData?.cover_image_id || undefined,
+    program_date: initialData?.program_date || new Date().toISOString().split('T')[0],
+    location: initialData?.location || '',
   });
 
   // ImageUploader handles its own state, we just receive the ID when it completes
@@ -58,16 +59,17 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
     startTransition(async () => {
       try {
         const payload: CreateProgramDTO = {
-          program_code: formData.program_code || '',
-          slug: formData.slug || '', // undefined causes Next.js serialization crash
           title: formData.title || '',
           subtitle: formData.subtitle || '', // undefined causes Next.js serialization crash
           description: formData.description || '', // undefined causes Next.js serialization crash
           status: formData.status as any,
           visibility: formData.visibility as any,
+          program_type: formData.program_type as any,
           is_featured: formData.is_featured || false,
           display_order: formData.display_order || 0,
           cover_image_id: formData.cover_image_id || null,
+          program_date: formData.program_date || new Date().toISOString().split('T')[0],
+          location: formData.location || '',
           metadata: (initialData?.metadata as Record<string, unknown>) || {},
         };
 
@@ -103,44 +105,41 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div className="space-y-2">
-          <Label htmlFor="program_code">Program Code *</Label>
-          <Input
-            id="program_code"
-            name="program_code"
-            value={formData.program_code}
-            onChange={handleChange}
-            placeholder="e.g. EDU-2026-01"
-            required
-            disabled={!!initialData} // Cannot edit code after creation based on typical constraints
-          />
-          <p className="text-xs text-gray-500">Unique alphanumeric code with hyphens.</p>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="slug">Slug (Optional)</Label>
-          <Input
-            id="slug"
-            name="slug"
-            value={formData.slug}
-            onChange={handleChange}
-            placeholder="e.g. udbhav-siksha-samman"
-          />
-          <p className="text-xs text-gray-500">Leave blank to auto-generate from title.</p>
-        </div>
-      </div>
-
       <div className="space-y-2">
-        <Label htmlFor="title">Title *</Label>
+        <Label htmlFor="title">Program Name *</Label>
         <Input
           id="title"
           name="title"
           value={formData.title}
           onChange={handleChange}
-          placeholder="Program Title"
+          placeholder="Program Name"
           required
         />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="program_type">Category *</Label>
+        <select
+          id="program_type"
+          name="program_type"
+          value={formData.program_type}
+          onChange={handleChange}
+          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          required
+        >
+          <option value="Education">Education</option>
+          <option value="Healthcare">Healthcare</option>
+          <option value="Environment">Environment</option>
+          <option value="Community">Community</option>
+          <option value="Youth">Youth</option>
+          <option value="Women">Women</option>
+          <option value="Research">Research</option>
+          <option value="Training">Training</option>
+          <option value="Campaign">Campaign</option>
+          <option value="Fundraising">Fundraising</option>
+          <option value="Emergency">Emergency</option>
+          <option value="General">General</option>
+        </select>
       </div>
 
       <div className="space-y-2">
@@ -152,6 +151,35 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
           onChange={handleChange}
           placeholder="Short tagline for the program"
         />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="space-y-2">
+          <Label htmlFor="program_date">Program Date *</Label>
+          <Input
+            id="program_date"
+            name="program_date"
+            type="date"
+            value={
+              formData.program_date instanceof Date
+                ? formData.program_date.toISOString().split('T')[0]
+                : (formData.program_date as string) || ''
+            }
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="location">Program Location *</Label>
+          <Input
+            id="location"
+            name="location"
+            value={formData.location}
+            onChange={handleChange}
+            placeholder="e.g. Bhubaneswar, Odisha"
+            required
+          />
+        </div>
       </div>
 
       <div className="space-y-2">

@@ -9,6 +9,7 @@ import {
   CheckCircle,
   Edit3,
   ExternalLink,
+  Calendar,
 } from 'lucide-react';
 import { revalidatePath } from 'next/cache';
 import Link from 'next/link';
@@ -106,6 +107,7 @@ export default async function AdminProgramsPage(props: {
               <tr className="border-b border-gray-100 bg-gray-50/80 text-xs font-semibold uppercase tracking-wider text-gray-600">
                 <th className="px-6 py-4">Program</th>
                 <th className="px-6 py-4">Category</th>
+                <th className="px-6 py-4">Date</th>
                 <th className="px-6 py-4">Location</th>
                 <th className="px-6 py-4">Beneficiaries</th>
                 <th className="px-6 py-4">Status</th>
@@ -127,12 +129,11 @@ export default async function AdminProgramsPage(props: {
                   if (prog.status === 'completed') statusColor = 'bg-blue-100 text-blue-800';
                   if (prog.status === 'draft') statusColor = 'bg-amber-100 text-amber-800';
 
-                  const locationStr =
-                    prog.metadata &&
-                    typeof prog.metadata === 'object' &&
-                    'district' in prog.metadata
-                      ? (prog.metadata as any).district
-                      : 'Odisha';
+                  const dateStr = prog.program_date 
+                    ? new Date(prog.program_date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                    : 'N/A';
+                  
+                  const locationStr = prog.location || 'N/A';
 
                   const beneficiaries =
                     prog.metadata &&
@@ -172,8 +173,14 @@ export default async function AdminProgramsPage(props: {
                       </td>
                       <td className="px-6 py-4">
                         <span className="rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600">
-                          Program
+                          {prog.program_type || 'General'}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 text-gray-600">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="h-3.5 w-3.5 text-gray-400" />
+                          {dateStr}
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-gray-600">
                         <div className="flex items-center gap-1.5">

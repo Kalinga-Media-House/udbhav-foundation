@@ -78,6 +78,8 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
       fullDescription: (meta.fullDescription as string) || p.description || '',
       coverImageUrl: resolvedCover,
       accentColor: (meta.accentColor as string) || '#172B6B',
+      programDate: p.program_date || undefined,
+      location: p.location || undefined,
       impactPreview: (meta.impactPreview as string) || '',
       impactStats: (meta.impactStats as any) || [],
       purpose: (meta.purpose as string) || '',

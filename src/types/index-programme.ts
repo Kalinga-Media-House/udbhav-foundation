@@ -23,6 +23,8 @@ export interface IndexProgrammeDetail {
   fullDescription: string;
   coverImageUrl: string;
   accentColor: string;
+  programDate?: string;
+  location?: string;
   impactPreview: string;
   impactStats: IndexProgrammeStat[];
   purpose: string;
