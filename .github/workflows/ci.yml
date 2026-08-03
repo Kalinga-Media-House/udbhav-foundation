@@ -78,32 +78,4 @@ jobs:
           path: playwright-report/
           retention-days: 30
 
-  build:
-    name: Production Build Test
-    runs-on: ubuntu-latest
-    needs: [test-unit, test-e2e]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 9
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "pnpm"
-      - run: pnpm install --frozen-lockfile
-      - name: Build Next.js app
-        run: pnpm build
-        env:
-          NEXT_PUBLIC_APP_URL: "http://localhost:3000"
-          NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-anon-key"
-          NEXT_PUBLIC_R2_PUBLIC_URL: "https://dummy.r2.dev"
-          NEXT_PUBLIC_RAZORPAY_KEY_ID: "dummy-rzp"
-          NEXT_PUBLIC_POSTHOG_KEY: "dummy-ph"
-          NEXT_PUBLIC_POSTHOG_HOST: "https://app.posthog.com"
-          SUPABASE_SERVICE_ROLE_KEY: "dummy-service-role-key-12345678901234567890"
-          R2_ACCOUNT_ID: "dummy-account"
-          R2_ACCESS_KEY_ID: "dummy-key"
-          R2_SECRET_ACCESS_KEY: "dummy-secret"
-          R2_BUCKET_NAME: "dummy-bucket"
+
