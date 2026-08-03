@@ -94,8 +94,10 @@ export function ImageUploader({
             }
           });
 
-          xhr.addEventListener('error', () => reject(new Error('Network error during upload')));
+          xhr.addEventListener('error', () => reject(new Error('Upload failed: Network error or CORS blocked by Cloudflare R2.')));
           xhr.addEventListener('abort', () => reject(new Error('Upload cancelled')));
+          xhr.addEventListener('timeout', () => reject(new Error('Upload timed out')));
+          xhr.timeout = 5 * 60 * 1000; // 5 minute timeout for large files
 
           xhr.open('PUT', url);
           xhr.setRequestHeader('Content-Type', file.type);

@@ -7,7 +7,9 @@ import dotenv from 'dotenv';
 import { chromium } from 'playwright';
 dotenv.config({ path: '.env.local' });
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ljtjfthgaqnkltugiiuy.supabase.co';
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 const s3 = new S3Client({
   region: 'auto',
   endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
@@ -18,7 +20,7 @@ const s3 = new S3Client({
 });
 
 const BASE_URL = 'https://udbhavfoundation.in';
-const TEST_EMAIL = process.env.TEST_ADMIN_EMAIL || 'admin@udbhav.org';
+const TEST_EMAIL = 'admin@udbhav.org';
 const TEST_PASSWORD = process.env.TEST_ADMIN_PASSWORD || 'password123';
 
 const filesToTest = [
@@ -188,7 +190,6 @@ async function run() {
   await seedUser();
   const browser = await chromium.launch({
     headless: true,
-    args: ['--disable-web-security']
   });
   const context = await browser.newContext();
   const page = await context.newPage();

@@ -102,8 +102,10 @@ export function AdminProfile() {
         xhr.open('PUT', reqData.url);
         xhr.setRequestHeader('Content-Type', file.type);
         xhr.onload = () =>
-          xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error('Upload failed'));
-        xhr.onerror = () => reject(new Error('Network error'));
+          xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(`Upload failed with HTTP ${xhr.status}: ${xhr.statusText}`));
+        xhr.onerror = () => reject(new Error('Upload failed: Network error or CORS blocked by Cloudflare R2.'));
+        xhr.ontimeout = () => reject(new Error('Upload timed out'));
+        xhr.timeout = 60_000;
         xhr.send(file);
       });
 
