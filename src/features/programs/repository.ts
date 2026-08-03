@@ -9,6 +9,7 @@ export type ProgramRow = Database['public']['Tables']['programs']['Row'] & {
   subtitle?: string | null;
   description?: string | null;
   display_order?: number;
+  cover_image?: { r2_object_key: string | null } | null;
 };
 
 export type ProgramCreate = Omit<ProgramRow, 'id' | 'created_at' | 'updated_at' | 'is_deleted'>;
@@ -21,7 +22,7 @@ export class ProgramsRepository implements IWriteRepository<ProgramRow, ProgramC
       const supabase = await createServerSupabaseClient();
       const { data, error } = await supabase
         .from('programs')
-        .select('*')
+        .select('*, cover_image:media_files(r2_object_key)')
         .eq('id', id)
         .eq('is_deleted', false)
         .single();
@@ -39,7 +40,7 @@ export class ProgramsRepository implements IWriteRepository<ProgramRow, ProgramC
       const supabase = await createServerSupabaseClient();
       const { data, error } = await supabase
         .from('programs')
-        .select('*')
+        .select('*, cover_image:media_files(r2_object_key)')
         .eq('slug', slug)
         .eq('is_deleted', false)
         .single();
@@ -55,7 +56,7 @@ export class ProgramsRepository implements IWriteRepository<ProgramRow, ProgramC
   async findMany(params: { pagination: Pagination; sort?: SortConfig; filters?: FilterMap }): Promise<PaginatedResult<ProgramRow>> {
     const { pagination, sort, filters } = params;
     const supabase = await createServerSupabaseClient();
-    let query = supabase.from('programs').select('*', { count: 'exact' }).eq('is_deleted', false);
+    let query = supabase.from('programs').select('*, cover_image:media_files(r2_object_key)', { count: 'exact' }).eq('is_deleted', false);
 
     if (filters?.status) query = query.eq('status', filters.status as Database['public']['Enums']['program_status']);
     if (filters?.visibility) query = query.eq('visibility', filters.visibility as Database['public']['Enums']['program_visibility']);
@@ -132,7 +133,7 @@ export class ProgramsRepository implements IWriteRepository<ProgramRow, ProgramC
     const supabase = await createServerSupabaseClient();
     const from = (pagination.page - 1) * pagination.limit;
     const to = from + pagination.limit - 1;
-    const { data, count, error } = await supabase.from('programs').select('*', { count: 'exact' }).eq('is_deleted', false).textSearch('search_vector', query, { type: 'websearch' }).range(from, to);
+    const { data, count, error } = await supabase.from('programs').select('*, cover_image:media_files(r2_object_key)', { count: 'exact' }).eq('is_deleted', false).textSearch('search_vector', query, { type: 'websearch' }).range(from, to);
     if (error) serverLogger.error('ProgramsRepository.search failed', new DatabaseError(error.message));
     return { data: (data as ProgramRow[]) ?? [], total: count ?? 0, page: pagination.page, limit: pagination.limit };
   }

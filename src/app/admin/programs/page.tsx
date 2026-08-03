@@ -141,8 +141,12 @@ export default async function AdminProgramsPage(props: {
                       ? (prog.metadata as any).beneficiaries
                       : 'N/A';
 
-                  // Using placeholder image
-                  const imageUrl = '/images/default-news-cover.jpg';
+                  const r2Url = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || 'https://media.udbhavfoundation.in';
+                  const imageUrl = prog.cover_image?.r2_object_key
+                    ? `${r2Url}/${prog.cover_image.r2_object_key}`
+                    : prog.metadata && typeof prog.metadata === 'object' && 'coverImageUrl' in prog.metadata
+                      ? (prog.metadata as any).coverImageUrl
+                      : '/images/default-news-cover.jpg';
 
                   return (
                     <tr key={prog.id} className="transition-colors hover:bg-gray-50/50">

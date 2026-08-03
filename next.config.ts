@@ -21,7 +21,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: process.env.NEXT_PUBLIC_R2_PUBLIC_URL?.replace('https://', '') || '',
+        hostname: process.env.NEXT_PUBLIC_R2_PUBLIC_URL?.replace('https://', '')?.replace('http://', '') || 'media.udbhavfoundation.in',
         pathname: '/**',
       },
     ],

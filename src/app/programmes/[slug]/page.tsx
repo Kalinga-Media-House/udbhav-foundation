@@ -27,7 +27,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       const meta = (programmeRow.metadata || {}) as Record<string, unknown>;
       title = `${(programmeRow.display_order ?? 0).toString().padStart(2, '0')}: ${programmeRow.title} | UDBHAV FOUNDATION`;
       description = programmeRow.description || "Explore UDBHAV Foundation community action programmes.";
-      coverImage = (meta.coverImageUrl as string) || coverImage;
+      const r2Url = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || 'https://media.udbhavfoundation.in';
+      const resolvedCover = programmeRow.cover_image?.r2_object_key 
+        ? `${r2Url}/${programmeRow.cover_image.r2_object_key}`
+        : (meta.coverImageUrl as string) || coverImage;
+      coverImage = resolvedCover;
     }
   } catch {
     // Keep defaults
@@ -58,6 +62,11 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
     if (!res.success || !res.data) throw new Error();
     const p = res.data;
     const meta = (p.metadata || {}) as Record<string, unknown>;
+    const r2Url = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || 'https://media.udbhavfoundation.in';
+    const resolvedCover = p.cover_image?.r2_object_key 
+      ? `${r2Url}/${p.cover_image.r2_object_key}`
+      : (meta.coverImageUrl as string) || '/hero/hero-01.png';
+
     programme = {
       id: p.id,
       programmeNumber: (p.display_order ?? 0).toString().padStart(2, '0'),
@@ -67,7 +76,7 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
       slug: p.slug,
       shortDescription: p.description || '',
       fullDescription: (meta.fullDescription as string) || p.description || '',
-      coverImageUrl: (meta.coverImageUrl as string) || '/hero/hero-01.png',
+      coverImageUrl: resolvedCover,
       accentColor: (meta.accentColor as string) || '#172B6B',
       impactPreview: (meta.impactPreview as string) || '',
       impactStats: (meta.impactStats as any) || [],
@@ -103,6 +112,10 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
     if (allRes.success && allRes.data) {
       relatedProgrammes = allRes.data.data.filter(p => p.slug !== slug).slice(0, 3).map(p => {
         const meta = (p.metadata || {}) as Record<string, unknown>;
+        const r2Url = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || 'https://media.udbhavfoundation.in';
+        const relCover = p.cover_image?.r2_object_key 
+          ? `${r2Url}/${p.cover_image.r2_object_key}`
+          : (meta.coverImageUrl as string) || '/hero/hero-01.png';
         return {
           id: p.id,
           programmeNumber: ((p.display_order ?? 0) ?? 0).toString().padStart(2, '0'),
@@ -112,7 +125,7 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
           slug: p.slug,
           shortDescription: p.description || '',
           fullDescription: (meta.fullDescription as string) || p.description || '',
-          coverImageUrl: (meta.coverImageUrl as string) || '/hero/hero-01.png',
+          coverImageUrl: relCover,
           accentColor: (meta.accentColor as string) || '#172B6B',
           impactPreview: (meta.impactPreview as string) || '',
           impactStats: (meta.impactStats as any) || [],

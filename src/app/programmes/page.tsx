@@ -25,6 +25,11 @@ export default async function IndexPage() {
 
   const mappedProgrammes: IndexProgrammeDetail[] = activePrograms.map((p) => {
     const meta = (p.metadata || {}) as any;
+    const r2Url = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || 'https://media.udbhavfoundation.in';
+    const resolvedCover = p.cover_image?.r2_object_key 
+      ? `${r2Url}/${p.cover_image.r2_object_key}`
+      : (meta.coverImageUrl as string) || '/hero/hero-01.png';
+
     return {
       id: p.id,
       programmeNumber: (p.display_order ?? 0).toString().padStart(2, '0'),
@@ -34,7 +39,7 @@ export default async function IndexPage() {
       slug: p.slug,
       shortDescription: p.description || '',
       fullDescription: (meta.fullDescription as string) || p.description || '',
-      coverImageUrl: (meta.coverImageUrl as string) || '/hero/hero-01.png',
+      coverImageUrl: resolvedCover,
       accentColor: (meta.accentColor as string) || '#172B6B',
       impactPreview: (meta.impactPreview as string) || '',
       impactStats: (meta.impactStats as any) || [],
