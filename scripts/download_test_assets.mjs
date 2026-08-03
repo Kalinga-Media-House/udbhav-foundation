@@ -21,15 +21,31 @@ const assets = [
     name: 'new_york_skyline_20mb.jpg'
   },
   {
-    url: 'https://raw.githubusercontent.com/recurser/exif-orientation-examples/master/Landscape_8.jpg',
-    name: 'exif_rotated.jpg'
+    url: 'https://upload.wikimedia.org/wikipedia/commons/9/91/F-15_vertical_deflection.jpg',
+    name: '15mb_plane.jpg'
+  },
+  {
+    url: 'https://upload.wikimedia.org/wikipedia/commons/2/22/Turkish_Van_Cat.jpg',
+    name: '8mb_cat.jpg'
   }
 ];
 
 async function download(url, dest) {
   return new Promise((resolve, reject) => {
     const file = fs.createWriteStream(dest);
-    https.get(url, (response) => {
+    const options = {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) TestBot/1.0'
+      }
+    };
+    https.get(url, options, (response) => {
+      if (response.statusCode === 301 || response.statusCode === 302) {
+         return download(response.headers.location, dest).then(resolve).catch(reject);
+      }
+      if (response.statusCode !== 200) {
+         reject(new Error(`Status ${response.statusCode}`));
+         return;
+      }
       response.pipe(file);
       file.on('finish', () => {
         file.close(resolve);

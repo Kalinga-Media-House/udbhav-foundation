@@ -143,6 +143,7 @@ export function GalleryItemManager({ albumId, albumTitle, initialItems }: Galler
             multiple={true}
             onUploadComplete={handleUploadComplete}
             maxSizeMB={25}
+            maxFiles={50}
           />
           {uploading && <p className="text-sm text-gray-500 mt-2 text-center animate-pulse">Saving to album...</p>}
         </div>

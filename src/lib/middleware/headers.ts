@@ -19,9 +19,9 @@ export const applySecurityHeaders = (response: NextResponse): NextResponse => {
     default-src 'self';
     script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com https://checkout.razorpay.com;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-    img-src 'self' blob: data: https://api.dicebear.com https://avatars.githubusercontent.com;
+    img-src 'self' blob: data: https://api.dicebear.com https://avatars.githubusercontent.com https://media.udbhavfoundation.in;
     font-src 'self' https://fonts.gstatic.com;
-    connect-src 'self' http://127.0.0.1:* http://localhost:* ws://127.0.0.1:* ws://localhost:* https://*.supabase.co wss://*.supabase.co https://api.razorpay.com;
+    connect-src 'self' http://127.0.0.1:* http://localhost:* ws://127.0.0.1:* ws://localhost:* https://*.supabase.co wss://*.supabase.co https://api.razorpay.com https://*.r2.cloudflarestorage.com;
     frame-src 'self' https://js.stripe.com https://checkout.razorpay.com;
     object-src 'none';
     base-uri 'self';

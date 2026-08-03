@@ -73,7 +73,7 @@ export class EventsRepository implements IWriteRepository<EventRow, EventCreate,
     const supabase = await createServerSupabaseClient();
     const from = (pagination.page - 1) * pagination.limit;
     const to = from + pagination.limit - 1;
-    const { data, count, error } = await (supabase.from('events' as any) as any).select('*', { count: 'exact' }).eq('program_id', programId).eq('is_deleted', false).order('start_time', { ascending: false }).range(from, to);
+    const { data, count, error } = await (supabase.from('events' as any) as any).select('*', { count: 'exact' }).eq('program_id', programId).eq('is_deleted', false).order('start_datetime', { ascending: false }).range(from, to);
     if (error) serverLogger.error('EventsRepository.findByProgram failed', new DatabaseError(error.message));
     return { data: (data as EventRow[]) ?? [], total: count ?? 0, page: pagination.page, limit: pagination.limit };
   }
@@ -86,7 +86,7 @@ export class EventsRepository implements IWriteRepository<EventRow, EventCreate,
     if (filters?.status) query = query.eq('status', filters.status as string);
     if (filters?.program_id) query = query.eq('program_id', filters.program_id as string);
     if (filters?.is_featured) query = query.eq('is_featured', true);
-    const sortCol = sort?.column ?? 'start_time';
+    const sortCol = sort?.column ?? 'start_datetime';
     query = query.order(sortCol, { ascending: sort?.order === 'asc' });
     const from = (pagination.page - 1) * pagination.limit;
     query = query.range(from, from + pagination.limit - 1);

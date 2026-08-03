@@ -27,7 +27,7 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
     slug: initialData?.slug || '',
     title: initialData?.title || '',
     description: initialData?.description || '',
-    visibility: (initialData?.visibility as 'public' | 'members' | 'private' | 'hidden') || 'public',
+    visibility: (initialData?.visibility as any) || 'Public',
     cover_image_id: initialData?.cover_image_id || null,
     program_id: initialData?.program_id || null,
     event_id: initialData?.event_id || null,
@@ -50,7 +50,7 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
           slug: formData.slug || formData.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') || '',
           title: formData.title || '',
           description: formData.description || null,
-          visibility: (formData.visibility as 'public' | 'members' | 'private' | 'hidden') || 'public',
+          visibility: (formData.visibility as any) || 'Public',
           cover_image_id: formData.cover_image_id || null,
           program_id: formData.program_id ? formData.program_id : null,
           event_id: formData.event_id ? formData.event_id : null,
@@ -70,7 +70,7 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
           return;
         }
 
-        router.push('/admin/dashboard/gallery');
+        router.push('/admin/gallery');
         router.refresh();
       } catch (err: any) {
         setError(err.message || 'An error occurred while saving the album');
@@ -232,7 +232,7 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
         <Button
           type="button"
           variant="outline"
-          onClick={() => router.push('/admin/dashboard/gallery')}
+          onClick={() => router.push('/admin/gallery')}
           disabled={isPending}
         >
           Cancel
