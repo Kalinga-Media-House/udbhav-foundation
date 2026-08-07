@@ -20,7 +20,7 @@ export default async function IndexPage() {
     throw new Error(result.error ?? 'Failed to load programs');
   }
   const activePrograms = result.data.data.filter(
-    (p) => p.status === 'active' && p.slug !== 'adhyaya-ramp-of-inclusion'
+    (p) => p.status === 'active'
   );
 
   const mappedProgrammes: IndexProgrammeDetail[] = activePrograms.map((p) => {
@@ -41,6 +41,14 @@ export default async function IndexPage() {
       fullDescription: (meta.fullDescription as string) || p.full_description || '',
       coverImageUrl: resolvedCover,
       accentColor: (meta.accentColor as string) || '#172B6B',
+      programDate: p.start_date
+        ? new Date(p.start_date).toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+          })
+        : undefined,
+      location: p.location || undefined,
       impactPreview: (meta.impactPreview as string) || '',
       impactStats: (meta.impactStats as any) || [],
       purpose: (meta.purpose as string) || '',
