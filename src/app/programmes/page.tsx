@@ -15,13 +15,11 @@ export const metadata: Metadata = {
 export const dynamic = 'force-dynamic';
 
 export default async function IndexPage() {
-  const result = await listPrograms({ page: 1, limit: 100 }, { visibility: 'public' });
+  const result = await listPrograms({ page: 1, limit: 100 }, { visibility: 'public', status: 'active' });
   if (!result.success || !result.data) {
     throw new Error(result.error ?? 'Failed to load programs');
   }
-  const activePrograms = result.data.data.filter(
-    (p) => p.status === 'active'
-  );
+  const activePrograms = result.data.data;
 
   const mappedProgrammes: IndexProgrammeDetail[] = activePrograms.map((p) => {
     const meta = (p.metadata || {}) as any;
