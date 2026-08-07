@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState, useMemo } from 'react';
 
-import { IndexProgrammeDetail, ProgrammeCategory } from '@/types/index-programme';
+import { IndexProgrammeDetail } from '@/types/index-programme';
 
 const CATEGORY_TABS = [
   { label: 'All Programmes', value: 'all' },
@@ -56,74 +56,79 @@ function SegmentedControl({
 }
 
 /**
- * Bright, institutional Featured Programme Card
+ * Single Timeline Item Component
  */
-function FeaturedSpotlightCard({ prog }: { prog: IndexProgrammeDetail }) {
+function TimelineItem({ prog, index }: { prog: IndexProgrammeDetail; index: number }) {
+  const isEven = index % 2 === 0;
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-100px' }}
-      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-      className="group relative mb-20 overflow-hidden rounded-[24px] sm:rounded-[32px] bg-white shadow-lg ring-1 ring-black/5"
+      transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+      className={`relative flex w-full flex-col md:flex-row items-center justify-between gap-8 mb-16 ${
+        isEven ? 'md:flex-row-reverse' : ''
+      }`}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-2">
-        {/* Content Half */}
-        <div className="order-2 lg:order-1 flex flex-col justify-center p-8 sm:p-12 lg:p-16">
-          <div className="mb-6 hidden lg:inline-flex items-center gap-2 rounded-full bg-[#EAF3FF] px-4 py-1.5 text-xs font-semibold text-[#233A8B] border border-[#233A8B]/10 w-fit">
-            <span className="h-2 w-2 rounded-full bg-[#5E9F3B]" />
-            Featured Initiative
-          </div>
-          
-          <h3 className="mb-4 font-heading text-3xl font-bold tracking-tight text-[#233A8B] sm:text-4xl">
-            {prog.title}
-          </h3>
-          <p className="mb-8 text-base leading-relaxed text-gray-600 sm:text-lg">
-            {prog.shortDescription}
-          </p>
+      {/* Center Line Dot (Desktop only) */}
+      <div className="absolute left-1/2 top-1/2 hidden h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white bg-[#5E9F3B] shadow-md md:block z-10" />
 
-          <div className="mb-10 grid grid-cols-2 gap-6 sm:grid-cols-3">
-            {prog.programDate && (
-              <div>
-                <dt className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">Date</dt>
-                <dd className="text-sm font-semibold text-[#233A8B]">{prog.programDate}</dd>
-              </div>
-            )}
-            {prog.location && (
-              <div>
-                <dt className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">Location</dt>
-                <dd className="text-sm font-semibold text-[#233A8B] line-clamp-1">{prog.location}</dd>
-              </div>
-            )}
-            <div>
-              <dt className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">Category</dt>
-              <dd className="text-sm font-semibold text-[#5E9F3B]">{prog.category}</dd>
+      {/* Spacer for the other side on Desktop */}
+      <div className="hidden w-full md:block md:w-5/12" />
+
+      {/* Card Content */}
+      <div className="w-full md:w-5/12">
+        <div className="group relative flex flex-col overflow-hidden rounded-[24px] bg-white shadow-sm ring-1 ring-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-[#233A8B]/20">
+          
+          {/* Cover Image */}
+          <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
+            <Image
+              src={prog.coverImageUrl}
+              alt={prog.title}
+              fill
+              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+            {/* Category Badge */}
+            <div className="absolute top-4 left-4 z-10">
+              <span className="rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-[#233A8B] shadow-sm backdrop-blur-sm">
+                {prog.category}
+              </span>
             </div>
           </div>
+          
+          {/* Text Content */}
+          <div className="flex flex-col p-6 sm:p-8">
+            <h3 className="mb-3 font-heading text-xl font-bold leading-tight text-[#233A8B] transition-colors group-hover:text-[#5E9F3B]">
+              <Link href={`/programmes/${prog.slug}`}>
+                <span className="absolute inset-0 z-20" aria-hidden="true" />
+                {prog.title}
+              </Link>
+            </h3>
+            
+            <p className="mb-6 line-clamp-3 text-sm leading-relaxed text-gray-600">
+              {prog.shortDescription}
+            </p>
 
-          <Link
-            href={`/programmes/${prog.slug}`}
-            className="inline-flex w-fit items-center justify-center gap-2 rounded-full bg-[#233A8B] px-8 py-4 text-sm font-semibold text-white transition-all hover:bg-[#1a2b6c] hover:-translate-y-0.5 shadow-md"
-          >
-            Learn More
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
+            <div className="mb-6 flex flex-col gap-2 border-t border-gray-100 pt-5 text-[13px] text-gray-500">
+              {prog.programDate && (
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-[#5E9F3B]" />
+                  <span className="font-medium text-gray-700">{prog.programDate}</span>
+                </div>
+              )}
+              {prog.location && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="h-4 w-4 text-[#5E9F3B]" />
+                  <span className="font-medium text-gray-700 line-clamp-1">{prog.location}</span>
+                </div>
+              )}
+            </div>
 
-        {/* Image Half */}
-        <div className="order-1 lg:order-2 relative aspect-[4/3] lg:aspect-auto h-full w-full overflow-hidden bg-gray-100">
-          <Image
-            src={prog.coverImageUrl}
-            alt={prog.title}
-            fill
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent lg:hidden" />
-          <div className="absolute bottom-6 left-6 flex items-center gap-2 lg:hidden">
-            <span className="rounded-full bg-white/90 px-4 py-1.5 text-xs font-semibold text-[#233A8B] shadow-sm">
-              {prog.category}
-            </span>
+            <div className="flex items-center text-sm font-bold text-[#233A8B] transition-colors group-hover:text-[#5E9F3B]">
+              View Details <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+            </div>
           </div>
         </div>
       </div>
@@ -131,83 +136,22 @@ function FeaturedSpotlightCard({ prog }: { prog: IndexProgrammeDetail }) {
   );
 }
 
-/**
- * Premium Human-centered Programme Card
- */
-function PremiumProgrammeCard({ prog, index }: { prog: IndexProgrammeDetail; index: number }) {
-  return (
-    <motion.article
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ duration: 0.5, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
-      className="group flex flex-col overflow-hidden rounded-[24px] bg-white shadow-sm ring-1 ring-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-[#233A8B]/20"
-    >
-      {/* Cover Image Section */}
-      <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
-        <Image
-          src={prog.coverImageUrl}
-          alt={prog.title}
-          fill
-          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        />
-        
-        {/* Floating Category Badge */}
-        <div className="absolute top-4 left-4 z-10">
-          <span className="rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-[#233A8B] shadow-sm backdrop-blur-sm">
-            {prog.category}
-          </span>
-        </div>
-      </div>
-      
-      {/* Content Section */}
-      <div className="flex flex-1 flex-col p-6 sm:p-8">
-        <h3 className="mb-3 font-heading text-xl font-bold leading-tight text-[#233A8B] transition-colors group-hover:text-[#5E9F3B]">
-          <Link href={`/programmes/${prog.slug}`}>
-            <span className="absolute inset-0 z-20" aria-hidden="true" />
-            {prog.title}
-          </Link>
-        </h3>
-        
-        <p className="mb-6 line-clamp-2 text-sm leading-relaxed text-gray-600 flex-1">
-          {prog.shortDescription}
-        </p>
-
-        {/* Date and Location */}
-        <div className="mb-6 flex flex-col gap-2 border-t border-gray-100 pt-5 text-[13px] text-gray-500">
-          {prog.programDate && (
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-[#5E9F3B]" />
-              <span className="font-medium text-gray-700">{prog.programDate}</span>
-            </div>
-          )}
-          {prog.location && (
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-[#5E9F3B]" />
-              <span className="font-medium text-gray-700 line-clamp-1">{prog.location}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Action */}
-        <div className="flex items-center text-sm font-bold text-[#233A8B] transition-colors group-hover:text-[#5E9F3B]">
-          Learn More <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-        </div>
-      </div>
-    </motion.article>
-  );
-}
-
 export function ProgrammeDirectorySection({ programmes }: { programmes: IndexProgrammeDetail[] }) {
   const [activeCategory, setActiveCategory] = useState<string>('all');
 
   const filteredProgrammes = useMemo(() => {
-    if (activeCategory === 'all') return programmes;
-    return programmes.filter((prog) => prog.category === activeCategory);
+    let filtered = programmes;
+    if (activeCategory !== 'all') {
+      filtered = programmes.filter((prog) => prog.category === activeCategory);
+    }
+    
+    // Sort chronologically (oldest first, or assuming newer programmes have newer dates. Let's do newest first for timelines).
+    return [...filtered].sort((a, b) => {
+      const timeA = a.programDate ? new Date(a.programDate).getTime() : 0;
+      const timeB = b.programDate ? new Date(b.programDate).getTime() : 0;
+      return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
+    });
   }, [activeCategory, programmes]);
-
-  const featuredProgram = programmes.length > 0 ? programmes[0] : null;
 
   return (
     <section id="programmes" className="bg-[#FAFBFC] py-24 sm:py-32">
@@ -224,35 +168,33 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
 
         <SegmentedControl active={activeCategory} onChange={setActiveCategory} />
 
-        <AnimatePresence mode="wait">
-          {activeCategory === 'all' && featuredProgram && (
-            <motion.div
-              key="featured"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.4 }}
-            >
-              <FeaturedSpotlightCard prog={featuredProgram} />
-            </motion.div>
+        {/* Timeline Container */}
+        <div className="relative mx-auto max-w-5xl">
+          {/* Central Line (Desktop only) */}
+          {filteredProgrammes.length > 0 && (
+            <div className="absolute bottom-0 left-1/2 top-0 hidden w-0.5 -translate-x-1/2 bg-gray-200 md:block" />
           )}
-        </AnimatePresence>
 
-        <motion.div 
-          layout
-          className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3"
-        >
           <AnimatePresence mode="popLayout">
             {filteredProgrammes.map((prog, index) => (
-              <PremiumProgrammeCard key={prog.id} prog={prog} index={index} />
+              <TimelineItem key={prog.id} prog={prog} index={index} />
             ))}
           </AnimatePresence>
-        </motion.div>
+        </div>
 
+        {/* Empty State */}
         {filteredProgrammes.length === 0 && (
-          <div className="py-20 text-center text-gray-500 bg-white rounded-2xl border border-gray-100 shadow-sm mt-8">
-            No programmes found in this category.
-          </div>
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mx-auto max-w-2xl py-20 text-center bg-white rounded-[24px] border border-gray-100 shadow-sm mt-8"
+          >
+            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-50">
+              <Calendar className="h-6 w-6 text-gray-400" />
+            </div>
+            <h3 className="mb-2 font-heading text-xl font-bold text-[#233A8B]">No Programmes Found</h3>
+            <p className="text-gray-500">We couldn't find any programmes in this category at the moment. Please check back later or explore other initiatives.</p>
+          </motion.div>
         )}
       </div>
     </section>
