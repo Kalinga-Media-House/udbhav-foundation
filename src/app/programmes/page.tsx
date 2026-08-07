@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 
 import { CollectiveImpactSection } from '@/components/index-page/CollectiveImpactSection';
+import { CTASection } from '@/components/index-page/CTASection';
 import { IndexHeroSection } from '@/components/index-page/IndexHeroSection';
 import { ProgrammeDirectorySection } from '@/components/index-page/ProgrammeDirectorySection';
 import { listPrograms } from '@/features/programs/actions';
@@ -60,10 +61,11 @@ export default async function IndexPage() {
   });
 
   return (
-    <main className="min-h-screen bg-[#FCFCF8]">
+    <main className="min-h-screen bg-white selection:bg-[#172B6B] selection:text-white">
       <IndexHeroSection />
       <ProgrammeDirectorySection programmes={mappedProgrammes} />
       <CollectiveImpactSection />
+      <CTASection />
     </main>
   );
 }

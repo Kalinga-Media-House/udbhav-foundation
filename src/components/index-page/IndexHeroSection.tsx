@@ -1,203 +1,192 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import React, { useState, useEffect } from "react";
+import { motion, Variants } from 'framer-motion';
+import { ArrowRight, Users, MapPin, Heart } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import React, { useState, useEffect } from 'react';
 
-function ProgrammeImageSlideshow({
-  images,
-  title,
-  initialDelay = 0,
-  priority = false,
-  className = "",
+const FADE_UP: Variants = {
+  hidden: { opacity: 0, y: 30 },
+  show: { opacity: 1, y: 0, transition: { type: 'spring' as const, mass: 0.5, damping: 15 } },
+};
+
+const STAGGER: Variants = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+function FloatingStatCard({
+  icon: Icon,
+  label,
+  value,
+  className,
+  delay = 0,
 }: {
-  images: { src: string; alt: string }[];
-  title: string;
-  initialDelay?: number;
-  priority?: boolean;
+  icon: React.ElementType;
+  label: string;
+  value: string;
   className?: string;
+  delay?: number;
 }) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [reducedMotion, setReducedMotion] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReducedMotion(mediaQuery.matches);
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mediaQuery.addEventListener("change", handler);
-    return () => mediaQuery.removeEventListener("change", handler);
-  }, []);
-
-  useEffect(() => {
-    if (reducedMotion || images.length <= 1) return;
-
-    let interval: NodeJS.Timeout;
-
-    // Start with the requested initial stagger delay
-    const timeout = setTimeout(() => {
-      // Once the delay passes, we trigger the first slide transition
-      setCurrentIndex((prev) => (prev + 1) % images.length);
-      
-      // And start the continuous 4.5s loop
-      interval = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % images.length);
-      }, 4500);
-    }, initialDelay);
-
-    return () => {
-      clearTimeout(timeout);
-      if (interval) clearInterval(interval);
-    };
-  }, [reducedMotion, images.length, initialDelay]);
-
   return (
-    <div
-      className={`relative h-48 sm:h-56 rounded-2xl overflow-hidden shadow-xl border-2 border-white group transition-transform duration-300 ${className}`}
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9, y: 20 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ type: 'spring', damping: 20, mass: 0.8, delay }}
+      className={`absolute z-20 flex items-center gap-3 overflow-hidden rounded-[20px] border border-white/40 bg-white/70 p-4 shadow-[0_8px_30px_rgb(0,0,0,0.08)] backdrop-blur-xl ${className}`}
     >
-      {images.map((img, idx) => {
-        const isVisible = idx === currentIndex;
-        return (
-          <Image
-            key={img.src}
-            src={img.src}
-            alt={img.alt}
-            fill
-            sizes="(max-width: 1024px) 50vw, 260px"
-            className="object-cover group-hover:scale-105"
-            style={{
-              opacity: isVisible ? 1 : 0,
-              zIndex: isVisible ? 1 : 0,
-              transition: reducedMotion
-                ? "none"
-                : "opacity 900ms ease-in-out, transform 500ms ease",
-            }}
-            priority={priority && idx === 0}
-            aria-hidden={!isVisible}
-          />
-        );
-      })}
-      
-      <div
-        className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80 pointer-events-none"
-        style={{ zIndex: 2 }}
-      />
-      <span
-        className="absolute bottom-3 left-3 right-3 text-white text-xs font-semibold leading-tight drop-shadow pointer-events-none"
-        style={{ zIndex: 3 }}
-      >
-        {title}
-      </span>
-    </div>
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
+        <Icon className="h-5 w-5 text-[#172B6B]" />
+      </div>
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">{label}</p>
+        <p className="font-heading text-lg font-bold leading-tight text-[#172B6B]">{value}</p>
+      </div>
+    </motion.div>
   );
 }
 
 export function IndexHeroSection() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
+      el.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-[#EAF3FF] via-[#F4F9FF] to-[#F1F9ED] py-12 sm:py-16 md:py-20 lg:py-24 border-b border-gray-200/60">
-      {/* Decorative soft green/blue background circles */}
-      <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#3C9D23]/10 blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 -right-24 w-80 h-80 rounded-full bg-[#172B6B]/10 blur-3xl pointer-events-none" />
+    <section className="relative min-h-[90vh] overflow-hidden bg-[#FAFAFA] pt-24 lg:pt-32 pb-16 lg:pb-24 flex items-center">
+      {/* Premium Background Gradients */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <motion.div
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.4, 0.3],
+          }}
+          transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+          className="absolute -top-[20%] -right-[10%] w-[60%] h-[60%] rounded-full bg-[#172B6B]/8 blur-[120px]"
+        />
+        <motion.div
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.2, 0.3, 0.2],
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+          className="absolute top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-[#3C9D23]/8 blur-[100px]"
+        />
+      </div>
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center min-h-[460px] lg:min-h-[520px]">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8 relative z-10 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-12 items-center">
           {/* Left Text Column */}
-          <div className="lg:col-span-7 flex flex-col justify-center">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#3C9D23]/15 border border-[#3C9D23]/30 text-[#3C9D23] text-xs font-heading font-bold tracking-wider uppercase mb-5 w-fit">
-              PROGRAMMES & INITIATIVES
-            </div>
+          <motion.div
+            variants={STAGGER}
+            initial="hidden"
+            animate="show"
+            className="flex flex-col justify-center max-w-2xl"
+          >
+            <motion.div variants={FADE_UP} className="mb-8">
+              <div className="inline-flex items-center gap-2 rounded-full border border-gray-200/60 bg-white/50 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-gray-600 shadow-sm backdrop-blur-md">
+                <span className="flex h-2 w-2 rounded-full bg-[#3C9D23]" />
+                Programmes & Initiatives
+              </div>
+            </motion.div>
 
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading font-bold text-[#172B6B] leading-tight mb-6">
-              Turning Purpose Into{" "}
-              <span className="text-[#3C9D23] block sm:inline">
-                Measurable Impact.
+            <motion.h1
+              variants={FADE_UP}
+              className="font-heading text-5xl sm:text-6xl lg:text-[4.5rem] font-bold text-[#111111] leading-[1.05] tracking-tight mb-6"
+            >
+              Creating Impact <br className="hidden sm:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#172B6B] to-[#3C9D23]">
+                Across Odisha.
               </span>
-            </h1>
+            </motion.h1>
 
-            <p className="text-base sm:text-lg text-gray-700 leading-relaxed mb-8 max-w-2xl font-normal">
-              Explore UDBHAV Foundation’s programmes advancing education,
-              environmental responsibility, health, inclusion, awareness, and
-              community empowerment across Odisha.
-            </p>
+            <motion.p
+              variants={FADE_UP}
+              className="text-lg sm:text-xl text-gray-500 leading-relaxed mb-10 max-w-xl font-medium"
+            >
+              Transforming lives through structured programs in education, healthcare, environment, awareness and community development.
+            </motion.p>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            <motion.div variants={FADE_UP} className="flex flex-col sm:flex-row items-center gap-4">
               <button
                 type="button"
-                onClick={() => scrollToSection("programmes")}
-                className="px-8 py-3.5 rounded-xl font-heading font-semibold text-sm sm:text-base text-white bg-[#3C9D23] hover:bg-[#348a1e] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all text-center cursor-pointer"
+                onClick={() => scrollToSection('programmes')}
+                className="group flex w-full items-center justify-center gap-2 rounded-full bg-[#111111] px-8 py-4 text-sm font-semibold text-white shadow-xl transition-all hover:scale-[1.02] hover:bg-gray-900 hover:shadow-2xl sm:w-auto"
               >
-                Explore All Programmes
+                Explore Programmes
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
               </button>
 
               <button
                 type="button"
-                onClick={() => scrollToSection("collective-impact")}
-                className="px-8 py-3.5 rounded-xl font-heading font-semibold text-sm sm:text-base text-[#172B6B] bg-white hover:bg-gray-50 border-2 border-[#172B6B]/20 hover:border-[#172B6B] shadow-sm hover:shadow-md transition-all text-center cursor-pointer"
+                onClick={() => scrollToSection('collective-impact')}
+                className="group flex w-full items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-sm font-semibold text-[#111111] shadow-sm ring-1 ring-inset ring-gray-200 transition-all hover:scale-[1.02] hover:bg-gray-50 hover:shadow-md sm:w-auto"
               >
                 View Our Impact
               </button>
+            </motion.div>
+          </motion.div>
+
+          {/* Right Image Column */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="relative lg:h-[600px] w-full flex items-center justify-center"
+          >
+            {/* Main Image Container */}
+            <div className="relative w-full max-w-lg aspect-[4/5] sm:aspect-square lg:aspect-[4/5] overflow-hidden rounded-[32px] sm:rounded-[40px] shadow-2xl ring-1 ring-black/5 bg-gray-100">
+              <Image
+                src="/hero/hero-01.png"
+                alt="UDBHAV Foundation impact"
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
             </div>
-          </div>
 
-          {/* Right Staggered Photo Collage */}
-          <div className="lg:col-span-5 relative mt-6 lg:mt-0">
-            <div className="grid grid-cols-2 gap-4 sm:gap-6 relative">
-              {/* Top-Left Image Frame */}
-              <ProgrammeImageSlideshow
-                title="UDBHAV Siksha Samman"
-                initialDelay={0}
-                priority={true}
-                className="hover:-translate-y-1"
-                images={[
-                  { src: "/hero/hero-02.png", alt: "UDBHAV Siksha Samman felicitation ceremony" },
-                  { src: "/hero/hero-04.png", alt: "Students receiving UDBHAV Siksha Samman awards" },
-                  { src: "/hero/hero-06.png", alt: "Educational excellence award ceremony" }
-                ]}
-              />
-
-              {/* Top-Right Image Frame (staggered lower) */}
-              <ProgrammeImageSlideshow
-                title="Plantation Drive"
-                initialDelay={1000}
-                priority={true}
-                className="translate-y-4 hover:translate-y-3"
-                images={[
-                  { src: "/hero/hero-01.png", alt: "UDBHAV Foundation Plantation Drive sapling initiative" },
-                  { src: "/hero/hero-03.png", alt: "Greening urban public spaces" },
-                  { src: "/hero/hero-05.png", alt: "Nurturing fruit orchards for rural schools" }
-                ]}
-              />
-
-              {/* Bottom-Left Image Frame */}
-              <ProgrammeImageSlideshow
-                title="Climate Action Run"
-                initialDelay={2000}
-                className="-translate-y-2 hover:-translate-y-3"
-                images={[
-                  { src: "/hero/hero-08.png", alt: "Citizens participating in UDBHAV Climate Action Run" },
-                  { src: "/hero/hero-07.png", alt: "Striding forward for climate justice" },
-                  { src: "/hero/hero-03.png", alt: "Youth running for climate consciousness" }
-                ]}
-              />
-
-              {/* Bottom-Right Image Frame */}
-              <ProgrammeImageSlideshow
-                title="Health Check-up Camps"
-                initialDelay={3000}
-                className="translate-y-2 hover:translate-y-1"
-                images={[
-                  { src: "/hero/hero-09.png", alt: "Medical specialists at UDBHAV Health Check-up Camp" },
-                  { src: "/hero/hero-08.png", alt: "Healthcare at the doorstep for rural communities" },
-                  { src: "/hero/hero-01.png", alt: "Specialist pediatric screening camp" }
-                ]}
-              />
-            </div>
-          </div>
+            {isMounted && (
+              <>
+                <FloatingStatCard
+                  icon={Heart}
+                  label="Lives Touched"
+                  value="10,000+"
+                  className="top-10 -left-4 sm:-left-12 lg:-left-20"
+                  delay={0.6}
+                />
+                <FloatingStatCard
+                  icon={MapPin}
+                  label="Districts"
+                  value="15+ Covered"
+                  className="bottom-32 -right-4 sm:-right-8 lg:-right-12"
+                  delay={0.8}
+                />
+                <FloatingStatCard
+                  icon={Users}
+                  label="Volunteers"
+                  value="500+ Active"
+                  className="-bottom-6 left-10 sm:left-20 lg:left-12"
+                  delay={1.0}
+                />
+              </>
+            )}
+          </motion.div>
         </div>
       </div>
     </section>

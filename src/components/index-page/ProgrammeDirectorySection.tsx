@@ -1,305 +1,329 @@
 'use client';
 
-import { ArrowRight, Camera, Calendar, TrendingUp } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, Calendar, MapPin, Users, Camera, Activity } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo } from 'react';
 
-import { ProgrammeCategory, IndexProgrammeDetail } from '@/types/index-programme';
+import { IndexProgrammeDetail, ProgrammeCategory } from '@/types/index-programme';
 
-const CATEGORY_TABS: { label: string; value: string }[] = [
-  { label: 'All Programmes', value: 'all' },
+const CATEGORY_TABS = [
+  { label: 'All', value: 'all' },
   { label: 'Education', value: 'Education' },
   { label: 'Environment', value: 'Environment' },
-  { label: 'Health & Well-being', value: 'Health & Well-being' },
-  { label: 'Awareness & Safety', value: 'Awareness & Safety' },
-  { label: 'Community Support', value: 'Community Support' },
+  { label: 'Health', value: 'Health & Well-being' },
+  { label: 'Awareness', value: 'Awareness & Safety' },
+  { label: 'Community', value: 'Community Support' },
 ];
 
-function AnimatedProgrammeCard({ prog, index }: { prog: IndexProgrammeDetail; index: number }) {
-  const [isVisible, setIsVisible] = useState(false);
-  const [pressState, setPressState] = useState<'idle' | 'pressed' | 'released'>('idle');
-  const [btnPressed, setBtnPressed] = useState(false);
-
-  const cardRef = useRef<HTMLElement>(null);
-  const releaseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [reducedMotion, setReducedMotion] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    setReducedMotion(mediaQuery.matches);
-    const handler = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
-    mediaQuery.addEventListener('change', handler);
-    return () => mediaQuery.removeEventListener('change', handler);
-  }, []);
-
-  useEffect(() => {
-    if (reducedMotion) {
-      setIsVisible(true);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 } // 10% visible to trigger early enough
-    );
-
-    if (cardRef.current) {
-      observer.observe(cardRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, [reducedMotion]);
-
-  const handlePointerDown = () => {
-    if (reducedMotion) return;
-    if (releaseTimeoutRef.current) clearTimeout(releaseTimeoutRef.current);
-    setPressState('pressed');
-  };
-
-  const handlePointerUp = () => {
-    if (reducedMotion || pressState !== 'pressed') return;
-    setPressState('released');
-    releaseTimeoutRef.current = setTimeout(() => {
-      setPressState('idle');
-    }, 300);
-  };
-
-  const handlePointerCancel = () => {
-    if (reducedMotion) return;
-    setPressState('idle');
-  };
-
-  // Entrance stagger: Max delay of 600ms so users don't wait too long
-  const staggerDelay = Math.min(index * 100, 600);
-  const isPressed = pressState === 'pressed';
-  const isReleased = pressState === 'released';
-
+/**
+ * Premium segmented control (Apple style)
+ */
+function SegmentedControl({
+  active,
+  onChange,
+}: {
+  active: string;
+  onChange: (val: string) => void;
+}) {
   return (
-    <article
-      ref={cardRef}
-      className="h-full"
-      style={{
-        opacity: isVisible || reducedMotion ? 1 : 0,
-        transform:
-          isVisible || reducedMotion ? 'translateY(0) scale(1)' : 'translateY(28px) scale(0.97)',
-        transition: reducedMotion
-          ? 'none'
-          : `opacity 800ms cubic-bezier(0.22, 1, 0.36, 1) ${staggerDelay}ms, transform 800ms cubic-bezier(0.22, 1, 0.36, 1) ${staggerDelay}ms`,
-        willChange: isVisible ? 'auto' : 'transform, opacity',
-      }}
+    <div className="sticky top-[72px] z-40 mx-auto mb-16 flex max-w-fit items-center justify-center gap-1 rounded-full border border-black/5 bg-white/80 p-1.5 shadow-sm backdrop-blur-xl transition-all">
+      {CATEGORY_TABS.map((tab) => {
+        const isActive = active === tab.value;
+        return (
+          <button
+            key={tab.value}
+            onClick={() => onChange(tab.value)}
+            className={`relative rounded-full px-5 py-2.5 text-[13px] font-semibold transition-colors duration-200 ${
+              isActive ? 'text-white' : 'text-gray-600 hover:text-gray-900'
+            }`}
+            style={{ WebkitTapHighlightColor: 'transparent' }}
+          >
+            {isActive && (
+              <motion.div
+                layoutId="active-pill"
+                className="absolute inset-0 rounded-full bg-[#111111]"
+                transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+              />
+            )}
+            <span className="relative z-10">{tab.label}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/**
+ * Full-width Spotlight Card for Featured Program
+ */
+function FeaturedSpotlightCard({ prog }: { prog: IndexProgrammeDetail }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-100px' }}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      className="group relative mb-20 overflow-hidden rounded-[32px] bg-white shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] transition-all hover:shadow-[0_16px_60px_-15px_rgba(0,0,0,0.15)] ring-1 ring-black/5"
     >
-      <div
-        onPointerDown={handlePointerDown}
-        onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerCancel}
-        onPointerCancel={handlePointerCancel}
-        style={{ WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}
-        className={`ease-[cubic-bezier(0.22,1,0.36,1)] group flex h-full flex-col overflow-hidden rounded-2xl border bg-white shadow-sm transition-all will-change-transform ${
-          isPressed
-            ? 'scale-[0.975] border-[#3C9D23]/25 duration-150'
-            : isReleased
-              ? 'duration-[200ms] scale-[1.015] border-[#3C9D23]/40 shadow-lg'
-              : 'duration-[300ms] scale-100 border-[#3C9D23]/25 hover:-translate-y-[5px] hover:scale-[1.008] hover:border-[#3C9D23]/50 hover:shadow-xl'
-        }`}
-      >
-        {/* Image Header with Number Badge */}
-        <div className="relative h-48 w-full shrink-0 overflow-hidden bg-gray-100">
+      <div className="grid grid-cols-1 lg:grid-cols-2">
+        {/* Image Half */}
+        <div className="relative aspect-[4/3] lg:aspect-auto h-full w-full overflow-hidden">
           <Image
             src={prog.coverImageUrl}
             alt={prog.title}
             fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            className="duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] scale-100 object-cover transition-transform group-hover:scale-[1.025] motion-reduce:transform-none"
+            className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+            sizes="(max-width: 1024px) 100vw, 50vw"
           />
-
-          {/* Programme Number Badge */}
-          <div className="absolute left-3.5 top-3.5 z-10">
-            <span className="rounded-full bg-[#172B6B] px-3 py-1 font-heading text-xs font-bold uppercase text-white shadow-md">
-              {prog.programmeNumber}
-            </span>
-          </div>
-
-          {/* Category Badge */}
-          <div className="absolute right-3.5 top-3.5 z-10">
-            <span className="rounded-full bg-[#3C9D23] px-3 py-1 font-heading text-xs font-semibold text-white shadow-md">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent lg:bg-gradient-to-r lg:from-transparent lg:to-black/5" />
+          
+          <div className="absolute bottom-6 left-6 flex items-center gap-2 lg:hidden">
+            <span className="rounded-full bg-white/20 px-3 py-1 text-xs font-semibold text-white backdrop-blur-md">
               {prog.category}
             </span>
           </div>
         </div>
 
-        {/* Card Body */}
-        <div className="flex flex-1 flex-col justify-between p-5 sm:p-6">
-          <div>
-            <h3 className="mb-1.5 font-heading text-lg font-bold leading-snug text-[#172B6B] transition-colors group-hover:text-[#202B78] sm:text-xl">
-              {prog.title}
-            </h3>
+        {/* Content Half */}
+        <div className="flex flex-col justify-center p-8 sm:p-12 lg:p-16">
+          <div className="mb-4 hidden lg:inline-flex items-center gap-2 rounded-full bg-[#FAFAFA] px-4 py-1.5 text-xs font-semibold text-gray-600 border border-black/5 w-fit">
+            <span className="h-2 w-2 rounded-full bg-[#172B6B]" />
+            Featured Programme
+          </div>
+          
+          <h3 className="mb-4 font-heading text-3xl font-bold tracking-tight text-[#111111] sm:text-4xl">
+            {prog.title}
+          </h3>
+          <p className="mb-8 text-base leading-relaxed text-gray-500 sm:text-lg">
+            {prog.shortDescription}
+          </p>
 
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-[#3C9D23]">
-              {prog.tagline}
-            </p>
-
-            <p className="mb-5 line-clamp-3 text-xs leading-relaxed text-gray-600 sm:text-sm">
-              {prog.shortDescription}
-            </p>
+          <div className="mb-10 grid grid-cols-2 gap-6 sm:grid-cols-3">
+            {prog.programDate && (
+              <div>
+                <dt className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">Date</dt>
+                <dd className="text-sm font-semibold text-[#111111]">{prog.programDate}</dd>
+              </div>
+            )}
+            {prog.location && (
+              <div>
+                <dt className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">Location</dt>
+                <dd className="text-sm font-semibold text-[#111111] line-clamp-1">{prog.location}</dd>
+              </div>
+            )}
+            <div>
+              <dt className="mb-1 text-[11px] font-semibold uppercase tracking-wider text-gray-400">Category</dt>
+              <dd className="text-sm font-semibold text-[#3C9D23]">{prog.category}</dd>
+            </div>
           </div>
 
-          <div>
-            {/* Compact Impact Preview */}
-            <div className="mb-4 flex items-center gap-2 rounded-xl border border-[#3C9D23]/25 bg-[#F1F9ED] px-3 py-2">
-              <TrendingUp className="h-4 w-4 shrink-0 text-[#3C9D23]" />
-              <span className="truncate font-heading text-xs font-bold text-[#172B6B]">
-                {prog.impactPreview}
-              </span>
-            </div>
+          <Link
+            href={`/programmes/${prog.slug}`}
+            className="inline-flex w-fit items-center justify-center gap-2 rounded-full bg-[#111111] px-8 py-4 text-sm font-semibold text-white transition-all hover:bg-gray-900 hover:scale-105"
+          >
+            Explore Programme
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
-            {/* Metadata counts row */}
-            <div className="mb-4 flex flex-col gap-2 border-t border-gray-100 pt-3 text-xs text-gray-500">
-              {(prog.programDate || prog.location) && (
-                <div className="flex items-center justify-between">
+/**
+ * Premium Edge-to-Edge Programme Card
+ */
+function PremiumProgrammeCard({ prog, index }: { prog: IndexProgrammeDetail; index: number }) {
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.5, delay: index * 0.05, ease: [0.22, 1, 0.36, 1] }}
+      className="group relative flex flex-col overflow-hidden rounded-[24px] bg-white shadow-sm ring-1 ring-black/5 transition-all duration-500 hover:-translate-y-1 hover:shadow-xl sm:rounded-[30px]"
+    >
+      <Link href={`/programmes/${prog.slug}`} className="absolute inset-0 z-20">
+        <span className="sr-only">View {prog.title}</span>
+      </Link>
+
+      {/* Edge-to-edge Cover */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-gray-100">
+        <Image
+          src={prog.coverImageUrl}
+          alt={prog.title}
+          fill
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+        />
+        {/* Soft dark gradient overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 transition-opacity duration-500 group-hover:opacity-90" />
+        
+        {/* Floating Badges */}
+        <div className="absolute top-5 left-5 flex gap-2 z-10">
+          <span className="rounded-full bg-white/20 px-3 py-1.5 text-[11px] font-semibold text-white backdrop-blur-md ring-1 ring-white/30 shadow-sm">
+            {prog.category}
+          </span>
+        </div>
+
+        {/* Content overlaid on image */}
+        <div className="absolute bottom-0 left-0 right-0 flex flex-col justify-end p-6 z-10">
+          {prog.programDate && (
+            <p className="mb-2 text-xs font-semibold text-white/80">
+              {prog.programDate}
+            </p>
+          )}
+          <h3 className="mb-2 font-heading text-xl font-bold leading-tight text-white sm:text-2xl">
+            {prog.title}
+          </h3>
+          <p className="line-clamp-2 text-sm text-white/70">
+            {prog.shortDescription}
+          </p>
+        </div>
+      </div>
+      
+      {/* Bottom Stats Bar */}
+      <div className="flex items-center justify-between border-t border-gray-50 bg-white px-6 py-4 z-10">
+        <div className="flex gap-4">
+          <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+            <Camera className="h-4 w-4 text-gray-400" />
+            {prog.photoCount}
+          </div>
+          <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500">
+            <Activity className="h-4 w-4 text-gray-400" />
+            {prog.eventCount}
+          </div>
+        </div>
+        <div className="text-xs font-bold uppercase tracking-widest text-[#172B6B] transition-colors group-hover:text-[#3C9D23]">
+          Read More &rarr;
+        </div>
+      </div>
+    </motion.article>
+  );
+}
+
+/**
+ * Vertical Timeline Section
+ */
+function VerticalTimeline({ programmes }: { programmes: IndexProgrammeDetail[] }) {
+  if (programmes.length === 0) return null;
+  // Get latest 4 programmes
+  const latest = [...programmes].slice(0, 4);
+
+  return (
+    <div className="mt-32">
+      <div className="mb-16 text-center">
+        <h2 className="font-heading text-3xl font-bold tracking-tight text-[#111111] sm:text-4xl">
+          Latest Initiatives
+        </h2>
+      </div>
+      
+      <div className="mx-auto max-w-4xl relative">
+        {/* Vertical Line */}
+        <div className="absolute left-[27px] sm:left-1/2 top-0 bottom-0 w-px bg-gray-200 transform sm:-translate-x-1/2" />
+
+        <div className="space-y-12 sm:space-y-24">
+          {latest.map((prog, idx) => {
+            const isEven = idx % 2 === 0;
+            return (
+              <motion.div 
+                key={prog.id}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-100px' }}
+                transition={{ duration: 0.6, delay: idx * 0.1 }}
+                className="relative flex items-center justify-between w-full"
+              >
+                {/* Timeline Dot */}
+                <div className="absolute left-6 sm:left-1/2 w-4 h-4 rounded-full border-4 border-white bg-[#172B6B] shadow-sm transform -translate-x-1/2 z-10" />
+
+                <div className={`w-full sm:w-[calc(50%-40px)] flex flex-col pl-16 sm:pl-0 ${isEven ? 'sm:items-end sm:text-right sm:pr-0' : 'sm:ml-auto sm:items-start sm:text-left'}`}>
+                  
+                  <div className="group relative overflow-hidden rounded-2xl ring-1 ring-black/5 shadow-sm mb-4 w-full aspect-[16/9] sm:w-[320px]">
+                    <Image
+                      src={prog.coverImageUrl}
+                      alt={prog.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes="320px"
+                    />
+                    <Link href={`/programmes/${prog.slug}`} className="absolute inset-0 z-10">
+                      <span className="sr-only">View {prog.title}</span>
+                    </Link>
+                  </div>
+                  
                   {prog.programDate && (
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5 text-gray-400" />
+                    <span className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">
                       {prog.programDate}
                     </span>
                   )}
-                  {prog.location && (
-                    <span className="flex items-center gap-1.5">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="text-gray-400"
-                      >
-                        <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-                        <circle cx="12" cy="10" r="3" />
-                      </svg>
-                      <span className="line-clamp-1 max-w-[120px]">{prog.location}</span>
-                    </span>
-                  )}
+                  <h4 className="font-heading text-xl font-bold text-[#111111] mb-2">
+                    <Link href={`/programmes/${prog.slug}`} className="hover:text-[#172B6B] transition-colors">
+                      {prog.title}
+                    </Link>
+                  </h4>
+                  <p className="text-sm text-gray-500 line-clamp-2 max-w-[320px]">
+                    {prog.shortDescription}
+                  </p>
                 </div>
-              )}
-              <div className="flex items-center justify-between">
-                <span className="flex items-center gap-1.5">
-                  <Camera className="h-3.5 w-3.5 text-gray-400" />
-                  {prog.photoCount} Photos
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="text-gray-400"
-                  >
-                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                    <polyline points="9 22 9 12 15 12 15 22" />
-                  </svg>
-                  {prog.eventCount} Activities
-                </span>
-              </div>
-            </div>
-
-            {/* CTA Link */}
-            <Link
-              href={`/programmes/${prog.slug}`}
-              onPointerDown={(e) => {
-                e.stopPropagation();
-                if (!reducedMotion) setBtnPressed(true);
-              }}
-              onPointerUp={() => setBtnPressed(false)}
-              onPointerLeave={() => setBtnPressed(false)}
-              onPointerCancel={() => setBtnPressed(false)}
-              className={`ease-[cubic-bezier(0.22,1,0.36,1)] group/btn inline-flex w-full items-center justify-between rounded-xl bg-[#EAF3FF] px-4 py-2.5 font-heading text-xs font-semibold text-[#172B6B] transition-all duration-300 sm:text-sm ${
-                btnPressed
-                  ? 'scale-[0.98] brightness-95'
-                  : 'scale-100 hover:bg-[#172B6B] hover:text-white hover:brightness-110'
-              }`}
-            >
-              <span>Explore Programme</span>
-              <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover/btn:translate-x-1 motion-reduce:transform-none" />
-            </Link>
-          </div>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
-    </article>
+    </div>
   );
 }
 
 export function ProgrammeDirectorySection({ programmes }: { programmes: IndexProgrammeDetail[] }) {
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [activeCategory, setActiveCategory] = useState<string>('all');
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const filteredProgrammes = useMemo(() => {
-    if (activeCategory === 'all') {
-      return programmes;
-    }
-    return programmes.filter((prog) => prog.category === (activeCategory as ProgrammeCategory));
+    if (activeCategory === 'all') return programmes;
+    return programmes.filter((prog) => prog.category === activeCategory);
   }, [activeCategory, programmes]);
 
-  const handleCategoryChange = (newCategory: string) => {
-    if (newCategory === selectedCategory || isTransitioning) return;
-
-    setSelectedCategory(newCategory);
-    setIsTransitioning(true);
-
-    setTimeout(() => {
-      setActiveCategory(newCategory);
-      setIsTransitioning(false);
-    }, 300); // 300ms fade out duration before swapping content
-  };
+  const featuredProgram = programmes.length > 0 ? programmes[0] : null;
 
   return (
-    <section id="programmes" className="scroll-mt-20 bg-[#FCFCF8] py-16 sm:py-20 md:py-24">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Dynamic Category Filter Tabs */}
-        <div className="no-scrollbar mb-10 flex items-center justify-start gap-2 overflow-x-auto pb-4 sm:mb-12 sm:justify-center">
-          {CATEGORY_TABS.map((tab) => {
-            const isActive = selectedCategory === tab.value;
-            return (
-              <button
-                key={tab.value}
-                type="button"
-                onClick={() => handleCategoryChange(tab.value)}
-                className={`shrink-0 cursor-pointer whitespace-nowrap rounded-full px-5 py-2.5 font-heading text-xs font-semibold transition-all duration-300 sm:text-sm ${
-                  isActive
-                    ? 'scale-105 bg-[#172B6B] text-white shadow-md'
-                    : 'border border-gray-200 bg-white text-gray-700 hover:bg-[#EAF3FF]'
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
+    <section id="programmes" className="bg-[#FAFAFA] py-24 sm:py-32">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        
+        <SegmentedControl active={activeCategory} onChange={setActiveCategory} />
 
-        {/* Responsive Programme Card Grid */}
-        <div
-          className={`ease-[cubic-bezier(0.22,1,0.36,1)] grid grid-cols-1 gap-6 transition-all duration-300 sm:grid-cols-2 sm:gap-7 lg:grid-cols-3 xl:grid-cols-4 ${
-            isTransitioning ? 'scale-[0.98] opacity-0' : 'scale-100 opacity-100'
-          }`}
+        <AnimatePresence mode="wait">
+          {activeCategory === 'all' && featuredProgram && (
+            <motion.div
+              key="featured"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <FeaturedSpotlightCard prog={featuredProgram} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <motion.div 
+          layout
+          className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3"
         >
-          {filteredProgrammes.map((prog, index) => (
-            <AnimatedProgrammeCard key={`${activeCategory}-${prog.id}`} prog={prog} index={index} />
-          ))}
-        </div>
+          <AnimatePresence mode="popLayout">
+            {filteredProgrammes.map((prog, index) => (
+              <PremiumProgrammeCard key={prog.id} prog={prog} index={index} />
+            ))}
+          </AnimatePresence>
+        </motion.div>
+
+        {filteredProgrammes.length === 0 && (
+          <div className="py-20 text-center text-gray-500">
+            No programmes found in this category.
+          </div>
+        )}
+
+        <VerticalTimeline programmes={programmes} />
       </div>
     </section>
   );
