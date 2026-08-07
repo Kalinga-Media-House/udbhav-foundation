@@ -1,10 +1,10 @@
 'use client';
 
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring, useTransform } from 'framer-motion';
 import { ArrowRight, Calendar, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 
 import { IndexProgrammeDetail } from '@/types/index-programme';
 
@@ -59,85 +59,104 @@ function SegmentedControl({
  * Single Timeline Item Component
  */
 function TimelineItem({ prog, index }: { prog: IndexProgrammeDetail; index: number }) {
-  const isEven = index % 2 === 0;
+  const isLeft = index % 2 === 0;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-100px' }}
-      transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-      className={`relative flex w-full flex-col md:flex-row items-center justify-between gap-8 mb-16 ${
-        isEven ? 'md:flex-row-reverse' : ''
-      }`}
-    >
-      {/* Center Line Dot (Desktop only) */}
-      <div className="absolute left-1/2 top-1/2 hidden h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-4 border-white bg-[#5E9F3B] shadow-md md:block z-10" />
+    <div className="relative mb-24 md:mb-32 w-full flex justify-end md:justify-between items-center group">
+      
+      {/* Node (Desktop & Mobile) */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true, margin: '-100px' }}
+        transition={{ duration: 0.4, delay: 0.1, ease: 'easeOut' }}
+        className="absolute left-8 md:left-1/2 w-6 h-6 rounded-full border-[4px] border-[#5E9F3B] bg-white transform -translate-x-1/2 z-20 transition-all duration-300 group-hover:shadow-[0_0_15px_rgba(94,159,59,0.4)]" 
+      />
 
-      {/* Spacer for the other side on Desktop */}
-      <div className="hidden w-full md:block md:w-5/12" />
+      {/* Connector Line (Desktop) */}
+      <div className={`hidden md:block absolute top-1/2 h-[1.5px] bg-gray-200 z-10 w-[calc(8%-12px)] transition-colors duration-300 group-hover:bg-[#5E9F3B]/30 ${
+        isLeft ? 'right-[50%] mr-[12px]' : 'left-[50%] ml-[12px]'
+      }`} />
 
-      {/* Card Content */}
-      <div className="w-full md:w-5/12">
-        <div className="group relative flex flex-col overflow-hidden rounded-[24px] bg-white shadow-sm ring-1 ring-gray-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:ring-[#233A8B]/20">
-          
-          {/* Cover Image */}
-          <div className="relative aspect-[16/10] w-full overflow-hidden bg-gray-100">
-            <Image
-              src={prog.coverImageUrl}
-              alt={prog.title}
-              fill
-              className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, 50vw"
-            />
-            {/* Category Badge */}
-            <div className="absolute top-4 left-4 z-10">
-              <span className="rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-semibold text-[#233A8B] shadow-sm backdrop-blur-sm">
-                {prog.category}
-              </span>
+      {/* Connector Line (Mobile) */}
+      <div className="absolute top-1/2 h-[1.5px] bg-gray-200 z-10 w-[36px] left-[44px] block md:hidden transition-colors duration-300 group-hover:bg-[#5E9F3B]/30" />
+
+      {/* Card Container */}
+      <div className={`w-full pl-20 pr-4 md:px-0 md:w-[42%] flex ${isLeft ? 'md:mr-auto md:justify-end' : 'md:ml-auto md:justify-start'}`}>
+         
+         <motion.div 
+             initial={{ opacity: 0, x: isLeft ? -40 : 40 }}
+             whileInView={{ opacity: 1, x: 0 }}
+             viewport={{ once: true, margin: '-100px' }}
+             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+             className="w-full bg-white rounded-[20px] sm:rounded-[24px] p-5 sm:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[6px] hover:scale-[1.02] hover:shadow-[0_12px_35px_rgba(0,0,0,0.07)] ring-1 ring-gray-100"
+         >
+            {/* Top Row */}
+            <div className="flex items-center gap-4 mb-4">
+               <div className="relative shrink-0 w-[60px] h-[60px] sm:w-[70px] sm:h-[70px] rounded-[14px] sm:rounded-[16px] overflow-hidden bg-gray-100 shadow-sm">
+                  <Image src={prog.coverImageUrl} alt={prog.title} fill className="object-cover" sizes="70px" />
+               </div>
+               <div className="flex flex-col justify-center gap-1.5 flex-1 min-w-0">
+                  <div className="flex">
+                     <span className="inline-flex items-center justify-center rounded-full bg-[#FAFBFC] border border-gray-100 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold tracking-wide text-[#233A8B]">
+                        {prog.category}
+                     </span>
+                  </div>
+                  <h3 className="font-heading text-[20px] sm:text-[24px] font-semibold leading-tight text-[#233A8B] line-clamp-2 truncate whitespace-normal">
+                     <Link href={`/programmes/${prog.slug}`}>
+                       <span className="absolute inset-0 z-20" aria-hidden="true" />
+                       {prog.title}
+                     </Link>
+                  </h3>
+               </div>
             </div>
-          </div>
-          
-          {/* Text Content */}
-          <div className="flex flex-col p-6 sm:p-8">
-            <h3 className="mb-3 font-heading text-xl font-bold leading-tight text-[#233A8B] transition-colors group-hover:text-[#5E9F3B]">
-              <Link href={`/programmes/${prog.slug}`}>
-                <span className="absolute inset-0 z-20" aria-hidden="true" />
-                {prog.title}
-              </Link>
-            </h3>
-            
-            <p className="mb-6 line-clamp-3 text-sm leading-relaxed text-gray-600">
-              {prog.shortDescription}
+
+            {/* Middle Row */}
+            <p className="text-[14px] sm:text-[15px] leading-relaxed text-gray-600 line-clamp-1 mb-5 font-medium">
+               {prog.shortDescription}
             </p>
 
-            <div className="mb-6 flex flex-col gap-2 border-t border-gray-100 pt-5 text-[13px] text-gray-500">
-              {prog.programDate && (
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4 text-[#5E9F3B]" />
-                  <span className="font-medium text-gray-700">{prog.programDate}</span>
-                </div>
-              )}
-              {prog.location && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-[#5E9F3B]" />
-                  <span className="font-medium text-gray-700 line-clamp-1">{prog.location}</span>
-                </div>
-              )}
-            </div>
+            {/* Bottom Row */}
+            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 border-t border-gray-100 pt-4 text-[13px] sm:text-[14px]">
+               <div className="flex flex-wrap items-center gap-3 xl:gap-4 text-gray-500 font-medium">
+                  {prog.programDate && (
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="h-4 w-4 text-[#5E9F3B]" />
+                      <span>{prog.programDate}</span>
+                    </div>
+                  )}
+                  {prog.location && (
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="h-4 w-4 text-[#5E9F3B]" />
+                      <span className="line-clamp-1 max-w-[150px] sm:max-w-[200px]">{prog.location}</span>
+                    </div>
+                  )}
+               </div>
 
-            <div className="flex items-center text-sm font-bold text-[#233A8B] transition-colors group-hover:text-[#5E9F3B]">
-              View Details <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+               <div className="flex items-center font-semibold text-[#233A8B] transition-colors group-hover:text-[#5E9F3B]">
+                  View Details <ArrowRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+               </div>
             </div>
-          </div>
-        </div>
+         </motion.div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
 export function ProgrammeDirectorySection({ programmes }: { programmes: IndexProgrammeDetail[] }) {
   const [activeCategory, setActiveCategory] = useState<string>('all');
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ['start center', 'end center']
+  });
+
+  const scaleY = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
 
   const filteredProgrammes = useMemo(() => {
     let filtered = programmes;
@@ -145,7 +164,7 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
       filtered = programmes.filter((prog) => prog.category === activeCategory);
     }
     
-    // Sort chronologically (oldest first, or assuming newer programmes have newer dates. Let's do newest first for timelines).
+    // Sort chronologically (newest first for timelines).
     return [...filtered].sort((a, b) => {
       const timeA = a.programDate ? new Date(a.programDate).getTime() : 0;
       const timeB = b.programDate ? new Date(b.programDate).getTime() : 0;
@@ -154,10 +173,10 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
   }, [activeCategory, programmes]);
 
   return (
-    <section id="programmes" className="bg-[#FAFBFC] py-24 sm:py-32">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+    <section id="programmes" className="bg-[#FAFBFC] py-24 sm:py-32 overflow-hidden">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
-        <div className="text-center mb-10">
+        <div className="text-center mb-12 sm:mb-16">
           <h2 className="font-heading text-3xl font-bold tracking-tight text-[#233A8B] sm:text-4xl mb-4">
             Our Key Initiatives
           </h2>
@@ -169,10 +188,18 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
         <SegmentedControl active={activeCategory} onChange={setActiveCategory} />
 
         {/* Timeline Container */}
-        <div className="relative mx-auto max-w-5xl">
-          {/* Central Line (Desktop only) */}
+        <div className="relative mx-auto max-w-5xl" ref={containerRef}>
+          {/* Animated Central Line Background (Desktop & Mobile) */}
           {filteredProgrammes.length > 0 && (
-            <div className="absolute bottom-0 left-1/2 top-0 hidden w-0.5 -translate-x-1/2 bg-gray-200 md:block" />
+            <div className="absolute bottom-0 top-0 w-[2px] bg-gray-100 left-8 md:left-1/2 transform -translate-x-1/2 z-0" />
+          )}
+
+          {/* Animated Central Line Foreground */}
+          {filteredProgrammes.length > 0 && (
+            <motion.div 
+              style={{ scaleY, originY: 0 }}
+              className="absolute bottom-0 top-0 w-[2px] bg-gradient-to-b from-[#5E9F3B] to-[#233A8B]/30 left-8 md:left-1/2 transform -translate-x-1/2 z-0" 
+            />
           )}
 
           <AnimatePresence mode="popLayout">
@@ -187,13 +214,13 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mx-auto max-w-2xl py-20 text-center bg-white rounded-[24px] border border-gray-100 shadow-sm mt-8"
+            className="mx-auto max-w-2xl py-20 text-center bg-white rounded-[24px] border border-gray-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] mt-8"
           >
-            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-50">
+            <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-50 ring-1 ring-gray-100">
               <Calendar className="h-6 w-6 text-gray-400" />
             </div>
             <h3 className="mb-2 font-heading text-xl font-bold text-[#233A8B]">No Programmes Found</h3>
-            <p className="text-gray-500">We couldn't find any programmes in this category at the moment. Please check back later or explore other initiatives.</p>
+            <p className="text-gray-500 font-medium">We couldn't find any programmes in this category at the moment. Please check back later or explore other initiatives.</p>
           </motion.div>
         )}
       </div>
