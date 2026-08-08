@@ -206,3 +206,38 @@ export async function removeGalleryItem(id: string, albumId: string): Promise<Ac
     return true;
   });
 }
+
+/**
+ * Server action to list all albums for the Admin Album Management CMS.
+ */
+export async function listAdminAlbumsAction(
+  pagination: Pagination,
+  filters?: Record<string, unknown>
+): Promise<ActionResult<PaginatedResult<import('./repository').AdminAlbumItem>>> {
+  return handleAction('listAdminAlbumsAction', async () => {
+    const session = await requireAuth();
+    requirePermission(session, 'gallery.update'); // using update permission as they manage albums
+    
+    // We can fetch directly from repo since it's internal admin tool, or we can use service.
+    // Let's use service if we had one, but we added listAdminAlbums to repo and didn't add it to service yet.
+    // Wait, let's add it to service first, or just call repo.
+    const result = await import('./repository').then(m => m.galleryRepository.listAdminAlbums(pagination, filters as any));
+    return result;
+  });
+}
+
+/**
+ * Server action to hard delete an album cascading to items and media.
+ */
+export async function deleteAlbumCascadeAction(id: string): Promise<ActionResult<boolean>> {
+  return handleAction('deleteAlbumCascadeAction', async () => {
+    const session = await requireAuth();
+    requirePermission(session, 'gallery.delete');
+    
+    const result = await galleryService.removeAlbumCascade(id);
+    if (!result.success) throw new Error(result.error ?? 'Delete album failed');
+    
+    revalidateTag(CacheTags.gallery());
+    return true;
+  });
+}

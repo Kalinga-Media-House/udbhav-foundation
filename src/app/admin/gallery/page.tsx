@@ -46,12 +46,19 @@ export default async function AdminGalleryPage(props: {
             Manage your digital assets and photographic records.
           </p>
         </div>
-        <Link href="/admin/gallery/upload">
-          <Button className="flex items-center gap-2">
-            <Upload className="h-4 w-4" />
-            Upload Photos
-          </Button>
-        </Link>
+        <div className="flex gap-2">
+          <Link href="/admin/gallery/albums">
+            <Button variant="outline" className="flex items-center gap-2 text-gray-500">
+              Album Management
+            </Button>
+          </Link>
+          <Link href="/admin/gallery/upload">
+            <Button className="flex items-center gap-2">
+              <Upload className="h-4 w-4" />
+              Upload Photos
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Dashboard Cards */}

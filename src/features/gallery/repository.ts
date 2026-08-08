@@ -50,6 +50,14 @@ export type AdminPhotoItem = GalleryItemWithMedia & {
   } | null;
 };
 
+export type AdminAlbumItem = AlbumRow & {
+  photos_count: number;
+  cover_image?: {
+    id: string;
+    cdn_url: string | null;
+  } | null;
+};
+
 /** Payload for adding a gallery item. */
 export type GalleryItemCreate = Omit<GalleryItemRow, 'id' | 'created_at' | 'updated_at' | 'is_deleted'>;
 
@@ -386,6 +394,85 @@ export class GalleryRepository implements IWriteRepository<AlbumRow, AlbumCreate
       page: pagination.page,
       limit: pagination.limit,
     };
+  }
+
+  /**
+   * Lists all albums for the Admin Album Management CMS.
+   */
+  async listAdminAlbums(pagination: Pagination, filters?: FilterMap): Promise<PaginatedResult<AdminAlbumItem>> {
+    const supabase = await createServerSupabaseClient();
+    const from = (pagination.page - 1) * pagination.limit;
+    
+    let query = supabase
+      .from('gallery_albums')
+      .select(`
+        *,
+        cover:media_files!gallery_albums_cover_image_id_fkey(id, cdn_url),
+        items:gallery_items(id)
+      `, { count: 'exact' });
+
+    query = query.order('created_at', { ascending: false });
+    query = query.range(from, from + pagination.limit - 1);
+    
+    const { data: rawAlbums, count, error } = await query;
+
+    if (error) {
+      serverLogger.error('GalleryRepository.listAdminAlbums failed', new DatabaseError(error.message));
+      return { data: [], total: 0, page: pagination.page, limit: pagination.limit };
+    }
+
+    const albums = (rawAlbums as any[]) ?? [];
+
+    const enrichedAlbums: AdminAlbumItem[] = albums.map((album) => ({
+      ...album,
+      photos_count: album.items?.length || 0,
+      cover_image: album.cover || null
+    }));
+
+    return {
+      data: enrichedAlbums,
+      total: count ?? 0,
+      page: pagination.page,
+      limit: pagination.limit,
+    };
+  }
+
+  /**
+   * Hard deletes an album and cascades to items and media.
+   * Internal maintenance only.
+   */
+  async hardDeleteAlbumCascade(albumId: ID): Promise<RepositoryResult<boolean>> {
+    try {
+      const supabase = await createServerSupabaseClient();
+      
+      // 1. Find items
+      const { data: items } = await supabase.from('gallery_items').select('id, media_file_id').eq('album_id', albumId);
+      const itemIds = (items || []).map(i => i.id);
+      const mediaIds = (items || []).map(i => i.media_file_id).filter(Boolean);
+
+      // 2. Delete items
+      if (itemIds.length > 0) {
+        await supabase.from('gallery_items').delete().in('id', itemIds);
+      }
+
+      // 3. Check for orphan media and delete
+      if (mediaIds.length > 0) {
+        const { data: references } = await supabase.from('gallery_items').select('id').in('media_file_id', mediaIds);
+        if (!references || references.length === 0) {
+          // No other items are using these media files
+          await supabase.from('media_files').delete().in('id', mediaIds);
+        }
+      }
+
+      // 4. Delete the album itself
+      const { error } = await supabase.from('gallery_albums').delete().eq('id', albumId);
+      if (error) throw new DatabaseError(error.message);
+
+      return { data: true, error: null };
+    } catch (error) {
+      serverLogger.error('GalleryRepository.hardDeleteAlbumCascade failed', error as Error);
+      return { data: false, error: error as Error };
+    }
   }
 }
 

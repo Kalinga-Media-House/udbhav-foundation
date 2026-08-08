@@ -188,7 +188,7 @@ export class GalleryService {
   }
 
   /**
-   * Uploads a batch of photos, creating a hidden album for each photo to keep them independent.
+   * Uploads a batch of photos, grouping them into an existing album based on metadata matching priorities, or creating a new one.
    */
   async uploadPhotosBatch(dto: UploadPhotosDTO, userId: ID): Promise<ServiceResult<boolean>> {
     const parsed = uploadPhotosSchema.safeParse(dto);
@@ -197,8 +197,40 @@ export class GalleryService {
     
     const { media_ids, ...albumData } = parsed.data;
 
-    // We create one album per photo so they can be edited completely independently later
-    for (const media_id of media_ids) {
+    const supabase = await (await import('@/lib/supabase/server')).createServerSupabaseClient();
+    
+    // Find matching album based on priorities
+    let matchedAlbumId: string | null = null;
+    let query = supabase.from('gallery_albums').select('id').eq('is_deleted', false);
+
+    // Priority 1: Same event
+    if (!matchedAlbumId && albumData.event_id) {
+      const { data } = await supabase.from('gallery_albums').select('id').eq('is_deleted', false).eq('event_id', albumData.event_id).limit(1).single();
+      if (data) matchedAlbumId = data.id;
+    }
+
+    // Priority 2: Same programme AND same title
+    if (!matchedAlbumId && albumData.program_id) {
+      const { data } = await supabase.from('gallery_albums').select('id').eq('is_deleted', false).eq('program_id', albumData.program_id).eq('title', albumData.title).limit(1).single();
+      if (data) matchedAlbumId = data.id;
+    }
+
+    // Priority 3: Same title AND same location
+    if (!matchedAlbumId) {
+      let q = supabase.from('gallery_albums').select('id').eq('is_deleted', false).eq('title', albumData.title);
+      if (albumData.location) {
+        q = q.eq('location' as any, albumData.location);
+      } else {
+        q = q.is('location' as any, null);
+      }
+      const { data } = await q.limit(1).single();
+      if (data) matchedAlbumId = data.id;
+    }
+
+    let albumId = matchedAlbumId;
+
+    if (!albumId) {
+      // Create new album
       const album_code = await galleryRepository.generateAlbumCode();
       const baseSlug = albumData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
       const randomSuffix = crypto.randomUUID().split('-')[0];
@@ -208,15 +240,22 @@ export class GalleryService {
         ...albumData,
         album_code,
         slug,
-        cover_image_id: media_id,
+        cover_image_id: media_ids[0], // set first image as cover
         created_by: userId,
         updated_by: userId,
-        status: 'Published' // default to published
+        status: 'Published'
       } as AlbumCreate);
-
+      
       if (createdAlbum.data) {
+        albumId = createdAlbum.data.id;
+      }
+    }
+
+    if (albumId) {
+      // Insert all photos into this album
+      for (const media_id of media_ids) {
         await galleryRepository.addItem({
-          album_id: createdAlbum.data.id,
+          album_id: albumId,
           media_file_id: media_id,
           title: albumData.title,
           description: albumData.description,
@@ -226,8 +265,25 @@ export class GalleryService {
           updated_by: userId,
         } as any);
       }
+      
+      // Update cover image if it was missing
+      if (matchedAlbumId) {
+        const { data: currentAlbum } = await supabase.from('gallery_albums').select('cover_image_id').eq('id', albumId).single();
+        if (currentAlbum && !currentAlbum.cover_image_id) {
+          await galleryRepository.update(albumId, { cover_image_id: media_ids[0], updated_by: userId });
+        }
+      }
     }
 
+    return ok(true);
+  }
+
+  /**
+   * Hard deletes an album cascading to items and media.
+   */
+  async removeAlbumCascade(albumId: ID): Promise<ServiceResult<boolean>> {
+    const result = await galleryRepository.hardDeleteAlbumCascade(albumId);
+    if (result.error) return fail(result.error.message);
     return ok(true);
   }
 
