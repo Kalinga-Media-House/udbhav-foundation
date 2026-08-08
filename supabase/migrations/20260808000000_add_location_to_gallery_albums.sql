@@ -1,6 +1,6 @@
 -- Add location to gallery_albums
 ALTER TABLE public.gallery_albums
-ADD COLUMN location text;
+ADD COLUMN location TEXT NOT NULL DEFAULT '';
 
 -- Update search vector trigger to include location
 CREATE OR REPLACE FUNCTION public.maintain_gallery_albums_search_vector()
