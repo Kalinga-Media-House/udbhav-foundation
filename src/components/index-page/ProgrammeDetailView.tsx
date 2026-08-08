@@ -8,45 +8,30 @@ import {
   Calendar,
   MapPin,
   TrendingUp,
-  Target,
-  Users,
-  CheckCircle2,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 
 import { AccessibleLightbox } from "@/components/index-page/AccessibleLightbox";
 import {
   IndexProgrammeDetail,
-  ProgrammeEventItem,
   ProgrammePhotoItem,
 } from "@/types/index-programme";
 
 interface ProgrammeDetailViewProps {
   programme: IndexProgrammeDetail;
-  events: ProgrammeEventItem[];
   photos: ProgrammePhotoItem[];
   relatedProgrammes: IndexProgrammeDetail[];
 }
 
 export function ProgrammeDetailView({
   programme,
-  events,
   photos,
   relatedProgrammes,
 }: ProgrammeDetailViewProps) {
-  const [eventFilter, setEventFilter] = useState<"all" | "upcoming" | "completed">("all");
   const [lightboxOpen, setLightboxOpen] = useState<boolean>(false);
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number>(0);
-
-  const filteredEvents = useMemo(() => {
-    const sorted = [...events].sort((a, b) =>
-      b.eventDate.localeCompare(a.eventDate)
-    );
-    if (eventFilter === "all") return sorted;
-    return sorted.filter((e) => e.status === eventFilter);
-  }, [events, eventFilter]);
 
   const openLightbox = (idx: number) => {
     setSelectedPhotoIndex(idx);
@@ -172,219 +157,6 @@ export function ProgrammeDetailView({
             </div>
           </div>
         </div>
-      </section>
-
-      {/* B. ABOUT THE PROGRAMME */}
-      <section className="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3C9D23]/15 text-[#3C9D23] text-xs font-heading font-bold uppercase tracking-wider mb-3">
-            ABOUT THIS INITIATIVE
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-heading font-bold text-[#172B6B]">
-            Purpose, Need & Grassroots Approach
-          </h2>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="p-6 sm:p-8 rounded-2xl bg-white border border-gray-200 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-[#EAF3FF] text-[#172B6B] flex items-center justify-center mb-4">
-              <Target className="w-5 h-5" />
-            </div>
-            <h3 className="font-heading font-bold text-lg text-[#172B6B] mb-2">
-              Programme Purpose
-            </h3>
-            <p className="text-sm text-gray-700 leading-relaxed">
-              {programme.purpose}
-            </p>
-          </div>
-
-          <div className="p-6 sm:p-8 rounded-2xl bg-white border border-gray-200 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-[#F1F9ED] text-[#3C9D23] flex items-center justify-center mb-4">
-              <Users className="w-5 h-5" />
-            </div>
-            <h3 className="font-heading font-bold text-lg text-[#172B6B] mb-2">
-              Community Need Addressed
-            </h3>
-            <p className="text-sm text-gray-700 leading-relaxed">
-              {programme.communityNeed}
-            </p>
-          </div>
-
-          <div className="p-6 sm:p-8 rounded-2xl bg-white border border-gray-200 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-[#EAF3FF] text-[#172B6B] flex items-center justify-center mb-4">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-            <h3 className="font-heading font-bold text-lg text-[#172B6B] mb-2">
-              Programme Approach
-            </h3>
-            <p className="text-sm text-gray-700 leading-relaxed">
-              {programme.approach}
-            </p>
-          </div>
-        </div>
-
-        {/* Beneficiaries & Activities */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-          <div className="p-6 sm:p-8 rounded-2xl bg-[#EAF3FF]/60 border border-[#172B6B]/15">
-            <h4 className="font-heading font-bold text-base sm:text-lg text-[#172B6B] mb-4">
-              Target Beneficiaries
-            </h4>
-            <ul className="space-y-2.5 text-sm text-gray-700">
-              {programme.targetBeneficiaries.map((b, idx) => (
-                <li key={idx} className="flex items-start gap-2.5">
-                  <span className="w-2 h-2 rounded-full bg-[#3C9D23] mt-1.5 shrink-0" />
-                  <span>{b}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="p-6 sm:p-8 rounded-2xl bg-[#F1F9ED] border border-[#3C9D23]/25">
-            <h4 className="font-heading font-bold text-base sm:text-lg text-[#172B6B] mb-4">
-              Major Activities Conducted
-            </h4>
-            <ul className="space-y-2.5 text-sm text-gray-700">
-              {programme.majorActivities.map((act, idx) => (
-                <li key={idx} className="flex items-start gap-2.5">
-                  <span className="w-2 h-2 rounded-full bg-[#172B6B] mt-1.5 shrink-0" />
-                  <span>{act}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      {/* C. PROGRAMME IMPACT */}
-      <section className="py-14 sm:py-16 bg-white border-y border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3C9D23]/15 text-[#3C9D23] text-xs font-heading font-bold uppercase tracking-wider mb-2">
-              MEASURABLE OUTCOMES
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-heading font-bold text-[#172B6B]">
-              Impact at a Glance
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-            {programme.impactStats.map((stat) => (
-              <div
-                key={stat.id}
-                className="p-6 sm:p-8 rounded-2xl bg-[#EAF3FF] border border-[#172B6B]/10 flex flex-col justify-between"
-              >
-                <div className="text-3xl sm:text-4xl font-heading font-extrabold text-[#172B6B] mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-sm font-medium text-gray-700">
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* D. PROGRAMME EVENTS AND ACTIVITIES */}
-      <section className="py-16 sm:py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-10">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3C9D23]/15 text-[#3C9D23] text-xs font-heading font-bold uppercase tracking-wider mb-2">
-              ON-GROUND ACTION
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-heading font-bold text-[#172B6B]">
-              Programme Activities
-            </h2>
-          </div>
-
-          {/* Event Filter Tabs */}
-          <div className="flex items-center gap-2">
-            {(["all", "upcoming", "completed"] as const).map((tab) => (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => setEventFilter(tab)}
-                className={`px-4 py-2 rounded-full text-xs font-heading font-semibold uppercase cursor-pointer transition-colors ${
-                  eventFilter === tab
-                    ? "bg-[#172B6B] text-white"
-                    : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                {tab}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {filteredEvents.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredEvents.map((evt) => (
-              <div
-                key={evt.id}
-                className="rounded-2xl bg-white border border-gray-200 overflow-hidden shadow-sm flex flex-col justify-between"
-              >
-                <div className="relative h-48 w-full bg-gray-100">
-                  <Image
-                    src={evt.coverImageUrl}
-                    alt={evt.title}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover"
-                  />
-                  <div className="absolute top-3 left-3">
-                    <span
-                      className={`px-3 py-1 rounded-full text-[11px] font-bold uppercase text-white ${
-                        evt.status === "upcoming"
-                          ? "bg-[#3C9D23]"
-                          : "bg-[#172B6B]"
-                      }`}
-                    >
-                      {evt.status}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-5 flex flex-col flex-1 justify-between">
-                  <div>
-                    <div className="flex items-center gap-3 text-xs text-gray-500 mb-2">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3.5 h-3.5 text-[#3C9D23]" />
-                        {evt.eventDate}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-[#3C9D23]" />
-                        {evt.location}
-                      </span>
-                    </div>
-
-                    <h3 className="font-heading font-bold text-base text-[#172B6B] mb-2">
-                      {evt.title}
-                    </h3>
-
-                    <p className="text-xs text-gray-600 leading-relaxed mb-4">
-                      {evt.shortDescription}
-                    </p>
-                  </div>
-
-                  <div className="flex items-center justify-between border-t border-gray-100 pt-3 text-xs">
-                    <span className="text-gray-500">
-                      {evt.photoCount} Photos
-                    </span>
-                    <span className="font-semibold text-[#3C9D23]">
-                      Verified Activity
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="p-12 text-center rounded-2xl bg-white border border-dashed border-gray-300">
-            <p className="text-sm sm:text-base font-medium text-gray-600">
-              Programme activities will be published here soon.
-            </p>
-          </div>
-        )}
       </section>
 
       {/* E. PROGRAMME PHOTO GALLERY */}

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import React from "react";
 
 import { ProgrammeDetailView } from "@/components/index-page/ProgrammeDetailView";
-import { INDEX_PROGRAMME_EVENTS, INDEX_PROGRAMME_PHOTOS } from "@/data/index-programmes-data";
+import { INDEX_PROGRAMME_PHOTOS } from "@/data/index-programmes-data";
 import { getProgramBySlug, listPrograms } from "@/features/programs/actions";
 import type { IndexProgrammeDetail, ProgrammeCategory } from "@/types/index-programme";
 
@@ -98,10 +98,7 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  // Events & Photos (Mocked until those modules are built)
-  const events = INDEX_PROGRAMME_EVENTS.filter(
-    (e) => e.programmeSlug === slug || e.programmeId === programme.id
-  );
+  // Photos (Mocked until those modules are built)
 
   const photos = INDEX_PROGRAMME_PHOTOS.filter(
     (p) => p.programmeSlug === slug || p.programmeId === programme.id
@@ -148,7 +145,6 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
   return (
     <ProgrammeDetailView
       programme={programme}
-      events={events}
       photos={photos}
       relatedProgrammes={relatedProgrammes}
     />
