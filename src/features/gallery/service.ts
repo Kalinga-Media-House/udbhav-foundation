@@ -53,9 +53,28 @@ export class GalleryService {
     const parsed = createAlbumSchema.safeParse(dto);
     if (!parsed.success)
       return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
+      
+    const album_code = await galleryRepository.generateAlbumCode();
+    
+    // Generate slug from title
+    let slug = parsed.data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    let counter = 1;
+    let isUnique = false;
+    while (!isUnique) {
+      const existing = await galleryRepository.findBySlug(slug);
+      if (!existing.data) {
+        isUnique = true;
+      } else {
+        slug = `${parsed.data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${counter}`;
+        counter++;
+      }
+    }
+
     return fromRepo(
       await galleryRepository.create({
         ...(parsed.data as any),
+        album_code,
+        slug,
         created_by: userId,
         updated_by: userId,
       } as AlbumCreate)

@@ -10,6 +10,7 @@ import type { Database } from '@/types/database/database.generated';
  */
 export type AlbumRow = Database['public']['Tables']['gallery_albums']['Row'] & {
   item_count?: number;
+  location?: string | null;
 };
 
 /** Payload for creating a gallery album. */
@@ -58,6 +59,42 @@ export class GalleryRepository implements IWriteRepository<AlbumRow, AlbumCreate
     } catch (error) {
       serverLogger.error('GalleryRepository.findById failed', error as Error);
       return { data: null, error: error as Error };
+    }
+  }
+
+  /**
+   * Generates the next available album code for the current year (e.g. GAL-2026-0001)
+   */
+  async generateAlbumCode(): Promise<string> {
+    try {
+      const supabase = await createServerSupabaseClient();
+      const year = new Date().getFullYear();
+      const prefix = `GAL-${year}-`;
+      const { data, error } = await supabase
+        .from('gallery_albums')
+        .select('album_code')
+        .like('album_code', `${prefix}%`)
+        .order('album_code', { ascending: false })
+        .limit(1)
+        .single();
+
+      let nextNumber = 1;
+      if (data && data.album_code) {
+        const parts = data.album_code.split('-');
+        if (parts.length === 3) {
+          const lastNumber = parseInt(parts[2], 10);
+          if (!isNaN(lastNumber)) {
+            nextNumber = lastNumber + 1;
+          }
+        }
+      }
+
+      return `${prefix}${nextNumber.toString().padStart(4, '0')}`;
+    } catch (error) {
+      serverLogger.error('GalleryRepository.generateAlbumCode failed', error as Error);
+      const year = new Date().getFullYear();
+      // fallback if error
+      return `GAL-${year}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
     }
   }
 

@@ -23,9 +23,8 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
   const [error, setError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<Partial<CreateAlbumDTO>>({
-    album_code: initialData?.album_code || `GAL-${Date.now().toString().slice(-6)}`,
-    slug: initialData?.slug || '',
     title: initialData?.title || '',
+    location: initialData?.location || '',
     description: initialData?.description || '',
     visibility: (initialData?.visibility as any) || 'Public',
     cover_image_id: initialData?.cover_image_id || null,
@@ -46,15 +45,8 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
     startTransition(async () => {
       try {
         const payload: CreateAlbumDTO = {
-          album_code: formData.album_code || `GAL-${Date.now().toString().slice(-6)}`,
-          slug:
-            formData.slug ||
-            formData.title
-              ?.toLowerCase()
-              .replace(/[^a-z0-9]+/g, '-')
-              .replace(/(^-|-$)/g, '') ||
-            '',
           title: formData.title || '',
+          location: formData.location || '',
           description: formData.description || null,
           visibility: (formData.visibility as any) || 'Public',
           cover_image_id: formData.cover_image_id || null,
@@ -90,34 +82,10 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
         <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-700">{error}</div>
       )}
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="album_code">Album Code</Label>
-          <Input
-            id="album_code"
-            value={formData.album_code || ''}
-            onChange={(e) => setFormData({ ...formData, album_code: e.target.value.toUpperCase() })}
-            placeholder="GAL-001"
-            disabled={!!initialData || isPending}
-            required
-          />
-        </div>
 
-        <div>
-          <Label htmlFor="slug">Slug</Label>
-          <Input
-            id="slug"
-            value={formData.slug || ''}
-            onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-            placeholder="annual-gala-2026"
-            disabled={isPending}
-            required
-          />
-        </div>
-      </div>
 
       <div>
-        <Label htmlFor="title">Title</Label>
+        <Label htmlFor="title">Title *</Label>
         <Input
           id="title"
           value={formData.title || ''}
@@ -138,6 +106,18 @@ export function GalleryAlbumForm({ initialData, programs, events }: GalleryAlbum
           className="w-full rounded-md border px-3 py-2"
           placeholder="Detailed summary of the album..."
           disabled={isPending}
+        />
+      </div>
+
+      <div>
+        <Label htmlFor="location">Location *</Label>
+        <Input
+          id="location"
+          value={formData.location || ''}
+          onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+          placeholder="e.g. Bhubaneswar, Odisha"
+          disabled={isPending}
+          required
         />
       </div>
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Camera, Calendar } from 'lucide-react';
+import { ArrowLeft, Camera, Calendar, MapPin } from 'lucide-react';
 import Link from 'next/link';
 import React, { useState, useMemo } from 'react';
 
@@ -66,6 +66,12 @@ export function AlbumDetailClient({ album, initialPhotos }: AlbumDetailClientPro
                 <Camera className="w-4 h-4" />
                 <span>{initialPhotos.length} Photos</span>
               </div>
+              {album.location && (
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  <span>{album.location}</span>
+                </div>
+              )}
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
                 <span>{new Date(album.created_at).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</span>

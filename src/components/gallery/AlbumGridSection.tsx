@@ -1,6 +1,6 @@
 'use client';
 
-import { Folder, ArrowRight, Image as ImageIcon } from 'lucide-react';
+import { Folder, ArrowRight, Image as ImageIcon, MapPin } from 'lucide-react';
 import Link from 'next/link';
 
 import { Container } from '@/components/shared/Container';
@@ -60,6 +60,12 @@ export function AlbumGridSection({ albums }: AlbumGridSectionProps) {
                       <p className="mt-2 text-sm text-gray-600 line-clamp-2">
                         {album.description}
                       </p>
+                    )}
+                    {album.location && (
+                      <div className="mt-3 flex items-center text-xs text-gray-500 font-medium">
+                        <MapPin className="w-3.5 h-3.5 mr-1.5 text-emerald-600" />
+                        {album.location}
+                      </div>
                     )}
                   </div>
 
