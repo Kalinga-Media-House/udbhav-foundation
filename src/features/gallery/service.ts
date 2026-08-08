@@ -4,9 +4,9 @@ import type { ServiceResult } from '@/contracts/services';
 import type { Pagination, ID } from '@/types';
 
 import { galleryRepository } from './repository';
-import type { AlbumRow, GalleryItemRow, GalleryItemWithMedia, AlbumCreate } from './repository';
-import { createAlbumSchema, updateAlbumSchema, addGalleryItemSchema } from './validators';
-import type { CreateAlbumDTO, UpdateAlbumDTO, AddGalleryItemDTO } from './validators';
+import type { AlbumRow, GalleryItemRow, GalleryItemWithMedia, AlbumCreate, AdminPhotoItem } from './repository';
+import { createAlbumSchema, updateAlbumSchema, addGalleryItemSchema, uploadPhotosSchema, updatePhotoSchema } from './validators';
+import type { CreateAlbumDTO, UpdateAlbumDTO, AddGalleryItemDTO, UploadPhotosDTO, UpdatePhotoDTO } from './validators';
 
 /**
  * Gallery service encapsulating business logic for gallery albums and items.
@@ -50,35 +50,38 @@ export class GalleryService {
    * @returns Service result containing created album.
    */
   async create(dto: CreateAlbumDTO, userId: ID): Promise<ServiceResult<AlbumRow>> {
+    const tStart = Date.now();
     const parsed = createAlbumSchema.safeParse(dto);
     if (!parsed.success)
       return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
       
-    const album_code = await galleryRepository.generateAlbumCode();
+    const tVal = Date.now() - tStart;
     
-    // Generate slug from title
-    let slug = parsed.data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    let counter = 1;
-    let isUnique = false;
-    while (!isUnique) {
-      const existing = await galleryRepository.findBySlug(slug);
-      if (!existing.data) {
-        isUnique = true;
-      } else {
-        slug = `${parsed.data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')}-${counter}`;
-        counter++;
-      }
-    }
+    // Generate album code
+    const tCodeStart = Date.now();
+    const album_code = await galleryRepository.generateAlbumCode();
+    const tCode = Date.now() - tCodeStart;
+    
+    // Generate slug using title + random string to guarantee uniqueness without DB queries
+    const tSlugStart = Date.now();
+    const baseSlug = parsed.data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const randomSuffix = crypto.randomUUID().split('-')[0];
+    const slug = `${baseSlug}-${randomSuffix}`;
+    const tSlug = Date.now() - tSlugStart;
 
-    return fromRepo(
-      await galleryRepository.create({
-        ...(parsed.data as any),
-        album_code,
-        slug,
-        created_by: userId,
-        updated_by: userId,
-      } as AlbumCreate)
-    );
+    const tInsertStart = Date.now();
+    const createdAlbum = await galleryRepository.create({
+      ...(parsed.data as any),
+      album_code,
+      slug,
+      created_by: userId,
+      updated_by: userId,
+    } as AlbumCreate);
+    const tInsert = Date.now() - tInsertStart;
+    
+    console.log(`[Perf] GalleryService.create - Validation: ${tVal}ms, Code: ${tCode}ms, Slug: ${tSlug}ms, Insert: ${tInsert}ms, Total: ${Date.now() - tStart}ms`);
+
+    return fromRepo(createdAlbum);
   }
 
   /**
@@ -173,6 +176,100 @@ export class GalleryService {
   ): Promise<ServiceResult<PaginatedResult<GalleryItemWithMedia>>> {
     return ok(await galleryRepository.listItemsWithMedia(albumId, pagination));
   }
+
+  /**
+   * Lists all photos for the Admin CMS.
+   */
+  async listPhotos(
+    pagination: Pagination,
+    filters?: Record<string, unknown>
+  ): Promise<ServiceResult<PaginatedResult<AdminPhotoItem>>> {
+    return ok(await galleryRepository.listPhotos(pagination, filters));
+  }
+
+  /**
+   * Uploads a batch of photos, creating a hidden album for each photo to keep them independent.
+   */
+  async uploadPhotosBatch(dto: UploadPhotosDTO, userId: ID): Promise<ServiceResult<boolean>> {
+    const parsed = uploadPhotosSchema.safeParse(dto);
+    if (!parsed.success)
+      return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
+    
+    const { media_ids, ...albumData } = parsed.data;
+
+    // We create one album per photo so they can be edited completely independently later
+    for (const media_id of media_ids) {
+      const album_code = await galleryRepository.generateAlbumCode();
+      const baseSlug = albumData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const randomSuffix = crypto.randomUUID().split('-')[0];
+      const slug = `${baseSlug}-${randomSuffix}`;
+
+      const createdAlbum = await galleryRepository.create({
+        ...albumData,
+        album_code,
+        slug,
+        cover_image_id: media_id,
+        created_by: userId,
+        updated_by: userId,
+        status: 'Published' // default to published
+      } as AlbumCreate);
+
+      if (createdAlbum.data) {
+        await galleryRepository.addItem({
+          album_id: createdAlbum.data.id,
+          media_file_id: media_id,
+          title: albumData.title,
+          description: albumData.description,
+          location: albumData.location,
+          is_featured: albumData.is_featured,
+          created_by: userId,
+          updated_by: userId,
+        } as any);
+      }
+    }
+
+    return ok(true);
+  }
+
+  /**
+   * Updates a specific photo (updates its parent album if it's the only item, or splits it).
+   */
+  async updatePhoto(itemId: ID, dto: UpdatePhotoDTO, userId: ID): Promise<ServiceResult<boolean>> {
+    const parsed = updatePhotoSchema.safeParse(dto);
+    if (!parsed.success)
+      return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
+    
+    // Get the item to find its album
+    const supabase = await (await import('@/lib/supabase/server')).createServerSupabaseClient();
+    const { data: item } = await supabase.from('gallery_items').select('*').eq('id', itemId).single();
+    
+    if (!item) return fail('Photo not found');
+
+    // Let's just update using direct supabase for now since repository lacks updateItem
+    await supabase.from('gallery_items').update({
+      description: parsed.data.description,
+      location: parsed.data.location,
+      is_featured: parsed.data.is_featured,
+      media_file_id: parsed.data.media_id || item.media_file_id,
+      updated_by: userId
+    }).eq('id', itemId);
+
+    // Update parent album
+    await galleryRepository.update(item.album_id, {
+      title: parsed.data.title,
+      description: parsed.data.description,
+      location: parsed.data.location,
+      visibility: parsed.data.visibility as any,
+      program_id: parsed.data.program_id,
+      event_id: parsed.data.event_id,
+      is_featured: parsed.data.is_featured,
+      updated_by: userId,
+      ...(parsed.data.media_id ? { cover_image_id: parsed.data.media_id } : {})
+    });
+
+    return ok(true);
+  }
 }
+
 
 export const galleryService = new GalleryService();

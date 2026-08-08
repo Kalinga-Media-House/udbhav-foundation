@@ -15,6 +15,7 @@ export interface UploadOptions {
   contentType: string;
   maxSizeMB?: number;
   allowedMimeTypes?: string[];
+  key?: string; // Explicit key override
 }
 
 export interface DownloadOptions {

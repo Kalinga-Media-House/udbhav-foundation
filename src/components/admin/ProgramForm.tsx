@@ -1,13 +1,14 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 
 import { ImageUploader } from '@/components/admin/ImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createProgram, updateProgram } from '@/features/programs/actions';
+import type { UploadStatus } from '@/components/admin/ImageUploader';
 import type { ProgramRow } from '@/features/programs/repository';
 import type { CreateProgramDTO } from '@/features/programs/validators';
 
@@ -19,6 +20,10 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle');
+  const [submitPending, setSubmitPending] = useState(false);
+  const [statusText, setStatusText] = useState('');
 
   // Form State
   const [formData, setFormData] = useState<Partial<CreateProgramDTO>>({
@@ -55,44 +60,74 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-
-    startTransition(async () => {
-      try {
-        const payload: CreateProgramDTO = {
-          title: formData.title || '',
-          short_description: formData.short_description || '', // undefined causes Next.js serialization crash
-          full_description: formData.full_description || '', // undefined causes Next.js serialization crash
-          status: formData.status as any,
-          visibility: formData.visibility as any,
-          program_type: formData.program_type as any,
-          is_featured: formData.is_featured || false,
-          sort_order: formData.sort_order || 0,
-          cover_image_id: formData.cover_image_id || null,
-          start_date: formData.start_date || new Date().toISOString().split('T')[0],
-          location: formData.location || '',
-          metadata: (initialData?.metadata as Record<string, unknown>) || {},
-        };
-
-        let res;
-        if (initialData) {
-          // Edit
-          res = await updateProgram(initialData.id, payload);
-        } else {
-          // Create
-          res = await createProgram(payload);
-        }
-
-        if (!res.success) {
-          throw new Error(res.error || 'Failed to save program');
-        }
-
-        router.push('/admin/programs');
-        router.refresh();
-      } catch (err: any) {
-        setError(err.message || 'An error occurred while saving the program.');
-      }
-    });
+    setSubmitPending(true);
   };
+
+  // Effect to handle progressive states and wait for upload completion
+  useEffect(() => {
+    if (!submitPending) return;
+
+    if (uploadStatus === 'error') {
+      setError('Image upload failed. Please try again.');
+      setSubmitPending(false);
+      return;
+    }
+
+    if (uploadStatus === 'requesting' || uploadStatus === 'uploading') {
+      setStatusText('Uploading image...');
+      return;
+    }
+
+    if (uploadStatus === 'processing') {
+      setStatusText('Optimizing image...');
+      return;
+    }
+
+    if (uploadStatus === 'idle' || uploadStatus === 'success') {
+      setStatusText(initialData ? 'Updating program...' : 'Creating program...');
+      
+      startTransition(async () => {
+        try {
+          const payload: CreateProgramDTO = {
+            title: formData.title || '',
+            short_description: formData.short_description || '', 
+            full_description: formData.full_description || '', 
+            status: formData.status as any,
+            visibility: formData.visibility as any,
+            program_type: formData.program_type as any,
+            is_featured: formData.is_featured || false,
+            sort_order: formData.sort_order || 0,
+            cover_image_id: formData.cover_image_id || null,
+            start_date: formData.start_date || new Date().toISOString().split('T')[0],
+            location: formData.location || '',
+            metadata: (initialData?.metadata as Record<string, unknown>) || {},
+          };
+
+          let res;
+          if (initialData) {
+            res = await updateProgram(initialData.id, payload);
+          } else {
+            res = await createProgram(payload);
+          }
+
+          if (!res.success) {
+            throw new Error(res.error || 'Failed to save program');
+          }
+
+          setStatusText('Redirecting...');
+          router.push('/admin/programs');
+          // router.refresh() removed for faster navigation
+        } catch (err: any) {
+          setError(err.message || 'An error occurred while saving the program.');
+          setSubmitPending(false);
+        }
+      });
+      
+      setSubmitPending(false);
+    }
+  }, [submitPending, uploadStatus, formData, initialData, router]);
+
+  const isFormDisabled = isPending || submitPending || uploadStatus === 'requesting' || uploadStatus === 'uploading' || uploadStatus === 'processing';
 
   return (
     <form
@@ -246,7 +281,7 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
 
       <div className="space-y-2 border-t border-gray-100 pt-4">
         <Label htmlFor="cover_image">Cover Image Upload</Label>
-        <ImageUploader folder="programs" onUploadComplete={handleUploadComplete} />
+        <ImageUploader folder="programs" onUploadComplete={handleUploadComplete} onStatusChange={setUploadStatus} />
         {formData.cover_image_id && (
           <p className="text-sm text-green-600">Image attached successfully.</p>
         )}
@@ -271,12 +306,12 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
           type="button"
           variant="outline"
           onClick={() => router.push('/admin/programs')}
-          disabled={isPending}
+          disabled={isFormDisabled}
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isPending}>
-          {isPending ? 'Saving...' : initialData ? 'Update Program' : 'Create Program'}
+        <Button type="submit" disabled={isFormDisabled}>
+          {isPending || submitPending ? statusText || 'Saving...' : initialData ? 'Update Program' : 'Create Program'}
         </Button>
       </div>
     </form>

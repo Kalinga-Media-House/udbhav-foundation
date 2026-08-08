@@ -12,16 +12,17 @@ export interface UploadedImage extends ImageUploadResult {
   originalFilename: string;
 }
 
+export type UploadStatus = 'idle' | 'requesting' | 'uploading' | 'processing' | 'success' | 'error';
+
 interface ImageUploaderProps {
   folder: string;
   onUploadComplete?: (result: UploadedImage | UploadedImage[]) => void;
+  onStatusChange?: (status: UploadStatus) => void;
   multiple?: boolean;
   maxFiles?: number;
   maxSizeMB?: number;
   className?: string;
 }
-
-type UploadStatus = 'idle' | 'requesting' | 'uploading' | 'processing' | 'success' | 'error';
 
 interface FileUploadState {
   id: string;
@@ -36,6 +37,7 @@ interface FileUploadState {
 export function ImageUploader({
   folder,
   onUploadComplete,
+  onStatusChange,
   multiple = false,
   maxFiles = 10,
   maxSizeMB,
@@ -157,6 +159,26 @@ export function ImageUploader({
   useEffect(() => {
     processQueue();
   }, [uploads, processQueue]);
+
+  useEffect(() => {
+    if (onStatusChange && uploads.length > 0) {
+      // For single upload, report the status of the first item
+      // For multiple, report processing/uploading if ANY are in that state
+      const isProcessing = uploads.some(u => u.status === 'processing');
+      const isUploading = uploads.some(u => u.status === 'uploading' || u.status === 'requesting');
+      const hasError = uploads.some(u => u.status === 'error');
+      
+      let overallStatus: UploadStatus = 'idle';
+      if (hasError) overallStatus = 'error';
+      else if (isProcessing) overallStatus = 'processing';
+      else if (isUploading) overallStatus = 'uploading';
+      else if (uploads.every(u => u.status === 'success')) overallStatus = 'success';
+      
+      onStatusChange(overallStatus);
+    } else if (onStatusChange) {
+      onStatusChange('idle');
+    }
+  }, [uploads, onStatusChange]);
 
   const handleFiles = (files: FileList | File[]) => {
     const newFiles = Array.from(files);

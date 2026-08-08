@@ -37,7 +37,8 @@ export const uploadFile = async (
 
     // 3. Generate Path
     const safeFilename = generateUniqueFilename(originalFilename);
-    const key = options.folder ? sanitizePath(options.folder, safeFilename) : safeFilename;
+    const generatedKey = options.folder ? sanitizePath(options.folder, safeFilename) : safeFilename;
+    const key = options.key || generatedKey;
 
     // 4. Upload
     const client = getStorageClient();

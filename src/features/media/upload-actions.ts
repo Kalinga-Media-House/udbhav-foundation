@@ -13,6 +13,8 @@ import { generatePresignedUploadUrl } from '@/lib/storage/presigned';
 import type { ImageUploadMetadata, ImageUploadResult } from '@/lib/storage/types';
 import { uploadFile } from '@/lib/storage/upload';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { generateUniqueFilename, sanitizePath } from '@/lib/storage/helpers';
+import { getStorageConfig } from '@/lib/storage/config';
 
 interface PresignedUploadResponse {
   url: string;
@@ -76,9 +78,13 @@ export async function processUploadedImage(
 ): Promise<ActionResult<ImageUploadResult>> {
   return handleAction('processUploadedImage', async () => {
     const session = await requireAuth();
+    const tStart = Date.now();
+    let tDownload = 0, tOptimize = 0, tUploadDb = 0;
 
     // 1. Download the raw file internally from R2
     const downloadRes = await downloadFileInternal(tempStorageKey);
+    tDownload = Date.now() - tStart;
+
     if (!downloadRes.data) {
       throw new Error(
         'Failed to retrieve the uploaded file for processing. It may have expired or failed to upload.'
@@ -87,38 +93,27 @@ export async function processUploadedImage(
     const rawBuffer = downloadRes.data;
 
     // 2. Process with Sharp
+    const tOptStart = Date.now();
     const processed = await processImage(rawBuffer, originalFilename);
+    tOptimize = Date.now() - tOptStart;
 
-    // 3. Re-upload the optimized image
-    // Generate a final key based on the original name but with the new extension (e.g. .webp)
+    // 3. Pre-generate the final key
+    const tUploadDbStart = Date.now();
     const baseName = originalFilename.substring(0, originalFilename.lastIndexOf('.'));
     const finalExtension = processed.format === 'gif' ? '.gif' : `.${processed.format}`;
-    const finalFilename = `${baseName}${finalExtension}`;
-
-    const uploadRes = await uploadFile(processed.buffer, finalFilename, {
-      contentType: processed.mimeType,
-      folder,
-    });
-
-    if (!uploadRes.data) {
-      throw new Error('Failed to save the optimized image.');
-    }
-    const finalKey = uploadRes.data.key;
-    const cdnUrl = uploadRes.data.url;
-    const bucket = uploadRes.data.bucket;
-
-    // 4. Delete the temporary raw file
-    await deleteFile(tempStorageKey);
-
-    // 5. Register in DB
+    const safeFilename = generateUniqueFilename(`${baseName}${finalExtension}`);
+    const finalKey = folder ? sanitizePath(folder, safeFilename) : safeFilename;
+    const bucket = getStorageConfig().defaultBucket;
+    const cdnUrl = `${getStorageConfig().publicUrl}/${finalKey}`;
     const supabase = await createServerSupabaseClient();
+
     const mediaData = {
       uploader_id: session.id,
       r2_object_key: finalKey,
       bucket_name: bucket,
       folder_path: `/${folder}`,
       original_filename: originalFilename,
-      stored_filename: finalKey.split('/').pop() || finalFilename,
+      stored_filename: safeFilename,
       mime_type: processed.mimeType,
       type: 'image',
       file_size: processed.optimizedSize,
@@ -129,19 +124,42 @@ export async function processUploadedImage(
       updated_by: session.id,
     };
 
-    const { data: mediaRow, error } = await (supabase.from('media_files' as any) as any)
-      .insert(mediaData)
-      .select('id')
-      .single();
+    // Execute upload, DB insert, and temp file deletion concurrently
+    const [uploadRes, dbRes] = await Promise.all([
+      uploadFile(processed.buffer, safeFilename, {
+        contentType: processed.mimeType,
+        folder,
+        bucket,
+        key: finalKey,
+      }),
+      (supabase.from('media_files' as any) as any)
+        .insert(mediaData)
+        .select('id')
+        .single(),
+      deleteFile(tempStorageKey).catch(() => {})
+    ]);
 
-    if (error) {
-      // If DB fails, we should ideally clean up the R2 object to prevent orphans.
-      await deleteFile(finalKey).catch(() => {});
-      throw new Error(`Database error: ${error.message}`);
+    if (!uploadRes.data) {
+      // Rollback DB if upload failed
+      if (dbRes.data?.id) {
+        await (supabase.from('media_files' as any) as any).delete().eq('id', dbRes.data.id).catch(() => {});
+      }
+      throw new Error('Failed to save the optimized image.');
     }
 
-    // Revalidate media cache
-    (revalidateTag as any)(CacheTags.media());
+    if (dbRes.error) {
+      // Rollback R2 if DB failed
+      await deleteFile(finalKey).catch(() => {});
+      throw new Error(`Database error: ${dbRes.error.message}`);
+    }
+
+    tUploadDb = Date.now() - tUploadDbStart;
+    const mediaRow = dbRes.data;
+
+    // Don't revalidate media tag here unless necessary. It slows down the transaction.
+    // (revalidateTag as any)(CacheTags.media());
+    
+    console.log(`[Perf] processUploadedImage - Download: ${tDownload}ms, Optimize: ${tOptimize}ms, Upload+DB: ${tUploadDb}ms, Total: ${Date.now() - tStart}ms`);
 
     return {
       id: mediaRow.id,

@@ -7,9 +7,9 @@ import type { ActionResult } from '@/contracts/actions';
 import type { PaginatedResult } from '@/contracts/repositories';
 import type { Pagination } from '@/types';
 
-import type { AlbumRow, GalleryItemRow } from './repository';
+import type { AlbumRow, GalleryItemRow, AdminPhotoItem } from './repository';
 import { galleryService } from './service';
-import type { CreateAlbumDTO, UpdateAlbumDTO, AddGalleryItemDTO } from './validators';
+import type { CreateAlbumDTO, UpdateAlbumDTO, AddGalleryItemDTO, UploadPhotosDTO, UpdatePhotoDTO } from './validators';
 
 /**
  * Server action to create a new gallery album.
@@ -141,20 +141,68 @@ export async function listAlbumItems(
 }
 
 /**
- * Server action to remove an item from an album.
- * Requires authentication and 'gallery.update' permission.
- * @param id - Item ID to remove.
- * @param albumId - Parent album ID for revalidation.
- * @returns ActionResult containing deleted GalleryItemRow.
+ * Server action to list all photos (items + parent album info) for the Admin CMS.
  */
-export async function removeGalleryItem(id: string, albumId: string): Promise<ActionResult<GalleryItemRow>> {
-  return handleAction('removeGalleryItem', async () => {
+export async function listAdminPhotos(
+  pagination: Pagination,
+  filters?: Record<string, unknown>
+): Promise<ActionResult<PaginatedResult<AdminPhotoItem>>> {
+  return handleAction('listAdminPhotos', async () => {
+    const session = await requireAuth();
+    // Assuming gallery.read or similar is checked, but we can check gallery.update
+    requirePermission(session, 'gallery.update');
+    const result = await galleryService.listPhotos(pagination, filters);
+    if (!result.success) throw new Error(result.error ?? 'List photos failed');
+    return result.data!;
+  });
+}
+
+/**
+ * Server action to upload a batch of photos for the Admin CMS.
+ */
+export async function uploadPhotosBatchAction(dto: UploadPhotosDTO): Promise<ActionResult<boolean>> {
+  return handleAction('uploadPhotosBatchAction', async () => {
+    const session = await requireAuth();
+    requirePermission(session, 'gallery.create');
+    const result = await galleryService.uploadPhotosBatch(dto, session.id);
+    if (!result.success) throw new Error(result.error ?? 'Upload photos failed');
+    revalidateTag(CacheTags.gallery());
+    return result.data!;
+  });
+}
+
+/**
+ * Server action to update a specific photo.
+ */
+export async function updatePhotoAction(id: string, dto: UpdatePhotoDTO): Promise<ActionResult<boolean>> {
+  return handleAction('updatePhotoAction', async () => {
     const session = await requireAuth();
     requirePermission(session, 'gallery.update');
-    const result = await galleryService.removeItem(id);
-    if (!result.success) throw new Error(result.error ?? 'Remove item failed');
+    const result = await galleryService.updatePhoto(id, dto, session.id);
+    if (!result.success) throw new Error(result.error ?? 'Update photo failed');
     revalidateTag(CacheTags.gallery());
-    revalidateTag(CacheTags.album(albumId));
+    // Invalidate the specific album this photo belongs to if possible, 
+    // but we can rely on gallery tag for list views
     return result.data!;
+  });
+}
+
+/**
+ * Server action to remove a photo and its hidden album.
+ */
+export async function removeGalleryItem(id: string, albumId: string): Promise<ActionResult<boolean>> {
+  return handleAction('removeGalleryItem', async () => {
+    const session = await requireAuth();
+    requirePermission(session, 'gallery.delete');
+    
+    // First remove the item
+    const removeResult = await galleryService.removeItem(id);
+    if (!removeResult.success) throw new Error(removeResult.error ?? 'Delete photo failed');
+    
+    // Also try to delete the album (hidden) since it's a 1:1 mapping now
+    await galleryService.remove(albumId, session.id);
+    
+    revalidateTag(CacheTags.gallery());
+    return true;
   });
 }

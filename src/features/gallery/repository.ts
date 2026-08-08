@@ -38,6 +38,18 @@ export type GalleryItemWithMedia = GalleryItemRow & {
   } | null;
 };
 
+export type AdminPhotoItem = GalleryItemWithMedia & {
+  album?: {
+    id: string;
+    title: string;
+    visibility: string;
+    program_id: string | null;
+    event_id: string | null;
+    location: string | null;
+    is_featured: boolean;
+  } | null;
+};
+
 /** Payload for adding a gallery item. */
 export type GalleryItemCreate = Omit<GalleryItemRow, 'id' | 'created_at' | 'updated_at' | 'is_deleted'>;
 
@@ -316,6 +328,66 @@ export class GalleryRepository implements IWriteRepository<AlbumRow, AlbumCreate
       limit: pagination.limit,
     };
   }
+
+  /**
+   * Lists all photos across all albums for the Admin CMS.
+   */
+  async listPhotos(pagination: Pagination, filters?: FilterMap): Promise<PaginatedResult<AdminPhotoItem>> {
+    const supabase = await createServerSupabaseClient();
+    const from = (pagination.page - 1) * pagination.limit;
+    
+    // Step 1: Query items with their parent albums
+    let query = supabase
+      .from('gallery_items')
+      .select(`
+        *,
+        album:gallery_albums!inner(id, title, visibility, program_id, event_id, location, is_featured, is_deleted)
+      `, { count: 'exact' })
+      .eq('gallery_albums.is_deleted', false)
+      .order('created_at', { ascending: false });
+
+    // Note: since PostgREST doesn't easily filter on nested properties dynamically if not simple,
+    // we assume filters are limited for now or handle them simply.
+    
+    query = query.range(from, from + pagination.limit - 1);
+    
+    const { data: rawItems, count, error } = await query;
+
+    if (error) {
+      serverLogger.error('GalleryRepository.listPhotos failed', new DatabaseError(error.message));
+      return { data: [], total: 0, page: pagination.page, limit: pagination.limit };
+    }
+
+    const items = (rawItems as any[]) ?? [];
+
+    if (items.length === 0) {
+      return { data: [], total: 0, page: pagination.page, limit: pagination.limit };
+    }
+
+    // Step 2: Fetch media
+    const mediaIds = items.map((item) => item.media_file_id);
+    const { data: rawMediaList } = await supabase
+      .from('media_files')
+      .select('id, cdn_url, alt_text, caption, width, height')
+      .in('id', mediaIds);
+
+    const mediaList = (rawMediaList as any[]) ?? [];
+    const mediaMap = new Map(mediaList.map((m) => [m.id, m]));
+
+    const enrichedItems: AdminPhotoItem[] = items.map((item) => ({
+      ...item,
+      media: mediaMap.get(item.media_file_id) || null,
+      album: item.album || null
+    }));
+
+    return {
+      data: enrichedItems,
+      total: count ?? 0,
+      page: pagination.page,
+      limit: pagination.limit,
+    };
+  }
 }
+
 
 export const galleryRepository = new GalleryRepository();

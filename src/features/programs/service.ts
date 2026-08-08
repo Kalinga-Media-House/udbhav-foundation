@@ -31,12 +31,15 @@ export class ProgramsService {
 
   /** Create a new program after validating the DTO. */
   async create(dto: CreateProgramDTO, userId: ID): Promise<ServiceResult<ProgramRow>> {
+    const tStart = Date.now();
     const parsed = createProgramSchema.safeParse(dto);
     if (!parsed.success) {
       return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
     }
+    const tVal = Date.now() - tStart;
     
     // Generate Program Code
+    const tCodeStart = Date.now();
     const year = new Date().getFullYear();
     const prefix = `PRG-${year}-`;
     const { data: latestPrograms } = await programsRepository.findMany({ 
@@ -53,18 +56,16 @@ export class ProgramsService {
       }
     }
     const program_code = `${prefix}${nextNum.toString().padStart(4, '0')}`;
+    const tCode = Date.now() - tCodeStart;
 
     // Generate Unique Slug
-    let baseSlug = slugify(parsed.data.title);
-    let slug = baseSlug;
-    let slugExists = await programsRepository.findBySlug(slug);
-    let counter = 2;
-    while (slugExists.data) {
-      slug = `${baseSlug}-${counter}`;
-      slugExists = await programsRepository.findBySlug(slug);
-      counter++;
-    }
+    const tSlugStart = Date.now();
+    const baseSlug = slugify(parsed.data.title);
+    const randomSuffix = crypto.randomUUID().split('-')[0];
+    const slug = `${baseSlug}-${randomSuffix}`;
+    const tSlug = Date.now() - tSlugStart;
 
+    const tInsertStart = Date.now();
     const programData: ProgramCreate = {
       program_code,
       slug,
@@ -83,7 +84,12 @@ export class ProgramsService {
       created_by: userId,
       updated_by: userId,
     } as any;
-    return fromRepo(await programsRepository.create(programData));
+    const createdProgram = await programsRepository.create(programData);
+    const tInsert = Date.now() - tInsertStart;
+    
+    console.log(`[Perf] ProgramsService.create - Validation: ${tVal}ms, Code: ${tCode}ms, Slug: ${tSlug}ms, Insert: ${tInsert}ms, Total: ${Date.now() - tStart}ms`);
+
+    return fromRepo(createdProgram);
   }
 
   /** Update an existing program. */
