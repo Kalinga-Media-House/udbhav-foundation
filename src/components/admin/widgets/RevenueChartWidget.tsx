@@ -23,10 +23,10 @@ const data = [
 
 export function RevenueChartWidget() {
   return (
-    <div className="flex h-96 flex-col p-6">
+    <div className="flex h-[250px] md:h-96 flex-col p-4 md:p-6">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Donation Revenue</h3>
-        <select className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
+        <h3 className="text-base md:text-lg font-semibold text-zinc-900 dark:text-zinc-50">Donation Revenue</h3>
+        <select className="rounded-md border border-zinc-200 bg-white px-2 py-1 text-xs md:text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300">
           <option>Last 7 Months</option>
           <option>Last Year</option>
         </select>

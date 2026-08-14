@@ -12,10 +12,10 @@ const activities = [
 
 export function RecentActivityWidget() {
   return (
-    <div className="p-6 h-96 flex flex-col">
+    <div className="p-4 md:p-6 h-[300px] md:h-96 flex flex-col">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Recent Activity</h3>
-        <button className="text-sm text-indigo-600 dark:text-indigo-400 hover:underline">View All</button>
+        <h3 className="text-base md:text-lg font-semibold text-zinc-900 dark:text-zinc-50">Recent Activity</h3>
+        <button className="text-xs md:text-sm text-indigo-600 dark:text-indigo-400 hover:underline">View All</button>
       </div>
       
       <div className="flex-1 overflow-y-auto pr-2 space-y-4">

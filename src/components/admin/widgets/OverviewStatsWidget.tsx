@@ -41,9 +41,9 @@ export function OverviewStatsWidget() {
   }
 
   return (
-    <div className="p-6">
-      <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-6">Key Performance Indicators</h3>
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+    <div className="p-4 md:p-6">
+      <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 mb-4 md:mb-6">Key Performance Indicators</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
         
         <div className="flex items-center space-x-4">
           <div className="h-12 w-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">

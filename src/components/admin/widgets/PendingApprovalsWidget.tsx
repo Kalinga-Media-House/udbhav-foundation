@@ -12,9 +12,9 @@ const approvals = [
 
 export function PendingApprovalsWidget() {
   return (
-    <div className="p-6 h-96 flex flex-col">
+    <div className="p-4 md:p-6 h-[300px] md:h-96 flex flex-col">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Pending Approvals</h3>
+        <h3 className="text-base md:text-lg font-semibold text-zinc-900 dark:text-zinc-50">Pending Approvals</h3>
         <span className="bg-rose-100 text-rose-700 text-xs font-semibold px-2 py-1 rounded-full dark:bg-rose-900/30 dark:text-rose-400">
           {approvals.length} items
         </span>

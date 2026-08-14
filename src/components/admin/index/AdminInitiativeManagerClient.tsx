@@ -257,9 +257,9 @@ export function AdminInitiativeManagerClient({
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-        <table className="w-full border-collapse text-left">
-          <thead>
+      <div className="overflow-hidden md:rounded-xl md:border md:border-gray-200 bg-transparent md:bg-white md:shadow-sm">
+        <table className="w-full border-collapse text-left block md:table">
+          <thead className="hidden md:table-header-group">
             <tr className="border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wider text-gray-500">
               <th className="px-4 py-3">Title</th>
               <th className="px-4 py-3">Category</th>
@@ -268,20 +268,20 @@ export function AdminInitiativeManagerClient({
               <th className="px-4 py-3 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 text-sm">
+          <tbody className="divide-y divide-gray-100 text-sm block md:table-row-group">
             {initiatives.length === 0 ? (
               <tr>
-                <td colSpan={5} className="py-8 text-center text-gray-500">
+                <td colSpan={5} className="py-8 text-center text-gray-500 bg-white rounded-lg border border-gray-200">
                   No initiatives found. Create one to get started.
                 </td>
               </tr>
             ) : (
               initiatives.map((item) => (
-                <tr key={item.id} className="transition-colors hover:bg-gray-50/50">
-                  <td className="px-4 py-3 font-medium text-gray-900">{item.title}</td>
-                  <td className="px-4 py-3 text-gray-600">{item.initiative_type}</td>
-                  <td className="px-4 py-3 text-gray-600">{item.year}</td>
-                  <td className="px-4 py-3">
+                <tr key={item.id} className="transition-colors hover:bg-gray-50/50 block md:table-row border border-gray-200 md:border-none rounded-xl mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none bg-white md:bg-transparent">
+                  <td data-label="Title" className="px-0 md:px-4 py-2 md:py-3 font-medium text-gray-900 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">{item.title}</td>
+                  <td data-label="Category" className="px-0 md:px-4 py-2 md:py-3 text-gray-600 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">{item.initiative_type}</td>
+                  <td data-label="Year" className="px-0 md:px-4 py-2 md:py-3 text-gray-600 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">{item.year}</td>
+                  <td data-label="Status" className="px-0 md:px-4 py-2 md:py-3 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                     <span
                       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${
                         statusColors[item.status]
@@ -290,7 +290,7 @@ export function AdminInitiativeManagerClient({
                       {item.status}
                     </span>
                   </td>
-                  <td className="space-x-2 px-4 py-3 text-right">
+                  <td className="space-x-2 px-0 md:px-4 py-3 md:py-3 text-left md:text-right block md:table-cell">
                     <button
                       type="button"
                       onClick={() => handleOpenModal(item)}

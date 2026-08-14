@@ -248,9 +248,9 @@ export function AdminVolunteersClient({
             />
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-            <table className="w-full text-left border-collapse">
-              <thead>
+          <div className="bg-transparent md:bg-white md:rounded-2xl md:border md:border-gray-200 md:shadow-sm overflow-hidden">
+            <table className="w-full text-left border-collapse block md:table">
+              <thead className="hidden md:table-header-group">
                 <tr className="border-b border-gray-200 bg-gray-50 text-xs font-semibold text-gray-600 uppercase">
                   <th className="py-3 px-6">Volunteer Code</th>
                   <th className="py-3 px-6">Status</th>
@@ -258,7 +258,7 @@ export function AdminVolunteersClient({
                   <th className="py-3 px-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 text-sm">
+              <tbody className="divide-y divide-gray-100 text-sm block md:table-row-group">
                 {filteredVolunteers.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="py-12 text-center text-gray-500">
@@ -267,21 +267,21 @@ export function AdminVolunteersClient({
                   </tr>
                 ) : (
                   filteredVolunteers.map((vol) => (
-                    <tr key={vol.id} className="hover:bg-gray-50/60 transition-colors">
-                      <td className="py-4 px-6 font-bold text-gray-900">
+                    <tr key={vol.id} className="hover:bg-gray-50/60 transition-colors block md:table-row border border-gray-200 md:border-none rounded-xl mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none bg-white md:bg-transparent">
+                      <td data-label="Volunteer Code" className="py-2 md:py-4 px-0 md:px-6 font-bold text-gray-900 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-50 text-teal-700 font-mono text-xs">
                           {vol.volunteer_code}
                         </span>
                       </td>
-                      <td className="py-4 px-6">
+                      <td data-label="Status" className="py-2 md:py-4 px-0 md:px-6 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                         <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-green-100 text-green-800">
                           <ShieldCheck className="w-3 h-3" /> {vol.status}
                         </span>
                       </td>
-                      <td className="py-4 px-6 font-bold text-teal-700">
+                      <td data-label="Total Hours" className="py-2 md:py-4 px-0 md:px-6 font-bold text-teal-700 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                         {vol.total_hours || 0} hrs
                       </td>
-                      <td className="py-4 px-6 text-right space-x-2">
+                      <td className="py-3 md:py-4 px-0 md:px-6 text-left md:text-right space-x-2 block md:table-cell">
                         <button
                           type="button"
                           onClick={() => {
@@ -334,9 +334,9 @@ export function AdminVolunteersClient({
 
       {/* Tab 2: Applications Queue */}
       {activeTab === "applications" && (
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-          <table className="w-full text-left border-collapse">
-            <thead>
+        <div className="bg-transparent md:bg-white md:rounded-2xl md:border md:border-gray-200 md:shadow-sm overflow-hidden">
+          <table className="w-full text-left border-collapse block md:table">
+            <thead className="hidden md:table-header-group">
               <tr className="border-b border-gray-200 bg-gray-50 text-xs font-semibold text-gray-600 uppercase">
                 <th className="py-3 px-6">Applicant</th>
                 <th className="py-3 px-6">Contact</th>
@@ -346,7 +346,7 @@ export function AdminVolunteersClient({
                 <th className="py-3 px-6 text-right">Review Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 text-sm">
+            <tbody className="divide-y divide-gray-100 text-sm block md:table-row-group">
               {applications.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-gray-500">
@@ -355,24 +355,24 @@ export function AdminVolunteersClient({
                 </tr>
               ) : (
                 applications.map((app) => (
-                  <tr key={app.id} className="hover:bg-gray-50/60 transition-colors">
-                    <td className="py-4 px-6 font-bold text-gray-900">
+                  <tr key={app.id} className="hover:bg-gray-50/60 transition-colors block md:table-row border border-gray-200 md:border-none rounded-xl mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none bg-white md:bg-transparent">
+                    <td data-label="Applicant" className="py-2 md:py-4 px-0 md:px-6 font-bold text-gray-900 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       {app.full_name}
                       <p className="text-xs text-gray-500 font-normal mt-0.5 line-clamp-1">
                         {app.motivation}
                       </p>
                     </td>
-                    <td className="py-4 px-6 text-gray-700">
+                    <td data-label="Contact" className="py-2 md:py-4 px-0 md:px-6 text-gray-700 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       <p>{app.email}</p>
                       <p className="text-xs text-gray-500">{app.mobile_number}</p>
                     </td>
-                    <td className="py-4 px-6 text-gray-700">
+                    <td data-label="Occupation & City" className="py-2 md:py-4 px-0 md:px-6 text-gray-700 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       <p>{app.occupation}</p>
                       <p className="text-xs text-gray-500">
                         {app.city_district}, {app.state}
                       </p>
                     </td>
-                    <td className="py-4 px-6">
+                    <td data-label="Preferred Areas" className="py-2 md:py-4 px-0 md:px-6 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       <div className="flex flex-wrap gap-1">
                         {(app.preferred_areas || []).slice(0, 2).map((a, idx) => (
                           <span
@@ -384,7 +384,7 @@ export function AdminVolunteersClient({
                         ))}
                       </div>
                     </td>
-                    <td className="py-4 px-6">
+                    <td data-label="Status" className="py-2 md:py-4 px-0 md:px-6 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       <span
                         className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full ${
                           app.status === "accepted"
@@ -397,7 +397,7 @@ export function AdminVolunteersClient({
                         {app.status}
                       </span>
                     </td>
-                    <td className="py-4 px-6 text-right space-x-2">
+                    <td className="py-3 md:py-4 px-0 md:px-6 text-left md:text-right space-x-2 block md:table-cell">
                       {app.status === "pending" && (
                         <>
                           <button

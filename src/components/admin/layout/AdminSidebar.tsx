@@ -9,11 +9,12 @@ import {
   ChevronLeft, 
   ChevronDown,
   Menu,
-  Image as ImageIcon
+  Image as ImageIcon,
+  X
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { twMerge } from "tailwind-merge";
 
 function cn(...inputs: ClassValue[]) {
@@ -53,32 +54,47 @@ const navItems = [
 
 export function AdminSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
   const pathname = usePathname();
 
   const toggleSidebar = () => setIsCollapsed(!isCollapsed);
+  const toggleMobileSidebar = () => setIsMobileOpen(!isMobileOpen);
+  
   const toggleDropdown = (title: string) => {
     setOpenDropdowns((prev) => ({ ...prev, [title]: !prev[title] }));
   };
 
   const isRouteActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
-  return (
-    <aside
-      className={cn(
-        "relative flex h-screen flex-col border-r border-gray-200 bg-white transition-all duration-300",
-        isCollapsed ? "w-20" : "w-64"
-      )}
-    >
+  // Auto-close on navigation
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [pathname]);
+
+  // Prevent body scroll when mobile drawer is open
+  useEffect(() => {
+    if (isMobileOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileOpen]);
+
+  const SidebarContent = () => (
+    <>
       <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4">
-        {!isCollapsed && (
+        {(!isCollapsed || isMobileOpen) && (
           <span className="text-xl font-semibold tracking-tight text-gray-900 overflow-hidden whitespace-nowrap">
             Udbhav Admin
           </span>
         )}
         <button
           onClick={toggleSidebar}
-          className="rounded-md p-1.5 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="hidden md:block rounded-md p-1.5 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           {isCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
         </button>
@@ -96,6 +112,7 @@ export function AdminSidebar() {
               {item.href ? (
                 <Link
                   href={item.href}
+                  onClick={() => setIsMobileOpen(false)}
                   className={cn(
                     "group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
                     isActive
@@ -107,18 +124,18 @@ export function AdminSidebar() {
                   <item.icon
                     className={cn(
                       "flex-shrink-0",
-                      isCollapsed ? "mr-0" : "mr-3",
+                      isCollapsed && !isMobileOpen ? "mr-0 md:mr-0" : "mr-3",
                       isActive ? "text-indigo-700" : "text-gray-400 group-hover:text-gray-500"
                     )}
                     size={20}
                   />
-                  {!isCollapsed && <span>{item.title}</span>}
+                  {(!isCollapsed || isMobileOpen) && <span>{item.title}</span>}
                 </Link>
               ) : (
                 <>
                   <button
                     onClick={() => {
-                      if (isCollapsed) setIsCollapsed(false);
+                      if (isCollapsed && !isMobileOpen) setIsCollapsed(false);
                       toggleDropdown(item.title);
                     }}
                     className={cn(
@@ -133,14 +150,14 @@ export function AdminSidebar() {
                       <item.icon
                         className={cn(
                           "flex-shrink-0",
-                          isCollapsed ? "mr-0" : "mr-3",
+                          isCollapsed && !isMobileOpen ? "mr-0 md:mr-0" : "mr-3",
                           isActive ? "text-indigo-700" : "text-gray-400 group-hover:text-gray-500"
                         )}
                         size={20}
                       />
-                      {!isCollapsed && <span>{item.title}</span>}
+                      {(!isCollapsed || isMobileOpen) && <span>{item.title}</span>}
                     </div>
-                    {!isCollapsed && item.children && (
+                    {(!isCollapsed || isMobileOpen) && item.children && (
                       <ChevronDown
                         size={16}
                         className={cn(
@@ -150,7 +167,7 @@ export function AdminSidebar() {
                       />
                     )}
                   </button>
-                  {!isCollapsed && item.children && isOpen && (
+                  {(!isCollapsed || isMobileOpen) && item.children && isOpen && (
                     <div className="mt-1 space-y-1 pl-10 overflow-hidden">
                       {item.children.map((child) => {
                         const isChildActive = isRouteActive(child.href);
@@ -158,6 +175,7 @@ export function AdminSidebar() {
                           <Link
                             key={child.title}
                             href={child.href}
+                            onClick={() => setIsMobileOpen(false)}
                             className={cn(
                               "block rounded-md py-2 pl-3 pr-2 text-sm font-medium transition-colors",
                               isChildActive
@@ -178,8 +196,8 @@ export function AdminSidebar() {
         })}
       </nav>
       
-      {!isCollapsed && (
-        <div className="border-t border-gray-200 p-4">
+      {(!isCollapsed || isMobileOpen) && (
+        <div className="border-t border-gray-200 p-4 hidden md:block">
           <div className="flex items-center justify-between rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-500">
             <span>Search</span>
             <kbd className="hidden rounded border bg-white px-1.5 font-mono text-[10px] font-medium text-gray-500 sm:inline-block">
@@ -188,6 +206,59 @@ export function AdminSidebar() {
           </div>
         </div>
       )}
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile Header */}
+      <div className="md:hidden flex h-16 w-full shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 z-30 relative">
+        <span className="text-xl font-bold tracking-tight text-gray-900">
+          Udbhav Admin
+        </span>
+        <button
+          onClick={toggleMobileSidebar}
+          className="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        >
+          <Menu size={24} />
+        </button>
+      </div>
+
+      {/* Desktop Sidebar */}
+      <aside
+        className={cn(
+          "hidden md:flex relative h-screen flex-col border-r border-gray-200 bg-white transition-all duration-300 shrink-0",
+          isCollapsed ? "w-20" : "w-64"
+        )}
+      >
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile Off-Canvas Drawer Overlay */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm md:hidden"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      {/* Mobile Off-Canvas Drawer */}
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex h-full w-64 flex-col bg-white shadow-xl transition-transform duration-300 ease-in-out md:hidden",
+          isMobileOpen ? "translate-x-0" : "-translate-x-full"
+        )}
+      >
+        <div className="absolute right-2 top-2 z-50">
+          <button 
+            onClick={() => setIsMobileOpen(false)}
+            className="p-2 text-gray-500 hover:bg-gray-100 rounded-md"
+          >
+            <X size={20} />
+          </button>
+        </div>
+        <SidebarContent />
+      </aside>
+    </>
   );
 }

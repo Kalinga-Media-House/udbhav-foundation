@@ -27,10 +27,10 @@ export function AlbumManagementTable({ albums }: Props) {
   };
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-left">
-          <thead>
+    <div className="overflow-hidden md:rounded-xl md:border md:border-gray-100 bg-transparent md:bg-white md:shadow-sm">
+      <div className="w-full">
+        <table className="w-full border-collapse text-left block md:table">
+          <thead className="hidden md:table-header-group">
             <tr className="border-b border-gray-100 bg-gray-50/80 text-xs font-semibold uppercase tracking-wider text-gray-600">
               <th className="px-6 py-4">Cover / Title</th>
               <th className="px-6 py-4">Photos</th>
@@ -40,10 +40,10 @@ export function AlbumManagementTable({ albums }: Props) {
               <th className="px-6 py-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 text-sm">
+          <tbody className="divide-y divide-gray-100 text-sm block md:table-row-group">
             {albums.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                <td colSpan={6} className="px-6 py-12 text-center text-gray-500 bg-white rounded-lg border border-gray-200">
                   No albums found.
                 </td>
               </tr>
@@ -54,8 +54,8 @@ export function AlbumManagementTable({ albums }: Props) {
                 const visibility = album.visibility || 'Public';
 
                 return (
-                  <tr key={album.id} className={`transition-colors hover:bg-gray-50/50 ${isPending ? 'opacity-70 pointer-events-none' : ''}`}>
-                    <td className="px-6 py-4">
+                  <tr key={album.id} className={`transition-colors hover:bg-gray-50/50 block md:table-row border border-gray-200 md:border-none rounded-xl mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none bg-white md:bg-transparent ${isPending ? 'opacity-70 pointer-events-none' : ''}`}>
+                    <td data-label="Cover / Title" className="px-0 md:px-6 py-2 md:py-4 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-2 before:block md:before:hidden">
                       <div className="flex items-center gap-4">
                         <div className="relative flex h-12 w-16 shrink-0 items-center justify-center overflow-hidden rounded-md bg-gray-100 border border-gray-200">
                           {album.cover_image?.cdn_url ? (
@@ -77,10 +77,10 @@ export function AlbumManagementTable({ albums }: Props) {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td data-label="Photos" className="px-0 md:px-6 py-2 md:py-4 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       <span className="font-medium text-gray-900">{album.photos_count}</span> photos
                     </td>
-                    <td className="px-6 py-4 text-xs text-gray-600 space-y-1">
+                    <td data-label="Connections" className="px-0 md:px-6 py-2 md:py-4 text-xs text-gray-600 space-y-1 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       {album.program_id && <div>Prog: <span className="font-medium text-gray-800">{album.program_id}</span></div>}
                       {album.event_id && <div>Event: <span className="font-medium text-gray-800">{album.event_id}</span></div>}
                       {location && (
@@ -93,17 +93,17 @@ export function AlbumManagementTable({ albums }: Props) {
                         <span className="text-gray-400 italic">None</span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
+                    <td data-label="Visibility" className="px-0 md:px-6 py-2 md:py-4 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       <span
                         className={`rounded-full px-2.5 py-1 text-xs font-semibold ${visibility === 'Public' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}`}
                       >
                         {visibility}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-xs text-gray-500">
+                    <td data-label="Created" className="px-0 md:px-6 py-2 md:py-4 text-xs text-gray-500 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       {new Date(album.created_at).toLocaleDateString('en-IN')}
                     </td>
-                    <td className="space-x-2 whitespace-nowrap px-6 py-4 text-right">
+                    <td className="space-x-2 whitespace-nowrap px-0 md:px-6 py-3 md:py-4 text-left md:text-right block md:table-cell">
                       <Link href={`/gallery/${album.slug}`} target="_blank" title="View Public Album">
                         <button
                           type="button"

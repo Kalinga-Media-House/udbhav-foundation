@@ -188,7 +188,7 @@ export function GlobalSearch() {
         className="fixed inset-0 z-50 bg-zinc-900/50 backdrop-blur-sm transition-opacity"
         onClick={() => setIsOpen(false)}
       />
-      <div className="fixed left-1/2 top-20 z-50 w-full max-w-xl -translate-x-1/2 rounded-xl bg-white shadow-2xl ring-1 ring-black/5 duration-200 animate-in fade-in zoom-in-95 dark:bg-zinc-900">
+      <div className="fixed left-1/2 top-16 md:top-20 z-50 w-[calc(100%-2rem)] md:w-full max-w-xl -translate-x-1/2 rounded-xl bg-white shadow-2xl ring-1 ring-black/5 duration-200 animate-in fade-in zoom-in-95 dark:bg-zinc-900">
         <div className="flex items-center border-b border-zinc-100 px-4 py-3 dark:border-zinc-800">
           <Search size={20} className="text-zinc-400" />
           <input

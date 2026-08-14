@@ -52,11 +52,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   // If authorized, render the admin dashboard or nested admin pages
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 font-sans text-gray-900">
+    <div className="flex h-screen w-full flex-col overflow-hidden bg-gray-50 font-sans text-gray-900 md:flex-row">
       <GlobalSearch />
       <AdminSidebar />
-      <div className="flex-1 overflow-y-auto">
-        <main className="h-full p-4 md:p-8">{children}</main>
+      <div className="flex w-full flex-1 flex-col overflow-x-hidden overflow-y-auto">
+        <main className="h-full w-full p-4 md:p-8">{children}</main>
       </div>
     </div>
   );

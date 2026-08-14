@@ -150,15 +150,15 @@ export function NewsListClient({ initialArticles }: NewsListClientProps) {
       )}
 
       {/* Articles Table */}
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+      <div className="overflow-hidden md:rounded-lg md:border md:border-gray-200 bg-transparent md:bg-white md:shadow-sm">
         {filteredArticles.length === 0 ? (
-          <div className="py-12 text-center text-gray-500">
+          <div className="py-12 text-center text-gray-500 bg-white rounded-lg border border-gray-200">
             No news articles found matching your criteria.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse text-left">
-              <thead>
+          <div className="w-full">
+            <table className="w-full border-collapse text-left block md:table">
+              <thead className="hidden md:table-header-group">
                 <tr className="border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wider text-gray-600">
                   <th className="px-6 py-3">Article</th>
                   <th className="px-6 py-3">Category</th>
@@ -168,10 +168,10 @@ export function NewsListClient({ initialArticles }: NewsListClientProps) {
                   <th className="px-6 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 text-sm">
+              <tbody className="divide-y divide-gray-200 text-sm block md:table-row-group">
                 {filteredArticles.map((article) => (
-                  <tr key={article.id} className="transition-colors hover:bg-gray-50/80">
-                    <td className="px-6 py-4">
+                  <tr key={article.id} className="transition-colors hover:bg-gray-50/80 block md:table-row border border-gray-200 md:border-none rounded-xl mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none bg-white md:bg-transparent">
+                    <td data-label="Article" className="px-0 md:px-6 py-2 md:py-4 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       <div className="font-semibold text-gray-900">{article.title}</div>
                       <div className="mt-0.5 flex items-center gap-2 text-xs text-gray-400">
                         <span>{article.article_code}</span>
@@ -188,12 +188,12 @@ export function NewsListClient({ initialArticles }: NewsListClientProps) {
                         )}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td data-label="Category" className="px-0 md:px-6 py-2 md:py-4 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
                         {article.category || 'News'}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td data-label="Status" className="px-0 md:px-6 py-2 md:py-4 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       <span
                         className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                           article.status === 'Published'
@@ -206,7 +206,7 @@ export function NewsListClient({ initialArticles }: NewsListClientProps) {
                         {article.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td data-label="Featured" className="px-0 md:px-6 py-2 md:py-4 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       <button
                         type="button"
                         onClick={() => handleToggleFeature(article.id, article.is_featured)}
@@ -221,12 +221,12 @@ export function NewsListClient({ initialArticles }: NewsListClientProps) {
                         <Star className="h-4 w-4 fill-current" />
                       </button>
                     </td>
-                    <td className="px-6 py-4 text-xs text-gray-500">
+                    <td data-label="Date" className="px-0 md:px-6 py-2 md:py-4 text-xs text-gray-500 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       {article.published_at
                         ? new Date(article.published_at).toLocaleDateString('en-IN')
                         : new Date(article.created_at).toLocaleDateString('en-IN')}
                     </td>
-                    <td className="space-x-2 px-6 py-4 text-right">
+                    <td className="space-x-2 px-0 md:px-6 py-3 md:py-4 text-left md:text-right block md:table-cell">
                       <button
                         type="button"
                         onClick={() => handleTogglePublish(article.id, article.status)}

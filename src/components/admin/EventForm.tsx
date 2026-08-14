@@ -147,7 +147,7 @@ export function EventForm({ initialData, programs }: EventFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="max-w-4xl space-y-6 rounded-lg border border-gray-100 bg-white p-8 shadow-sm"
+      className="max-w-4xl space-y-4 md:space-y-6 rounded-lg border border-gray-100 bg-white p-4 md:p-8 shadow-sm"
     >
       {error && (
         <div className="rounded-md border border-red-100 bg-red-50 p-4 text-sm text-red-700">
