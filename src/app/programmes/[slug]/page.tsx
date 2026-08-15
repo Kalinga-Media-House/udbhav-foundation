@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import React from "react";
 
 import { ProgrammeDetailView } from "@/components/index-page/ProgrammeDetailView";
-import { INDEX_PROGRAMME_PHOTOS } from "@/data/index-programmes-data";
+import { listPublicPhotosAction } from "@/features/gallery/actions";
 import { getProgramBySlug, listPrograms } from "@/features/programs/actions";
 import type { IndexProgrammeDetail, ProgrammeCategory } from "@/types/index-programme";
+import type { AdminPhotoItem } from "@/features/gallery/repository";
 
 export const dynamic = 'force-dynamic';
 
@@ -78,7 +79,13 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
       fullDescription: (meta.fullDescription as string) || p.full_description || '',
       coverImageUrl: resolvedCover,
       accentColor: (meta.accentColor as string) || '#172B6B',
-      programDate: p.start_date || undefined,
+      programDate: p.start_date
+        ? new Date(p.start_date).toLocaleDateString('en-IN', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+          })
+        : undefined,
       location: p.location || undefined,
       impactPreview: (meta.impactPreview as string) || '',
       impactStats: (meta.impactStats as any) || [],
@@ -98,11 +105,16 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  // Photos (Mocked until those modules are built)
-
-  const photos = INDEX_PROGRAMME_PHOTOS.filter(
-    (p) => p.programmeSlug === slug || p.programmeId === programme.id
-  );
+  // Fetch real gallery photos for this programme
+  let photos: AdminPhotoItem[] = [];
+  try {
+    const photosRes = await listPublicPhotosAction({ page: 1, limit: 100 }, { program_id: programme.id });
+    if (photosRes.success && photosRes.data) {
+      photos = photosRes.data.data;
+    }
+  } catch {
+    // Graceful fallback to empty array
+  }
 
   // Fetch related programs
   let relatedProgrammes: IndexProgrammeDetail[] = [];

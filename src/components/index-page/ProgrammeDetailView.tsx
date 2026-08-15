@@ -8,20 +8,39 @@ import {
   Calendar,
   MapPin,
   TrendingUp,
+  Image as ImageIcon
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 
-import { AccessibleLightbox } from "@/components/index-page/AccessibleLightbox";
-import {
-  IndexProgrammeDetail,
-  ProgrammePhotoItem,
-} from "@/types/index-programme";
+import { GalleryLightbox } from "@/components/gallery/GalleryLightbox";
+import type { IndexProgrammeDetail } from "@/types/index-programme";
+import type { AdminPhotoItem } from "@/features/gallery/repository";
+
+const PROGRAM_CARD_THEMES = [
+  { bg: 'bg-emerald-50', accent: 'text-emerald-600', hover: 'group-hover:text-emerald-700', text: 'text-emerald-950', border: 'border-emerald-100', divider: 'bg-emerald-200/60', icon: 'text-emerald-500' },
+  { bg: 'bg-blue-50', accent: 'text-blue-600', hover: 'group-hover:text-blue-700', text: 'text-blue-950', border: 'border-blue-100', divider: 'bg-blue-200/60', icon: 'text-blue-500' },
+  { bg: 'bg-amber-50', accent: 'text-amber-600', hover: 'group-hover:text-amber-700', text: 'text-amber-950', border: 'border-amber-100', divider: 'bg-amber-200/60', icon: 'text-amber-500' },
+  { bg: 'bg-indigo-50', accent: 'text-indigo-600', hover: 'group-hover:text-indigo-700', text: 'text-indigo-950', border: 'border-indigo-100', divider: 'bg-indigo-200/60', icon: 'text-indigo-500' },
+  { bg: 'bg-teal-50', accent: 'text-teal-600', hover: 'group-hover:text-teal-700', text: 'text-teal-950', border: 'border-teal-100', divider: 'bg-teal-200/60', icon: 'text-teal-500' },
+  { bg: 'bg-rose-50', accent: 'text-rose-600', hover: 'group-hover:text-rose-700', text: 'text-rose-950', border: 'border-rose-100', divider: 'bg-rose-200/60', icon: 'text-rose-500' },
+  { bg: 'bg-sky-50', accent: 'text-sky-600', hover: 'group-hover:text-sky-700', text: 'text-sky-950', border: 'border-sky-100', divider: 'bg-sky-200/60', icon: 'text-sky-500' },
+  { bg: 'bg-fuchsia-50', accent: 'text-fuchsia-600', hover: 'group-hover:text-fuchsia-700', text: 'text-fuchsia-950', border: 'border-fuchsia-100', divider: 'bg-fuchsia-200/60', icon: 'text-fuchsia-500' },
+];
+
+function getThemeForId(id: string) {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % PROGRAM_CARD_THEMES.length;
+  return PROGRAM_CARD_THEMES[index];
+}
 
 interface ProgrammeDetailViewProps {
   programme: IndexProgrammeDetail;
-  photos: ProgrammePhotoItem[];
+  photos: AdminPhotoItem[];
   relatedProgrammes: IndexProgrammeDetail[];
 }
 
@@ -45,256 +64,261 @@ export function ProgrammeDetailView({
     }
   };
 
+  const hasPhotos = photos && photos.length > 0;
+
   return (
     <div className="bg-[#FCFCF8]">
-      {/* A. PROGRAMME HERO */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-[#172B6B] via-[#101F55] to-[#12245F] text-white py-12 sm:py-16 md:py-20 border-b border-white/10">
+      {/* 1. COMPACT HERO SECTION */}
+      <section className="relative bg-gradient-to-br from-[#172B6B] via-[#101F55] to-[#12245F] text-white py-8 sm:py-12 border-b border-white/10">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="mb-6">
             <Link
               href="/programmes"
-              className="inline-flex items-center gap-2 text-sm font-heading font-semibold text-white/80 hover:text-[#439B25] transition-colors"
+              className="inline-flex items-center gap-2 text-sm font-heading font-medium text-white/70 hover:text-white transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Programmes & Initiatives Index
+              Back to Programmes
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-            {/* Left Info */}
-            <div className="lg:col-span-7">
-              <div className="flex flex-wrap items-center gap-3 mb-4">
-                <span className="px-3.5 py-1 rounded-full text-xs font-heading font-bold uppercase bg-[#439B25] text-white">
-                  Programme {programme.programmeNumber}
-                </span>
-                <span className="px-3.5 py-1 rounded-full text-xs font-heading font-semibold bg-white/15 text-white/90">
-                  {programme.category}
-                </span>
-                {programme.partnerText && (
-                  <span className="text-xs font-medium text-[#EAF3FF]/80">
-                    {programme.partnerText}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+            {/* Left Content */}
+            <div>
+              {programme.programmeNumber && programme.programmeNumber !== '00' && (
+                <div className="mb-3">
+                  <span className="px-2.5 py-0.5 rounded text-[11px] font-heading font-bold uppercase bg-[#439B25] text-white tracking-widest">
+                    PROGRAMME {programme.programmeNumber}
                   </span>
-                )}
-              </div>
-
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-heading font-extrabold text-white leading-tight mb-3">
-                {programme.title}
-              </h1>
-
-              <p className="text-sm sm:text-base font-semibold text-[#439B25] uppercase tracking-wide mb-6">
-                {programme.tagline}
-              </p>
-
-              {(programme.programDate || programme.location) && (
-                <div className="flex flex-wrap items-center gap-6 mb-6">
-                  {programme.programDate && (
-                    <div className="flex items-center gap-2 text-white/90">
-                      <Calendar className="w-5 h-5 text-[#439B25]" />
-                      <span className="font-medium">
-                        {new Date(programme.programDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                      </span>
-                    </div>
-                  )}
-                  {programme.location && (
-                    <div className="flex items-center gap-2 text-white/90">
-                      <MapPin className="w-5 h-5 text-[#439B25]" />
-                      <span className="font-medium">{programme.location}</span>
-                    </div>
-                  )}
                 </div>
               )}
+              
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-white leading-tight mb-2">
+                {programme.title}
+              </h1>
+              
+              {programme.tagline && (
+                <p className="text-sm sm:text-base font-medium text-[#439B25] uppercase tracking-wide mb-6">
+                  {programme.tagline}
+                </p>
+              )}
 
-              <p className="text-base sm:text-lg text-white/85 leading-relaxed mb-8 max-w-2xl">
-                {programme.fullDescription}
-              </p>
-
-              {/* CTAs */}
               <div className="flex flex-wrap items-center gap-4">
                 <Link
                   href="/volunteers"
-                  className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl font-heading font-semibold text-sm sm:text-base text-white bg-[#439B25] hover:bg-[#348a1e] shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-heading font-semibold text-sm text-white bg-[#439B25] hover:bg-[#348a1e] transition-colors"
                 >
-                  <HeartHandshake className="w-5 h-5" />
+                  <HeartHandshake className="w-4 h-4" />
                   Become a Volunteer
                 </Link>
 
                 <button
                   type="button"
                   onClick={scrollToGallery}
-                  className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl font-heading font-semibold text-sm sm:text-base text-white bg-white/15 hover:bg-white/25 border border-white/20 transition-all cursor-pointer"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg font-heading font-semibold text-sm text-white bg-white/10 hover:bg-white/20 transition-colors cursor-pointer"
                 >
-                  <Camera className="w-5 h-5 text-[#439B25]" />
-                  View Programme Gallery
+                  <Camera className="w-4 h-4 text-[#439B25]" />
+                  View Gallery
                 </button>
               </div>
             </div>
 
-            {/* Right Hero Cover Photo & Impact Badge */}
-            <div className="lg:col-span-5">
-              <div className="relative h-72 sm:h-96 rounded-3xl overflow-hidden bg-black/40 border border-white/15 shadow-2xl">
-                <Image
-                  src={programme.coverImageUrl}
-                  alt={programme.title}
-                  fill
-                  sizes="(max-width: 1024px) 100vw, 450px"
-                  className="object-cover"
-                  priority
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-
-                <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between p-4 rounded-2xl bg-black/60 border border-white/15 backdrop-blur-md">
-                  <div>
-                    <span className="text-xs text-[#439B25] font-bold uppercase tracking-wider block">
-                      Primary Outcome
-                    </span>
-                    <span className="text-base sm:text-lg font-heading font-bold text-white">
-                      {programme.impactPreview}
-                    </span>
-                  </div>
-                  <TrendingUp className="w-6 h-6 text-[#439B25]" />
-                </div>
-              </div>
+            {/* Right Cover Image */}
+            <div className="relative aspect-[16/9] sm:aspect-[3/2] lg:aspect-[16/9] w-full max-w-lg lg:ml-auto rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black/20">
+              <Image
+                src={programme.coverImageUrl}
+                alt={programme.title}
+                fill
+                sizes="(max-width: 1024px) 100vw, 500px"
+                className="object-cover"
+                priority
+              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* E. PROGRAMME PHOTO GALLERY */}
+      {/* 2. PROGRAMME INFORMATION SECTION */}
+      <section className="py-12 bg-white border-b border-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
+            
+            {/* Main Description */}
+            <div className="md:col-span-2">
+              <h2 className="text-xl font-heading font-bold text-[#172B6B] mb-4">About This Programme</h2>
+              <div className="prose prose-sm sm:prose-base prose-gray max-w-none text-gray-700 leading-relaxed whitespace-pre-wrap">
+                {programme.fullDescription || programme.shortDescription}
+              </div>
+              
+              {programme.purpose && (
+                <div className="mt-8">
+                  <h3 className="text-lg font-heading font-bold text-[#172B6B] mb-3">Our Purpose</h3>
+                  <p className="text-gray-700">{programme.purpose}</p>
+                </div>
+              )}
+            </div>
+
+            {/* Sidebar Details */}
+            <div className="space-y-6 bg-gray-50 p-6 rounded-2xl border border-gray-100 h-fit">
+              <h3 className="text-sm font-heading font-bold text-gray-900 uppercase tracking-wider border-b border-gray-200 pb-2">Programme Details</h3>
+              
+              {(programme.programDate || programme.location) && (
+                <div className="space-y-4">
+                  {programme.programDate && (
+                    <div className="flex items-start gap-3">
+                      <Calendar className="w-5 h-5 text-[#439B25] shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-gray-500 font-medium">Date</p>
+                        <p className="text-sm font-medium text-gray-900">{programme.programDate}</p>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {programme.location && (
+                    <div className="flex items-start gap-3">
+                      <MapPin className="w-5 h-5 text-[#439B25] shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-xs text-gray-500 font-medium">Location</p>
+                        <p className="text-sm font-medium text-gray-900">{programme.location}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {programme.impactPreview && (
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="flex items-start gap-3">
+                    <TrendingUp className="w-5 h-5 text-[#439B25] shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs text-gray-500 font-medium">Primary Outcome</p>
+                      <p className="text-sm font-bold text-[#172B6B]">{programme.impactPreview}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 3. PROGRAMME PHOTO GALLERY */}
       <section
         id="gallery"
-        className="py-16 sm:py-20 bg-[#FCFCF8] border-t border-gray-200 scroll-mt-20"
+        className="py-16 sm:py-20 bg-[#FCFCF8] border-b border-gray-200 scroll-mt-20"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3C9D23]/15 text-[#3C9D23] text-xs font-heading font-bold uppercase tracking-wider mb-2">
-              COMMUNITY DOCUMENTATION
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+            <div>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#3C9D23]/15 text-[#3C9D23] text-[11px] font-heading font-bold uppercase tracking-wider mb-2">
+                COMMUNITY DOCUMENTATION
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-heading font-bold text-[#172B6B]">
+                Moments From This Programme
+              </h2>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-heading font-bold text-[#172B6B]">
-              Moments From This Programme
-            </h2>
+            {hasPhotos && (
+              <div className="text-sm font-medium text-gray-500 bg-white px-4 py-2 rounded-full border border-gray-200 shadow-sm w-fit">
+                {photos.length} Photo{photos.length === 1 ? '' : 's'}
+              </div>
+            )}
           </div>
 
-          {photos.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {photos.map((photo, idx) => (
-                <div
-                  key={photo.id}
-                  onClick={() => openLightbox(idx)}
-                  className="group cursor-pointer rounded-2xl overflow-hidden bg-white border border-gray-200 shadow-sm hover:shadow-xl transition-all"
-                >
-                  <div className="relative h-60 w-full overflow-hidden">
+          {hasPhotos ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {photos.map((photo, idx) => {
+                const imageUrl = photo.media?.cdn_url;
+                if (!imageUrl) return null;
+                
+                const title = photo.caption || photo.album?.title || "Gallery Moment";
+
+                return (
+                  <div
+                    key={photo.id}
+                    onClick={() => openLightbox(idx)}
+                    className="group relative cursor-pointer rounded-xl sm:rounded-2xl overflow-hidden bg-gray-100 border border-gray-200 shadow-sm hover:shadow-lg transition-all aspect-[4/3]"
+                  >
                     <Image
-                      src={photo.thumbnailUrl}
-                      alt={photo.altText}
+                      src={imageUrl}
+                      alt={photo.media?.alt_text || title}
                       fill
-                      sizes="(max-width: 640px) 100vw, 33vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
                     />
 
-                    {/* Desktop Hover Gradient Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#172B6B]/90 via-[#172B6B]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5 text-white">
-                      <span className="inline-block px-2.5 py-0.5 rounded text-[10px] font-bold uppercase bg-[#3C9D23] text-white w-fit mb-2">
-                        {programme.title}
-                      </span>
-                      <h4 className="font-heading font-bold text-sm sm:text-base leading-snug mb-1">
-                        {photo.title}
-                      </h4>
-                      <div className="flex items-center gap-3 text-xs text-white/80">
-                        {photo.location && (
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-[#3C9D23]" />
-                            {photo.location}
-                          </span>
-                        )}
-                        {photo.photoDate && (
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3 text-[#3C9D23]" />
-                            {photo.photoDate}
-                          </span>
-                        )}
+                    {/* Hover Overlay */}
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex flex-col justify-end p-4">
+                      <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-y-2 group-hover:translate-y-0">
+                         {/* Very clean minimal overlay - maybe just an icon */}
+                         <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center ml-auto">
+                            <ImageIcon className="w-4 h-4 text-white" />
+                         </div>
                       </div>
                     </div>
                   </div>
-
-                  {/* Visible Metadata on Mobile / Below image */}
-                  <div className="p-4 sm:hidden">
-                    <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-[#3C9D23] text-white mb-1.5">
-                      {programme.title}
-                    </span>
-                    <h4 className="font-heading font-bold text-sm text-[#172B6B]">
-                      {photo.title}
-                    </h4>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : (
-            <div className="p-12 text-center rounded-2xl bg-white border border-dashed border-gray-300">
-              <p className="text-sm sm:text-base font-medium text-gray-600">
-                Photo stories from this programme will appear here.
+            <div className="py-16 px-4 text-center rounded-2xl bg-white border border-dashed border-gray-300">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-gray-50 mb-4 ring-1 ring-gray-100">
+                <Camera className="h-6 w-6 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-heading font-bold text-gray-900 mb-1">No photos available yet.</h3>
+              <p className="text-sm font-medium text-gray-500 max-w-md mx-auto">
+                Photos from this programme will appear here once they are captured and added to our gallery.
               </p>
             </div>
           )}
         </div>
       </section>
 
-      {/* Lightbox */}
-      <AccessibleLightbox
-        photos={photos}
-        initialIndex={selectedPhotoIndex}
-        isOpen={lightboxOpen}
-        onClose={() => setLightboxOpen(false)}
-      />
+      {/* Lightbox Integration */}
+      {hasPhotos && lightboxOpen && (
+        <GalleryLightbox
+          photos={photos}
+          initialIndex={selectedPhotoIndex}
+          onClose={() => setLightboxOpen(false)}
+        />
+      )}
 
-      {/* F. RELATED PROGRAMMES */}
+      {/* 4. RELATED PROGRAMMES (Redesigned) */}
       {relatedProgrammes.length > 0 && (
-        <section className="py-16 sm:py-20 bg-white border-t border-gray-200">
+        <section className="py-16 sm:py-20 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-2xl sm:text-3xl font-heading font-bold text-[#172B6B] mb-8">
               You May Also Explore
             </h2>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              {relatedProgrammes.map((rp) => (
-                <div
-                  key={rp.id}
-                  className="rounded-2xl bg-[#FCFCF8] border border-gray-200 overflow-hidden shadow-sm flex flex-col justify-between"
-                >
-                  <div className="relative h-44 w-full bg-gray-100">
-                    <Image
-                      src={rp.coverImageUrl}
-                      alt={rp.title}
-                      fill
-                      sizes="33vw"
-                      className="object-cover"
-                    />
-                    <div className="absolute top-3 left-3">
-                      <span className="px-2.5 py-1 rounded-full text-xs font-bold uppercase bg-[#172B6B] text-white">
-                        {rp.programmeNumber}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="p-5 flex flex-col flex-1 justify-between">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {relatedProgrammes.map((rp) => {
+                const theme = getThemeForId(rp.id);
+                return (
+                  <div
+                    key={rp.id}
+                    className={`w-full ${theme.bg} rounded-[16px] sm:rounded-[20px] p-5 sm:p-6 shadow-sm hover:shadow-md transition-all duration-300 border ${theme.border} group relative overflow-hidden flex flex-col justify-between h-full`}
+                  >
                     <div>
-                      <h3 className="font-heading font-bold text-base text-[#172B6B] mb-1">
-                        {rp.title}
+                      <h3 className={`font-heading text-lg sm:text-xl font-bold leading-tight ${theme.text} mb-3`}>
+                        <Link href={`/programmes/${rp.slug}`}>
+                          <span className="absolute inset-0 z-20" aria-hidden="true" />
+                          {rp.title}
+                        </Link>
                       </h3>
-                      <p className="text-xs text-gray-600 line-clamp-2 mb-4">
+                      
+                      <div className={`w-full h-px ${theme.divider} mb-4`} />
+                      
+                      <p className={`text-sm ${theme.text} opacity-80 mb-6 line-clamp-2`}>
                         {rp.shortDescription}
                       </p>
                     </div>
 
-                    <Link
-                      href={`/programmes/${rp.slug}`}
-                      className="inline-flex items-center justify-between w-full px-4 py-2 rounded-xl font-heading text-xs font-semibold text-[#172B6B] bg-[#EAF3FF] hover:bg-[#172B6B] hover:text-white transition-all"
-                    >
-                      <span>Explore Programme</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
+                    <div className={`flex items-center font-semibold text-sm ${theme.accent} ${theme.hover} transition-colors mt-auto`}>
+                      View Details <ArrowRight className="ml-1.5 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </section>
