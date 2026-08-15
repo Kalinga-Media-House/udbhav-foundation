@@ -22,6 +22,12 @@ export default async function IndexPage() {
   }
   const activePrograms = result.data.data;
 
+  // Determine canonical sequence numbers by chronological order (oldest first gets 01)
+  const canonicalPrograms = [...activePrograms].sort(
+    (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  );
+  const programSequenceMap = new Map(canonicalPrograms.map((p, index) => [p.id, index + 1]));
+
   const mappedProgrammes: IndexProgrammeDetail[] = activePrograms.map((p) => {
     const meta = (p.metadata || {}) as any;
     const r2Url = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || 'https://media.udbhavfoundation.in';
@@ -29,9 +35,11 @@ export default async function IndexPage() {
       ? `${r2Url}/${p.cover_image.r2_object_key}`
       : (meta.coverImageUrl as string) || '/hero/hero-01.png';
 
+    const canonicalSeq = programSequenceMap.get(p.id) || 0;
+
     return {
       id: p.id,
-      programmeNumber: (p.sort_order ?? 0).toString().padStart(2, '0'),
+      programmeNumber: canonicalSeq.toString().padStart(2, '0'),
       title: p.title,
       tagline: p.short_description || '',
       category: (meta.category as ProgrammeCategory) || 'Community Support',

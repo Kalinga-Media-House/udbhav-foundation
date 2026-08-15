@@ -58,6 +58,18 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
 
   let programme: IndexProgrammeDetail | undefined;
 
+  // 1. Fetch full public list to build the canonical sequence numbering
+  let programSequenceMap = new Map<string, number>();
+  try {
+    const allRes = await listPrograms({ page: 1, limit: 100 }, { visibility: 'public', status: 'active' });
+    if (allRes.success && allRes.data) {
+      const canonicalPrograms = [...allRes.data.data].sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      programSequenceMap = new Map(canonicalPrograms.map((p, idx) => [p.id, idx + 1]));
+    }
+  } catch {
+    // Ignore error
+  }
+
   try {
     const res = await getProgramBySlug(slug);
     if (!res.success || !res.data) throw new Error();
@@ -68,9 +80,11 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
       ? `${r2Url}/${p.cover_image.r2_object_key}`
       : (meta.coverImageUrl as string) || '/hero/hero-01.png';
 
+    const canonicalSeq = programSequenceMap.get(p.id) || 0;
+
     programme = {
       id: p.id,
-      programmeNumber: (p.sort_order ?? 0).toString().padStart(2, '0'),
+      programmeNumber: canonicalSeq.toString().padStart(2, '0'),
       title: p.title,
       tagline: p.short_description || '',
       category: (meta.category as ProgrammeCategory) || 'Community Support',
@@ -119,7 +133,7 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
   // Fetch related programs
   let relatedProgrammes: IndexProgrammeDetail[] = [];
   try {
-    const allRes = await listPrograms({ page: 1, limit: 4 }, { visibility: 'public' });
+    const allRes = await listPrograms({ page: 1, limit: 4 }, { visibility: 'public', status: 'active' });
     if (allRes.success && allRes.data) {
       relatedProgrammes = allRes.data.data.filter(p => p.slug !== slug).slice(0, 3).map(p => {
         const meta = (p.metadata || {}) as Record<string, unknown>;
@@ -127,9 +141,12 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
         const relCover = p.cover_image?.r2_object_key 
           ? `${r2Url}/${p.cover_image.r2_object_key}`
           : (meta.coverImageUrl as string) || '/hero/hero-01.png';
+
+        const canonicalSeq = programSequenceMap.get(p.id) || 0;
+
         return {
           id: p.id,
-          programmeNumber: ((p.sort_order ?? 0) ?? 0).toString().padStart(2, '0'),
+          programmeNumber: canonicalSeq.toString().padStart(2, '0'),
           title: p.title,
           tagline: p.short_description || '',
           category: (meta.category as ProgrammeCategory) || 'Community Support',

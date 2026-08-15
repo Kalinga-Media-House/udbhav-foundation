@@ -381,9 +381,7 @@ export function ProgrammeDetailView({
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {relatedProgrammes.map((rp, index) => {
                 const theme = getThemeForId(rp.id);
-                const progNumber = rp.programmeNumber && rp.programmeNumber !== '00'
-                  ? rp.programmeNumber
-                  : (index + 1).toString().padStart(2, '0');
+                const progNumber = rp.programmeNumber || '00';
 
                 return (
                   <div

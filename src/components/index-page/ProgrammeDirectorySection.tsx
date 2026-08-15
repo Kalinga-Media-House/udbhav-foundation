@@ -185,9 +185,7 @@ function getThemeForId(id: string) {
 function TimelineItem({ prog, index }: { prog: IndexProgrammeDetail; index: number }) {
   const isLeft = index % 2 === 0;
   const theme = getThemeForId(prog.id);
-  const progNumber = prog.programmeNumber && prog.programmeNumber !== '00' 
-    ? prog.programmeNumber 
-    : (index + 1).toString().padStart(2, '0');
+  const progNumber = prog.programmeNumber || '00';
 
   return (
     <div className="relative mb-6 md:mb-12 w-full flex justify-end md:justify-between items-center group">
