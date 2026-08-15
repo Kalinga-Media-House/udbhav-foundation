@@ -30,7 +30,7 @@ export const addGalleryItemSchema = z.object({
 
 /** Zod validation schema for uploading multiple photos. */
 export const uploadPhotosSchema = z.object({
-  title: z.string().min(3).max(200),
+  title: z.string().max(200).nullable().optional(),
   location: z.string().max(200).nullable().optional(),
   description: z.string().max(5000).nullable().optional(),
   visibility: z.enum(['public', 'members', 'private', 'hidden', 'Public', 'Members', 'Private', 'Internal']).default('Public'),

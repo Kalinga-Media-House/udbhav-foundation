@@ -5,26 +5,25 @@ import React from "react";
 
 import { Container } from "@/components/shared/Container";
 export function GalleryStatsSection({ stats }: { stats: { totalPhotos: number, eventsCovered: number, programmesRepresented: number, locationsReached: number } }) {
-
   const STATS_CARDS = [
     {
       icon: Camera,
-      count: `${stats.totalPhotos}+`,
+      count: stats.totalPhotos,
       label: "Authentic Photos",
     },
     {
       icon: Calendar,
-      count: `${stats.eventsCovered}+`,
+      count: stats.eventsCovered,
       label: "Events Covered",
     },
     {
       icon: Layers,
-      count: `${stats.programmesRepresented}`,
+      count: stats.programmesRepresented,
       label: "Programmes Represented",
     },
     {
       icon: MapPin,
-      count: `${stats.locationsReached}+`,
+      count: stats.locationsReached,
       label: "Locations Reached",
     },
   ];

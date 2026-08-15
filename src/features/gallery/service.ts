@@ -197,6 +197,9 @@ export class GalleryService {
     
     const { media_ids, ...albumData } = parsed.data;
 
+    const defaultTitle = albumData.title || `Gallery Upload - ${new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')}`;
+    const safeAlbumData = { ...albumData, title: defaultTitle };
+
     const supabase = await (await import('@/lib/supabase/server')).createServerSupabaseClient();
     
     // Find matching album based on priorities
@@ -210,14 +213,14 @@ export class GalleryService {
     }
 
     // Priority 2: Same programme AND same title
-    if (!matchedAlbumId && albumData.program_id) {
-      const { data } = await supabase.from('gallery_albums').select('id').eq('is_deleted', false).eq('program_id', albumData.program_id).eq('title', albumData.title).limit(1).single();
+    if (!matchedAlbumId && safeAlbumData.program_id) {
+      const { data } = await supabase.from('gallery_albums').select('id').eq('is_deleted', false).eq('program_id', safeAlbumData.program_id).eq('title', safeAlbumData.title).limit(1).single();
       if (data) matchedAlbumId = data.id;
     }
 
-    // Priority 3: Same title
+    // Priority 3: Same title (if title was explicitly provided or matched)
     if (!matchedAlbumId) {
-      const q = supabase.from('gallery_albums').select('id').eq('is_deleted', false).eq('title', albumData.title);
+      const q = supabase.from('gallery_albums').select('id').eq('is_deleted', false).eq('title', safeAlbumData.title);
       const { data } = await q.limit(1).single();
       if (data) matchedAlbumId = data.id;
     }
@@ -227,11 +230,11 @@ export class GalleryService {
     if (!albumId) {
       // Create new album
       const album_code = await galleryRepository.generateAlbumCode();
-      const baseSlug = albumData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const baseSlug = safeAlbumData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
       const randomSuffix = crypto.randomUUID().split('-')[0];
       const slug = `${baseSlug}-${randomSuffix}`;
 
-      const { location, description, ...albumCreateData } = albumData;
+      const { location, description, ...albumCreateData } = safeAlbumData;
       
       const createdAlbum = await galleryRepository.create({
         ...albumCreateData,

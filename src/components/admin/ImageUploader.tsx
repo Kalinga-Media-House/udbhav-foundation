@@ -22,6 +22,7 @@ interface ImageUploaderProps {
   maxFiles?: number;
   maxSizeMB?: number;
   className?: string;
+  clearSuccessfulTrigger?: number;
 }
 
 interface FileUploadState {
@@ -42,6 +43,7 @@ export function ImageUploader({
   maxFiles = 10,
   maxSizeMB,
   className,
+  clearSuccessfulTrigger = 0,
 }: ImageUploaderProps) {
   const actualMaxSizeMB = maxSizeMB || STORAGE.LIMITS.MAX_IMAGE_SIZE_MB;
   const [uploads, setUploads] = useState<FileUploadState[]>([]);
@@ -170,6 +172,12 @@ export function ImageUploader({
       onStatusChange('idle');
     }
   }, [uploads, onStatusChange]);
+
+  useEffect(() => {
+    if (clearSuccessfulTrigger > 0) {
+      setUploads((prev) => prev.filter((u) => u.status !== 'success'));
+    }
+  }, [clearSuccessfulTrigger]);
 
   const handleFiles = (files: FileList | File[]) => {
     const newFiles = Array.from(files);

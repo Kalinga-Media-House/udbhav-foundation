@@ -1,34 +1,25 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useTransition, useEffect } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 
-import { ImageUploader } from '@/components/admin/ImageUploader';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { uploadPhotosBatchAction } from '@/features/gallery/actions';
-import type { UploadStatus, UploadedImage } from '@/components/admin/ImageUploader';
 import type { UploadPhotosDTO } from '@/features/gallery/validators';
 
+import { ImageUploader, type UploadedImage, type UploadStatus } from './ImageUploader';
+
 interface PhotosUploadFormProps {
-  programs: { id: string; title: string }[];
-  events: { id: string; title: string }[];
+  programs: Array<{ id: string; title: string }>;
+  events: Array<{ id: string; title: string }>;
 }
 
 export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [error, setError] = useState<string | null>(null);
-  
-  const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle');
-  const [submitPending, setSubmitPending] = useState(false);
-  const [statusText, setStatusText] = useState('');
 
   const [formData, setFormData] = useState<Partial<UploadPhotosDTO>>({
-    title: '',
-    location: '',
-    description: '',
     visibility: 'Public',
     program_id: null,
     event_id: null,
@@ -36,22 +27,38 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
     media_ids: [],
   });
 
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle');
+  const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [submitPending, setSubmitPending] = useState(false);
+  const [statusText, setStatusText] = useState('');
+  const [clearTrigger, setClearTrigger] = useState(0);
+
   const handleUploadComplete = (result: UploadedImage | UploadedImage[]) => {
     const resultsArray = Array.isArray(result) ? result : [result];
     const newMediaIds = resultsArray.map(r => r.id);
-    setFormData((prev) => ({ 
-      ...prev, 
-      media_ids: [...(prev.media_ids || []), ...newMediaIds] 
-    }));
+    setFormData((prev) => {
+      const existing = prev.media_ids || [];
+      const uniqueNew = newMediaIds.filter(id => !existing.includes(id));
+      return { 
+        ...prev, 
+        media_ids: [...existing, ...uniqueNew] 
+      };
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.media_ids || formData.media_ids.length === 0) {
-      setError('Please upload at least one photo.');
+      if (uploadStatus === 'error') {
+        setError('Please remove or retry failed images before submitting.');
+      } else {
+        setError('Please select at least one photo to upload.');
+      }
       return;
     }
     setError(null);
+    setSuccessMsg(null);
     setSubmitPending(true);
   };
 
@@ -59,7 +66,7 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
     if (!submitPending) return;
 
     if (uploadStatus === 'error') {
-      setError('Image upload failed. Please try again.');
+      setError('Some image uploads failed. Please retry or remove failed images.');
       setSubmitPending(false);
       return;
     }
@@ -80,9 +87,6 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
       startTransition(async () => {
         try {
           const payload: UploadPhotosDTO = {
-            title: formData.title || '',
-            location: formData.location || null,
-            description: formData.description || null,
             visibility: (formData.visibility as any) || 'Public',
             program_id: formData.program_id ? formData.program_id : null,
             event_id: formData.event_id ? formData.event_id : null,
@@ -98,15 +102,22 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
             return;
           }
 
-          setStatusText('Redirecting...');
-          router.push('/admin/gallery');
+          // Show success message
+          const numUploaded = payload.media_ids.length;
+          setSuccessMsg(`${numUploaded} photo(s) uploaded successfully.`);
+          
+          // Clear successful images from UI and state
+          setClearTrigger(t => t + 1);
+          setFormData(prev => ({ ...prev, media_ids: [] }));
+          
+          // Tell router to refresh current route to pull new tags/cache
+          router.refresh();
         } catch (err: any) {
           setError(err.message || 'An error occurred while saving the photos');
+        } finally {
           setSubmitPending(false);
         }
       });
-      
-      setSubmitPending(false);
     }
   }, [submitPending, uploadStatus, formData, router]);
 
@@ -117,6 +128,15 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
       {error && (
         <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-700">{error}</div>
       )}
+      
+      {successMsg && (
+        <div className="rounded-md border border-green-200 bg-green-50 p-4 text-green-700 font-medium">
+          {successMsg}
+          <div className="mt-2 text-sm font-normal">
+            You can upload more photos below, or return to the Gallery.
+          </div>
+        </div>
+      )}
 
       <div className="space-y-2">
         <Label htmlFor="photos">Photos *</Label>
@@ -126,6 +146,7 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
           maxFiles={50}
           onUploadComplete={handleUploadComplete} 
           onStatusChange={setUploadStatus} 
+          clearSuccessfulTrigger={clearTrigger}
         />
         {formData.media_ids && formData.media_ids.length > 0 && (
           <p className="text-sm text-green-600 font-medium mt-2">
@@ -134,44 +155,7 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
         )}
       </div>
 
-      <div className="pt-4 border-t">
-        <Label htmlFor="title">Title *</Label>
-        <Input
-          id="title"
-          value={formData.title || ''}
-          onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          placeholder="e.g., Annual Charity Gala 2026"
-          disabled={isPending}
-          required
-        />
-        <p className="text-xs text-gray-500 mt-1">This title will be applied to all uploaded photos.</p>
-      </div>
-
-      <div>
-        <Label htmlFor="description">Description (Optional)</Label>
-        <textarea
-          id="description"
-          value={formData.description || ''}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          rows={3}
-          className="w-full rounded-md border px-3 py-2"
-          placeholder="Detailed description..."
-          disabled={isPending}
-        />
-      </div>
-
-      <div>
-        <Label htmlFor="location">Location (Optional)</Label>
-        <Input
-          id="location"
-          value={formData.location || ''}
-          onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-          placeholder="e.g., Bhubaneswar, Odisha"
-          disabled={isPending}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 border-t pt-4">
         <div>
           <Label htmlFor="program_id">Associated Program (Optional)</Label>
           <select
@@ -246,9 +230,9 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
           onClick={() => router.push('/admin/gallery')}
           disabled={isFormDisabled}
         >
-          Cancel
+          {successMsg ? 'Done' : 'Cancel'}
         </Button>
-        <Button type="submit" disabled={isFormDisabled}>
+        <Button type="submit" disabled={isFormDisabled || (formData.media_ids && formData.media_ids.length === 0)}>
           {isPending || submitPending ? statusText || 'Saving...' : 'Upload Photos'}
         </Button>
       </div>

@@ -47,6 +47,8 @@ export type AdminPhotoItem = GalleryItemWithMedia & {
     event_id: string | null;
     location: string | null;
     is_featured: boolean;
+    program?: { id: string; title: string } | null;
+    event?: { id: string; title: string } | null;
   } | null;
 };
 
@@ -481,7 +483,11 @@ export class GalleryRepository implements IWriteRepository<AlbumRow, AlbumCreate
       .from('gallery_items')
       .select(`
         *,
-        album:gallery_albums!inner(id, title, visibility, program_id, event_id, location, is_featured, is_deleted)
+        album:gallery_albums!inner(
+          id, title, visibility, program_id, event_id, location, is_featured, is_deleted,
+          program:programs(id, title),
+          event:events(id, title)
+        )
       `, { count: 'exact' })
       .eq('gallery_albums.is_deleted', false)
       .eq('gallery_albums.visibility', 'Public')
