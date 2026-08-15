@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
-export async function adminUploadHeroImage(section: 'home_hero' | 'programmes_hero', file: File) {
+export async function adminAddHeroImages(section: 'home_hero' | 'programmes_hero', imageUrls: string[]) {
   const supabase = await createClient();
 
   // Check auth
@@ -16,48 +16,26 @@ export async function adminUploadHeroImage(section: 'home_hero' | 'programmes_he
     .select('id')
     .eq('section', section);
 
-  if (currentImages && currentImages.length >= 5) {
+  if (currentImages && currentImages.length + imageUrls.length > 5) {
     throw new Error('Maximum of 5 images allowed per section');
   }
 
-  // Upload to storage
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${section}-${crypto.randomUUID()}.${fileExt}`;
-  const filePath = `hero/${fileName}`;
+  // Insert DB records
+  const startingOrder = currentImages?.length || 0;
+  const insertData = imageUrls.map((url, index) => ({
+    section,
+    image_url: url,
+    display_order: startingOrder + index + 1,
+    is_active: true
+  }));
 
-  // Assuming 'public-assets' or similar bucket, maybe 'media'?
-  // Let's check which bucket to use. Let's use 'media' since the prompt says "existing Supabase Storage architecture".
-  const { data: storageData, error: storageError } = await supabase.storage
-    .from('media')
-    .upload(filePath, file);
-
-  if (storageError) {
-    console.error('Storage upload error:', storageError);
-    throw new Error('Failed to upload image to storage');
-  }
-
-  // Get public URL
-  const { data: publicUrlData } = supabase.storage
-    .from('media')
-    .getPublicUrl(filePath);
-
-  const imageUrl = publicUrlData.publicUrl;
-
-  // Insert DB record
   const { error: dbError } = await supabase
     .from('hero_images')
-    .insert({
-      section,
-      image_url: imageUrl,
-      display_order: (currentImages?.length || 0) + 1,
-      is_active: true
-    });
+    .insert(insertData);
 
   if (dbError) {
-    // Rollback storage upload
-    await supabase.storage.from('media').remove([filePath]);
     console.error('Database insert error:', dbError);
-    throw new Error('Failed to save image record');
+    throw new Error('Failed to save image records');
   }
 
   revalidatePath('/');
@@ -70,13 +48,8 @@ export async function adminUploadHeroImage(section: 'home_hero' | 'programmes_he
 export async function adminDeleteHeroImage(id: string, imageUrl: string) {
   const supabase = await createClient();
   
-  // Try to extract file path from URL
-  const urlObj = new URL(imageUrl);
-  const pathParts = urlObj.pathname.split('/media/');
-  if (pathParts.length > 1) {
-    const filePath = pathParts[1];
-    await supabase.storage.from('media').remove([filePath]);
-  }
+  // Note: We don't delete from R2 / media_files here to ensure we don't 
+  // break images that might be used elsewhere. We just remove it from the hero.
 
   const { error } = await supabase
     .from('hero_images')

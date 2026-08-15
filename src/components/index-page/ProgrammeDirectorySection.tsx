@@ -8,52 +8,6 @@ import React, { useState, useMemo, useRef } from 'react';
 
 import { IndexProgrammeDetail } from '@/types/index-programme';
 
-const CATEGORY_TABS = [
-  { label: 'All Programmes', value: 'all' },
-  { label: 'Education', value: 'Education' },
-  { label: 'Environment', value: 'Environment' },
-  { label: 'Health', value: 'Health & Well-being' },
-  { label: 'Awareness', value: 'Awareness & Safety' },
-  { label: 'Community', value: 'Community Support' },
-];
-
-/**
- * Elegant segmented control matching a Foundation aesthetic
- */
-function SegmentedControl({
-  active,
-  onChange,
-}: {
-  active: string;
-  onChange: (val: string) => void;
-}) {
-  return (
-    <div className="sticky top-[72px] z-40 mx-auto mb-16 flex max-w-fit flex-wrap items-center justify-center gap-1 sm:gap-2 rounded-[2rem] border border-gray-200 bg-white/90 p-1.5 shadow-sm backdrop-blur-xl">
-      {CATEGORY_TABS.map((tab) => {
-        const isActive = active === tab.value;
-        return (
-          <button
-            key={tab.value}
-            onClick={() => onChange(tab.value)}
-            className={`relative rounded-full px-5 py-2.5 text-[13px] sm:text-sm font-semibold transition-colors duration-300 ${
-              isActive ? 'text-white' : 'text-gray-600 hover:text-[#233A8B]'
-            }`}
-            style={{ WebkitTapHighlightColor: 'transparent' }}
-          >
-            {isActive && (
-              <motion.div
-                layoutId="active-pill"
-                className="absolute inset-0 rounded-full bg-[#233A8B]"
-                transition={{ type: 'spring', bounce: 0.15, duration: 0.5 }}
-              />
-            )}
-            <span className="relative z-10">{tab.label}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
 
 const PROGRAM_CARD_THEMES = [
   { 
@@ -268,7 +222,6 @@ function TimelineItem({ prog, index }: { prog: IndexProgrammeDetail; index: numb
 }
 
 export function ProgrammeDirectorySection({ programmes }: { programmes: IndexProgrammeDetail[] }) {
-  const [activeCategory, setActiveCategory] = useState<string>('all');
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -282,44 +235,34 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
     restDelta: 0.001
   });
 
-  const filteredProgrammes = useMemo(() => {
-    let filtered = programmes;
-    if (activeCategory !== 'all') {
-      filtered = programmes.filter((prog) => prog.category === activeCategory);
-    }
-    
+  const sortedProgrammes = useMemo(() => {
     // Sort chronologically (newest first for timelines).
-    return [...filtered].sort((a, b) => {
+    return [...programmes].sort((a, b) => {
       const timeA = a.programDate ? new Date(a.programDate).getTime() : 0;
       const timeB = b.programDate ? new Date(b.programDate).getTime() : 0;
       return (isNaN(timeB) ? 0 : timeB) - (isNaN(timeA) ? 0 : timeA);
     });
-  }, [activeCategory, programmes]);
+  }, [programmes]);
 
   return (
     <section id="programmes" className="bg-[#FAFBFC] py-24 sm:py-32 overflow-hidden">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         
-        <div className="text-center mb-12 sm:mb-16">
-          <h2 className="font-heading text-3xl font-bold tracking-tight text-[#233A8B] sm:text-4xl mb-4">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="font-heading text-3xl font-bold tracking-tight text-[#233A8B] sm:text-4xl">
             Our Key Initiatives
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">
-            Browse through our active programmes dedicated to driving positive change across multiple essential sectors.
-          </p>
         </div>
-
-        <SegmentedControl active={activeCategory} onChange={setActiveCategory} />
 
         {/* Timeline Container */}
         <div className="relative mx-auto max-w-5xl" ref={containerRef}>
           {/* Animated Central Line Background (Desktop & Mobile) */}
-          {filteredProgrammes.length > 0 && (
+          {sortedProgrammes.length > 0 && (
             <div className="absolute bottom-0 top-0 w-[2px] bg-gray-100 left-8 md:left-1/2 transform -translate-x-1/2 z-0" />
           )}
 
           {/* Animated Central Line Foreground */}
-          {filteredProgrammes.length > 0 && (
+          {sortedProgrammes.length > 0 && (
             <motion.div 
               style={{ scaleY, originY: 0 }}
               className="absolute bottom-0 top-0 w-[2px] bg-gradient-to-b from-[#5E9F3B] to-[#233A8B]/30 left-8 md:left-1/2 transform -translate-x-1/2 z-0" 
@@ -327,14 +270,14 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
           )}
 
           <AnimatePresence mode="popLayout">
-            {filteredProgrammes.map((prog, index) => (
+            {sortedProgrammes.map((prog, index) => (
               <TimelineItem key={prog.id} prog={prog} index={index} />
             ))}
           </AnimatePresence>
         </div>
 
         {/* Empty State */}
-        {filteredProgrammes.length === 0 && (
+        {sortedProgrammes.length === 0 && (
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -344,7 +287,7 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
               <Calendar className="h-6 w-6 text-gray-400" />
             </div>
             <h3 className="mb-2 font-heading text-xl font-bold text-[#233A8B]">No Programmes Found</h3>
-            <p className="text-gray-500 font-medium">We couldn't find any programmes in this category at the moment. Please check back later or explore other initiatives.</p>
+            <p className="text-gray-500 font-medium">We couldn't find any programmes at the moment. Please check back later or explore other initiatives.</p>
           </motion.div>
         )}
       </div>

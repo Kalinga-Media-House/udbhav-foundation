@@ -8,7 +8,7 @@ import {
   Settings, 
   ChevronLeft, 
   ChevronDown,
-  Menu,
+  ChevronRight,
   Image as ImageIcon,
   LayoutTemplate,
   X
@@ -100,9 +100,9 @@ export function AdminSidebar() {
         )}
         <button
           onClick={toggleSidebar}
-          className="hidden md:block rounded-md p-1.5 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="hidden md:flex rounded-md p-1.5 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
-          {isCollapsed ? <Menu size={20} /> : <ChevronLeft size={20} />}
+          {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
         </button>
       </div>
 
@@ -217,18 +217,16 @@ export function AdminSidebar() {
 
   return (
     <>
-      {/* Mobile Header */}
-      <div className="md:hidden flex h-16 w-full shrink-0 items-center justify-between border-b border-gray-200 bg-white px-4 z-30 relative">
-        <span className="text-xl font-bold tracking-tight text-gray-900">
-          Udbhav Admin
-        </span>
+      {/* Mobile Floating Toggle */}
+      {!isMobileOpen && (
         <button
           onClick={toggleMobileSidebar}
-          className="rounded-md p-2 text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="md:hidden fixed left-0 top-[150px] z-40 flex h-12 w-6 items-center justify-center rounded-r-lg border border-l-0 border-gray-200 bg-white shadow-sm text-gray-500 hover:bg-gray-50 hover:text-indigo-600 transition-colors"
+          aria-label="Open Admin Menu"
         >
-          <Menu size={24} />
+          <ChevronRight size={16} />
         </button>
-      </div>
+      )}
 
       {/* Desktop Sidebar */}
       <aside
@@ -258,9 +256,9 @@ export function AdminSidebar() {
         <div className="absolute right-2 top-2 z-50">
           <button 
             onClick={() => setIsMobileOpen(false)}
-            className="p-2 text-gray-500 hover:bg-gray-100 rounded-md"
+            className="p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 rounded-md transition-colors"
           >
-            <X size={20} />
+            <ChevronLeft size={20} />
           </button>
         </div>
         <SidebarContent />

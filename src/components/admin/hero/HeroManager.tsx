@@ -3,14 +3,15 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  adminUploadHeroImage, 
+  adminAddHeroImages, 
   adminDeleteHeroImage, 
   adminToggleHeroImage, 
   adminReorderHeroImages 
 } from '@/features/hero/actions';
 import type { HeroImageRow } from '@/features/hero/repository';
-import { Trash2, GripVertical, Eye, EyeOff, Plus, Loader2 } from 'lucide-react';
+import { Trash2, GripVertical, Eye, EyeOff } from 'lucide-react';
 import Image from 'next/image';
+import { ImageUploader, type UploadedImage, type UploadStatus } from '../ImageUploader';
 
 interface HeroManagerProps {
   section: 'home_hero' | 'programmes_hero';
@@ -20,37 +21,27 @@ interface HeroManagerProps {
 
 export function HeroManager({ section, initialImages, title }: HeroManagerProps) {
   const [images, setImages] = useState<HeroImageRow[]>(initialImages);
-  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle');
+  const [clearTrigger, setClearTrigger] = useState(0);
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) return;
-    
-    setError(null);
-    setIsUploading(true);
-    
-    const files = Array.from(e.target.files);
-    
-    if (images.length + files.length > 5) {
-      setError(`You can only have up to 5 images. You are trying to upload ${files.length} but only have space for ${5 - images.length}.`);
-      setIsUploading(false);
+  const handleUploadComplete = async (result: UploadedImage | UploadedImage[]) => {
+    const resultsArray = Array.isArray(result) ? result : [result];
+    const imageUrls = resultsArray.map(r => r.cdnUrl);
+
+    if (images.length + imageUrls.length > 5) {
+      setError(`You can only have up to 5 images. You uploaded ${imageUrls.length} but only have space for ${5 - images.length}.`);
       return;
     }
 
+    setError(null);
+
     try {
-      for (const file of files) {
-        await adminUploadHeroImage(section, file);
-      }
-      // Usually we'd refetch from server via server action passing the new data, 
-      // but a page refresh/revalidate will handle hydrating updated props in the parent component.
-      // We rely on the parent page passing updated `initialImages` when revalidated.
+      await adminAddHeroImages(section, imageUrls);
+      setClearTrigger(prev => prev + 1);
       window.location.reload(); 
     } catch (err: any) {
-      setError(err.message || 'Failed to upload image.');
-    } finally {
-      setIsUploading(false);
-      // reset file input
-      e.target.value = '';
+      setError(err.message || 'Failed to save uploaded images to hero section.');
     }
   };
 
@@ -214,37 +205,17 @@ export function HeroManager({ section, initialImages, title }: HeroManagerProps)
           </AnimatePresence>
         </div>
 
-        {images.length < 5 && (
-          <div className="relative">
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleUpload}
-              disabled={isUploading}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed z-10"
-              title="Upload Images"
+    {images.length < 5 && (
+          <div className="mt-8 border-t border-gray-100 pt-6">
+            <h3 className="text-sm font-medium text-gray-900 mb-4">Upload New Images</h3>
+            <ImageUploader 
+              folder="hero-images" 
+              multiple={true} 
+              maxFiles={5 - images.length}
+              onUploadComplete={handleUploadComplete} 
+              onStatusChange={setUploadStatus} 
+              clearSuccessfulTrigger={clearTrigger}
             />
-            <div className={`flex flex-col items-center justify-center py-8 rounded-xl border-2 border-dashed transition-colors ${
-              isUploading ? 'bg-gray-50 border-gray-300' : 'bg-gray-50/50 border-gray-300 hover:border-[#233A8B]/50 hover:bg-blue-50/30'
-            }`}>
-              {isUploading ? (
-                <div className="flex flex-col items-center gap-3">
-                  <Loader2 className="h-6 w-6 text-[#233A8B] animate-spin" />
-                  <p className="text-sm font-medium text-gray-600">Uploading...</p>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center gap-3 text-center px-4">
-                  <div className="h-10 w-10 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center">
-                    <Plus className="h-5 w-5 text-gray-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Click or drag images to upload</p>
-                    <p className="text-xs text-gray-500 mt-1">Up to {5 - images.length} more images allowed (JPEG, PNG, WebP)</p>
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
         )}
       </div>
