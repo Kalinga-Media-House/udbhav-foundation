@@ -10,6 +10,7 @@ import {
   ChevronDown,
   Menu,
   Image as ImageIcon,
+  LayoutTemplate,
   X
 } from "lucide-react";
 import Link from "next/link";
@@ -39,6 +40,11 @@ const navItems = [
     title: "Gallery",
     href: "/admin/gallery",
     icon: ImageIcon,
+  },
+  {
+    title: "Hero Sections",
+    href: "/admin/dashboard/hero",
+    icon: LayoutTemplate,
   },
   {
     title: "Users & Volunteers",
