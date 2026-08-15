@@ -197,7 +197,7 @@ export function PhotoGridSection({ initialPhotos, totalPhotos, filterOptions, cu
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
                 {initialPhotos.map((photo, index) => {
                   const isFallbackTitle = photo.album?.title?.startsWith('Gallery Upload -');
                   let title: string | undefined = photo.caption || undefined;
@@ -214,22 +214,22 @@ export function PhotoGridSection({ initialPhotos, totalPhotos, filterOptions, cu
                       onClick={() => setSelectedIndex(index)}
                       className="group bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full text-left w-full outline-none focus:ring-2 focus:ring-emerald-500/50 focus:ring-offset-2"
                     >
-                      <div className="relative h-56 sm:h-64 w-full bg-gray-100 flex items-center justify-center overflow-hidden">
+                      <div className="relative aspect-[4/3] sm:aspect-auto sm:h-64 w-full bg-gray-100 flex items-center justify-center overflow-hidden">
                         {photo.media?.cdn_url ? (
                           <Image
                             src={photo.media.cdn_url}
                             alt={photo.media.alt_text || title || 'Gallery Image'}
                             fill
                             className="object-cover group-hover:scale-105 transition-transform duration-500"
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
+                            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                           />
                         ) : (
-                          <ImageIcon className="w-12 h-12 text-gray-300" />
+                          <ImageIcon className="w-8 h-8 sm:w-12 sm:h-12 text-gray-300" />
                         )}
                         
                         {isFeatured && (
-                          <div className="absolute top-3 right-3 bg-amber-500 text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm flex items-center z-10">
-                            <Star className="w-3 h-3 mr-1 fill-current" />
+                          <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-amber-500 text-white text-[10px] sm:text-xs font-bold px-1.5 py-0.5 sm:px-2 sm:py-1 rounded sm:rounded-md shadow-sm flex items-center z-10">
+                            <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 fill-current" />
                             Featured
                           </div>
                         )}
@@ -237,38 +237,38 @@ export function PhotoGridSection({ initialPhotos, totalPhotos, filterOptions, cu
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </div>
 
-                      <div className="p-4 flex-1 flex flex-col">
+                      <div className="p-3 sm:p-4 flex-1 flex flex-col">
                         {title && (
-                          <h3 className="text-lg font-bold text-gray-900 group-hover:text-emerald-700 transition-colors line-clamp-1" title={title}>
+                          <h3 className="text-sm sm:text-lg font-bold text-gray-900 group-hover:text-emerald-700 transition-colors line-clamp-1" title={title}>
                             {title}
                           </h3>
                         )}
                         
                         {photo.description && (
-                          <p className={`text-sm text-gray-600 line-clamp-2 ${title ? 'mt-1.5' : ''}`}>
+                          <p className={`text-xs sm:text-sm text-gray-600 line-clamp-2 ${title ? 'mt-1 sm:mt-1.5' : ''}`}>
                             {photo.description}
                           </p>
                         )}
                         
-                        <div className={`flex flex-wrap gap-2 ${title || photo.description ? 'mt-3 pt-3 border-t border-gray-50' : ''}`}>
+                        <div className={`flex flex-wrap gap-1.5 sm:gap-2 ${title || photo.description ? 'mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-gray-50' : ''}`}>
                           {programTitle && (
-                            <div className="flex items-center text-xs text-blue-700 bg-blue-50 px-2 py-1 rounded-md font-medium" title={programTitle}>
-                              <Tag className="w-3 h-3 mr-1 shrink-0" />
-                              <span className="truncate max-w-[140px]">{programTitle}</span>
+                            <div className="flex items-center text-[10px] sm:text-xs text-blue-700 bg-blue-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded sm:rounded-md font-medium" title={programTitle}>
+                              <Tag className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 shrink-0" />
+                              <span className="truncate max-w-[80px] sm:max-w-[140px]">{programTitle}</span>
                             </div>
                           )}
                           
                           {eventTitle && (
-                            <div className="flex items-center text-xs text-purple-700 bg-purple-50 px-2 py-1 rounded-md font-medium" title={eventTitle}>
-                              <CalendarDays className="w-3 h-3 mr-1 shrink-0" />
-                              <span className="truncate max-w-[140px]">{eventTitle}</span>
+                            <div className="flex items-center text-[10px] sm:text-xs text-purple-700 bg-purple-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded sm:rounded-md font-medium" title={eventTitle}>
+                              <CalendarDays className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 shrink-0" />
+                              <span className="truncate max-w-[80px] sm:max-w-[140px]">{eventTitle}</span>
                             </div>
                           )}
                           
                           {location && (
-                            <div className="flex items-center text-xs text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md font-medium" title={location}>
-                              <MapPin className="w-3 h-3 mr-1 shrink-0" />
-                              <span className="truncate max-w-[140px]">{location}</span>
+                            <div className="flex items-center text-[10px] sm:text-xs text-emerald-700 bg-emerald-50 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded sm:rounded-md font-medium" title={location}>
+                              <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3 mr-1 shrink-0" />
+                              <span className="truncate max-w-[80px] sm:max-w-[140px]">{location}</span>
                             </div>
                           )}
                         </div>
