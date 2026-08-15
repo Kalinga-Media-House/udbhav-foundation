@@ -223,17 +223,42 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
         <Label htmlFor="is_featured">Feature these photos</Label>
       </div>
 
-      <div className="flex justify-end gap-3 border-t pt-4">
+      <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 border-t pt-6 mt-6">
         <Button
           type="button"
           variant="outline"
-          onClick={() => router.push('/admin/gallery')}
-          disabled={isFormDisabled}
+          onClick={() => {
+            const numReady = formData.media_ids?.length || 0;
+            if (numReady > 0) {
+              if (!window.confirm('You have photos ready to upload. Leave without uploading?')) return;
+            }
+            router.push('/admin/gallery');
+          }}
+          disabled={isPending || submitPending || uploadStatus === 'requesting' || uploadStatus === 'uploading' || uploadStatus === 'processing'}
+          className="w-full sm:w-auto border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
         >
-          {successMsg ? 'Done' : 'Cancel'}
+          {successMsg && (!formData.media_ids || formData.media_ids.length === 0) ? 'Done' : 'Cancel'}
         </Button>
-        <Button type="submit" disabled={isFormDisabled || (formData.media_ids && formData.media_ids.length === 0)}>
-          {isPending || submitPending ? statusText || 'Saving...' : 'Upload Photos'}
+        <Button 
+          type="submit" 
+          disabled={isPending || submitPending || uploadStatus === 'requesting' || uploadStatus === 'uploading' || uploadStatus === 'processing' || !formData.media_ids || formData.media_ids.length === 0}
+          className={`w-full sm:w-auto transition-all ${
+            isPending || submitPending || uploadStatus === 'requesting' || uploadStatus === 'uploading' || uploadStatus === 'processing' || !formData.media_ids || formData.media_ids.length === 0
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-70 border border-gray-200'
+              : 'bg-[#439B25] hover:bg-[#347A1D] text-white shadow-sm focus-visible:ring-2 focus-visible:ring-[#439B25] focus-visible:ring-offset-2 cursor-pointer'
+          }`}
+        >
+          {(() => {
+            const isUploaderBusy = uploadStatus === 'requesting' || uploadStatus === 'uploading' || uploadStatus === 'processing';
+            const isSaving = isPending || submitPending;
+            const numReady = formData.media_ids?.length || 0;
+            
+            if (isUploaderBusy) return 'Uploading...';
+            if (isSaving) return 'Saving...';
+            if (error && numReady > 0) return 'Retry Upload';
+            if (numReady > 0) return `Upload ${numReady} Photo${numReady > 1 ? 's' : ''}`;
+            return 'Upload Photos';
+          })()}
         </Button>
       </div>
     </form>
