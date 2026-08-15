@@ -233,12 +233,37 @@ export async function removeGalleryItem(id: string, albumId: string): Promise<Ac
     const session = await requireAuth();
     requirePermission(session, 'gallery.delete');
     
-    // First remove the item
+    const supabase = await (await import('@/lib/supabase/server')).createServerSupabaseClient();
+    
+    // 1. Fetch item to find media_file_id
+    const { data: item } = await supabase.from('gallery_items').select('media_file_id').eq('id', id).single();
+    if (!item) throw new Error('Photo not found');
+    
+    // 2. Remove the item
     const removeResult = await galleryService.removeItem(id);
     if (!removeResult.success) throw new Error(removeResult.error ?? 'Delete photo failed');
     
-    // Also try to delete the album (hidden) since it's a 1:1 mapping now
-    await galleryService.remove(albumId, session.id);
+    // 3. Delete physical media and media_file if orphaned
+    if (item.media_file_id) {
+       const { data: references } = await supabase.from('gallery_items').select('id').eq('media_file_id', item.media_file_id).limit(1);
+       if (!references || references.length === 0) {
+          // fetch media row to get storage key
+          const { data: media } = await supabase.from('media_files').select('r2_object_key').eq('id', item.media_file_id).single();
+          if (media && media.r2_object_key) {
+             const { deleteFile } = await import('@/lib/storage/delete');
+             await deleteFile(media.r2_object_key).catch((e) => {
+               console.error('Failed to delete physical file from R2:', e);
+             });
+          }
+          await supabase.from('media_files').delete().eq('id', item.media_file_id);
+       }
+    }
+
+    // 4. Clean up album ONLY if it is completely empty now
+    const { data: remainingItems } = await supabase.from('gallery_items').select('id').eq('album_id', albumId).limit(1);
+    if (!remainingItems || remainingItems.length === 0) {
+       await galleryService.remove(albumId, session.id); // Soft delete the album so it doesn't clutter
+    }
     
     revalidateTag(CacheTags.gallery());
     return true;

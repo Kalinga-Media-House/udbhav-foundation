@@ -17,6 +17,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { listAdminPhotos, removeGalleryItem } from '@/features/gallery/actions';
+import { DeleteGalleryPhotoButton } from './DeleteGalleryPhotoButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -199,15 +200,7 @@ export default async function AdminGalleryPage(props: {
                             <Edit className="h-4 w-4" />
                           </button>
                         </Link>
-                        <form action={handleDelete.bind(null, photo.id, photo.album_id)} className="inline-block">
-                          <button
-                            type="submit"
-                            title="Delete Photo"
-                            className="rounded p-1.5 text-red-600 hover:text-red-800"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
-                        </form>
+                        <DeleteGalleryPhotoButton id={photo.id} albumId={photo.album_id} action={handleDelete} />
                       </td>
                     </tr>
                   );
