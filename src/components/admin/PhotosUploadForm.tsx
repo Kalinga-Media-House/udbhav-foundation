@@ -1,5 +1,6 @@
 'use client';
 
+import { CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState, useTransition } from 'react';
 
@@ -29,10 +30,20 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
 
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle');
   const [error, setError] = useState<string | null>(null);
-  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [submitPending, setSubmitPending] = useState(false);
   const [statusText, setStatusText] = useState('');
   const [clearTrigger, setClearTrigger] = useState(0);
+
+  const [completedUploadCount, setCompletedUploadCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (completedUploadCount !== null && completedUploadCount > 0) {
+      const timer = setTimeout(() => {
+        router.push('/admin/gallery');
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [completedUploadCount, router]);
 
   const handleUploadComplete = (result: UploadedImage | UploadedImage[]) => {
     const resultsArray = Array.isArray(result) ? result : [result];
@@ -58,7 +69,6 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
       return;
     }
     setError(null);
-    setSuccessMsg(null);
     setSubmitPending(true);
   };
 
@@ -102,19 +112,15 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
             return;
           }
 
-          // Show success message
           const numUploaded = payload.media_ids.length;
-          setSuccessMsg(`${numUploaded} photo(s) uploaded successfully.`);
+          setCompletedUploadCount(numUploaded);
           
-          // Clear successful images from UI and state
           setClearTrigger(t => t + 1);
           setFormData(prev => ({ ...prev, media_ids: [] }));
           
-          // Tell router to refresh current route to pull new tags/cache
           router.refresh();
         } catch (err: any) {
           setError(err.message || 'An error occurred while saving the photos');
-        } finally {
           setSubmitPending(false);
         }
       });
@@ -123,19 +129,31 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
 
   const isFormDisabled = isPending || submitPending || uploadStatus === 'requesting' || uploadStatus === 'uploading' || uploadStatus === 'processing';
 
+  if (completedUploadCount !== null && completedUploadCount > 0) {
+    return (
+      <div className="max-w-md mx-auto space-y-6 rounded-xl border border-gray-100 bg-white p-8 text-center shadow-lg transform transition-all duration-500 ease-in-out">
+        <div className="flex justify-center">
+          <div className="rounded-full bg-emerald-50 p-4 animate-[pulse_2s_ease-in-out_infinite]">
+            <CheckCircle className="h-16 w-16 text-emerald-500" />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-bold text-gray-900">Upload Complete</h2>
+          <p className="text-lg font-medium text-gray-600">
+            {completedUploadCount} {completedUploadCount === 1 ? 'Photo' : 'Photos'} Uploaded Successfully
+          </p>
+        </div>
+        <p className="text-sm text-gray-500 animate-pulse pt-4">
+          Redirecting to Gallery...
+        </p>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit} className="max-w-3xl space-y-6 rounded-lg bg-white p-6 shadow">
       {error && (
         <div className="rounded-md border border-red-200 bg-red-50 p-4 text-red-700">{error}</div>
-      )}
-      
-      {successMsg && (
-        <div className="rounded-md border border-green-200 bg-green-50 p-4 text-green-700 font-medium">
-          {successMsg}
-          <div className="mt-2 text-sm font-normal">
-            You can upload more photos below, or return to the Gallery.
-          </div>
-        </div>
       )}
 
       <div className="space-y-2">
@@ -163,7 +181,7 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
             value={formData.program_id || ''}
             onChange={(e) => setFormData({ ...formData, program_id: e.target.value || null })}
             className="w-full rounded-md border px-3 py-2"
-            disabled={isPending}
+            disabled={isFormDisabled}
           >
             <option value="">None</option>
             {programs.map((program) => (
@@ -181,7 +199,7 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
             value={formData.event_id || ''}
             onChange={(e) => setFormData({ ...formData, event_id: e.target.value || null })}
             className="w-full rounded-md border px-3 py-2"
-            disabled={isPending}
+            disabled={isFormDisabled}
           >
             <option value="">None</option>
             {events.map((event) => (
@@ -201,7 +219,7 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
             value={formData.visibility || 'Public'}
             onChange={(e) => setFormData({ ...formData, visibility: e.target.value as any })}
             className="w-full rounded-md border px-3 py-2"
-            disabled={isPending}
+            disabled={isFormDisabled}
           >
             <option value="Public">Public</option>
             <option value="Members">Members</option>
@@ -217,7 +235,7 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
           id="is_featured"
           checked={formData.is_featured || false}
           onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-          disabled={isPending}
+          disabled={isFormDisabled}
           className="rounded border-gray-300"
         />
         <Label htmlFor="is_featured">Feature these photos</Label>
@@ -234,16 +252,16 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
             }
             router.push('/admin/gallery');
           }}
-          disabled={isPending || submitPending || uploadStatus === 'requesting' || uploadStatus === 'uploading' || uploadStatus === 'processing'}
+          disabled={isFormDisabled}
           className="w-full sm:w-auto border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
         >
-          {successMsg && (!formData.media_ids || formData.media_ids.length === 0) ? 'Done' : 'Cancel'}
+          Cancel
         </Button>
         <Button 
           type="submit" 
-          disabled={isPending || submitPending || uploadStatus === 'requesting' || uploadStatus === 'uploading' || uploadStatus === 'processing' || !formData.media_ids || formData.media_ids.length === 0}
+          disabled={isFormDisabled || !formData.media_ids || formData.media_ids.length === 0}
           className={`w-full sm:w-auto transition-all ${
-            isPending || submitPending || uploadStatus === 'requesting' || uploadStatus === 'uploading' || uploadStatus === 'processing' || !formData.media_ids || formData.media_ids.length === 0
+            isFormDisabled || !formData.media_ids || formData.media_ids.length === 0
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-70 border border-gray-200'
               : 'bg-[#439B25] hover:bg-[#347A1D] text-white shadow-sm focus-visible:ring-2 focus-visible:ring-[#439B25] focus-visible:ring-offset-2 cursor-pointer'
           }`}
