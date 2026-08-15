@@ -6,10 +6,11 @@ import Link from "next/link";
 import React, { useState, useEffect, useCallback } from "react";
 
 import { Container } from "@/components/shared/Container";
-import { HERO_SLIDES, type HeroSlide } from "@/data/hero-slides";
+import { HERO_SLIDES } from "@/data/hero-slides";
+import type { HeroImageRow } from "@/features/hero/repository";
 
 export interface HeroCarouselProps {
-  slides?: HeroSlide[];
+  heroImages?: HeroImageRow[];
   autoPlayInterval?: number;
 }
 
@@ -48,7 +49,7 @@ function getCinematicTransform(index: number, isActive: boolean, reducedMotion: 
 }
 
 export function HeroCarousel({
-  slides = HERO_SLIDES,
+  heroImages,
   autoPlayInterval = 5000,
 }: HeroCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -59,7 +60,13 @@ export function HeroCarousel({
     return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   });
 
-  const totalSlides = slides?.length || 0;
+  const images = heroImages && heroImages.length > 0 
+    ? heroImages.map(img => img.image_url) 
+    : [HERO_SLIDES[0].image];
+  const totalSlides = images.length;
+  
+  // Static text from the first slide as per requirements
+  const staticContent = HERO_SLIDES[0];
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -107,10 +114,6 @@ export function HeroCarousel({
     };
   }, [isHoverPaused, isTabHidden, totalSlides, autoPlayInterval]);
 
-  if (!slides || totalSlides === 0) {
-    return null;
-  }
-
   return (
     <section
       aria-label="UDBHAV Foundation featured initiatives"
@@ -123,13 +126,13 @@ export function HeroCarousel({
     >
       {/* Background Images and Cinematic Overlay Layers for Each Slide */}
       <div className="absolute inset-0 z-0">
-        {slides.map((slide, index) => {
+        {images.map((imageUrl, index) => {
           const isActive = index === activeIndex;
           const transformStyle = getCinematicTransform(index, isActive, prefersReducedMotion);
 
           return (
             <div
-              key={slide.id}
+              key={index}
               aria-hidden={!isActive}
               style={{
                 transition: "opacity 1000ms cubic-bezier(0.22, 1, 0.36, 1)",
@@ -141,13 +144,13 @@ export function HeroCarousel({
             >
               {/* Background Image with Cinematic Ken Burns Motion */}
               <Image
-                src={slide.image}
-                alt={slide.imageAlt}
+                src={imageUrl}
+                alt="UDBHAV Foundation"
                 fill
                 priority={index === 0}
                 sizes="100vw"
                 style={{
-                  objectPosition: slide.objectPosition || "center center",
+                  objectPosition: "center center",
                   transform: transformStyle,
                   transition:
                     "transform 6000ms cubic-bezier(0.25, 1, 0.5, 1), filter 1000ms ease",
@@ -184,111 +187,106 @@ export function HeroCarousel({
         )}
       </div>
 
-      {/* Main Slide Text Content */}
+      {/* Main Static Text Content */}
       <Container className="relative z-20 py-12 sm:py-16 lg:py-24 my-auto">
-        {slides.map((slide, index) => {
-          const isActive = index === activeIndex;
-          if (!isActive) return null;
+        <div
+          className="max-w-[740px] text-left flex flex-col items-start"
+        >
+          {/* Eyebrow Label */}
+          <span
+            style={{
+              color: "#FFFFFF",
+              opacity: 1,
+              textShadow: "0 1px 6px rgba(0, 0, 0, 0.6)",
+            }}
+            className="animate-hero-eyebrow eyebrow-label text-white font-heading text-xs sm:text-sm font-bold tracking-widest uppercase mb-3 sm:mb-4 block"
+          >
+            {staticContent.eyebrow}
+          </span>
 
-          return (
-            <div
-              key={`${slide.id}-${activeIndex}`}
-              role="group"
-              aria-roledescription="slide"
-              aria-label={`Slide ${index + 1} of ${totalSlides}: ${slide.eyebrow}`}
-              className="max-w-[740px] text-left flex flex-col items-start"
+          {/* Main Heading */}
+          <h1 className="animate-hero-heading font-heading text-[32px] max-[359px]:text-[28px] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-pure-white leading-[1.12]">
+            {staticContent.heading}
+          </h1>
+
+          {/* Description */}
+          <p className="animate-hero-description text-base sm:text-lg lg:text-xl text-pure-white/90 leading-relaxed max-w-2xl mt-4 sm:mt-6">
+            {staticContent.description}
+          </p>
+
+          {/* Action Buttons */}
+          <div className="animate-hero-buttons flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mt-6 sm:mt-8 w-full sm:w-auto">
+            <Link
+              href={staticContent.primaryAction.href}
+              className="inline-flex items-center justify-center min-h-[46px] px-6 py-3 rounded-xl bg-impact-green hover:bg-env-green text-pure-white font-semibold text-sm sm:text-base shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 focus-visible:outline-2 focus-visible:outline-pure-white"
             >
-              {/* Eyebrow Label */}
-              <span
-                style={{
-                  color: "#FFFFFF",
-                  opacity: 1,
-                  textShadow: "0 1px 6px rgba(0, 0, 0, 0.6)",
-                }}
-                className="animate-hero-eyebrow eyebrow-label text-white font-heading text-xs sm:text-sm font-bold tracking-widest uppercase mb-3 sm:mb-4 block"
-              >
-                {slide.eyebrow}
-              </span>
-
-              {/* Main Heading */}
-              <h1 className="animate-hero-heading font-heading text-[32px] max-[359px]:text-[28px] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-pure-white leading-[1.12]">
-                {slide.heading}
-              </h1>
-
-              {/* Description */}
-              <p className="animate-hero-description text-base sm:text-lg lg:text-xl text-pure-white/90 leading-relaxed max-w-2xl mt-4 sm:mt-6">
-                {slide.description}
-              </p>
-
-              {/* Action Buttons */}
-              <div className="animate-hero-buttons flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mt-6 sm:mt-8 w-full sm:w-auto">
-                <Link
-                  href={slide.primaryAction.href}
-                  className="inline-flex items-center justify-center min-h-[46px] px-6 py-3 rounded-xl bg-impact-green hover:bg-env-green text-pure-white font-semibold text-sm sm:text-base shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 focus-visible:outline-2 focus-visible:outline-pure-white"
-                >
-                  {slide.primaryAction.label}
-                </Link>
-                <Link
-                  href={slide.secondaryAction.href}
-                  className="inline-flex items-center justify-center min-h-[46px] px-6 py-3 rounded-xl bg-pure-white/10 hover:bg-pure-white hover:text-udbhav-blue-deep border border-pure-white/60 text-pure-white font-semibold text-sm sm:text-base backdrop-blur-xs shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 focus-visible:outline-2 focus-visible:outline-pure-white"
-                >
-                  {slide.secondaryAction.label}
-                </Link>
-              </div>
-            </div>
-          );
-        })}
+              {staticContent.primaryAction.label}
+            </Link>
+            <Link
+              href={staticContent.secondaryAction.href}
+              className="inline-flex items-center justify-center min-h-[46px] px-6 py-3 rounded-xl bg-pure-white/10 hover:bg-pure-white hover:text-udbhav-blue-deep border border-pure-white/60 text-pure-white font-semibold text-sm sm:text-base backdrop-blur-xs shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 focus-visible:outline-2 focus-visible:outline-pure-white"
+            >
+              {staticContent.secondaryAction.label}
+            </Link>
+          </div>
+        </div>
       </Container>
 
-      {/* Left/Right Navigation Controls (Hidden below 768px: hidden md:flex) */}
-      <button
-        type="button"
-        onClick={goToPrevSlide}
-        aria-label="Previous slide"
-        className="hidden md:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-30 items-center justify-center w-11 h-11 rounded-full bg-pure-white/15 hover:bg-pure-white/30 border border-pure-white/30 text-pure-white backdrop-blur-xs transition-all focus-visible:outline-2 focus-visible:outline-fresh-green"
-      >
-        <ChevronLeft className="w-6 h-6" />
-      </button>
-
-      <button
-        type="button"
-        onClick={goToNextSlide}
-        aria-label="Next slide"
-        className="hidden md:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-30 items-center justify-center w-11 h-11 rounded-full bg-pure-white/15 hover:bg-pure-white/30 border border-pure-white/30 text-pure-white backdrop-blur-xs transition-all focus-visible:outline-2 focus-visible:outline-fresh-green"
-      >
-        <ChevronRight className="w-6 h-6" />
-      </button>
-
-      {/* Bottom Bar: Slide Indicators (Always visible, synchronized, clean bottom-left layout) */}
-      <div className="absolute bottom-6 sm:bottom-8 inset-x-0 z-30">
-        <Container className="flex items-center">
-          {/* Progress Indicators */}
-          <div
-            role="tablist"
-            aria-label="Hero slides"
-            className="flex items-center gap-2 sm:gap-2.5"
+      {/* Left/Right Navigation Controls */}
+      {totalSlides > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={goToPrevSlide}
+            aria-label="Previous slide"
+            className="hidden md:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-30 items-center justify-center w-11 h-11 rounded-full bg-pure-white/15 hover:bg-pure-white/30 border border-pure-white/30 text-pure-white backdrop-blur-xs transition-all focus-visible:outline-2 focus-visible:outline-fresh-green"
           >
-            {slides.map((_, index) => {
-              const isActive = index === activeIndex;
-              return (
-                <button
-                  key={index}
-                  type="button"
-                  role="tab"
-                  aria-selected={isActive}
-                  aria-label={`Go to slide ${index + 1}`}
-                  onClick={() => goToSlide(index)}
-                  className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 focus-visible:outline-2 focus-visible:outline-pure-white ${
-                    isActive
-                      ? "w-8 sm:w-10 bg-fresh-green"
-                      : "w-2.5 sm:w-3 bg-pure-white/45 hover:bg-pure-white/75"
-                  }`}
-                />
-              );
-            })}
-          </div>
-        </Container>
-      </div>
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+
+          <button
+            type="button"
+            onClick={goToNextSlide}
+            aria-label="Next slide"
+            className="hidden md:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-30 items-center justify-center w-11 h-11 rounded-full bg-pure-white/15 hover:bg-pure-white/30 border border-pure-white/30 text-pure-white backdrop-blur-xs transition-all focus-visible:outline-2 focus-visible:outline-fresh-green"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+        </>
+      )}
+
+      {/* Bottom Bar: Slide Indicators */}
+      {totalSlides > 1 && (
+        <div className="absolute bottom-6 sm:bottom-8 inset-x-0 z-30">
+          <Container className="flex items-center">
+            {/* Progress Indicators */}
+            <div
+              role="tablist"
+              aria-label="Hero slides"
+              className="flex items-center gap-2 sm:gap-2.5"
+            >
+              {images.map((_, index) => {
+                const isActive = index === activeIndex;
+                return (
+                  <button
+                    key={index}
+                    type="button"
+                    role="tab"
+                    aria-selected={isActive}
+                    aria-label={`Go to slide ${index + 1}`}
+                    onClick={() => goToSlide(index)}
+                    className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 focus-visible:outline-2 focus-visible:outline-pure-white ${
+                      isActive
+                        ? "w-8 sm:w-10 bg-fresh-green"
+                        : "w-2.5 sm:w-3 bg-pure-white/45 hover:bg-pure-white/75"
+                    }`}
+                  />
+                );
+              })}
+            </div>
+          </Container>
+        </div>
+      )}
     </section>
   );
 }

@@ -7,6 +7,8 @@ import { ProgrammeDirectorySection } from '@/components/index-page/ProgrammeDire
 import { listPrograms } from '@/features/programs/actions';
 import type { IndexProgrammeDetail, ProgrammeCategory } from '@/types/index-programme';
 
+import { getActiveHeroImages } from '@/features/hero/repository';
+
 export const metadata: Metadata = {
   title: 'Programmes & Initiatives Index | UDBHAV FOUNDATION',
   description:
@@ -68,9 +70,11 @@ export default async function IndexPage() {
     };
   });
 
+  const heroImages = await getActiveHeroImages('programmes_hero');
+
   return (
     <main className="min-h-screen bg-white selection:bg-[#172B6B] selection:text-white">
-      <IndexHeroSection />
+      <IndexHeroSection heroImages={heroImages} />
       <ProgrammeDirectorySection programmes={mappedProgrammes} />
       <CollectiveImpactSection />
       <CTASection />
