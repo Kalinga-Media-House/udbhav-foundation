@@ -438,6 +438,93 @@ export class GalleryRepository implements IWriteRepository<AlbumRow, AlbumCreate
   }
 
   /**
+   * Retrieves dynamically aggregated gallery statistics.
+   */
+  async getGalleryStatistics(): Promise<RepositoryResult<{ totalPhotos: number, eventsCovered: number, programmesRepresented: number, locationsReached: number }>> {
+    const supabase = await createServerSupabaseClient();
+    try {
+      const { data, error } = await supabase
+        .from('gallery_items')
+        .select(`
+          id, location,
+          album:gallery_albums!inner(visibility, is_deleted, program_id, event_id)
+        `)
+        .eq('gallery_albums.visibility', 'Public')
+        .eq('gallery_albums.is_deleted', false);
+        
+      if (error) throw error;
+      
+      const items = data || [];
+      const totalPhotos = items.length;
+      const eventsCovered = new Set(items.map(i => i.album?.event_id).filter(Boolean)).size;
+      const programmesRepresented = new Set(items.map(i => i.album?.program_id).filter(Boolean)).size;
+      const locationsReached = new Set(items.map(i => i.location).filter(Boolean)).size;
+
+      return {
+        data: { totalPhotos, eventsCovered, programmesRepresented, locationsReached },
+        error: null
+      };
+    } catch (error) {
+      serverLogger.error('GalleryRepository.getGalleryStatistics failed', error as Error);
+      return { data: null, error: error as Error };
+    }
+  }
+
+  /**
+   * Lists public photos.
+   */
+  async listPublicPhotos(pagination: Pagination): Promise<PaginatedResult<AdminPhotoItem>> {
+    const supabase = await createServerSupabaseClient();
+    const from = (pagination.page - 1) * pagination.limit;
+    
+    let query = supabase
+      .from('gallery_items')
+      .select(`
+        *,
+        album:gallery_albums!inner(id, title, visibility, program_id, event_id, location, is_featured, is_deleted)
+      `, { count: 'exact' })
+      .eq('gallery_albums.is_deleted', false)
+      .eq('gallery_albums.visibility', 'Public')
+      .order('created_at', { ascending: false })
+      .range(from, from + pagination.limit - 1);
+      
+    const { data: rawItems, count, error } = await query;
+
+    if (error) {
+      serverLogger.error('GalleryRepository.listPublicPhotos failed', new DatabaseError(error.message));
+      return { data: [], total: 0, page: pagination.page, limit: pagination.limit };
+    }
+
+    const items = (rawItems as any[]) ?? [];
+
+    if (items.length === 0) {
+      return { data: [], total: 0, page: pagination.page, limit: pagination.limit };
+    }
+
+    const mediaIds = items.map((item) => item.media_file_id);
+    const { data: rawMediaList } = await supabase
+      .from('media_files')
+      .select('id, cdn_url, alt_text, caption, width, height')
+      .in('id', mediaIds);
+
+    const mediaList = (rawMediaList as any[]) ?? [];
+    const mediaMap = new Map(mediaList.map((m) => [m.id, m]));
+
+    const enrichedItems: AdminPhotoItem[] = items.map((item) => ({
+      ...item,
+      media: mediaMap.get(item.media_file_id) || null,
+      album: item.album || null
+    }));
+
+    return {
+      data: enrichedItems,
+      total: count ?? 0,
+      page: pagination.page,
+      limit: pagination.limit,
+    };
+  }
+
+  /**
    * Hard deletes an album and cascades to items and media.
    * Internal maintenance only.
    */

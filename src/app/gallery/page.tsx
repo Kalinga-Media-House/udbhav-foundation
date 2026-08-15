@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 
-import { AlbumGridSection } from "@/components/gallery/AlbumGridSection";
 import { GalleryHeroSection } from "@/components/gallery/GalleryHeroSection";
 import { GalleryStatsSection } from "@/components/gallery/GalleryStatsSection";
-import { listAlbums } from "@/features/gallery/actions";
+import { PhotoGridSection } from "@/components/gallery/PhotoGridSection";
+import { getGalleryStatsAction, listPublicPhotosAction } from "@/features/gallery/actions";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Impact Gallery | UDBHAV Foundation",
   description:
-    "Explore authentic visual moments and photographic records from UDBHAV Foundation's 11 Index Programmes, community initiatives, and volunteer activities across Odisha.",
+    "Explore authentic visual moments and photographic records from UDBHAV Foundation's programmes and community initiatives across Odisha.",
   alternates: {
     canonical: "https://udbhavfoundation.org/gallery",
   },
@@ -26,19 +26,25 @@ export const metadata: Metadata = {
 };
 
 export default async function GalleryPage() {
-  const result = await listAlbums({ page: 1, limit: 50 });
-  const albums = result.success && result.data ? result.data.data : [];
+  const [statsResult, photosResult] = await Promise.all([
+    getGalleryStatsAction(),
+    listPublicPhotosAction({ page: 1, limit: 100 })
+  ]);
+  
+  const stats = statsResult.success && statsResult.data ? statsResult.data : {
+    totalPhotos: 0,
+    eventsCovered: 0,
+    programmesRepresented: 0,
+    locationsReached: 0
+  };
+  
+  const photos = photosResult.success && photosResult.data ? photosResult.data.data : [];
 
   return (
     <>
-      {/* 1. Compact Gallery Hero */}
       <GalleryHeroSection />
-
-      {/* 2. Dynamic Gallery Statistics Row */}
-      <GalleryStatsSection />
-
-      {/* 3. Database-Backed Album Collections Grid */}
-      <AlbumGridSection albums={albums} />
+      <GalleryStatsSection stats={stats} />
+      <PhotoGridSection photos={photos} />
     </>
   );
 }

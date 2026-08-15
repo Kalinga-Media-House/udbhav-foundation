@@ -158,6 +158,31 @@ export async function listAdminPhotos(
 }
 
 /**
+ * Server action to list all public photos for the frontend Gallery.
+ */
+export async function listPublicPhotosAction(
+  pagination: Pagination
+): Promise<ActionResult<PaginatedResult<AdminPhotoItem>>> {
+  return handleAction('listPublicPhotosAction', async () => {
+    // Public action, no auth required
+    const result = await import('./repository').then(m => m.galleryRepository.listPublicPhotos(pagination));
+    return result;
+  });
+}
+
+/**
+ * Server action to get gallery statistics.
+ */
+export async function getGalleryStatsAction(): Promise<ActionResult<{ totalPhotos: number, eventsCovered: number, programmesRepresented: number, locationsReached: number }>> {
+  return handleAction('getGalleryStatsAction', async () => {
+    // Public action, no auth required
+    const result = await import('./repository').then(m => m.galleryRepository.getGalleryStatistics());
+    if (result.error) throw new Error(result.error.message || 'Get stats failed');
+    return result.data!;
+  });
+}
+
+/**
  * Server action to upload a batch of photos for the Admin CMS.
  */
 export async function uploadPhotosBatchAction(dto: UploadPhotosDTO): Promise<ActionResult<boolean>> {

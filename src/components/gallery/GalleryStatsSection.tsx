@@ -4,10 +4,7 @@ import { Camera, Calendar, Layers, MapPin } from "lucide-react";
 import React from "react";
 
 import { Container } from "@/components/shared/Container";
-import { getGalleryStats } from "@/data/gallery-data";
-
-export function GalleryStatsSection() {
-  const stats = getGalleryStats();
+export function GalleryStatsSection({ stats }: { stats: { totalPhotos: number, eventsCovered: number, programmesRepresented: number, locationsReached: number } }) {
 
   const STATS_CARDS = [
     {
@@ -23,7 +20,7 @@ export function GalleryStatsSection() {
     {
       icon: Layers,
       count: `${stats.programmesRepresented}`,
-      label: "Index Programmes",
+      label: "Programmes Represented",
     },
     {
       icon: MapPin,
