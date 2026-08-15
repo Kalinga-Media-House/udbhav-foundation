@@ -7,7 +7,7 @@ import type { ActionResult } from '@/contracts/actions';
 import type { PaginatedResult } from '@/contracts/repositories';
 import type { Pagination } from '@/types';
 
-import type { AlbumRow, GalleryItemRow, AdminPhotoItem } from './repository';
+import type { AlbumRow, GalleryItemRow, AdminPhotoItem, PublicGalleryFilter, PublicGallerySort, PublicGalleryFilterOptions } from './repository';
 import { galleryService } from './service';
 import type { CreateAlbumDTO, UpdateAlbumDTO, AddGalleryItemDTO, UploadPhotosDTO, UpdatePhotoDTO } from './validators';
 
@@ -161,11 +161,24 @@ export async function listAdminPhotos(
  * Server action to list all public photos for the frontend Gallery.
  */
 export async function listPublicPhotosAction(
-  pagination: Pagination
+  pagination: Pagination,
+  filters?: PublicGalleryFilter,
+  sort?: PublicGallerySort
 ): Promise<ActionResult<PaginatedResult<AdminPhotoItem>>> {
   return handleAction('listPublicPhotosAction', async () => {
     // Public action, no auth required
-    const result = await import('./repository').then(m => m.galleryRepository.listPublicPhotos(pagination));
+    const result = await import('./repository').then(m => m.galleryRepository.listPublicPhotos(pagination, filters, sort));
+    return result;
+  });
+}
+
+/**
+ * Server action to get available public gallery programs and events filters.
+ */
+export async function getPublicGalleryFiltersAction(): Promise<ActionResult<PublicGalleryFilterOptions>> {
+  return handleAction('getPublicGalleryFiltersAction', async () => {
+    // Public action, no auth required
+    const result = await import('./repository').then(m => m.galleryRepository.getPublicGalleryFilters());
     return result;
   });
 }

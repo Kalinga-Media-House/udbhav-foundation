@@ -63,6 +63,19 @@ export type AdminAlbumItem = AlbumRow & {
 /** Payload for adding a gallery item. */
 export type GalleryItemCreate = Omit<GalleryItemRow, 'id' | 'created_at' | 'updated_at' | 'is_deleted'>;
 
+export type PublicGalleryFilter = {
+  program_id?: string;
+  event_id?: string;
+  search?: string;
+};
+
+export type PublicGallerySort = 'newest' | 'oldest' | 'featured';
+
+export type PublicGalleryFilterOptions = {
+  programs: Array<{ id: string; title: string }>;
+  events: Array<{ id: string; title: string }>;
+};
+
 /**
  * Gallery Repository managing database queries for gallery albums and items.
  */
@@ -473,9 +486,48 @@ export class GalleryRepository implements IWriteRepository<AlbumRow, AlbumCreate
   }
 
   /**
+   * Gets available programs and events that have public gallery photos.
+   */
+  async getPublicGalleryFilters(): Promise<PublicGalleryFilterOptions> {
+    try {
+      const supabase = await createServerSupabaseClient();
+      const { data, error } = await supabase
+        .from('gallery_albums')
+        .select('program:programs(id, title), event:events(id, title)')
+        .eq('visibility', 'Public')
+        .eq('is_deleted', false);
+
+      if (error) throw error;
+
+      const programMap = new Map<string, { id: string; title: string }>();
+      const eventMap = new Map<string, { id: string; title: string }>();
+
+      for (const row of data || []) {
+        const p = row.program as unknown as { id: string; title: string } | null;
+        if (p && !Array.isArray(p) && p.id && p.title) programMap.set(p.id, p);
+
+        const e = row.event as unknown as { id: string; title: string } | null;
+        if (e && !Array.isArray(e) && e.id && e.title) eventMap.set(e.id, e);
+      }
+
+      return {
+        programs: Array.from(programMap.values()).sort((a, b) => a.title.localeCompare(b.title)),
+        events: Array.from(eventMap.values()).sort((a, b) => a.title.localeCompare(b.title)),
+      };
+    } catch (error) {
+      serverLogger.error('GalleryRepository.getPublicGalleryFilters failed', error as Error);
+      return { programs: [], events: [] };
+    }
+  }
+
+  /**
    * Lists public photos.
    */
-  async listPublicPhotos(pagination: Pagination): Promise<PaginatedResult<AdminPhotoItem>> {
+  async listPublicPhotos(
+    pagination: Pagination,
+    filters?: PublicGalleryFilter,
+    sort: PublicGallerySort = 'newest'
+  ): Promise<PaginatedResult<AdminPhotoItem>> {
     const supabase = await createServerSupabaseClient();
     const from = (pagination.page - 1) * pagination.limit;
     
@@ -490,9 +542,58 @@ export class GalleryRepository implements IWriteRepository<AlbumRow, AlbumCreate
         )
       `, { count: 'exact' })
       .eq('gallery_albums.is_deleted', false)
-      .eq('gallery_albums.visibility', 'Public')
-      .order('created_at', { ascending: false })
-      .range(from, from + pagination.limit - 1);
+      .eq('gallery_albums.visibility', 'Public');
+      
+    if (filters?.program_id) {
+      query = query.eq('gallery_albums.program_id', filters.program_id);
+    }
+    
+    if (filters?.event_id) {
+      query = query.eq('gallery_albums.event_id', filters.event_id);
+    }
+    
+    if (filters?.search) {
+      const searchTerm = `%${filters.search}%`;
+      
+      // Resolve related albums that match the search term in their own title/location or their parent program/event
+      const [programs, events] = await Promise.all([
+        supabase.from('programs').select('id').ilike('title', searchTerm),
+        supabase.from('events').select('id').ilike('title', searchTerm)
+      ]);
+      
+      const pIds = programs.data?.map(p => p.id) || [];
+      const eIds = events.data?.map(e => e.id) || [];
+      
+      let albumOr = `title.ilike.${searchTerm},location.ilike.${searchTerm}`;
+      if (pIds.length > 0) albumOr += `,program_id.in.(${pIds.join(',')})`;
+      if (eIds.length > 0) albumOr += `,event_id.in.(${eIds.join(',')})`;
+      
+      const { data: matchedAlbums } = await supabase
+        .from('gallery_albums')
+        .select('id')
+        .eq('visibility', 'Public')
+        .eq('is_deleted', false)
+        .or(albumOr);
+        
+      const validAlbumIds = matchedAlbums?.map(a => a.id) || [];
+      const itemOr = `caption.ilike.${searchTerm},description.ilike.${searchTerm},location.ilike.${searchTerm}`;
+      
+      if (validAlbumIds.length > 0) {
+        query = query.or(`${itemOr},album_id.in.(${validAlbumIds.join(',')})`);
+      } else {
+        query = query.or(itemOr);
+      }
+    }
+
+    if (sort === 'oldest') {
+      query = query.order('created_at', { ascending: true }).order('id', { ascending: true });
+    } else if (sort === 'featured') {
+      query = query.order('is_featured', { ascending: false }).order('created_at', { ascending: false }).order('id', { ascending: false });
+    } else { // default newest
+      query = query.order('created_at', { ascending: false }).order('id', { ascending: false });
+    }
+    
+    query = query.range(from, from + pagination.limit - 1);
       
     const { data: rawItems, count, error } = await query;
 

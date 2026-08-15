@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import { GalleryHeroSection } from "@/components/gallery/GalleryHeroSection";
 import { GalleryStatsSection } from "@/components/gallery/GalleryStatsSection";
 import { PhotoGridSection } from "@/components/gallery/PhotoGridSection";
-import { getGalleryStatsAction, listPublicPhotosAction } from "@/features/gallery/actions";
+import { getGalleryStatsAction, listPublicPhotosAction, getPublicGalleryFiltersAction } from "@/features/gallery/actions";
+import type { PublicGallerySort } from "@/features/gallery/repository";
 
 export const dynamic = "force-dynamic";
 
@@ -25,10 +26,25 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function GalleryPage() {
-  const [statsResult, photosResult] = await Promise.all([
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
+
+export default async function GalleryPage({ searchParams }: { searchParams: SearchParams }) {
+  const resolvedParams = await searchParams;
+  
+  const page = typeof resolvedParams.page === 'string' ? parseInt(resolvedParams.page, 10) || 1 : 1;
+  const sort = (typeof resolvedParams.sort === 'string' ? resolvedParams.sort : 'newest') as PublicGallerySort;
+  const program_id = typeof resolvedParams.program === 'string' ? resolvedParams.program : undefined;
+  const event_id = typeof resolvedParams.event === 'string' ? resolvedParams.event : undefined;
+  const search = typeof resolvedParams.search === 'string' ? resolvedParams.search : undefined;
+
+  const [statsResult, photosResult, filtersResult] = await Promise.all([
     getGalleryStatsAction(),
-    listPublicPhotosAction({ page: 1, limit: 100 })
+    listPublicPhotosAction(
+      { page: 1, limit: page * 16 }, 
+      { program_id, event_id, search },
+      sort
+    ),
+    getPublicGalleryFiltersAction()
   ]);
   
   const stats = statsResult.success && statsResult.data ? statsResult.data : {
@@ -38,13 +54,19 @@ export default async function GalleryPage() {
     locationsReached: 0
   };
   
-  const photos = photosResult.success && photosResult.data ? photosResult.data.data : [];
+  const photosData = photosResult.success && photosResult.data ? photosResult.data : { data: [], total: 0, page: 1, limit: 16 };
+  const filterOptions = filtersResult.success && filtersResult.data ? filtersResult.data : { programs: [], events: [] };
 
   return (
     <>
       <GalleryHeroSection />
       <GalleryStatsSection stats={stats} />
-      <PhotoGridSection photos={photos} />
+      <PhotoGridSection 
+        initialPhotos={photosData.data} 
+        totalPhotos={photosData.total}
+        filterOptions={filterOptions}
+        currentPage={page}
+      />
     </>
   );
 }
