@@ -293,7 +293,7 @@ export function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Kalinga Media House (opens in a new tab)"
-              className="text-fresh-green hover:text-soft-green underline underline-offset-4 decoration-fresh-green/40 hover:decoration-soft-green transition-all focus-visible:outline-2 focus-visible:outline-fresh-green focus-visible:outline-offset-2 rounded-xs"
+              className="text-fresh-green hover:text-soft-green no-underline hover:no-underline transition-all focus-visible:outline-2 focus-visible:outline-fresh-green focus-visible:outline-offset-2 rounded-xs"
             >
               Kalinga Media House
             </a>

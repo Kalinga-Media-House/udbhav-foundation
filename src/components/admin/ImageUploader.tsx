@@ -114,14 +114,19 @@ export function ImageUploader({
           throw new Error(processRes.error || 'Server processing failed');
         }
 
-        updateUploadState(id, { status: 'success', result: processRes.data });
+        const finalResult = { ...processRes.data, originalFilename: file.name };
+        updateUploadState(id, { status: 'success', result: finalResult });
+        
+        if (onUploadComplete) {
+          onUploadComplete(multiple ? [finalResult] : finalResult);
+        }
       } catch (error: any) {
         if (error.message !== 'Upload cancelled') {
           updateUploadState(id, { status: 'error', error: error.message });
         }
       }
     },
-    [folder, updateUploadState]
+    [folder, updateUploadState, onUploadComplete, multiple]
   );
 
   const processQueue = useCallback(() => {
@@ -134,27 +139,13 @@ export function ImageUploader({
 
       const toStart = currentUploads.find((u) => u.status === 'idle');
       if (!toStart) {
-        // Check if all are done (success or error)
-        const allDone = currentUploads.every((u) => u.status === 'success' || u.status === 'error');
-        if (allDone && currentUploads.length > 0) {
-          const successful = currentUploads
-            .filter((u) => u.status === 'success' && u.result)
-            .map((u) => ({ ...u.result!, originalFilename: u.file.name }));
-
-          if (successful.length > 0 && onUploadComplete) {
-            // Use setTimeout to avoid state update loops
-            setTimeout(() => {
-              onUploadComplete(multiple ? successful : successful[0]);
-            }, 0);
-          }
-        }
         return currentUploads;
       }
 
       startUpload(toStart.id, toStart.file);
       return currentUploads.map((u) => (u.id === toStart.id ? { ...u, status: 'requesting' } : u));
     });
-  }, [multiple, onUploadComplete, startUpload]);
+  }, [startUpload]);
 
   useEffect(() => {
     processQueue();
@@ -194,6 +185,27 @@ export function ImageUploader({
         alert(`File ${file.name} has an unsupported format.`);
         continue;
       }
+
+      // Prevent duplicate files from being queued
+      const isDuplicate = uploads.some(
+        (u) =>
+          u.file.name === file.name &&
+          u.file.size === file.size &&
+          u.file.lastModified === file.lastModified
+      );
+      
+      // Also check if validFiles already has it (in case they dropped the same file twice in one go)
+      const isDuplicateInBatch = validFiles.some(
+        (f) =>
+          f.name === file.name &&
+          f.size === file.size &&
+          f.lastModified === file.lastModified
+      );
+
+      if (isDuplicate || isDuplicateInBatch) {
+        continue;
+      }
+
       validFiles.push(file);
     }
 
