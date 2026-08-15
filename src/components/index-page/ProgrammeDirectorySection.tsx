@@ -55,14 +55,123 @@ function SegmentedControl({
   );
 }
 
+const PROGRAM_CARD_THEMES = [
+  { 
+    bg: 'bg-emerald-50', 
+    accent: 'text-emerald-600', 
+    hover: 'group-hover:text-emerald-700', 
+    text: 'text-emerald-950', 
+    border: 'border-emerald-100', 
+    divider: 'bg-emerald-200/60', 
+    icon: 'text-emerald-500',
+    timelineBorder: 'border-emerald-500',
+    timelineHover: 'group-hover:bg-emerald-500/30',
+    timelineShadow: 'group-hover:shadow-[0_0_15px_rgba(16,185,129,0.4)]'
+  },
+  { 
+    bg: 'bg-blue-50', 
+    accent: 'text-blue-600', 
+    hover: 'group-hover:text-blue-700', 
+    text: 'text-blue-950', 
+    border: 'border-blue-100', 
+    divider: 'bg-blue-200/60', 
+    icon: 'text-blue-500',
+    timelineBorder: 'border-blue-500',
+    timelineHover: 'group-hover:bg-blue-500/30',
+    timelineShadow: 'group-hover:shadow-[0_0_15px_rgba(59,130,246,0.4)]'
+  },
+  { 
+    bg: 'bg-amber-50', 
+    accent: 'text-amber-600', 
+    hover: 'group-hover:text-amber-700', 
+    text: 'text-amber-950', 
+    border: 'border-amber-100', 
+    divider: 'bg-amber-200/60', 
+    icon: 'text-amber-500',
+    timelineBorder: 'border-amber-500',
+    timelineHover: 'group-hover:bg-amber-500/30',
+    timelineShadow: 'group-hover:shadow-[0_0_15px_rgba(245,158,11,0.4)]'
+  },
+  { 
+    bg: 'bg-indigo-50', 
+    accent: 'text-indigo-600', 
+    hover: 'group-hover:text-indigo-700', 
+    text: 'text-indigo-950', 
+    border: 'border-indigo-100', 
+    divider: 'bg-indigo-200/60', 
+    icon: 'text-indigo-500',
+    timelineBorder: 'border-indigo-500',
+    timelineHover: 'group-hover:bg-indigo-500/30',
+    timelineShadow: 'group-hover:shadow-[0_0_15px_rgba(99,102,241,0.4)]'
+  },
+  { 
+    bg: 'bg-teal-50', 
+    accent: 'text-teal-600', 
+    hover: 'group-hover:text-teal-700', 
+    text: 'text-teal-950', 
+    border: 'border-teal-100', 
+    divider: 'bg-teal-200/60', 
+    icon: 'text-teal-500',
+    timelineBorder: 'border-teal-500',
+    timelineHover: 'group-hover:bg-teal-500/30',
+    timelineShadow: 'group-hover:shadow-[0_0_15px_rgba(20,184,166,0.4)]'
+  },
+  { 
+    bg: 'bg-rose-50', 
+    accent: 'text-rose-600', 
+    hover: 'group-hover:text-rose-700', 
+    text: 'text-rose-950', 
+    border: 'border-rose-100', 
+    divider: 'bg-rose-200/60', 
+    icon: 'text-rose-500',
+    timelineBorder: 'border-rose-500',
+    timelineHover: 'group-hover:bg-rose-500/30',
+    timelineShadow: 'group-hover:shadow-[0_0_15px_rgba(244,63,94,0.4)]'
+  },
+  { 
+    bg: 'bg-sky-50', 
+    accent: 'text-sky-600', 
+    hover: 'group-hover:text-sky-700', 
+    text: 'text-sky-950', 
+    border: 'border-sky-100', 
+    divider: 'bg-sky-200/60', 
+    icon: 'text-sky-500',
+    timelineBorder: 'border-sky-500',
+    timelineHover: 'group-hover:bg-sky-500/30',
+    timelineShadow: 'group-hover:shadow-[0_0_15px_rgba(14,165,233,0.4)]'
+  },
+  { 
+    bg: 'bg-fuchsia-50', 
+    accent: 'text-fuchsia-600', 
+    hover: 'group-hover:text-fuchsia-700', 
+    text: 'text-fuchsia-950', 
+    border: 'border-fuchsia-100', 
+    divider: 'bg-fuchsia-200/60', 
+    icon: 'text-fuchsia-500',
+    timelineBorder: 'border-fuchsia-500',
+    timelineHover: 'group-hover:bg-fuchsia-500/30',
+    timelineShadow: 'group-hover:shadow-[0_0_15px_rgba(217,70,239,0.4)]'
+  },
+];
+
+function getThemeForId(id: string) {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % PROGRAM_CARD_THEMES.length;
+  return PROGRAM_CARD_THEMES[index];
+}
+
 /**
  * Single Timeline Item Component
  */
 function TimelineItem({ prog, index }: { prog: IndexProgrammeDetail; index: number }) {
   const isLeft = index % 2 === 0;
+  const theme = getThemeForId(prog.id);
 
   return (
-    <div className="relative mb-24 md:mb-32 w-full flex justify-end md:justify-between items-center group">
+    <div className="relative mb-6 md:mb-12 w-full flex justify-end md:justify-between items-center group">
       
       {/* Node (Desktop & Mobile) */}
       <motion.div 
@@ -70,73 +179,56 @@ function TimelineItem({ prog, index }: { prog: IndexProgrammeDetail; index: numb
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true, margin: '-100px' }}
         transition={{ duration: 0.4, delay: 0.1, ease: 'easeOut' }}
-        className="absolute left-8 md:left-1/2 w-6 h-6 rounded-full border-[4px] border-[#5E9F3B] bg-white transform -translate-x-1/2 z-20 transition-all duration-300 group-hover:shadow-[0_0_15px_rgba(94,159,59,0.4)]" 
+        className={`absolute left-8 md:left-1/2 w-6 h-6 rounded-full border-[4px] ${theme.timelineBorder} bg-white transform -translate-x-1/2 z-20 transition-all duration-300 ${theme.timelineShadow}`} 
       />
 
       {/* Connector Line (Desktop) */}
-      <div className={`hidden md:block absolute top-1/2 h-[1.5px] bg-gray-200 z-10 w-[calc(8%-12px)] transition-colors duration-300 group-hover:bg-[#5E9F3B]/30 ${
+      <div className={`hidden md:block absolute top-1/2 h-[1.5px] bg-gray-200 z-10 w-[calc(8%-12px)] transition-colors duration-300 ${theme.timelineHover} ${
         isLeft ? 'right-[50%] mr-[12px]' : 'left-[50%] ml-[12px]'
       }`} />
 
       {/* Connector Line (Mobile) */}
-      <div className="absolute top-1/2 h-[1.5px] bg-gray-200 z-10 w-[36px] left-[44px] block md:hidden transition-colors duration-300 group-hover:bg-[#5E9F3B]/30" />
+      <div className={`absolute top-1/2 h-[1.5px] bg-gray-200 z-10 w-[20px] left-[44px] block md:hidden transition-colors duration-300 ${theme.timelineHover}`} />
 
       {/* Card Container */}
-      <div className={`w-full pl-20 pr-4 md:px-0 md:w-[42%] flex ${isLeft ? 'md:mr-auto md:justify-end' : 'md:ml-auto md:justify-start'}`}>
+      <div className={`w-full pl-16 pr-4 md:px-0 md:w-[42%] flex ${isLeft ? 'md:mr-auto md:justify-end' : 'md:ml-auto md:justify-start'}`}>
          
          <motion.div 
-             initial={{ opacity: 0, x: isLeft ? -40 : 40 }}
+             initial={{ opacity: 0, x: isLeft ? -15 : 15 }}
              whileInView={{ opacity: 1, x: 0 }}
-             viewport={{ once: true, margin: '-100px' }}
-             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-             className="w-full bg-white rounded-[20px] sm:rounded-[24px] p-5 sm:p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[6px] hover:scale-[1.02] hover:shadow-[0_12px_35px_rgba(0,0,0,0.07)] ring-1 ring-gray-100"
+             viewport={{ once: true, margin: '-50px' }}
+             transition={{ duration: 0.5, ease: 'easeOut' }}
+             className={`w-full ${theme.bg} rounded-[16px] sm:rounded-[20px] p-5 sm:p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md border ${theme.border} relative overflow-hidden`}
          >
-            {/* Top Row */}
-            <div className="flex items-center gap-4 mb-4">
-               <div className="relative shrink-0 w-[60px] h-[60px] sm:w-[70px] sm:h-[70px] rounded-[14px] sm:rounded-[16px] overflow-hidden bg-gray-100 shadow-sm">
-                  <Image src={prog.coverImageUrl} alt={prog.title} fill className="object-cover" sizes="70px" />
-               </div>
-               <div className="flex flex-col justify-center gap-1.5 flex-1 min-w-0">
-                  <div className="flex">
-                     <span className="inline-flex items-center justify-center rounded-full bg-[#FAFBFC] border border-gray-100 px-2.5 py-0.5 text-[10px] sm:text-[11px] font-semibold tracking-wide text-[#233A8B]">
-                        {prog.category}
-                     </span>
-                  </div>
-                  <h3 className="font-heading text-[20px] sm:text-[24px] font-semibold leading-tight text-[#233A8B] line-clamp-2 truncate whitespace-normal">
-                     <Link href={`/programmes/${prog.slug}`}>
-                       <span className="absolute inset-0 z-20" aria-hidden="true" />
-                       {prog.title}
-                     </Link>
-                  </h3>
-               </div>
-            </div>
+             <h3 className={`font-heading text-[18px] sm:text-[22px] font-bold leading-tight ${theme.text} mb-4`}>
+                 <Link href={`/programmes/${prog.slug}`}>
+                   <span className="absolute inset-0 z-20" aria-hidden="true" />
+                   {prog.title}
+                 </Link>
+             </h3>
 
-            {/* Middle Row */}
-            <p className="text-[14px] sm:text-[15px] leading-relaxed text-gray-600 line-clamp-1 mb-5 font-medium">
-               {prog.shortDescription}
-            </p>
+             <div className={`w-full h-px ${theme.divider} mb-4`} />
 
-            {/* Bottom Row */}
-            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 border-t border-gray-100 pt-4 text-[13px] sm:text-[14px]">
-               <div className="flex flex-wrap items-center gap-3 xl:gap-4 text-gray-500 font-medium">
-                  {prog.programDate && (
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="h-4 w-4 text-[#5E9F3B]" />
-                      <span>{prog.programDate}</span>
-                    </div>
-                  )}
-                  {prog.location && (
-                    <div className="flex items-center gap-1.5">
-                      <MapPin className="h-4 w-4 text-[#5E9F3B]" />
-                      <span className="line-clamp-1 max-w-[150px] sm:max-w-[200px]">{prog.location}</span>
-                    </div>
-                  )}
-               </div>
+             <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 text-[13px] sm:text-[14px]">
+                <div className={`flex flex-wrap items-center gap-3 xl:gap-4 ${theme.text} opacity-90 font-medium`}>
+                   {prog.programDate && (
+                     <div className="flex items-center gap-1.5">
+                       <Calendar className={`h-4 w-4 ${theme.icon}`} />
+                       <span>{prog.programDate}</span>
+                     </div>
+                   )}
+                   {prog.location && (
+                     <div className="flex items-center gap-1.5">
+                       <MapPin className={`h-4 w-4 ${theme.icon}`} />
+                       <span className="line-clamp-1 max-w-[150px] sm:max-w-[200px]">{prog.location}</span>
+                     </div>
+                   )}
+                </div>
 
-               <div className="flex items-center font-semibold text-[#233A8B] transition-colors group-hover:text-[#5E9F3B]">
-                  View Details <ArrowRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-               </div>
-            </div>
+                <div className={`flex items-center font-semibold ${theme.accent} ${theme.hover} transition-colors shrink-0`}>
+                   View Details <ArrowRight className="ml-1 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+                </div>
+             </div>
          </motion.div>
       </div>
     </div>
