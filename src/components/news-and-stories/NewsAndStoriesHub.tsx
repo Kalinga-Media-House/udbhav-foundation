@@ -12,7 +12,7 @@ import { Container } from '@/components/shared/Container';
 import { ArticleWithMedia } from '@/features/news/repository';
 import { PodcastEpisodeItem } from '@/types/news';
 
-type TabType = 'All' | 'News & Stories' | 'Upcoming Events' | 'Past Events' | 'Podcast';
+type TabType = 'All' | 'News & Stories' | 'Upcoming Events' | 'Past Events';
 type SortType = 'newest' | 'oldest';
 
 interface NewsAndStoriesHubProps {
@@ -122,7 +122,6 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
   const showStories = activeTab === 'All' || activeTab === 'News & Stories';
   const showUpcomingEvents = activeTab === 'All' || activeTab === 'Upcoming Events';
   const showPastEvents = activeTab === 'All' || activeTab === 'Past Events';
-  const showPodcast = activeTab === 'All' || activeTab === 'Podcast';
 
   // Category Color Map
   const getCategoryStyles = (category: string | undefined) => {
@@ -192,22 +191,14 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
                 </div>
                 
                 {/* Actions */}
-                <div className="flex flex-row md:flex-col lg:flex-row items-center gap-3 shrink-0 w-full md:w-auto mt-2 md:mt-0">
+                <div className="flex shrink-0 w-full md:w-auto mt-4 md:mt-0 justify-end md:justify-center">
                   <Link 
                     href={`/news-and-stories/${nearestEvent.slug}`} 
-                    className="group/link flex-1 md:flex-none flex items-center justify-center px-6 py-2.5 bg-[#4FAF32] hover:bg-[#3E8B28] text-white rounded-full text-sm font-semibold transition-all shadow-sm shadow-[#4FAF32]/20 border border-transparent"
+                    className="group/link flex-1 md:flex-none flex items-center justify-center px-8 py-3 bg-[#4FAF32] hover:bg-[#3E8B28] text-white rounded-full text-sm font-semibold transition-all shadow-sm shadow-[#4FAF32]/20 border border-transparent"
                   >
                     View Details
-                    <ArrowRight className="h-4 w-4 ml-1.5 transform group-hover/link:translate-x-1 transition-transform" />
+                    <ArrowRight className="h-4 w-4 ml-2 transform group-hover/link:translate-x-1 transition-transform" />
                   </Link>
-                  
-                  <button 
-                    onClick={() => setActiveTab('Podcast')}
-                    className="group/pod flex-1 md:flex-none flex items-center justify-center px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-full text-sm font-semibold transition-all"
-                  >
-                    Podcast
-                    <Play className="h-3.5 w-3.5 ml-1.5 fill-current transform group-hover/pod:scale-110 transition-transform" />
-                  </button>
                 </div>
               </div>
             ) : (
@@ -220,23 +211,16 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
                     Stay tuned for our next community initiative.
                   </p>
                 </div>
-                <div className="flex flex-row md:flex-col lg:flex-row items-center gap-3 shrink-0 w-full md:w-auto mt-2 md:mt-0">
+                <div className="flex shrink-0 w-full md:w-auto mt-2 md:mt-0 justify-end md:justify-center">
                   <button 
                     onClick={() => {
                       setActiveTab('News & Stories');
                       document.getElementById('news-section')?.scrollIntoView({ behavior: 'smooth' });
                     }}
-                    className="group/link flex-1 md:flex-none flex items-center justify-center px-6 py-2.5 bg-[#4FAF32] hover:bg-[#3E8B28] text-white rounded-full text-sm font-semibold transition-all shadow-sm shadow-[#4FAF32]/20 border border-transparent"
+                    className="group/link flex-1 md:flex-none flex items-center justify-center px-8 py-3 bg-[#4FAF32] hover:bg-[#3E8B28] text-white rounded-full text-sm font-semibold transition-all shadow-sm shadow-[#4FAF32]/20 border border-transparent"
                   >
                     Explore News 
-                    <ArrowRight className="h-4 w-4 ml-1.5 transform group-hover/link:translate-x-1 transition-transform" />
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab('Podcast')}
-                    className="group/pod flex-1 md:flex-none flex items-center justify-center px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-full text-sm font-semibold transition-all"
-                  >
-                    Podcast
-                    <Play className="h-3.5 w-3.5 ml-1.5 fill-current transform group-hover/pod:scale-110 transition-transform" />
+                    <ArrowRight className="h-4 w-4 ml-2 transform group-hover/link:translate-x-1 transition-transform" />
                   </button>
                 </div>
               </div>
@@ -245,14 +229,99 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
         </Container>
       </section>
 
-      {/* 2. NAVIGATION & CONTROLS */}
+      {/* 2. PODCAST FEATURE */}
+      <section className="relative bg-[#F8FAF7] pb-8 pt-2">
+        <Container>
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut", delay: 0.1 }}
+            className="bg-[#20256F] rounded-[24px] p-6 lg:p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden shadow-sm"
+          >
+            {/* Subtle waveform decorative blobs */}
+            <div className="absolute inset-y-0 right-0 w-1/2 md:w-1/3 flex items-center justify-end pr-8 opacity-10 pointer-events-none overflow-hidden">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <motion.div
+                  key={i}
+                  animate={{ height: ['30%', '80%', '40%', '90%', '30%'] }}
+                  transition={{ duration: 1.5 + i * 0.3, repeat: Infinity, ease: "easeInOut", repeatType: "mirror" }}
+                  className="w-3 bg-[#4FAF32] rounded-full mx-1.5"
+                />
+              ))}
+            </div>
+            
+            {filteredPodcasts.length > 0 ? (
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-6 w-full relative z-10">
+                <div className="flex items-center gap-4 shrink-0 w-full md:w-auto">
+                  <div className="w-14 h-14 bg-[#4FAF32] rounded-full flex items-center justify-center shrink-0">
+                    <Play className="h-6 w-6 text-white fill-current ml-1" />
+                  </div>
+                  <div className="md:hidden">
+                    <span className="text-[#4FAF32] text-[10px] font-bold uppercase tracking-widest block mb-1">UDBHAV PODCAST</span>
+                    <h3 className="text-white font-heading font-bold text-lg line-clamp-1">Conversations & Ideas</h3>
+                  </div>
+                </div>
+                
+                <div className="flex-1 min-w-0 flex flex-col md:border-l md:border-white/10 md:pl-6">
+                  <span className="hidden md:block text-[#4FAF32] text-[10px] font-bold uppercase tracking-widest mb-1.5">UDBHAV PODCAST</span>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="text-white/60 text-xs font-semibold tracking-wider bg-white/10 px-2 py-0.5 rounded-sm">
+                      EPISODE {filteredPodcasts[0].episodeNumber}
+                    </span>
+                    <span className="text-white/60 text-xs font-semibold">{filteredPodcasts[0].releaseDate}</span>
+                  </div>
+                  <h3 className="text-xl font-heading font-bold text-white line-clamp-1 mb-1 group-hover:text-[#4FAF32] transition-colors">
+                    {filteredPodcasts[0].title}
+                  </h3>
+                  <p className="text-white/60 text-sm line-clamp-1">{filteredPodcasts[0].description}</p>
+                </div>
+                
+                <div className="shrink-0 w-full md:w-auto flex justify-end">
+                  <Link 
+                    href={`/news-and-stories/podcast/${filteredPodcasts[0].slug}`}
+                    className="group/listen flex items-center justify-center px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-full text-sm font-semibold transition-all w-full md:w-auto"
+                  >
+                    Listen Now
+                    <Play className="h-3.5 w-3.5 ml-1.5 fill-current transform group-hover/listen:scale-110 transition-transform" />
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between w-full relative z-10 gap-6">
+                <div className="flex items-center gap-5">
+                  <div className="w-12 h-12 bg-[#4FAF32]/20 rounded-full flex items-center justify-center shrink-0">
+                    <Play className="h-5 w-5 text-[#4FAF32] fill-current ml-1" />
+                  </div>
+                  <div>
+                    <span className="text-[#4FAF32] text-[10px] font-bold uppercase tracking-widest block mb-1">UDBHAV PODCAST</span>
+                    <h3 className="text-white font-heading font-bold text-lg md:text-xl max-w-lg">Conversations, ideas and stories from the UDBHAV community.</h3>
+                  </div>
+                </div>
+                <div className="shrink-0 w-full md:w-auto flex justify-end">
+                  <a 
+                    href="https://youtube.com" 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="group/listen flex items-center justify-center px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-full text-sm font-semibold transition-all w-full md:w-auto"
+                  >
+                    Official Channel
+                    <ArrowRight className="h-4 w-4 ml-1.5 transform group-hover/listen:translate-x-1 transition-transform" />
+                  </a>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </Container>
+      </section>
+
+      {/* 3. NAVIGATION & CONTROLS */}
       <section className="sticky top-0 z-40 bg-[#F8FAF7]/90 backdrop-blur-xl border-b border-gray-200 py-4 mb-12 shadow-sm transition-all duration-300">
         <Container>
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             
             {/* Category Tabs (Interactive) */}
             <div className="flex items-center gap-8 overflow-x-auto scrollbar-none pb-1 -mx-4 px-4 lg:mx-0 lg:px-0" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
-              {(['All', 'News & Stories', 'Upcoming Events', 'Past Events', 'Podcast'] as TabType[]).map((tab) => (
+              {(['All', 'News & Stories', 'Upcoming Events', 'Past Events'] as TabType[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
@@ -579,82 +648,6 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
                 <p className="text-[#667085] text-base">No past events found.</p>
               </motion.div>
             )}
-          </Container>
-        )}
-
-        {/* 6. UDBHAV PODCAST */}
-        {showPodcast && (
-          <Container>
-            <motion.div 
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-50px" }}
-              variants={fadeUpVariant}
-              className="bg-[#20256F] rounded-[24px] p-8 lg:p-14 mb-10 relative overflow-hidden shadow-xl"
-            >
-              {/* Decorative Audio Waveform blobs */}
-              <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-end pr-10 opacity-20">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <motion.div
-                    key={i}
-                    animate={{ height: ['20%', '80%', '40%', '90%', '20%'] }}
-                    transition={{ duration: 2 + i * 0.5, repeat: Infinity, ease: "easeInOut", repeatType: "mirror" }}
-                    className="w-4 bg-[#4FAF32] rounded-full mx-2"
-                  />
-                ))}
-              </div>
-              <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-[#4FAF32] rounded-full blur-[120px] opacity-20 -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-
-              <div className="relative z-10 flex flex-col lg:flex-row gap-12 lg:gap-16 items-start">
-                <div className="lg:w-1/3">
-                  <span className="text-[#4FAF32] text-xs font-bold uppercase tracking-widest block mb-4 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-[#4FAF32] animate-pulse" /> UDBHAV PODCAST
-                  </span>
-                  <h3 className="text-3xl sm:text-4xl font-heading font-bold text-white mb-5 leading-tight">
-                    Conversations, ideas & stories.
-                  </h3>
-                  <a href="https://youtube.com" target="_blank" rel="noreferrer" className="group inline-flex items-center text-white font-semibold hover:text-[#4FAF32] transition-colors border border-white/20 hover:border-[#4FAF32] rounded-full px-6 py-2.5 bg-white/5 backdrop-blur-sm">
-                    Official Channel <ArrowRight className="h-4 w-4 ml-2 transform group-hover:translate-x-1 transition-transform" />
-                  </a>
-                </div>
-                
-                <div className="lg:w-2/3 w-full">
-                  {filteredPodcasts.length > 0 ? (
-                    <div className="flex flex-col border-t border-white/10 pt-4">
-                      {filteredPodcasts.slice(0, activeTab === 'Podcast' ? 10 : 3).map((ep) => (
-                        <div key={ep.id} className="group flex flex-col sm:flex-row gap-6 py-6 border-b border-white/10 transition-colors">
-                          <div className="flex flex-col flex-1 justify-center order-2 sm:order-1">
-                            <span className="text-[#4FAF32] text-xs font-bold uppercase tracking-wider mb-2">EPISODE {ep.episodeNumber} • {ep.releaseDate}</span>
-                            <h4 className="text-xl font-heading font-bold text-white line-clamp-2 mb-2 group-hover:text-[#EAF6E4] transition-colors">
-                              <Link href={`/news-and-stories/podcast/${ep.slug}`}>
-                                {ep.title}
-                              </Link>
-                            </h4>
-                            <p className="text-white/60 text-sm line-clamp-2 mb-4">{ep.description}</p>
-                            <Link href={`/news-and-stories/podcast/${ep.slug}`} className="group/listen inline-flex items-center text-white/90 font-semibold text-sm hover:text-[#4FAF32] transition-colors">
-                              Listen <Play className="h-3 w-3 ml-1.5 fill-current transform group-hover/listen:scale-110 transition-transform" />
-                            </Link>
-                          </div>
-                          <div className="relative w-full sm:w-[180px] h-[120px] shrink-0 rounded-xl overflow-hidden bg-black/40 self-start order-1 sm:order-2">
-                            <Image src={ep.thumbnailUrl} alt={ep.title} fill className="object-cover opacity-80 group-hover:opacity-100 transition-all duration-500 group-hover:scale-105" />
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                              <div className="h-10 w-10 bg-white/20 backdrop-blur-sm border border-white/40 rounded-full flex items-center justify-center shadow-lg group-hover:bg-[#4FAF32] group-hover:border-[#4FAF32] transition-all duration-300 group-hover:scale-110">
-                                <Play className="h-4 w-4 text-white fill-current ml-0.5" />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="py-12 text-center bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                      <p className="text-white/80 text-base">No podcast episodes available yet.</p>
-                      <p className="text-white/50 text-sm mt-1">Check back soon for our first episode!</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </motion.div>
           </Container>
         )}
 
