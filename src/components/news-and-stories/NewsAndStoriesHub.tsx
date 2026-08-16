@@ -4,6 +4,7 @@ import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Search, ChevronDown, Clock, MapPin, Play, Calendar, ArrowRight } from 'lucide-react';
+import { getEventLifecycle } from '@/features/news/utils';
 import { format } from 'date-fns';
 
 import { Container } from '@/components/shared/Container';
@@ -56,30 +57,12 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
   const { upcomingEvents, pastEvents } = useMemo(() => {
     const eventsOnly = baseSearchedArticles.filter(a => a.category === 'Event');
     
-    // Get current time in Asia/Kolkata
-    const nowInKolkata = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })).getTime();
-
     const upcoming: typeof eventsOnly = [];
     const past: typeof eventsOnly = [];
 
     eventsOnly.forEach(e => {
-      if (!e.event_date) {
-        past.push(e); // Invalid event data
-        return;
-      }
-      // Create a date object representing the event end in Kolkata
-      let endDateStr = e.event_date;
-      if (e.event_end_time) {
-        endDateStr = `${e.event_date}T${e.event_end_time}`;
-      } else if (e.event_start_time) {
-        endDateStr = `${e.event_date}T${e.event_start_time}`;
-      } else {
-        endDateStr = `${e.event_date}T23:59:59`;
-      }
-      
-      const effectiveEndDate = new Date(new Date(endDateStr).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })).getTime();
-      
-      if (effectiveEndDate >= nowInKolkata) {
+      const lifecycle = getEventLifecycle(e);
+      if (lifecycle === 'UPCOMING') {
         upcoming.push(e);
       } else {
         past.push(e);

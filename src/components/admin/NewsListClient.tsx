@@ -24,6 +24,7 @@ import {
   deleteArticle,
 } from '@/features/news/actions';
 import type { ArticleWithMedia } from '@/features/news/repository';
+import { getEventLifecycle } from '@/features/news/utils';
 
 interface NewsListClientProps {
   initialArticles: ArticleWithMedia[];
@@ -35,6 +36,7 @@ export function NewsListClient({ initialArticles }: NewsListClientProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [eventLifecycleFilter, setEventLifecycleFilter] = useState<string>('ALL');
   const [error, setError] = useState<string | null>(null);
 
   const filteredArticles = initialArticles.filter((article) => {
@@ -43,11 +45,40 @@ export function NewsListClient({ initialArticles }: NewsListClientProps) {
       article.article_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (article.summary && article.summary.toLowerCase().includes(searchQuery.toLowerCase()));
 
-    const matchesCategory = categoryFilter === 'ALL' || article.category === categoryFilter;
-
+    let matchesCategory = true;
+    if (categoryFilter === 'NEWS_AND_STORIES') {
+      matchesCategory = article.category !== 'Event' && article.category !== 'Podcast';
+    } else if (categoryFilter !== 'ALL') {
+      matchesCategory = article.category === categoryFilter;
+    }
     const matchesStatus = statusFilter === 'ALL' || article.status === statusFilter;
 
-    return matchesSearch && matchesCategory && matchesStatus;
+    let matchesLifecycle = true;
+    if (eventLifecycleFilter !== 'ALL') {
+      if (article.category !== 'Event') {
+        matchesLifecycle = false;
+      } else {
+        matchesLifecycle = getEventLifecycle(article) === eventLifecycleFilter;
+      }
+    }
+
+    return matchesSearch && matchesCategory && matchesStatus && matchesLifecycle;
+  }).sort((a, b) => {
+    // Determine sort order
+    if (eventLifecycleFilter === 'UPCOMING') {
+      // Soonest first
+      const dateA = a.event_date ? new Date(a.event_date).getTime() : new Date(a.published_at || a.created_at).getTime();
+      const dateB = b.event_date ? new Date(b.event_date).getTime() : new Date(b.published_at || b.created_at).getTime();
+      return dateA - dateB;
+    } else if (eventLifecycleFilter === 'PAST') {
+      // Most recent first
+      const dateA = a.event_date ? new Date(a.event_date).getTime() : new Date(a.published_at || a.created_at).getTime();
+      const dateB = b.event_date ? new Date(b.event_date).getTime() : new Date(b.published_at || b.created_at).getTime();
+      return dateB - dateA;
+    } else {
+      // Default: Newest first
+      return new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime();
+    }
   });
 
   const handleTogglePublish = (id: string, currentStatus: string) => {
@@ -93,6 +124,33 @@ export function NewsListClient({ initialArticles }: NewsListClientProps) {
 
   return (
     <div className="space-y-6">
+      <div className="flex space-x-2 border-b border-gray-200 pb-2">
+        <button
+          onClick={() => { setCategoryFilter('ALL'); setEventLifecycleFilter('ALL'); }}
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg ${categoryFilter === 'ALL' && eventLifecycleFilter === 'ALL' ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+        >
+          All
+        </button>
+        <button
+          onClick={() => { setCategoryFilter('NEWS_AND_STORIES'); setEventLifecycleFilter('ALL'); }}
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg ${categoryFilter === 'NEWS_AND_STORIES' ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+        >
+          News & Stories
+        </button>
+        <button
+          onClick={() => { setCategoryFilter('Event'); setEventLifecycleFilter('UPCOMING'); }}
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg ${categoryFilter === 'Event' && eventLifecycleFilter === 'UPCOMING' ? 'bg-emerald-50 text-emerald-700' : 'text-gray-500 hover:text-gray-700'}`}
+        >
+          Upcoming Events
+        </button>
+        <button
+          onClick={() => { setCategoryFilter('Event'); setEventLifecycleFilter('PAST'); }}
+          className={`px-4 py-2 text-sm font-medium rounded-t-lg ${categoryFilter === 'Event' && eventLifecycleFilter === 'PAST' ? 'bg-gray-100 text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+        >
+          Past Events
+        </button>
+      </div>
+
       {/* Search & Filter Bar */}
       <div className="flex flex-col items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm md:flex-row">
         <div className="relative w-full flex-1 md:w-auto">
@@ -135,6 +193,21 @@ export function NewsListClient({ initialArticles }: NewsListClientProps) {
             <option value="Archived">Archived</option>
           </select>
 
+          <select
+            value={eventLifecycleFilter}
+            onChange={(e) => {
+              setEventLifecycleFilter(e.target.value);
+              if (e.target.value !== 'ALL') {
+                setCategoryFilter('Event');
+              }
+            }}
+            className="h-10 rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="ALL">All Events Lifecycle</option>
+            <option value="UPCOMING">Upcoming Events</option>
+            <option value="PAST">Past Events</option>
+          </select>
+
           <Link href="/admin/news/new">
             <Button className="flex items-center gap-2">
               <Plus className="h-4 w-4" />
@@ -162,8 +235,9 @@ export function NewsListClient({ initialArticles }: NewsListClientProps) {
               <thead className="hidden md:table-header-group">
                 <tr className="border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wider text-gray-600">
                   <th className="px-6 py-3">Article</th>
-                  <th className="px-6 py-3">Category</th>
-                  <th className="px-6 py-3">Status</th>
+                  <th className="px-6 py-3">Type</th>
+                  <th className="px-6 py-3">Event Status</th>
+                  <th className="px-6 py-3">Publication Status</th>
                   <th className="px-6 py-3">Featured</th>
                   <th className="px-6 py-3">Date</th>
                   <th className="px-6 py-3 text-right">Actions</th>
@@ -189,16 +263,25 @@ export function NewsListClient({ initialArticles }: NewsListClientProps) {
                         )}
                       </div>
                     </td>
-                    <td data-label="Category" className="px-0 md:px-6 py-2 md:py-4 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
+                    <td data-label="Type" className="px-0 md:px-6 py-2 md:py-4 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">
                         {article.category || 'News'}
                       </span>
                     </td>
-                    <td data-label="Status" className="px-0 md:px-6 py-2 md:py-4 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
+                    <td data-label="Event Status" className="px-0 md:px-6 py-2 md:py-4 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
+                      {article.category === 'Event' ? (
+                        <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${getEventLifecycle(article) === 'UPCOMING' ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-700'}`}>
+                          {getEventLifecycle(article) === 'UPCOMING' ? 'Upcoming' : 'Past'}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
+                    </td>
+                    <td data-label="Publication Status" className="px-0 md:px-6 py-2 md:py-4 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       <span
                         className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
                           article.status === 'Published'
-                            ? 'bg-green-100 text-green-800'
+                            ? 'bg-blue-100 text-blue-800'
                             : article.status === 'Archived'
                               ? 'bg-gray-100 text-gray-800'
                               : 'bg-amber-100 text-amber-800'
