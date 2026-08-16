@@ -40,10 +40,13 @@ export function NewsListClient({ initialArticles }: NewsListClientProps) {
   const [error, setError] = useState<string | null>(null);
 
   const filteredArticles = initialArticles.filter((article) => {
+    const searchLower = searchQuery.toLowerCase();
     const matchesSearch =
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.article_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (article.summary && article.summary.toLowerCase().includes(searchQuery.toLowerCase()));
+      article.title.toLowerCase().includes(searchLower) ||
+      article.article_code.toLowerCase().includes(searchLower) ||
+      (article.summary && article.summary.toLowerCase().includes(searchLower)) ||
+      (article.event_location && article.event_location.toLowerCase().includes(searchLower)) ||
+      (article.content && article.content.toLowerCase().includes(searchLower));
 
     let matchesCategory = true;
     if (categoryFilter === 'NEWS_AND_STORIES') {
