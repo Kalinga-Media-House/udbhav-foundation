@@ -145,7 +145,7 @@ export function IndexHeroSection({ heroImages }: { heroImages?: HeroImageRow[] }
             type="button"
             onClick={goToPrevSlide}
             aria-label="Previous hero image"
-            className="flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-30 items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/30 hover:bg-black/50 border border-white/20 text-white backdrop-blur-sm transition-all focus-visible:outline-2 focus-visible:outline-white shadow-md"
+            className="hidden md:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-30 items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/30 hover:bg-black/50 border border-white/20 text-white backdrop-blur-sm transition-all focus-visible:outline-2 focus-visible:outline-white shadow-md"
           >
             <ChevronLeft className="w-6 h-6 sm:w-7 sm:h-7" />
           </button>
@@ -154,7 +154,7 @@ export function IndexHeroSection({ heroImages }: { heroImages?: HeroImageRow[] }
             type="button"
             onClick={goToNextSlide}
             aria-label="Next hero image"
-            className="flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-30 items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/30 hover:bg-black/50 border border-white/20 text-white backdrop-blur-sm transition-all focus-visible:outline-2 focus-visible:outline-white shadow-md"
+            className="hidden md:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-30 items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/30 hover:bg-black/50 border border-white/20 text-white backdrop-blur-sm transition-all focus-visible:outline-2 focus-visible:outline-white shadow-md"
           >
             <ChevronRight className="w-6 h-6 sm:w-7 sm:h-7" />
           </button>
