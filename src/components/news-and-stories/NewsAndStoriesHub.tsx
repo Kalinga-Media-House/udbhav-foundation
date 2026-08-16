@@ -549,7 +549,7 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
             
             {filteredNewsAndStories.length > 0 ? (
               <motion.div 
-                className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-12"
+                className="flex flex-col gap-8 md:gap-10 max-w-[1100px] mx-auto"
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
@@ -561,14 +561,14 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
                   <motion.div 
                     key={article.id} 
                     variants={fadeUpVariant}
-                    className={`group relative flex flex-col sm:flex-row gap-6 p-5 sm:p-6 rounded-[24px] ${cardBg} transition-all duration-300 motion-safe:hover:-translate-y-1 hover:shadow-md border border-black/5`}
+                    className={`group relative flex flex-col sm:flex-row gap-6 md:gap-8 p-6 md:p-8 rounded-[24px] ${cardBg} transition-all duration-300 motion-safe:hover:-translate-y-1 hover:shadow-md border border-black/5`}
                   >
-                    <div className="relative w-full sm:w-[260px] h-[180px] sm:h-auto sm:min-h-[170px] shrink-0 bg-white rounded-[16px] overflow-hidden shadow-sm border border-black/5">
+                    <div className="relative w-full sm:w-[280px] md:w-[320px] lg:w-[380px] h-[200px] sm:h-auto sm:min-h-[220px] shrink-0 bg-white rounded-[16px] overflow-hidden shadow-sm border border-black/5">
                       <Image
                         src={article.cover_image?.cdn_url || '/placeholder-image.jpg'}
                         alt={article.title}
                         fill
-                        sizes="(max-width: 640px) 100vw, 260px"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 320px, 380px"
                         className="object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.04]"
                       />
                     </div>
@@ -583,17 +583,17 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
                           {article.category || 'Update'}
                         </span>
                       </div>
-                      <h4 className={`font-heading font-bold text-[#182033] mb-3 line-clamp-2 transition-colors duration-300 group-hover:text-[#4FAF32] ${article.is_featured ? 'text-2xl' : 'text-xl'}`}>
+                      <h4 className={`font-heading font-bold text-[#182033] mb-3 line-clamp-2 transition-colors duration-300 group-hover:text-[#4FAF32] ${article.is_featured ? 'text-3xl lg:text-4xl' : 'text-2xl lg:text-3xl'}`}>
                         <Link href={`/news-and-stories/${article.slug}`} className="before:absolute before:inset-0">
                           {article.title}
                         </Link>
                       </h4>
-                      <p className="text-[#182033]/70 text-sm line-clamp-2 mb-6 pr-4">
+                      <p className="text-[#182033]/70 text-sm md:text-base line-clamp-3 mb-6 lg:pr-8">
                         {article.summary}
                       </p>
                       <div className="mt-auto flex items-center justify-between text-sm">
-                        <span className="text-[#182033]/60 font-semibold tracking-wide text-xs uppercase">{formatDate(article.published_at || article.created_at)}</span>
-                        <div className="group/link inline-flex items-center font-semibold text-[#182033] transition-colors relative z-10">
+                        <span className="text-[#182033]/60 font-semibold tracking-wide text-xs md:text-sm uppercase">{formatDate(article.published_at || article.created_at)}</span>
+                        <div className="group/link inline-flex items-center font-bold text-[#182033] transition-colors relative z-10">
                           Read Story 
                           <ArrowRight className="h-4 w-4 ml-1.5 text-[#4FAF32] transform motion-safe:group-hover/link:translate-x-1 motion-safe:group-hover:translate-x-1 transition-transform" />
                         </div>
