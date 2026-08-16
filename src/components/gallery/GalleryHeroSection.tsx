@@ -1,303 +1,193 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { AdminPhotoItem } from "@/features/gallery/repository";
 
 interface GalleryHeroSectionProps {
   heroPhotos: AdminPhotoItem[];
 }
 
-type CenterPlacement = {
-  id: string;
-  photo: AdminPhotoItem;
-  width: number;
-  height: number;
-  floatDuration: number;
-};
-
-type OrbitNode = {
-  id: string;
-  photo: AdminPhotoItem;
-  size: number;
-  angle: number; // degrees
-  tilt: number;
-  floatDuration: number;
-  floatDelay: number;
-};
-
-type OuterNode = {
-  id: string;
-  photo: AdminPhotoItem;
-  size: number;
-  x: number;
-  y: number;
-  tilt: number;
-  floatDuration: number;
-  floatDelay: number;
-};
+// User-specified exact depth values
+const DEPTH_SCALES = [1, 0.88, 0.78, 0.65, 0.55];
+const DEPTH_OPACITIES = [1, 0.78, 0.55, 0.35, 0];
 
 const GalleryHeroSection = ({ heroPhotos }: GalleryHeroSectionProps) => {
-  const containerRef = useRef<HTMLElement>(null);
-  
-  const [centerImage, setCenterImage] = useState<CenterPlacement | null>(null);
-  const [orbitNodes, setOrbitNodes] = useState<OrbitNode[]>([]);
-  const [outerNodes, setOuterNodes] = useState<OuterNode[]>([]);
-  const [orbitRadius, setOrbitRadius] = useState(0);
-  const [isInitialized, setIsInitialized] = useState(false);
-  
-  const prefersReducedMotion = useReducedMotion();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(1200);
+  const [isMounted, setIsMounted] = useState(false);
+
   const validPhotos = heroPhotos.filter((p) => p.media?.cdn_url);
+  const total = validPhotos.length;
 
   useEffect(() => {
-    if (isInitialized || !containerRef.current || validPhotos.length === 0) return;
-
-    const container = containerRef.current;
-    const width = container.clientWidth;
-    const height = container.clientHeight;
-    
-    const isMobile = width < 640;
-    const isTablet = width >= 640 && width < 1024;
-    
-    // 1. Center Image Config
-    const centerW = isMobile ? (210 + Math.random()*30) : (isTablet ? 280 + Math.random()*40 : 360 + Math.random()*40);
-    const centerH = centerW * 0.75; // 4:3
-    
-    const centerPhoto = validPhotos[0];
-    const calculatedRadius = centerW * (isMobile ? 0.9 : 0.95);
-    
-    // 2. Inner Orbit Photos
-    const orbitCount = isMobile ? (5 + Math.floor(Math.random()*2)) : (isTablet ? 8 : (8 + Math.floor(Math.random()*3))); // 5-6 mobile, 8 tablet, 8-10 desktop
-    const availableForOrbit = validPhotos.slice(1);
-    const actualOrbitCount = Math.min(orbitCount, availableForOrbit.length);
-    
-    const generatedOrbitNodes: OrbitNode[] = [];
-    for (let i = 0; i < actualOrbitCount; i++) {
-       let size = isMobile ? 60 + Math.random()*25 : (isTablet ? 80 + Math.random()*30 : 100 + Math.random()*40);
-       
-       let baseAngle = (i / actualOrbitCount) * 360;
-       let angle = baseAngle + (Math.random() - 0.5) * 15; // +/- 7.5 deg variance
-       
-       generatedOrbitNodes.push({
-           id: availableForOrbit[i].id,
-           photo: availableForOrbit[i],
-           size,
-           angle,
-           tilt: (Math.random() - 0.5) * 16, // +/- 8 deg
-           floatDuration: 8 + Math.random() * 6,
-           floatDelay: Math.random() * -10,
-       });
+    setIsMounted(true);
+    if (typeof window !== "undefined") {
+      setWindowWidth(window.innerWidth);
+      const handleResize = () => setWindowWidth(window.innerWidth);
+      window.addEventListener("resize", handleResize);
+      return () => window.removeEventListener("resize", handleResize);
     }
+  }, []);
 
-    // 3. Outer Scattered Photos
-    const outerCount = isMobile ? 0 : (isTablet ? (4 + Math.floor(Math.random()*2)) : (5 + Math.floor(Math.random()*3))); // 0 mobile, 4-5 tablet, 5-7 desktop
-    const availableForOuter = validPhotos.slice(1 + actualOrbitCount);
-    const actualOuterCount = Math.min(outerCount, availableForOuter.length);
-    
-    const generatedOuterNodes: OuterNode[] = [];
-    for (let i = 0; i < actualOuterCount; i++) {
-       let size = isTablet ? 70 + Math.random()*25 : 85 + Math.random()*35;
-       
-       // Distribute radially outside the orbit
-       let angleRad = (i / actualOuterCount) * Math.PI * 2 + (Math.random()-0.5)*0.5;
-       
-       // Find safe max radius so it stays in bounds
-       const padding = size/2 + 20;
-       let maxRx = Infinity, maxRy = Infinity;
-       if (Math.abs(Math.cos(angleRad)) > 0.001) maxRx = Math.abs((width/2 - padding) / Math.cos(angleRad));
-       if (Math.abs(Math.sin(angleRad)) > 0.001) maxRy = Math.abs((height/2 - padding) / Math.sin(angleRad));
-       const maxR = Math.min(maxRx, maxRy);
-       
-       const minR = calculatedRadius + size/2 + 30; // safely outside the inner orbit
-       
-       if (maxR > minR) {
-           const r = minR + Math.random() * (maxR - minR);
-           generatedOuterNodes.push({
-               id: availableForOuter[i].id,
-               photo: availableForOuter[i],
-               size,
-               x: Math.cos(angleRad) * r,
-               y: Math.sin(angleRad) * r,
-               tilt: (Math.random() - 0.5) * 16,
-               floatDuration: 8 + Math.random() * 6,
-               floatDelay: Math.random() * -10,
-           });
-       }
-    }
+  const handleNext = useCallback(() => {
+    setCurrentIndex((prev) => (prev + 1) % total);
+  }, [total]);
 
-    setCenterImage({
-      id: centerPhoto.id,
-      photo: centerPhoto,
-      width: centerW,
-      height: centerH,
-      floatDuration: 8 + Math.random() * 4,
-    });
-    setOrbitRadius(calculatedRadius);
-    setOrbitNodes(generatedOrbitNodes);
-    setOuterNodes(generatedOuterNodes);
-    setIsInitialized(true);
-  }, [validPhotos, isInitialized]);
+  const handlePrev = useCallback(() => {
+    setCurrentIndex((prev) => (prev - 1 + total) % total);
+  }, [total]);
 
-  if (!validPhotos || validPhotos.length === 0) {
-    return null;
-  }
+  useEffect(() => {
+    if (isHovered || total === 0) return;
+    const timer = setInterval(() => {
+      handleNext();
+    }, 3800);
+    return () => clearInterval(timer);
+  }, [isHovered, handleNext, total]);
+
+  const getOffset = (i: number) => {
+    let offset = (i - currentIndex) % total;
+    if (offset > Math.floor(total / 2)) offset -= total;
+    if (offset < -Math.ceil(total / 2)) offset += total;
+    return offset;
+  };
+
+  if (total === 0) return null;
+
+  const isMobile = windowWidth < 640;
+  const isTablet = windowWidth >= 640 && windowWidth < 1024;
+  
+  // Dynamic horizontal distance between cards
+  const baseSpacing = isMobile ? 85 : (isTablet ? 130 : 180);
 
   return (
     <section 
-      ref={containerRef}
-      className="relative w-full overflow-hidden bg-[#061A3A] min-h-[clamp(420px,60vh,560px)] flex items-center justify-center isolate"
+      className="relative w-full overflow-hidden bg-[#061A3A] min-h-[clamp(330px,50vh,480px)] flex items-center justify-center isolate py-8 md:py-12"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Premium Background Glows */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
-        <div className="absolute w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] bg-[#1a4a9c] rounded-full blur-[120px] opacity-20 mix-blend-screen" />
-        <div className="absolute w-[400px] h-[400px] bg-cyan-500 rounded-full blur-[150px] opacity-[0.08]" />
+        <div className="absolute w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] bg-[#1a4a9c] rounded-full blur-[130px] opacity-[0.25] mix-blend-screen" />
+        <div className="absolute w-[400px] h-[400px] bg-cyan-400 rounded-full blur-[160px] opacity-[0.1]" />
       </div>
 
-      <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
-        <div className="relative w-full h-full pointer-events-auto">
-          <AnimatePresence>
-            {isInitialized && centerImage && (
-              <>
-                {/* 1. Outer Scattered Photos (Z-10) */}
-                {outerNodes.map((node) => (
-                  <motion.div
-                    key={node.id}
-                    className="absolute pointer-events-auto z-10"
-                    style={{
-                      left: "50%",
-                      top: "50%",
-                      width: `${node.size}px`,
-                      height: `${node.size * 0.75}px`,
-                      x: `calc(-50% + ${node.x}px)`,
-                      y: `calc(-50% + ${node.y}px)`,
-                    }}
-                  >
-                    <div className="w-full h-full" style={{ rotate: `${node.tilt}deg` }}>
-                       <motion.div
-                         className="w-full h-full relative rounded-xl overflow-hidden shadow-lg ring-1 ring-white/10 bg-[#061A3A] cursor-pointer"
-                         whileHover={{ scale: 1.12, zIndex: 50, filter: "brightness(1.1)", boxShadow: "0 10px 30px rgba(34, 211, 238, 0.3)" }}
-                         animate={prefersReducedMotion ? {} : { y: [-6, 6, -6], opacity: [0.85, 0.95, 0.85] }}
-                         transition={prefersReducedMotion ? {} : { 
-                           y: { duration: node.floatDuration, repeat: Infinity, ease: "easeInOut", delay: node.floatDelay },
-                           opacity: { duration: node.floatDuration * 1.2, repeat: Infinity, ease: "easeInOut", delay: node.floatDelay }
-                         }}
-                       >
-                         {node.photo.media?.cdn_url && (
-                           <Image src={node.photo.media.cdn_url} alt={node.photo.media.alt_text || "Outer Gallery Moment"} fill className="object-cover" sizes="120px" />
-                         )}
-                         <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/10 pointer-events-none" />
-                       </motion.div>
-                    </div>
-                  </motion.div>
-                ))}
+      <div className="relative w-full max-w-7xl mx-auto flex flex-col items-center justify-center h-full">
+        
+        {/* Carousel Track */}
+        <div className="relative w-full h-[220px] sm:h-[300px] md:h-[360px] flex items-center justify-center perspective-[1200px]">
+          
+          <AnimatePresence initial={false}>
+            {isMounted && validPhotos.map((photo, i) => {
+              const offset = getOffset(i);
+              const absOffset = Math.abs(offset);
+              const sign = Math.sign(offset);
 
-                {/* 2. Dotted Orbit Ring (Z-15) */}
-                <div 
-                  className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-[1.5px] border-dashed border-cyan-400/20 z-15 pointer-events-none"
-                  style={{ 
-                    width: orbitRadius * 2, 
-                    height: orbitRadius * 2,
-                    boxShadow: "0 0 40px rgba(34, 211, 238, 0.05), inset 0 0 40px rgba(34, 211, 238, 0.05)"
-                  }}
-                />
+              // Limit render distance for performance and visual cleanup
+              const visibleRange = isMobile ? 2 : 3;
+              if (absOffset > visibleRange + 1) return null;
 
-                {/* 3. Orbit Wrapper (Z-20) - Rotates the entire inner ring slowly */}
+              // Use requested scale and opacity arrays
+              const scale = DEPTH_SCALES[Math.min(absOffset, 4)];
+              const opacity = absOffset > visibleRange ? 0 : DEPTH_OPACITIES[Math.min(absOffset, 4)];
+              
+              const x = baseSpacing * offset;
+              const zIndex = 50 - absOffset;
+              const blur = absOffset === 0 ? 0 : absOffset * 1.5;
+              const brightness = absOffset === 0 ? 1 : 1 - (absOffset * 0.15);
+              
+              const isActive = absOffset === 0;
+
+              return (
                 <motion.div
-                  className="absolute left-1/2 top-1/2 w-0 h-0 z-20 pointer-events-none"
-                  animate={prefersReducedMotion ? {} : { rotate: [0, 360] }}
-                  transition={prefersReducedMotion ? {} : { duration: 40, repeat: Infinity, ease: "linear" }}
-                >
-                  {orbitNodes.map((node) => (
-                    <div 
-                      key={node.id}
-                      className="absolute pointer-events-none"
-                      style={{
-                        transform: `rotate(${node.angle}deg) translateX(${orbitRadius}px)`,
-                      }}
-                    >
-                       {/* Counter-rotator to keep images upright while orbiting */}
-                       <motion.div
-                         className="absolute pointer-events-auto"
-                         style={{ 
-                           left: `-${node.size / 2}px`, 
-                           top: `-${(node.size * 0.75) / 2}px`, 
-                           width: `${node.size}px`, 
-                           height: `${node.size * 0.75}px` 
-                         }}
-                         animate={prefersReducedMotion ? {} : { rotate: [0, -360] }}
-                         transition={prefersReducedMotion ? {} : { duration: 40, repeat: Infinity, ease: "linear" }}
-                       >
-                          {/* Natural Tilt */}
-                          <div className="w-full h-full" style={{ rotate: `${node.tilt}deg` }}>
-                             {/* Float and Hover interaction */}
-                             <motion.div 
-                               className="w-full h-full relative rounded-xl overflow-hidden shadow-lg ring-1 ring-white/20 bg-[#061A3A] cursor-pointer"
-                               whileHover={{ scale: 1.12, zIndex: 50, filter: "brightness(1.1)", boxShadow: "0 10px 30px rgba(34, 211, 238, 0.3)" }}
-                               animate={prefersReducedMotion ? {} : { y: [-5, 5, -5], opacity: [0.9, 1, 0.9] }}
-                               transition={prefersReducedMotion ? {} : { 
-                                 y: { duration: node.floatDuration, repeat: Infinity, ease: "easeInOut", delay: node.floatDelay },
-                                 opacity: { duration: node.floatDuration * 1.3, repeat: Infinity, ease: "easeInOut", delay: node.floatDelay }
-                               }}
-                             >
-                                {node.photo.media?.cdn_url && (
-                                  <Image src={node.photo.media.cdn_url} alt={node.photo.media.alt_text || "Orbiting Gallery Moment"} fill className="object-cover" sizes="150px" />
-                                )}
-                                <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/10 pointer-events-none" />
-                             </motion.div>
-                          </div>
-                       </motion.div>
-                    </div>
-                  ))}
-                </motion.div>
-                
-                {/* 4. Main Central Featured Image (Z-30) */}
-                <motion.div
-                  className="absolute pointer-events-auto rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(70,130,255,0.18),0_20px_50px_rgba(0,0,0,0.25)] ring-1 ring-white/20 bg-[#061A3A] z-30 cursor-pointer"
+                  key={photo.id}
+                  className={`absolute rounded-[18px] md:rounded-[22px] overflow-hidden cursor-pointer ${
+                    isActive 
+                      ? 'ring-1 ring-white/30 shadow-[0_20px_50px_rgba(0,0,0,0.5),0_0_40px_rgba(34,211,238,0.15)]' 
+                      : 'ring-1 ring-white/10 shadow-xl'
+                  }`}
                   style={{
-                    left: "50%",
-                    top: "50%",
-                    width: `${centerImage.width}px`,
-                    height: `${centerImage.height}px`,
-                    x: "-50%",
-                    y: "-50%",
+                    width: isMobile ? "260px" : (isTablet ? "360px" : "480px"),
+                    height: isMobile ? "180px" : (isTablet ? "250px" : "320px"),
+                    originX: 0.5,
+                    originY: 0.5,
                   }}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 1, ease: "easeOut" }}
-                  whileHover={{ 
-                    scale: 1.03, 
-                    boxShadow: "0 10px 40px rgba(0,0,0,0.5)",
-                    filter: "brightness(1.05)"
+                  animate={{
+                    x,
+                    scale,
+                    opacity,
+                    zIndex,
+                    filter: `brightness(${brightness}) blur(${blur}px)`,
+                  }}
+                  transition={{
+                    duration: 0.9,
+                    ease: [0.22, 1, 0.36, 1], // cinematic cubic-bezier as requested
+                  }}
+                  onClick={() => {
+                    if (!isActive) {
+                       if (offset > 0) handleNext();
+                       else handlePrev();
+                    }
+                  }}
+                  drag={isActive ? "x" : false}
+                  dragConstraints={{ left: 0, right: 0 }}
+                  dragElastic={0.2}
+                  onDragEnd={(e, { offset: dragOffset }) => {
+                    const swipeThreshold = 40;
+                    if (dragOffset.x > swipeThreshold) handlePrev();
+                    else if (dragOffset.x < -swipeThreshold) handleNext();
                   }}
                 >
-                  <motion.div
-                    className="w-full h-full relative"
-                    animate={prefersReducedMotion ? {} : {
-                      scale: [1, 1.015, 1],
-                      y: [0, -4, 0],
-                    }}
-                    transition={prefersReducedMotion ? {} : {
-                      scale: { duration: centerImage.floatDuration, repeat: Infinity, ease: "easeInOut" },
-                      y: { duration: centerImage.floatDuration * 1.1, repeat: Infinity, ease: "easeInOut" },
-                    }}
-                  >
-                    {centerImage.photo.media?.cdn_url && (
-                      <Image
-                        src={centerImage.photo.media.cdn_url}
-                        alt={centerImage.photo.media.alt_text || "Featured Gallery Moment"}
-                        fill
-                        priority
-                        className="object-cover"
-                        sizes="(max-width: 640px) 260px, (max-width: 1024px) 340px, 420px"
-                      />
-                    )}
-                    <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 pointer-events-none" />
-                  </motion.div>
+                  <Image
+                    src={photo.media?.cdn_url || ""}
+                    alt={photo.media?.alt_text || "Gallery image"}
+                    fill
+                    className="object-cover pointer-events-none"
+                    sizes="(max-width: 640px) 260px, (max-width: 1024px) 360px, 480px"
+                    priority={isActive || absOffset === 1}
+                  />
+                  {!isActive && <div className="absolute inset-0 bg-black/10 pointer-events-none transition-opacity duration-700" />}
                 </motion.div>
-              </>
-            )}
+              );
+            })}
           </AnimatePresence>
+
+          {/* Navigation Arrows */}
+          <button 
+            onClick={(e) => { e.stopPropagation(); handlePrev(); }}
+            className="absolute left-3 sm:left-8 md:left-12 z-50 p-2 sm:p-3 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md transition-all ring-1 ring-white/20 hover:scale-110 shadow-lg group"
+            aria-label="Previous photo"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 sm:w-6 sm:h-6 group-hover:-translate-x-0.5 transition-transform"><path d="m15 18-6-6 6-6"/></svg>
+          </button>
+          
+          <button 
+            onClick={(e) => { e.stopPropagation(); handleNext(); }}
+            className="absolute right-3 sm:right-8 md:right-12 z-50 p-2 sm:p-3 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md transition-all ring-1 ring-white/20 hover:scale-110 shadow-lg group"
+            aria-label="Next photo"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-0.5 transition-transform"><path d="m9 18 6-6-6-6"/></svg>
+          </button>
+
+        </div>
+
+        {/* Pagination Dots */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-6 sm:mt-10 z-50 max-w-[80vw]">
+          {isMounted && validPhotos.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrentIndex(i)}
+              className={`rounded-full transition-all duration-300 ${
+                i === currentIndex 
+                  ? "w-6 h-2 bg-white ring-1 ring-white/50" 
+                  : "w-2 h-2 bg-white/30 hover:bg-white/60"
+              }`}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
         </div>
       </div>
     </section>
