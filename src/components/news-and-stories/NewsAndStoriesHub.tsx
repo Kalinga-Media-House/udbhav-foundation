@@ -253,36 +253,51 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
             {filteredPodcasts.length > 0 ? (
               <div className="flex flex-col md:flex-row items-start md:items-center gap-6 w-full relative z-10">
                 <div className="flex items-center gap-4 shrink-0 w-full md:w-auto">
-                  <div className="w-14 h-14 bg-[#4FAF32] rounded-full flex items-center justify-center shrink-0">
-                    <Play className="h-6 w-6 text-white fill-current ml-1" />
+                  {/* Thumbnail Image */}
+                  <div className="relative w-full md:w-48 h-32 md:h-28 bg-[#181C5A] rounded-xl overflow-hidden shrink-0 border border-white/10 shadow-inner">
+                    {filteredPodcasts[0].thumbnailUrl || (filteredPodcasts[0] as any).thumbnail?.cdn_url ? (
+                      <Image
+                        src={filteredPodcasts[0].thumbnailUrl || (filteredPodcasts[0] as any).thumbnail?.cdn_url}
+                        alt={filteredPodcasts[0].title}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-[#181C5A]">
+                        <Play className="h-8 w-8 text-[#4FAF32] opacity-50" />
+                      </div>
+                    )}
                   </div>
-                  <div className="md:hidden">
+                  
+                  <div className="md:hidden flex flex-col justify-center">
                     <span className="text-[#4FAF32] text-[10px] font-bold uppercase tracking-widest block mb-1">UDBHAV PODCAST</span>
                     <h3 className="text-white font-heading font-bold text-lg line-clamp-1">Conversations & Ideas</h3>
                   </div>
                 </div>
                 
-                <div className="flex-1 min-w-0 flex flex-col md:border-l md:border-white/10 md:pl-6">
+                <div className="flex-1 min-w-0 flex flex-col md:border-l md:border-white/10 md:pl-6 justify-center">
                   <span className="hidden md:block text-[#4FAF32] text-[10px] font-bold uppercase tracking-widest mb-1.5">UDBHAV PODCAST</span>
                   <div className="flex items-center gap-2 mb-1.5">
-                    <span className="text-white/60 text-xs font-semibold tracking-wider bg-white/10 px-2 py-0.5 rounded-sm">
-                      EPISODE {filteredPodcasts[0].episodeNumber}
-                    </span>
-                    <span className="text-white/60 text-xs font-semibold">{filteredPodcasts[0].releaseDate}</span>
+                    {filteredPodcasts[0].episodeNumber && (
+                      <span className="text-white/80 text-xs font-semibold tracking-wider bg-white/10 px-2 py-0.5 rounded-sm">
+                        EPISODE {filteredPodcasts[0].episodeNumber}
+                      </span>
+                    )}
+                    <span className="text-white/60 text-xs font-semibold">{formatDate(filteredPodcasts[0].releaseDate)}</span>
                   </div>
                   <h3 className="text-xl font-heading font-bold text-white line-clamp-1 mb-1 group-hover:text-[#4FAF32] transition-colors">
                     {filteredPodcasts[0].title}
                   </h3>
-                  <p className="text-white/60 text-sm line-clamp-1">{filteredPodcasts[0].description}</p>
+                  <p className="text-white/60 text-sm line-clamp-1">{filteredPodcasts[0].description || filteredPodcasts[0].excerpt}</p>
                 </div>
                 
                 <div className="shrink-0 w-full md:w-auto flex justify-end">
                   <Link 
-                    href={`/news-and-stories/podcast/${filteredPodcasts[0].slug}`}
-                    className="group/listen flex items-center justify-center px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-full text-sm font-semibold transition-all w-full md:w-auto"
+                    href="/podcast"
+                    className="group/listen flex items-center justify-center px-6 py-2.5 bg-[#4FAF32] hover:bg-[#3E8B28] text-white rounded-full text-sm font-semibold transition-all w-full md:w-auto shadow-sm shadow-[#4FAF32]/20"
                   >
-                    Listen Now
-                    <Play className="h-3.5 w-3.5 ml-1.5 fill-current transform group-hover/listen:scale-110 transition-transform" />
+                    Watch
+                    <ArrowRight className="h-4 w-4 ml-1.5 transform group-hover/listen:translate-x-1 transition-transform" />
                   </Link>
                 </div>
               </div>
@@ -298,15 +313,13 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
                   </div>
                 </div>
                 <div className="shrink-0 w-full md:w-auto flex justify-end">
-                  <a 
-                    href="https://youtube.com" 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="group/listen flex items-center justify-center px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-full text-sm font-semibold transition-all w-full md:w-auto"
+                  <Link 
+                    href="/podcast" 
+                    className="group/listen flex items-center justify-center px-6 py-2.5 bg-[#4FAF32] hover:bg-[#3E8B28] text-white rounded-full text-sm font-semibold transition-all w-full md:w-auto shadow-sm shadow-[#4FAF32]/20"
                   >
-                    Official Channel
+                    Watch
                     <ArrowRight className="h-4 w-4 ml-1.5 transform group-hover/listen:translate-x-1 transition-transform" />
-                  </a>
+                  </Link>
                 </div>
               </div>
             )}

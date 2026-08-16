@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
+import { ImageUploader } from '@/components/admin/ImageUploader';
 import { createPodcast, updatePodcast } from '@/features/podcasts/actions';
 
 export function PodcastForm({ initialData }: { initialData?: any }) {
@@ -17,11 +18,19 @@ export function PodcastForm({ initialData }: { initialData?: any }) {
     youtube_url: initialData?.youtube_url || '',
     status: initialData?.status || 'Draft',
     visibility: initialData?.visibility || 'public',
+    thumbnail_id: initialData?.thumbnail_id || null,
     release_date: initialData?.release_date ? new Date(initialData.release_date).toISOString().split('T')[0] : '',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleUploadComplete = (result: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      thumbnail_id: result.id,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,6 +98,22 @@ export function PodcastForm({ initialData }: { initialData?: any }) {
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
           </div>
+        </div>
+
+        {/* Thumbnail Image Upload */}
+        <div className="space-y-2 rounded-md border border-gray-100 bg-gray-50 p-5">
+          <label className="block text-base font-semibold text-gray-900">Podcast Thumbnail</label>
+          <p className="mb-3 text-xs text-gray-500">
+            JPG, PNG, WEBP. Recommended aspect ratio 16:9 (e.g. 1280 × 720px).
+          </p>
+          <div className="max-w-xs">
+            <ImageUploader folder="podcast-thumbnails" onUploadComplete={handleUploadComplete} />
+          </div>
+          {formData.thumbnail_id && (
+            <span className="mt-2 block text-xs font-medium text-green-600">
+              ✓ Thumbnail Image Attached
+            </span>
+          )}
         </div>
 
         <div>
