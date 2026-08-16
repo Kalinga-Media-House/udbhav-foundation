@@ -89,13 +89,19 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
 
     startTransition(async () => {
       try {
+        let result;
         if (initialData) {
-          await updateArticle(initialData.id, formData);
+          result = await updateArticle(initialData.id, formData as any);
         } else {
-          await createArticle(formData as CreateArticleDTO);
+          result = await createArticle(formData as CreateArticleDTO);
         }
-        router.push('/admin/dashboard/news');
-        router.refresh();
+        
+        if (result.success) {
+          router.push('/admin/news');
+          router.refresh();
+        } else {
+          setError(result.error || 'An error occurred while saving.');
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred while saving.');
       }
@@ -368,7 +374,7 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.push('/admin/dashboard/news')}
+                onClick={() => router.push('/admin/news')}
                 disabled={isPending}
               >
                 Cancel

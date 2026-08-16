@@ -19,6 +19,8 @@ import { listEvents } from '@/features/events/actions';
 import { getArticleBySlug, listPublicArticles } from '@/features/news/actions';
 import { listPrograms } from '@/features/programs/actions';
 
+export const dynamic = 'force-dynamic';
+
 interface PageProps {
   params: Promise<{ slug: string }>;
 }

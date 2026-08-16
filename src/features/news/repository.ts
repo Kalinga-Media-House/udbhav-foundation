@@ -234,19 +234,34 @@ export class NewsRepository implements IWriteRepository<ArticleRow, ArticleCreat
         meta.reading_time = computeReadingTime(data.content || '');
       }
 
-      const payload = {
-        ...data,
+      // Map 'summary' to 'excerpt' for the database
+      const { summary, ...restData } = data;
+      const payload: Record<string, unknown> = {
+        ...restData,
+        excerpt: summary,
         metadata: meta,
       };
+
+      if (payload.status === 'Published') {
+        payload.published_at = new Date().toISOString();
+      }
 
       // TD-003: Temporarily assert as any until Supabase DB types are regenerated
       const res = (await (supabase.from('news_articles') as any)
         .insert(payload)
         .select()
-        .single()) as { data: ArticleRow; error: any };
+        .single()) as { data: any; error: any };
 
       if (res.error) throw new DatabaseError(res.error.message);
-      return { data: res.data, error: null };
+      
+      // Map 'excerpt' back to 'summary' for the frontend
+      const returnedData = res.data;
+      if (returnedData && returnedData.excerpt !== undefined) {
+        returnedData.summary = returnedData.excerpt;
+        delete returnedData.excerpt;
+      }
+      
+      return { data: returnedData as ArticleRow, error: null };
     } catch (error) {
       serverLogger.error('NewsRepository.create failed', error as Error);
       return { data: null, error: error as Error };
@@ -259,7 +274,13 @@ export class NewsRepository implements IWriteRepository<ArticleRow, ArticleCreat
   async update(id: ID, data: ArticleUpdate): Promise<RepositoryResult<ArticleRow>> {
     try {
       const supabase = await createServerSupabaseClient();
-      const payload: Record<string, unknown> = { ...data };
+      
+      const { summary, ...restData } = data;
+      const payload: Record<string, unknown> = { ...restData };
+      if (summary !== undefined) {
+        payload.excerpt = summary;
+      }
+      
       if (data.content && data.metadata) {
         const meta = { ...data.metadata } as Record<string, unknown>;
         if (typeof meta.reading_time !== 'number') {
@@ -268,16 +289,32 @@ export class NewsRepository implements IWriteRepository<ArticleRow, ArticleCreat
         payload.metadata = meta;
       }
 
+      if (payload.status === 'Published') {
+        // Only set published_at if not already published
+        const { data: existing } = await (supabase.from('news_articles') as any).select('published_at').eq('id', id).single();
+        if (!existing?.published_at) {
+          payload.published_at = new Date().toISOString();
+        }
+      }
+
       // TD-003: Temporarily assert as any until Supabase DB types are regenerated
       const res = (await (supabase.from('news_articles') as any)
         .update(payload)
         .eq('id', id)
         .eq('is_deleted', false)
         .select()
-        .single()) as { data: ArticleRow; error: any };
+        .single()) as { data: any; error: any };
 
       if (res.error) throw new DatabaseError(res.error.message);
-      return { data: res.data, error: null };
+      
+      // Map 'excerpt' back to 'summary' for the frontend
+      const returnedData = res.data;
+      if (returnedData && returnedData.excerpt !== undefined) {
+        returnedData.summary = returnedData.excerpt;
+        delete returnedData.excerpt;
+      }
+
+      return { data: returnedData as ArticleRow, error: null };
     } catch (error) {
       serverLogger.error('NewsRepository.update failed', error as Error);
       return { data: null, error: error as Error };
