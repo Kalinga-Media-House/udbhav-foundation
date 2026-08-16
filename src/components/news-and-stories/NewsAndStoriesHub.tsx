@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Search, ChevronDown, Clock, MapPin, Play, ArrowRight, Calendar, ArrowDown } from 'lucide-react';
 import { getEventLifecycle } from '@/features/news/utils';
 import { format } from 'date-fns';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 
 import { Container } from '@/components/shared/Container';
 import { ArticleWithMedia } from '@/features/news/repository';
@@ -21,13 +21,13 @@ interface NewsAndStoriesHubProps {
 }
 
 // Fade up animation variant for scrolling
-const fadeUpVariant = {
+const fadeUpVariant: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
 };
 
 // Stagger container
-const staggerContainer = {
+const staggerContainer: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
