@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, ChevronDown, Clock, MapPin, Play, ArrowRight, Calendar, ArrowDown } from 'lucide-react';
+import { Search, ChevronDown, Clock, MapPin, Play, ArrowRight, Calendar } from 'lucide-react';
 import { getEventLifecycle } from '@/features/news/utils';
 import { format } from 'date-fns';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
@@ -135,74 +135,112 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
     }
   };
 
-  const scrollToUpcoming = () => {
-    const el = document.getElementById('upcoming-events');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  const nearestEvent = upcomingEvents[0];
 
   return (
     <div className="bg-[#F8FAF7] w-full pb-24 overflow-hidden">
       
-      {/* Page Progress Indicator */}
-      <motion.div 
-        className="fixed top-0 left-0 right-0 h-1 bg-[#4FAF32] transform origin-left z-50"
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: 1 }}
-        transition={{ duration: 1.5, ease: "easeOut" }}
-        style={{ scaleX: 0 }} // Simplified for purely static visual progress placeholder if actual scroll hook isn't used to save performance
-      />
-
-      {/* 1. HERO PAGE INTRO */}
-      <section className="relative pt-20 pb-16 lg:pt-32 lg:pb-24 overflow-hidden bg-white rounded-b-[40px] shadow-sm z-10">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <motion.div 
-            animate={{ 
-              x: [0, 30, 0],
-              y: [0, -20, 0],
-              scale: [1, 1.05, 1] 
-            }}
-            transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-[20%] -right-[10%] w-[500px] h-[500px] rounded-full bg-gradient-to-br from-[#EAF6E4] to-transparent opacity-60 blur-3xl"
-          />
-          <motion.div 
-            animate={{ 
-              x: [0, -40, 0],
-              y: [0, 30, 0],
-              scale: [1, 1.1, 1] 
-            }}
-            transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-            className="absolute -bottom-[20%] -left-[10%] w-[400px] h-[400px] rounded-full bg-gradient-to-tr from-[#EEF2FF] to-transparent opacity-60 blur-3xl"
-          />
-        </div>
-
-        <Container className="relative z-10 text-center">
+      {/* 1. HERO: NEAREST UPCOMING EVENT */}
+      <section className="relative bg-[#F8FAF7] pt-8 lg:pt-12 pb-6">
+        <Container>
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-            className="max-w-4xl mx-auto flex flex-col items-center"
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="bg-[#20256F] rounded-[24px] p-6 sm:p-8 lg:p-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 relative overflow-hidden shadow-sm"
           >
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-heading font-bold text-[#20256F] tracking-tight leading-[1.1] mb-6">
-              Stories, Updates & <br className="hidden sm:block" />
-              <span className="text-[#4FAF32] relative inline-block">
-                Community Moments
-                <svg className="absolute w-full h-3 -bottom-1 left-0 text-[#EAF6E4] -z-10" viewBox="0 0 100 10" preserveAspectRatio="none">
-                  <path d="M0 5 Q 50 10 100 5" fill="none" stroke="currentColor" strokeWidth="8" strokeLinecap="round" />
-                </svg>
-              </span>
-            </h1>
-            <p className="text-[#667085] text-lg sm:text-xl leading-relaxed max-w-2xl mb-10">
-              Stay connected with UDBHAV Foundation through community initiatives, upcoming events, and impactful stories.
-            </p>
-            <button 
-              onClick={scrollToUpcoming}
-              className="group flex items-center gap-2 px-6 py-3 bg-[#F8FAF7] hover:bg-[#EAF6E4] text-[#20256F] rounded-full text-sm font-semibold transition-all duration-300 border border-[#EAF6E4]"
-            >
-              Explore Upcoming Events 
-              <ArrowDown className="h-4 w-4 text-[#4FAF32] group-hover:translate-y-1 transition-transform" />
-            </button>
+            {/* Subtle Gradient / Lighting */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl pointer-events-none" />
+            
+            {nearestEvent ? (
+              <div className="flex flex-col md:flex-row md:items-center gap-6 lg:gap-10 relative z-10 w-full">
+                
+                {/* Date Block */}
+                <div className="flex flex-col items-center justify-center shrink-0">
+                  <span className="font-heading text-4xl sm:text-5xl font-bold leading-none text-white">
+                    {new Date(nearestEvent.event_date || nearestEvent.published_at || nearestEvent.created_at).getDate().toString().padStart(2, '0')}
+                  </span>
+                  <span className="text-sm font-bold uppercase tracking-widest text-[#4FAF32] mt-1">
+                    {new Date(nearestEvent.event_date || nearestEvent.published_at || nearestEvent.created_at).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+                  </span>
+                </div>
+                
+                {/* Divider on desktop */}
+                <div className="hidden md:block w-px h-16 bg-white/20" />
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <span className="text-[#4FAF32] text-[10px] font-bold uppercase tracking-widest mb-2 block">
+                    NEXT UPCOMING EVENT
+                  </span>
+                  <h2 className="text-2xl sm:text-3xl font-heading font-bold text-white mb-2 line-clamp-1">
+                    {nearestEvent.title}
+                  </h2>
+                  <p className="text-white/70 text-sm sm:text-base line-clamp-2 mb-3 max-w-2xl">
+                    {nearestEvent.summary}
+                  </p>
+                  <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-white/60 font-medium">
+                    {nearestEvent.event_location && (
+                      <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-[#4FAF32]" />{nearestEvent.event_location}</span>
+                    )}
+                    <span className="flex items-center gap-1.5">
+                      <Clock className="h-4 w-4 text-[#4FAF32]" />
+                      {nearestEvent.event_start_time ? new Date(`1970-01-01T${nearestEvent.event_start_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'TBA'}
+                      {nearestEvent.event_end_time && ` – ${new Date(`1970-01-01T${nearestEvent.event_end_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`}
+                    </span>
+                  </div>
+                </div>
+                
+                {/* Actions */}
+                <div className="flex flex-row md:flex-col lg:flex-row items-center gap-3 shrink-0 w-full md:w-auto mt-2 md:mt-0">
+                  <Link 
+                    href={`/news-and-stories/${nearestEvent.slug}`} 
+                    className="group/link flex-1 md:flex-none flex items-center justify-center px-6 py-2.5 bg-[#4FAF32] hover:bg-[#3E8B28] text-white rounded-full text-sm font-semibold transition-all shadow-sm shadow-[#4FAF32]/20 border border-transparent"
+                  >
+                    View Details
+                    <ArrowRight className="h-4 w-4 ml-1.5 transform group-hover/link:translate-x-1 transition-transform" />
+                  </Link>
+                  
+                  <button 
+                    onClick={() => setActiveTab('Podcast')}
+                    className="group/pod flex-1 md:flex-none flex items-center justify-center px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-full text-sm font-semibold transition-all"
+                  >
+                    Podcast
+                    <Play className="h-3.5 w-3.5 ml-1.5 fill-current transform group-hover/pod:scale-110 transition-transform" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col md:flex-row md:items-center justify-between w-full relative z-10 gap-6">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-heading font-bold text-white mb-2">
+                    No upcoming events
+                  </h2>
+                  <p className="text-white/70 text-sm">
+                    Stay tuned for our next community initiative.
+                  </p>
+                </div>
+                <div className="flex flex-row md:flex-col lg:flex-row items-center gap-3 shrink-0 w-full md:w-auto mt-2 md:mt-0">
+                  <button 
+                    onClick={() => {
+                      setActiveTab('News & Stories');
+                      document.getElementById('news-section')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="group/link flex-1 md:flex-none flex items-center justify-center px-6 py-2.5 bg-[#4FAF32] hover:bg-[#3E8B28] text-white rounded-full text-sm font-semibold transition-all shadow-sm shadow-[#4FAF32]/20 border border-transparent"
+                  >
+                    Explore News 
+                    <ArrowRight className="h-4 w-4 ml-1.5 transform group-hover/link:translate-x-1 transition-transform" />
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('Podcast')}
+                    className="group/pod flex-1 md:flex-none flex items-center justify-center px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white rounded-full text-sm font-semibold transition-all"
+                  >
+                    Podcast
+                    <Play className="h-3.5 w-3.5 ml-1.5 fill-current transform group-hover/pod:scale-110 transition-transform" />
+                  </button>
+                </div>
+              </div>
+            )}
           </motion.div>
         </Container>
       </section>
@@ -273,7 +311,7 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
       <div className="space-y-24">
         
         {/* 3. UPCOMING EVENTS (HIGHEST PRIORITY) */}
-        {showUpcomingEvents && (
+        {showUpcomingEvents && upcomingEvents.length > 1 && (
           <Container>
             <motion.div 
               id="upcoming-events"
@@ -284,122 +322,108 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
               className="mb-8 flex items-center gap-4"
             >
               <div>
-                <span className="text-[#4FAF32] text-xs font-bold uppercase tracking-widest block mb-2">WHAT'S COMING UP</span>
-                <h3 className="text-3xl sm:text-4xl font-heading font-bold text-[#20256F]">Upcoming Events</h3>
+                <span className="text-[#4FAF32] text-xs font-bold uppercase tracking-widest block mb-2">MORE UPCOMING</span>
+                <h3 className="text-3xl sm:text-4xl font-heading font-bold text-[#20256F]">Other Events</h3>
               </div>
               <div className="hidden sm:block flex-1 h-[1px] bg-gradient-to-r from-gray-200 to-transparent ml-4 mt-8" />
             </motion.div>
             
-            {upcomingEvents.length > 0 ? (
-              <motion.div 
-                className="flex flex-col gap-6"
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={staggerContainer}
-              >
-                {upcomingEvents.map((event, index) => {
-                  const evtDate = new Date(event.event_date || event.published_at || event.created_at);
-                  const day = evtDate.getDate().toString().padStart(2, '0');
-                  const month = evtDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-                  
-                  return (
-                  <motion.div 
-                    key={event.id}
-                    variants={fadeUpVariant}
-                    className="group relative flex flex-col md:flex-row items-start md:items-center gap-6 sm:gap-8 p-6 sm:p-8 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
-                  >
-                    {/* Hover Accent Line */}
-                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-hover:bg-[#4FAF32] transition-colors duration-300" />
-                    {/* Subtle BG shift on hover */}
-                    <div className="absolute inset-0 bg-[#EAF6E4] opacity-0 group-hover:opacity-[0.15] transition-opacity duration-500 pointer-events-none" />
+            <motion.div 
+              className="flex flex-col gap-6"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={staggerContainer}
+            >
+              {upcomingEvents.slice(1).map((event, index) => {
+                const evtDate = new Date(event.event_date || event.published_at || event.created_at);
+                const day = evtDate.getDate().toString().padStart(2, '0');
+                const month = evtDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+                
+                return (
+                <motion.div 
+                  key={event.id}
+                  variants={fadeUpVariant}
+                  className="group relative flex flex-col md:flex-row items-start md:items-center gap-6 sm:gap-8 p-6 sm:p-8 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden"
+                >
+                  {/* Hover Accent Line */}
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-transparent group-hover:bg-[#4FAF32] transition-colors duration-300" />
+                  {/* Subtle BG shift on hover */}
+                  <div className="absolute inset-0 bg-[#EAF6E4] opacity-0 group-hover:opacity-[0.15] transition-opacity duration-500 pointer-events-none" />
 
-                    <div className="relative flex items-center gap-6 sm:gap-8 w-full md:w-auto z-10">
-                      {/* Animated Date Block */}
-                      <div className="flex flex-col items-center justify-center min-w-[60px] shrink-0 text-center">
-                        <span className="font-heading text-4xl sm:text-5xl font-bold leading-none text-[#20256F] transform group-hover:scale-110 transition-transform duration-300">
-                          {day}
-                        </span>
-                        <span className="text-sm font-bold uppercase tracking-widest text-[#4FAF32] mt-2">
-                          {month}
-                        </span>
-                      </div>
-                      
-                      {/* Event Image */}
-                      <div className="relative w-full md:w-[240px] h-[140px] shrink-0 rounded-xl overflow-hidden bg-gray-100 border border-gray-100/50">
-                        <Image
-                          src={event.cover_image?.cdn_url || '/placeholder-image.jpg'}
-                          alt={event.title}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 240px"
-                          className="object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-[#20256F] opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
-                      </div>
+                  <div className="relative flex items-center gap-6 sm:gap-8 w-full md:w-auto z-10">
+                    {/* Animated Date Block */}
+                    <div className="flex flex-col items-center justify-center min-w-[60px] shrink-0 text-center">
+                      <span className="font-heading text-4xl sm:text-5xl font-bold leading-none text-[#20256F] transform group-hover:scale-110 transition-transform duration-300">
+                        {day}
+                      </span>
+                      <span className="text-sm font-bold uppercase tracking-widest text-[#4FAF32] mt-2">
+                        {month}
+                      </span>
                     </div>
                     
-                    {/* Event Content */}
-                    <div className="flex flex-col flex-1 min-w-0 mt-4 md:mt-0 z-10">
-                      <h4 className="text-2xl font-heading font-bold text-[#182033] mb-3 group-hover:text-[#4FAF32] transition-colors duration-300 transform group-hover:translate-x-1">
-                        <Link href={`/news-and-stories/${event.slug}`} className="before:absolute before:inset-0">
-                          {event.title}
-                        </Link>
-                      </h4>
-                      <p className="text-[#667085] text-sm mb-5 line-clamp-2 pr-4">
-                        {event.summary}
-                      </p>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-sm text-[#667085] font-medium">
-                        <span className="flex items-center gap-2"><MapPin className="h-4 w-4 text-[#4FAF32]" />{event.event_location || 'TBA'}</span>
-                        <span className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-[#4FAF32]" />
-                          {event.event_start_time ? new Date(`1970-01-01T${event.event_start_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'TBA'}
-                          {event.event_end_time && ` – ${new Date(`1970-01-01T${event.event_end_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`}
-                        </span>
-                      </div>
+                    {/* Event Image */}
+                    <div className="relative w-full md:w-[240px] h-[140px] shrink-0 rounded-xl overflow-hidden bg-gray-100 border border-gray-100/50">
+                      <Image
+                        src={event.cover_image?.cdn_url || '/placeholder-image.jpg'}
+                        alt={event.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 240px"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-[#20256F] opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
                     </div>
-
-                    {/* Event Actions */}
-                    <div className="flex items-center gap-4 mt-6 md:mt-0 shrink-0 w-full md:w-auto self-start md:self-center z-20">
-                      {event.registration_url && (
-                        <Link 
-                          href={event.registration_url} 
-                          className="group/btn flex items-center px-5 py-2.5 bg-[#4FAF32] hover:bg-[#3E8B28] text-white rounded-full text-sm font-semibold transition-all shadow-sm shadow-[#4FAF32]/20" 
-                          target="_blank"
-                        >
-                          Register 
-                          <ArrowRight className="h-4 w-4 ml-1.5 transform group-hover/btn:translate-x-1 transition-transform" />
-                        </Link>
-                      )}
-                      <Link 
-                        href={`/news-and-stories/${event.slug}`} 
-                        className="group/link flex items-center px-5 py-2.5 bg-[#F8FAF7] hover:bg-white border border-gray-200 text-[#182033] rounded-full text-sm font-semibold transition-all hover:border-[#4FAF32]"
-                      >
-                        Details
-                        <ArrowRight className="h-4 w-4 ml-1.5 text-gray-400 group-hover/link:text-[#4FAF32] transform group-hover/link:translate-x-1 transition-all" />
+                  </div>
+                  
+                  {/* Event Content */}
+                  <div className="flex flex-col flex-1 min-w-0 mt-4 md:mt-0 z-10">
+                    <h4 className="text-2xl font-heading font-bold text-[#182033] mb-3 group-hover:text-[#4FAF32] transition-colors duration-300 transform group-hover:translate-x-1">
+                      <Link href={`/news-and-stories/${event.slug}`} className="before:absolute before:inset-0">
+                        {event.title}
                       </Link>
+                    </h4>
+                    <p className="text-[#667085] text-sm mb-5 line-clamp-2 pr-4">
+                      {event.summary}
+                    </p>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 text-sm text-[#667085] font-medium">
+                      <span className="flex items-center gap-2"><MapPin className="h-4 w-4 text-[#4FAF32]" />{event.event_location || 'TBA'}</span>
+                      <span className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-[#4FAF32]" />
+                        {event.event_start_time ? new Date(`1970-01-01T${event.event_start_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'TBA'}
+                        {event.event_end_time && ` – ${new Date(`1970-01-01T${event.event_end_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`}
+                      </span>
                     </div>
-                  </motion.div>
-                  );
-                })}
-              </motion.div>
-            ) : (
-              <motion.div 
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="py-12 px-6 bg-white rounded-2xl border border-dashed border-gray-300 text-center flex flex-col items-center justify-center"
-              >
-                <div className="w-16 h-16 bg-[#EAF6E4] rounded-full flex items-center justify-center mb-4">
-                  <Calendar className="h-8 w-8 text-[#4FAF32]" />
-                </div>
-                <p className="text-[#20256F] text-lg font-heading font-bold mb-1">No upcoming events at the moment.</p>
-                <p className="text-[#667085] text-sm">Check back soon for our next community initiative.</p>
-              </motion.div>
-            )}
+                  </div>
+
+                  {/* Event Actions */}
+                  <div className="flex items-center gap-4 mt-6 md:mt-0 shrink-0 w-full md:w-auto self-start md:self-center z-20">
+                    {event.registration_url && (
+                      <Link 
+                        href={event.registration_url} 
+                        className="group/btn flex items-center px-5 py-2.5 bg-[#4FAF32] hover:bg-[#3E8B28] text-white rounded-full text-sm font-semibold transition-all shadow-sm shadow-[#4FAF32]/20" 
+                        target="_blank"
+                      >
+                        Register 
+                        <ArrowRight className="h-4 w-4 ml-1.5 transform group-hover/btn:translate-x-1 transition-transform" />
+                      </Link>
+                    )}
+                    <Link 
+                      href={`/news-and-stories/${event.slug}`} 
+                      className="group/link flex items-center px-5 py-2.5 bg-[#F8FAF7] hover:bg-white border border-gray-200 text-[#182033] rounded-full text-sm font-semibold transition-all hover:border-[#4FAF32]"
+                    >
+                      Details
+                      <ArrowRight className="h-4 w-4 ml-1.5 text-gray-400 group-hover/link:text-[#4FAF32] transform group-hover/link:translate-x-1 transition-all" />
+                    </Link>
+                  </div>
+                </motion.div>
+                );
+              })}
+            </motion.div>
           </Container>
         )}
 
         {/* SECTION DIVIDER */}
-        {showUpcomingEvents && showStories && (
+        {showUpcomingEvents && showStories && upcomingEvents.length > 1 && (
           <div className="w-full max-w-7xl mx-auto px-6 flex items-center justify-center py-4">
             <div className="h-[1px] w-full max-w-[200px] bg-gradient-to-r from-transparent via-[#4FAF32]/30 to-transparent" />
             <div className="w-2 h-2 rounded-full bg-[#4FAF32]/40 mx-4" />
@@ -411,6 +435,7 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
         {showStories && (
           <Container>
             <motion.div 
+              id="news-section"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-50px" }}
