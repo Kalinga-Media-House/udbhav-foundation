@@ -14,7 +14,7 @@ import React from 'react';
 import { format } from 'date-fns';
 
 import { Container } from '@/components/shared/Container';
-import { getArticleBySlug, listPublicArticles } from '@/features/news/actions';
+import { getArticleBySlug } from '@/features/news/actions';
 import { ArticleInteractions } from '@/components/news-and-stories/ArticleInteractions';
 
 export const dynamic = 'force-dynamic';
@@ -77,13 +77,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
   const article = articleResult.data;
   const isEvent = article.category === 'Event';
 
-  // Fetch related content (Articles only now, no programmes)
-  const articlesResult = await listPublicArticles({ page: 1, limit: 4 }, { category: article.category });
 
-  const relatedArticles =
-    articlesResult.success && articlesResult.data
-      ? articlesResult.data.data.filter((a) => a.id !== article.id).slice(0, 3)
-      : [];
 
   // Generate Article JSON-LD Schema
   const jsonLd = {
@@ -271,47 +265,6 @@ export default async function NewsArticlePage({ params }: PageProps) {
         </div>
       </Container>
 
-      {/* MORE FROM UDBHAV (Horizontal Editorial List) */}
-      {relatedArticles.length > 0 && (
-        <div className="mt-8 border-t border-gray-100 bg-white">
-          <Container>
-            <div className="max-w-[800px] mx-auto py-12 md:py-16">
-              <h2 className="text-xl md:text-2xl font-heading font-bold text-[#20256F] mb-8">
-                More from UDBHAV
-              </h2>
-              <div className="flex flex-col">
-                {relatedArticles.map((rel, index) => (
-                  <Link
-                    key={rel.id}
-                    href={`/news-and-stories/${rel.slug}`}
-                    className={`group py-5 flex items-center justify-between gap-6 border-t border-gray-100 hover:bg-gray-50/50 transition-colors ${index === relatedArticles.length - 1 ? 'border-b' : ''}`}
-                  >
-                    <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-8 flex-1 min-w-0">
-                      <span className="text-xs font-bold text-[#4FAF32] uppercase tracking-wider w-24 shrink-0">
-                        {rel.category || 'News'}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-base md:text-lg font-semibold text-[#20256F] group-hover:text-[#4FAF32] transition-colors truncate">
-                          {rel.title}
-                        </h3>
-                        <span className="text-sm text-gray-400 mt-1 block md:hidden">
-                          {rel.published_at ? format(new Date(rel.published_at), 'dd MMM yyyy') : format(new Date(rel.created_at), 'dd MMM yyyy')}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-6 shrink-0">
-                      <span className="hidden md:block text-sm text-gray-400">
-                        {rel.published_at ? format(new Date(rel.published_at), 'dd MMM yyyy') : format(new Date(rel.created_at), 'dd MMM yyyy')}
-                      </span>
-                      <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-[#4FAF32] group-hover:translate-x-1 transition-all" />
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </Container>
-        </div>
-      )}
 
     </main>
   );
