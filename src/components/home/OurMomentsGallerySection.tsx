@@ -149,7 +149,7 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
             onMouseLeave={() => setIsHovered(false)}
           >
             {/* Carousel Track */}
-            <div className="relative w-full h-[220px] sm:h-[300px] md:h-[360px] flex items-center justify-center perspective-[1200px]">
+            <div className="relative w-full h-[220px] sm:h-[300px] md:h-[360px] flex items-center justify-center perspective-[1200px] [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)] md:[mask-image:linear-gradient(to_right,transparent,black_20%,black_80%,transparent)]">
               
               <AnimatePresence initial={false}>
                 {randomPhotos.map((photo, i) => {
