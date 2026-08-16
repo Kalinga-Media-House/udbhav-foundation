@@ -15,17 +15,19 @@ import { UpcomingEventsSection } from '@/components/home/UpcomingEventsSection';
  * 3. Upcoming Events
  * 4. Governing Body
  * 5. Support Our Initiatives — Donation Carousel
- * 6. Our Partners
  */
 import { getActiveHeroImages } from '@/features/hero/repository';
+import { getRandomPublicPhotosAction } from '@/features/gallery/actions';
 
 export default async function Home() {
   const heroImages = await getActiveHeroImages('home_hero');
+  const randomPhotosResult = await getRandomPublicPhotosAction(15);
+  const galleryPhotos = randomPhotosResult.success && randomPhotosResult.data ? randomPhotosResult.data : [];
 
   return (
     <main className="bg-warm-white text-text-primary flex flex-1 flex-col">
       <HeroCarousel heroImages={heroImages} />
-      <OurMomentsGallerySection />
+      <OurMomentsGallerySection galleryPhotos={galleryPhotos} />
       <UpcomingEventsSection />
       <GoverningBodySection />
       <SupportOurInitiativesSection />
