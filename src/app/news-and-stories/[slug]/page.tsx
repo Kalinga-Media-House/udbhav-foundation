@@ -15,7 +15,7 @@ import { format } from 'date-fns';
 
 import { Container } from '@/components/shared/Container';
 import { getArticleBySlug } from '@/features/news/actions';
-import { ArticleInteractions } from '@/components/news-and-stories/ArticleInteractions';
+import { ArticleShareButton } from '@/components/news-and-stories/ArticleShareButton';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,10 +34,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
+  const siteUrl = 'https://udbhavfoundation.org';
   const seoTitle = ((article.metadata || {}) as Record<string, unknown>).seo_title as string || `${article.title} | UDBHAV FOUNDATION`;
   const seoDesc = ((article.metadata || {}) as Record<string, unknown>).seo_description as string || article.summary || article.subtitle || 'Read this story on UDBHAV FOUNDATION.';
-  const canonicalUrl = ((article.metadata || {}) as Record<string, unknown>).canonical_url as string || `/news-and-stories/${article.slug}`;
-  const imageUrl = article.cover_image?.cdn_url || '/images/default-news-cover.jpg';
+  
+  const rawCanonical = ((article.metadata || {}) as Record<string, unknown>).canonical_url as string;
+  const canonicalUrl = rawCanonical
+    ? (rawCanonical.startsWith('http') ? rawCanonical : `${siteUrl}${rawCanonical}`)
+    : `${siteUrl}/news-and-stories/${article.slug}`;
+
+  let imageUrl = article.cover_image?.cdn_url || `${siteUrl}/images/default-news-cover.jpg`;
+  if (imageUrl.startsWith('/')) {
+    imageUrl = `${siteUrl}${imageUrl}`;
+  }
 
   return {
     title: seoTitle,
@@ -120,8 +129,6 @@ export default async function NewsArticlePage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <ArticleInteractions title={article.title} slug={article.slug} />
-
       <Container>
         {/* Editorial Layout Wrapper */}
         <div className="max-w-[800px] mx-auto pt-10 md:pt-16">
@@ -136,10 +143,11 @@ export default async function NewsArticlePage({ params }: PageProps) {
               Back to News & Stories
             </Link>
 
-            <div className="mb-4">
+            <div className="mb-4 flex items-center justify-between gap-4">
               <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest text-[#4FAF32] border border-[#4FAF32]/30 bg-[#4FAF32]/5">
                 {article.category || 'News'}
               </span>
+              <ArticleShareButton title={article.title} slug={article.slug} contentType={article.category || 'News'} />
             </div>
 
             <h1 className="text-3xl md:text-[40px] lg:text-[48px] leading-[1.15] font-heading font-bold text-[#20256F] mb-6">
