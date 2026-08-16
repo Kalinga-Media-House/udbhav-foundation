@@ -243,9 +243,9 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
         {showStories && (
           <Container>
             {activeTab !== 'News & Stories' && <h3 className="text-2xl font-heading font-bold text-udbhav-blue-deep mb-6">Latest Stories</h3>}
-            {regularArticles.length > 0 ? (
+            {regularNewsAndStories.length > 0 ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {regularArticles.map((article) => (
+                {regularNewsAndStories.map((article) => (
                   <div key={article.id} className="flex flex-col sm:flex-row gap-5 border-b border-gray-100 pb-6 last:border-0 last:pb-0">
                     <div className="relative w-full sm:w-[240px] h-[160px] sm:h-auto shrink-0 bg-gray-100 rounded-xl overflow-hidden">
                       <Image
