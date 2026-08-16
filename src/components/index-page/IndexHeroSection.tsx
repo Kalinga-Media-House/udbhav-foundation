@@ -22,36 +22,7 @@ const STAGGER = {
   },
 };
 
-function FloatingStatCard({
-  icon: Icon,
-  label,
-  value,
-  className,
-  delay = 0,
-}: {
-  icon: React.ElementType;
-  label: string;
-  value: string;
-  className?: string;
-  delay?: number;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ type: 'spring', damping: 20, mass: 0.8, delay }}
-      className={`absolute z-20 flex items-center gap-3 overflow-hidden rounded-2xl border border-white/60 bg-white/80 p-3.5 shadow-lg backdrop-blur-xl ${className}`}
-    >
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#FAFBFC] shadow-inner">
-        <Icon className="h-5 w-5 text-[#233A8B]" />
-      </div>
-      <div>
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#233A8B]/70">{label}</p>
-        <p className="font-heading text-lg font-bold leading-tight text-[#233A8B]">{value}</p>
-      </div>
-    </motion.div>
-  );
-}
+
 
 export function IndexHeroSection({ heroImages }: { heroImages?: HeroImageRow[] }) {
   const [isMounted, setIsMounted] = useState(false);
@@ -112,7 +83,7 @@ export function IndexHeroSection({ heroImages }: { heroImages?: HeroImageRow[] }
         <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-white/40 to-transparent" />
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-8 py-20 lg:py-32 flex flex-col items-center text-center mt-auto mb-16 lg:mb-0">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-8 flex flex-col items-center text-center justify-center">
         <motion.div
           variants={STAGGER}
           initial="hidden"
@@ -139,32 +110,6 @@ export function IndexHeroSection({ heroImages }: { heroImages?: HeroImageRow[] }
         </motion.div>
       </div>
 
-      {/* Floating Glass Stat Cards around the hero image */}
-      {isMounted && (
-        <>
-          <FloatingStatCard
-            icon={Heart}
-            label="Lives Touched"
-            value="10,000+"
-            className="hidden lg:flex top-32 left-12 xl:left-24"
-            delay={0.6}
-          />
-          <FloatingStatCard
-            icon={MapPin}
-            label="Districts"
-            value="15+ Covered"
-            className="hidden lg:flex bottom-32 left-8 xl:left-20"
-            delay={0.8}
-          />
-          <FloatingStatCard
-            icon={Users}
-            label="Volunteers"
-            value="500+ Active"
-            className="hidden lg:flex top-48 right-12 xl:right-24"
-            delay={1.0}
-          />
-        </>
-      )}
 
       {/* Slider Indicators */}
       {images.length > 1 && (
