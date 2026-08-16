@@ -20,6 +20,25 @@ interface NewsAndStoriesHubProps {
   podcasts: PodcastEpisodeItem[];
 }
 
+const CARD_PALETTE = [
+  'bg-[#EAF6E4]', // Soft green
+  'bg-[#E0F5EE]', // Light mint
+  'bg-[#E6F0FA]', // Pale blue
+  'bg-[#F0E6FA]', // Soft lavender
+  'bg-[#FDF5E6]', // Warm cream
+  'bg-[#FCEAE2]', // Light peach
+  'bg-[#FFFBE6]', // Very light yellow
+  'bg-[#E6F7FF]'  // Soft sky blue
+];
+
+const getCardColor = (id: string) => {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return CARD_PALETTE[Math.abs(hash) % CARD_PALETTE.length];
+};
+
 // Fade up animation variant for scrolling
 const fadeUpVariant: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -536,55 +555,52 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
                 viewport={{ once: true }}
                 variants={staggerContainer}
               >
-                {filteredNewsAndStories.map((article) => (
+                {filteredNewsAndStories.map((article) => {
+                  const cardBg = getCardColor(article.id);
+                  return (
                   <motion.div 
                     key={article.id} 
                     variants={fadeUpVariant}
-                    className="group flex flex-col sm:flex-row gap-6 border-b border-gray-200/60 pb-8 last:border-0 last:pb-0 hover:border-[#4FAF32]/30 transition-colors duration-300"
+                    className={`group relative flex flex-col sm:flex-row gap-6 p-5 sm:p-6 rounded-[24px] ${cardBg} transition-all duration-300 motion-safe:hover:-translate-y-1 hover:shadow-md border border-black/5`}
                   >
-                    <div className="relative w-full sm:w-[260px] h-[170px] shrink-0 bg-gray-100 rounded-[12px] overflow-hidden shadow-sm">
+                    <div className="relative w-full sm:w-[260px] h-[180px] sm:h-auto sm:min-h-[170px] shrink-0 bg-white rounded-[16px] overflow-hidden shadow-sm border border-black/5">
                       <Image
                         src={article.cover_image?.cdn_url || '/placeholder-image.jpg'}
                         alt={article.title}
                         fill
                         sizes="(max-width: 640px) 100vw, 260px"
-                        className="object-cover transition-transform duration-700 group-hover:scale-105"
+                        className="object-cover transition-transform duration-500 motion-safe:group-hover:scale-[1.04]"
                       />
-                      <div className="absolute inset-0 bg-[#20256F] opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
                     </div>
                     <div className="flex flex-col flex-1 py-1">
-                      <div className="mb-3 flex items-center flex-wrap gap-2">
+                      <div className="mb-4 flex items-center flex-wrap gap-2">
                         {article.is_featured && (
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-white bg-[#20256F] px-2 py-0.5 rounded-sm">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-white bg-[#20256F] px-2.5 py-1 rounded-md shadow-sm">
                             FEATURED
                           </span>
                         )}
-                        <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-sm border ${getCategoryStyles(article.category)}`}>
+                        <span className={`text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md border shadow-sm ${getCategoryStyles(article.category)}`}>
                           {article.category || 'Update'}
                         </span>
                       </div>
-                      <h4 className={`font-heading font-bold text-[#182033] mb-3 line-clamp-2 transition-colors duration-300 group-hover:text-[#20256F] ${article.is_featured ? 'text-2xl' : 'text-xl'}`}>
-                        <Link href={`/news-and-stories/${article.slug}`}>
+                      <h4 className={`font-heading font-bold text-[#182033] mb-3 line-clamp-2 transition-colors duration-300 group-hover:text-[#4FAF32] ${article.is_featured ? 'text-2xl' : 'text-xl'}`}>
+                        <Link href={`/news-and-stories/${article.slug}`} className="before:absolute before:inset-0">
                           {article.title}
                         </Link>
                       </h4>
-                      <p className="text-[#667085] text-sm line-clamp-2 mb-5">
+                      <p className="text-[#182033]/70 text-sm line-clamp-2 mb-6 pr-4">
                         {article.summary}
                       </p>
                       <div className="mt-auto flex items-center justify-between text-sm">
-                        <span className="text-[#667085] font-medium">{formatDate(article.published_at || article.created_at)}</span>
-                        <Link 
-                          href={`/news-and-stories/${article.slug}`} 
-                          className="group/link inline-flex items-center font-semibold text-[#182033] hover:text-[#4FAF32] transition-colors relative"
-                        >
+                        <span className="text-[#182033]/60 font-semibold tracking-wide text-xs uppercase">{formatDate(article.published_at || article.created_at)}</span>
+                        <div className="group/link inline-flex items-center font-semibold text-[#182033] transition-colors relative z-10">
                           Read Story 
-                          <ArrowRight className="h-4 w-4 ml-1 transform group-hover/link:translate-x-1 transition-transform" />
-                          <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#4FAF32] transition-all duration-300 group-hover/link:w-full" />
-                        </Link>
+                          <ArrowRight className="h-4 w-4 ml-1.5 text-[#4FAF32] transform motion-safe:group-hover/link:translate-x-1 motion-safe:group-hover:translate-x-1 transition-transform" />
+                        </div>
                       </div>
                     </div>
                   </motion.div>
-                ))}
+                )})}
               </motion.div>
             ) : (
               <motion.div 
