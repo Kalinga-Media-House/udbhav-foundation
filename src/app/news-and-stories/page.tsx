@@ -4,6 +4,7 @@ import React from 'react';
 import { NewsAndStoriesHub } from '@/components/news-and-stories/NewsAndStoriesHub';
 import { listPublicArticles } from '@/features/news/actions';
 import { listEvents } from '@/features/events/actions';
+import { listPublicPodcasts } from '@/features/podcasts/actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,9 +54,30 @@ export default async function NewsAndStoriesPage() {
       };
     });
 
-  // Currently Podcast isn't fully implemented in the database, 
-  // but we shouldn't show mock data.
-  const podcasts: any[] = []; 
+  // Fetch dynamic podcasts
+  const podcastsResult = await listPublicPodcasts();
+  const rawPodcasts = podcastsResult.success && podcastsResult.data ? podcastsResult.data.data : [];
+  
+  const podcasts: any[] = rawPodcasts.map((p: any) => ({
+    id: p.id,
+    title: p.title,
+    slug: p.slug,
+    episodeNumber: p.episode_number || '',
+    excerpt: p.excerpt || p.description || '',
+    description: p.description || '',
+    thumbnailUrl: (p as any).thumbnail?.cdn_url || '/placeholder-image.jpg',
+    duration: p.duration || '00:00',
+    releaseDate: p.release_date ? new Date(p.release_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '',
+    youtubeUrl: p.youtube_url || p.audio_url || '',
+    topics: p.topics || [],
+    guest: {
+      id: 'guest-' + p.id,
+      fullName: p.guest_name || 'Special Guest',
+      role: p.guest_role || '',
+      profilePhotoUrl: p.guest_profile_photo_url || '/placeholder-image.jpg',
+      achievement: ''
+    }
+  }));
 
   return (
     <main className="bg-pure-white flex min-h-screen flex-col">

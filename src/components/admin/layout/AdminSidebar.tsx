@@ -33,6 +33,7 @@ const navItems = [
     icon: FileText,
     children: [
       { title: "News & Stories", href: "/admin/news" },
+      { title: "Podcast", href: "/admin/podcast" },
       { title: "Programs", href: "/admin/programs" },
     ],
   },
