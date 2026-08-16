@@ -69,6 +69,20 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
       }
     });
 
+    // Sort Upcoming: Soonest first
+    upcoming.sort((a, b) => {
+      const dateA = a.event_date ? new Date(a.event_date).getTime() : new Date(a.published_at || a.created_at).getTime();
+      const dateB = b.event_date ? new Date(b.event_date).getTime() : new Date(b.published_at || b.created_at).getTime();
+      return dateA - dateB;
+    });
+
+    // Sort Past: Most recent first
+    past.sort((a, b) => {
+      const dateA = a.event_date ? new Date(a.event_date).getTime() : new Date(a.published_at || a.created_at).getTime();
+      const dateB = b.event_date ? new Date(b.event_date).getTime() : new Date(b.published_at || b.created_at).getTime();
+      return dateB - dateA;
+    });
+
     return { upcomingEvents: upcoming, pastEvents: past };
   }, [baseSearchedArticles]);
 
@@ -79,14 +93,9 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
 
   // 4. Determine featured article (can be news or event)
   const featuredArticle = useMemo(() => {
-    if (activeTab === 'Podcast') return undefined; // No featured article on podcast tab
-    let pool = baseSearchedArticles;
-    if (activeTab === 'News & Stories') pool = filteredNewsAndStories;
-    if (activeTab === 'Upcoming Events') pool = upcomingEvents;
-    if (activeTab === 'Past Events') pool = pastEvents;
-    
-    return pool.find(a => a.is_featured) || pool[0];
-  }, [baseSearchedArticles, filteredNewsAndStories, upcomingEvents, pastEvents, activeTab]);
+    if (activeTab !== 'All') return undefined; // Only feature an article on the All tab
+    return baseSearchedArticles.find(a => a.is_featured) || baseSearchedArticles[0];
+  }, [baseSearchedArticles, activeTab]);
 
   const regularNewsAndStories = filteredNewsAndStories.filter(a => a.id !== featuredArticle?.id);
   const filteredUpcomingEvents = upcomingEvents.filter(a => a.id !== featuredArticle?.id);
