@@ -10,7 +10,15 @@ export const uuidValidator = z.string().uuid("Must be a valid UUID.");
 
 export const emailValidator = z.string().email("Invalid email address.");
 
-export const urlValidator = z.string().url("Invalid URL format.").optional();
+export const urlValidator = z
+  .string()
+  .trim()
+  .optional()
+  .nullable()
+  .transform((val) => (val === '' ? undefined : val))
+  .refine((val) => !val || z.string().url().safeParse(val).success, {
+    message: 'Invalid URL format.',
+  });
 
 export const nameValidator = z
   .string()

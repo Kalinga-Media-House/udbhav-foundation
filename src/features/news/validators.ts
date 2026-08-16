@@ -26,7 +26,15 @@ export const articleMetadataSchema = z.object({
   seo_title: z.string().max(70).nullable().optional(),
   seo_description: z.string().max(160).nullable().optional(),
   seo_keywords: z.array(z.string()).nullable().optional(),
-  canonical_url: z.string().url().nullable().optional(),
+  canonical_url: z
+    .string()
+    .trim()
+    .optional()
+    .nullable()
+    .transform((val) => (val === '' ? null : val))
+    .refine((val) => val === null || z.string().url().safeParse(val).success, {
+      message: 'Invalid URL format',
+    }),
   open_graph_image_id: z.string().uuid().nullable().optional(),
   gallery_image_ids: z.array(z.string()).nullable().optional(),
   reading_time: z.number().int().nonnegative().optional(),
