@@ -48,9 +48,9 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
 
   // Render Details Panel (Reusable for desktop right-pane)
   const ProgrammeDetails = ({ prog }: { prog: IndexProgrammeDetail }) => (
-    <div className="flex flex-col h-full bg-white rounded-[24px] border border-gray-100 shadow-md overflow-hidden transition-shadow hover:shadow-lg">
+    <div className="flex flex-col h-full bg-white rounded-[20px] border border-gray-100 shadow-sm overflow-hidden transition-shadow hover:shadow-md">
       {/* Image */}
-      <div className="relative w-full h-[280px] xl:h-[340px] shrink-0 bg-gray-100">
+      <div className="relative w-full aspect-[16/8] xl:aspect-[16/7] shrink-0 bg-gray-100">
         <Image
           src={prog.coverImageUrl || '/hero/hero-01.png'}
           alt={prog.title}
@@ -62,36 +62,36 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
       </div>
       
       {/* Content */}
-      <div className="flex flex-col p-8 xl:p-10 flex-1">
-        <h3 className="font-heading text-3xl xl:text-4xl font-bold text-[#233A8B] mb-5 tracking-tight">
+      <div className="flex flex-col p-6 lg:p-7 xl:p-8 flex-1">
+        <h3 className="font-heading text-2xl xl:text-3xl font-bold text-[#233A8B] mb-3 tracking-tight">
           {prog.title}
         </h3>
         
-        {prog.shortDescription && (
-          <p className="text-gray-600 text-base xl:text-lg leading-relaxed mb-8">
-            {prog.shortDescription}
+        {prog.fullDescription && (
+          <p className="text-gray-600 text-[15px] xl:text-base leading-relaxed mb-6 line-clamp-3 xl:line-clamp-4">
+            {prog.fullDescription}
           </p>
         )}
         
-        <div className="flex flex-wrap items-center gap-6 mb-10 mt-auto">
+        <div className="flex flex-wrap items-center gap-5 mb-6 mt-auto">
           {prog.programDate && (
-            <div className="flex items-center gap-2.5 text-sm font-semibold text-gray-600">
-              <Calendar className="w-5 h-5 text-[#5E9F3B]" />
+            <div className="flex items-center gap-2 text-[13px] font-semibold text-gray-600 uppercase tracking-wide">
+              <Calendar className="w-4 h-4 text-[#5E9F3B]" />
               <span>{prog.programDate}</span>
             </div>
           )}
           {prog.location && (
-            <div className="flex items-center gap-2.5 text-sm font-semibold text-gray-600">
-              <MapPin className="w-5 h-5 text-[#5E9F3B]" />
+            <div className="flex items-center gap-2 text-[13px] font-semibold text-gray-600 uppercase tracking-wide">
+              <MapPin className="w-4 h-4 text-[#5E9F3B]" />
               <span className="line-clamp-1">{prog.location}</span>
             </div>
           )}
         </div>
         
-        <div className="mt-auto border-t border-gray-100 pt-8">
+        <div className="mt-auto border-t border-gray-100 pt-5">
           <Link
             href={`/programmes/${prog.slug}`}
-            className="group inline-flex items-center justify-center rounded-full bg-[#233A8B] px-8 py-4 text-[15px] font-bold tracking-wide text-white shadow-md transition-all hover:-translate-y-0.5 hover:bg-[#1a2b6c] hover:shadow-lg w-full sm:w-auto"
+            className="group inline-flex items-center justify-center rounded-full bg-[#233A8B] px-6 py-3 text-[14px] font-bold tracking-wide text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[#1a2b6c] hover:shadow-md w-full sm:w-auto"
           >
             VIEW DETAILS
             <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -112,31 +112,31 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
         </div>
 
         {/* Desktop Layout */}
-        <div className="hidden lg:grid grid-cols-12 gap-8 xl:gap-12 items-start">
+        <div className="hidden lg:grid grid-cols-12 gap-8 xl:gap-10 items-start">
           
           {/* Left: Programme Selector */}
-          <div className="col-span-5 flex flex-col gap-3">
+          <div className="lg:col-span-5 xl:col-span-4 flex flex-col gap-2.5">
             {sortedProgrammes.map((prog) => {
               const isActive = prog.id === activeId;
               return (
                 <button
                   key={prog.id}
                   onClick={() => setActiveId(prog.id)}
-                  className={`group relative flex items-center w-full p-4 xl:p-5 rounded-[20px] text-left transition-all duration-300 border ${
+                  className={`group relative flex items-center w-full p-4 rounded-2xl text-left transition-all duration-200 border ${
                     isActive 
-                      ? 'bg-blue-50/70 border-[#233A8B]/15 shadow-sm' 
+                      ? 'bg-blue-50/80 border-[#233A8B]/20 shadow-sm' 
                       : 'bg-white border-transparent hover:bg-gray-50 hover:border-gray-200'
                   }`}
                 >
-                  <span className={`font-heading text-lg xl:text-xl font-bold tracking-tight w-12 shrink-0 ${isActive ? 'text-[#5E9F3B]' : 'text-gray-400 group-hover:text-gray-500 transition-colors'}`}>
+                  <span className={`font-heading text-lg font-bold tracking-tight w-10 shrink-0 ${isActive ? 'text-[#5E9F3B]' : 'text-gray-400 group-hover:text-gray-500 transition-colors'}`}>
                     {prog.programmeNumber}
                   </span>
-                  <span className={`font-semibold text-base xl:text-lg flex-1 pr-4 leading-tight ${isActive ? 'text-[#233A8B]' : 'text-gray-700 group-hover:text-gray-900 transition-colors'}`}>
+                  <span className={`font-semibold text-[15px] xl:text-base flex-1 pr-3 leading-tight ${isActive ? 'text-[#233A8B]' : 'text-gray-700 group-hover:text-gray-900 transition-colors'}`}>
                     {prog.title}
                   </span>
                   {isActive && (
-                    <span className="shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-[#233A8B] text-white shadow-sm">
-                      <Check className="w-4 h-4" />
+                    <span className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-[#233A8B] text-white shadow-sm">
+                      <Check className="w-3 h-3" />
                     </span>
                   )}
                 </button>
@@ -145,14 +145,14 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
           </div>
 
           {/* Right: Active Programme Details */}
-          <div className="col-span-7">
+          <div className="lg:col-span-7 xl:col-span-8">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeId}
-                initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 12 }}
+                initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: prefersReducedMotion ? 0 : -12 }}
-                transition={{ duration: 0.25, ease: 'easeOut' }}
+                exit={{ opacity: 0, y: prefersReducedMotion ? 0 : -8 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
                 className="h-full"
               >
                 <ProgrammeDetails prog={activeProg} />
@@ -199,8 +199,8 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
                       className="overflow-hidden bg-white border border-t-0 border-[#233A8B]/15 rounded-b-2xl shadow-sm"
                     >
                       {/* Sub-panel details (mobile variant) */}
-                      <div className="p-5 sm:p-7 flex flex-col gap-6">
-                        <div className="relative w-full h-[220px] sm:h-[300px] shrink-0 bg-gray-100 rounded-[14px] overflow-hidden">
+                      <div className="p-4 sm:p-5 flex flex-col gap-4">
+                        <div className="relative w-full aspect-[16/8] shrink-0 bg-gray-100 rounded-xl overflow-hidden">
                           <Image
                             src={prog.coverImageUrl || '/hero/hero-01.png'}
                             alt={prog.title}
@@ -211,30 +211,30 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
                           />
                         </div>
                         
-                        {prog.shortDescription && (
-                          <p className="text-gray-600 text-[15px] sm:text-base leading-relaxed">
-                            {prog.shortDescription}
+                        {prog.fullDescription && (
+                          <p className="text-gray-600 text-[14px] sm:text-[15px] leading-relaxed line-clamp-4">
+                            {prog.fullDescription}
                           </p>
                         )}
                         
-                        <div className="flex flex-col gap-3.5 mt-1 border-t border-gray-100 pt-5">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-1 border-t border-gray-100 pt-4">
                           {prog.programDate && (
-                            <div className="flex items-center gap-3 text-sm font-semibold text-gray-600">
+                            <div className="flex items-center gap-2.5 text-[13px] font-semibold text-gray-600 uppercase tracking-wide">
                               <Calendar className="w-4 h-4 text-[#5E9F3B]" />
                               <span>{prog.programDate}</span>
                             </div>
                           )}
                           {prog.location && (
-                            <div className="flex items-center gap-3 text-sm font-semibold text-gray-600">
+                            <div className="flex items-center gap-2.5 text-[13px] font-semibold text-gray-600 uppercase tracking-wide">
                               <MapPin className="w-4 h-4 text-[#5E9F3B]" />
-                              <span className="line-clamp-2">{prog.location}</span>
+                              <span className="line-clamp-1">{prog.location}</span>
                             </div>
                           )}
                         </div>
                         
                         <Link
                           href={`/programmes/${prog.slug}`}
-                          className="group mt-6 inline-flex items-center justify-center rounded-xl bg-[#233A8B] px-6 py-4 text-[14px] font-bold tracking-wide text-white shadow-md transition-all active:scale-[0.98] w-full"
+                          className="group mt-4 inline-flex items-center justify-center rounded-xl bg-[#233A8B] px-5 py-3.5 text-[13px] font-bold tracking-wide text-white shadow-sm transition-all active:scale-[0.98] w-full"
                         >
                           VIEW DETAILS
                           <ArrowRight className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
