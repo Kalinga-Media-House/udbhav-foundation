@@ -54,17 +54,25 @@ export function GalleryHeroSection({ heroPhotos }: GalleryHeroSectionProps) {
       const cx = window.innerWidth / 2;
       const cy = (window.innerHeight * 0.7) / 2;
       
-      const thumbW = isMobile ? window.innerWidth * 0.20 : window.innerWidth * 0.12;
+      const thumbW = isMobile ? 80 : 120; // approximate initial size for physics bounds
       const thumbH = thumbW * 0.75; 
+      
+      const maxSpeed = isMobile ? (0.1 + Math.random() * 0.1) : (0.15 + Math.random() * 0.2); // Very slow 5-15 px/s
 
       return {
         x: cx + Math.cos(angle) * radius - thumbW / 2,
         y: cy + Math.sin(angle) * radius - thumbH / 2,
-        vx: (Math.random() - 0.5) * 2,
-        vy: (Math.random() - 0.5) * 2,
+        vx: (Math.random() - 0.5) * maxSpeed,
+        vy: (Math.random() - 0.5) * maxSpeed,
+        targetVx: 0,
+        targetVy: 0,
+        driftVx: (Math.random() - 0.5) * maxSpeed * 0.5,
+        driftVy: (Math.random() - 0.5) * maxSpeed * 0.5,
+        maxSpeed: maxSpeed,
         preferredRadius: radius,
         rotation: Math.random() * 20 - 10,
-        rotV: (Math.random() - 0.5) * 0.1,
+        rotV: (Math.random() - 0.5) * 0.05, // slower rotation
+        parallaxPhase: Math.random() * Math.PI * 2, // for depth/drift offset
       };
     });
 
@@ -97,63 +105,66 @@ export function GalleryHeroSection({ heroPhotos }: GalleryHeroSectionProps) {
          const nx = dx / dist;
          const ny = dy / dist;
 
-         // 1. Orbital Tangential Force (creates circular movement)
+         // 1. Calculate base orbital velocity
          const tx = -ny;
          const ty = nx;
-         const orbitForce = 0.03 * dt;
-         state.vx += tx * orbitForce;
-         state.vy += ty * orbitForce;
+         const orbitSpeed = state.maxSpeed * 0.5; // slow orbit
+         state.targetVx = tx * orbitSpeed + state.driftVx;
+         state.targetVy = ty * orbitSpeed + state.driftVy;
 
-         // 2. Gravity to preferred radius
+         // 2. Slow drift variance based on time (Parallax/Organic feel)
+         state.parallaxPhase += 0.005 * dt;
+         state.targetVx += Math.sin(state.parallaxPhase) * state.maxSpeed * 0.2;
+         state.targetVy += Math.cos(state.parallaxPhase * 0.8) * state.maxSpeed * 0.2;
+
+         // 3. Gravity to preferred radius
          const radiusDiff = dist - state.preferredRadius;
-         const gravity = 0.0015 * dt;
-         state.vx += nx * radiusDiff * gravity;
-         state.vy += ny * radiusDiff * gravity;
+         state.targetVx += nx * radiusDiff * 0.002;
+         state.targetVy += ny * radiusDiff * 0.002;
 
-         // 3. Repulsion from Center Image to prevent overlapping the focal point
-         const minCenterDist = currentIsMobile 
-           ? (rect.width * 0.3) + (thumbWidth / 2) + 15
-           : (rect.width * 0.175) + (thumbWidth / 2) + 30;
+         // 4. Repulsion from Center Image to prevent overlapping the focal point
+         const centerImgRadius = currentIsMobile ? 120 : 180;
+         const minCenterDist = centerImgRadius + (thumbWidth / 2) + 20;
            
          if (dist < minCenterDist) {
-           const repulsion = (minCenterDist - dist) * 0.03 * dt;
-           state.vx -= nx * repulsion; 
-           state.vy -= ny * repulsion;
+           const repulsion = (minCenterDist - dist) * 0.01;
+           state.targetVx -= nx * repulsion; 
+           state.targetVy -= ny * repulsion;
          }
 
-         // 4. Friction / Damping
-         state.vx *= Math.pow(0.99, dt);
-         state.vy *= Math.pow(0.99, dt);
-         state.rotV *= Math.pow(0.99, dt);
+         // 5. Boundary Steering (Smooth collision instead of jerky bounce)
+         const margin = currentIsMobile ? 20 : 40;
+         const steerStrength = 0.05;
+         
+         if (state.x < margin) {
+            state.targetVx += steerStrength * (margin - state.x);
+         } else if (state.x + thumbWidth > rect.width - margin) {
+            state.targetVx -= steerStrength * (state.x + thumbWidth - (rect.width - margin));
+         }
+         
+         if (state.y < margin) {
+            state.targetVy += steerStrength * (margin - state.y);
+         } else if (state.y + thumbHeight > rect.height - margin) {
+            state.targetVy -= steerStrength * (state.y + thumbHeight - (rect.height - margin));
+         }
 
-         // 5. Random Drift
-         state.vx += (Math.random() - 0.5) * 0.15 * dt;
-         state.vy += (Math.random() - 0.5) * 0.15 * dt;
-         state.rotV += (Math.random() - 0.5) * 0.02 * dt;
+         // 6. Smooth Interpolation (gradually adjust current velocity towards target)
+         const lerpFactor = 0.02 * dt;
+         state.vx += (state.targetVx - state.vx) * lerpFactor;
+         state.vy += (state.targetVy - state.vy) * lerpFactor;
 
          // Apply velocity
          state.x += state.vx * dt;
          state.y += state.vy * dt;
+         
+         // Slow rotation
          state.rotation += state.rotV * dt;
 
-         // 6. Boundary Collision (Bounce inside container)
-         const bounceDamping = 0.8;
-         if (state.x < 0) {
-            state.x = 0;
-            state.vx *= -bounceDamping;
-         }
-         if (state.x + thumbWidth > rect.width) {
-            state.x = rect.width - thumbWidth;
-            state.vx *= -bounceDamping;
-         }
-         if (state.y < 0) {
-            state.y = 0;
-            state.vy *= -bounceDamping;
-         }
-         if (state.y + thumbHeight > rect.height) {
-            state.y = rect.height - thumbHeight;
-            state.vy *= -bounceDamping;
-         }
+         // Hard boundary enforcement just in case steering isn't fast enough
+         if (state.x < 0) { state.x = 0; state.vx *= -0.5; }
+         if (state.x + thumbWidth > rect.width) { state.x = rect.width - thumbWidth; state.vx *= -0.5; }
+         if (state.y < 0) { state.y = 0; state.vy *= -0.5; }
+         if (state.y + thumbHeight > rect.height) { state.y = rect.height - thumbHeight; state.vy *= -0.5; }
 
          // Apply transform directly to DOM for 60fps performance without React renders
          el.style.transform = `translate3d(${state.x}px, ${state.y}px, 0) rotate(${state.rotation}deg)`;
@@ -192,7 +203,6 @@ export function GalleryHeroSection({ heroPhotos }: GalleryHeroSectionProps) {
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
         {mounted && floatingPhotos.map((photo, i) => {
           const isMobileHidden = i > 9;
-          const hasBling = i % 3 === 0;
 
           // Static fallback layout for reduced motion
           const staticAngle = (i / floatingPhotos.length) * Math.PI * 2;
@@ -209,7 +219,7 @@ export function GalleryHeroSection({ heroPhotos }: GalleryHeroSectionProps) {
               ref={(el) => { 
                 if (el) thumbsRef.current[i] = el; 
               }}
-              className={`absolute w-[20%] sm:w-[15%] md:w-[12%] lg:w-[10%] aspect-[4/3] rounded-xl overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.3)] ring-1 ring-white/20 bg-[#061A3A] will-change-transform ${isMobileHidden ? 'hidden sm:block' : 'block'}`}
+              className={`absolute w-[clamp(60px,9vw,140px)] aspect-[4/3] rounded-xl overflow-hidden shadow-[0_2px_15px_rgba(0,0,0,0.2)] ring-1 ring-white/10 bg-[#061A3A] will-change-transform ${isMobileHidden ? 'hidden sm:block' : 'block'}`}
               style={staticStyles}
             >
               {photo.media?.cdn_url && (
@@ -218,24 +228,10 @@ export function GalleryHeroSection({ heroPhotos }: GalleryHeroSectionProps) {
                   alt={photo.media.alt_text || "Gallery Moment"}
                   fill
                   className="object-cover opacity-90 transition-opacity"
-                  sizes="(max-width: 640px) 20vw, 12vw"
+                  sizes="(max-width: 640px) 90px, 140px"
                 />
               )}
               <div className="absolute inset-0 rounded-xl ring-1 ring-inset ring-white/10 pointer-events-none" />
-              
-              {/* Subtle Sparkle/Bling Effect */}
-              {hasBling && !prefersReducedMotion && (
-                <motion.div
-                  className="absolute -inset-4 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.6)_0%,transparent_50%)] mix-blend-overlay pointer-events-none"
-                  animate={{ opacity: [0, 0.5, 0], scale: [0.8, 1.2, 0.8] }}
-                  transition={{ 
-                    duration: 4, 
-                    repeat: Infinity, 
-                    delay: i * 0.7, 
-                    repeatDelay: 3 + (i % 3) 
-                  }}
-                />
-              )}
             </div>
           );
         })}
@@ -243,13 +239,26 @@ export function GalleryHeroSection({ heroPhotos }: GalleryHeroSectionProps) {
 
       {/* Central Focal Image */}
       <div className="relative z-30 flex items-center justify-center pointer-events-none w-full h-full px-4">
-        <div className="relative w-[65vw] sm:w-[45vw] md:w-[35vw] lg:w-[30vw] max-w-[500px] aspect-[4/3] rounded-2xl overflow-hidden shadow-[0_10px_40px_rgba(0,0,0,0.6)] ring-1 ring-white/25 bg-[#061A3A] pointer-events-auto">
+        <motion.div 
+          className="relative w-[clamp(190px,28vw,360px)] aspect-[4/3] rounded-2xl overflow-hidden shadow-[0_0_30px_rgba(70,130,255,0.18),0_20px_50px_rgba(0,0,0,0.25)] ring-1 ring-white/20 bg-[#061A3A] pointer-events-auto"
+          animate={prefersReducedMotion ? {} : {
+            y: [0, -8, 0],
+            scale: [1, 1.015, 1],
+            rotate: [-0.3, 0.3, -0.3],
+          }}
+          transition={prefersReducedMotion ? {} : {
+            duration: 8,
+            ease: "easeInOut",
+            repeat: Infinity,
+            repeatType: "loop"
+          }}
+        >
           <AnimatePresence mode="wait">
             {centerImage?.media?.cdn_url && (
               <motion.div
                 key={centerImage.id}
-                initial={{ opacity: 0, scale: 1.05 }}
-                animate={{ opacity: 1, scale: 1 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 1.5, ease: "easeInOut" }}
                 className="absolute inset-0"
@@ -260,13 +269,13 @@ export function GalleryHeroSection({ heroPhotos }: GalleryHeroSectionProps) {
                   fill
                   priority
                   className="object-cover"
-                  sizes="(max-width: 640px) 65vw, 45vw"
+                  sizes="(max-width: 640px) 240px, 360px"
                 />
               </motion.div>
             )}
           </AnimatePresence>
           <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/10 pointer-events-none" />
-        </div>
+        </motion.div>
       </div>
     </section>
   );
