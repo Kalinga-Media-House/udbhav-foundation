@@ -80,7 +80,7 @@ export function PodcastHub({ initialPodcasts }: PodcastHubProps) {
   return (
     <div className="bg-[#F8FAF7] w-full pb-24 min-h-screen">
       {/* 1. HERO SECTION */}
-      <section className="relative bg-[#20256F] pt-24 pb-20 overflow-hidden">
+      <section className="relative bg-[#20256F] pt-20 pb-16 overflow-hidden">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 pointer-events-none opacity-20">
           <motion.div 
@@ -129,10 +129,7 @@ export function PodcastHub({ initialPodcasts }: PodcastHubProps) {
             className="max-w-3xl mx-auto text-center"
           >
             <span className="text-[#4FAF32] text-sm font-bold uppercase tracking-widest block mb-4">UDBHAV PODCAST</span>
-            <h1 className="text-4xl md:text-6xl font-heading font-bold text-white mb-6">
-              Conversations. Ideas. Stories.
-            </h1>
-            <p className="text-lg md:text-xl text-white/80 font-medium mb-10 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xl md:text-2xl text-white font-medium mb-10 max-w-2xl mx-auto leading-relaxed">
               Listen to conversations, experiences and inspiring stories from the UDBHAV community.
             </p>
             {featuredPodcast && (
