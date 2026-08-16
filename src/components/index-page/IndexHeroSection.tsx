@@ -1,10 +1,10 @@
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Users, MapPin, Heart } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import type { HeroImageRow } from '@/features/hero/repository';
 
 const FADE_UP = {
@@ -27,23 +27,45 @@ const STAGGER = {
 export function IndexHeroSection({ heroImages }: { heroImages?: HeroImageRow[] }) {
   const [isMounted, setIsMounted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isHoverPaused, setIsHoverPaused] = useState(false);
+  const [isTabHidden, setIsTabHidden] = useState(false);
 
   // Fallback to static image if none uploaded
   const images = heroImages && heroImages.length > 0 
     ? heroImages.map(img => img.image_url) 
     : ['/hero/hero-01.png'];
+  const totalSlides = images.length;
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    if (images.length <= 1) return;
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, 6000); // 6s duration
+    if (typeof window === 'undefined') return;
+    const handleVisibility = () => setIsTabHidden(document.hidden);
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, []);
+
+  const goToNextSlide = useCallback(() => {
+    setCurrentIndex((prev) => (totalSlides > 0 ? (prev + 1) % totalSlides : 0));
+  }, [totalSlides]);
+
+  const goToPrevSlide = useCallback(() => {
+    setCurrentIndex((prev) => (totalSlides > 0 ? (prev - 1 + totalSlides) % totalSlides : 0));
+  }, [totalSlides]);
+
+  const goToSlide = useCallback((index: number) => {
+    setCurrentIndex(index);
+  }, []);
+
+  useEffect(() => {
+    if (isHoverPaused || isTabHidden || totalSlides <= 1) return;
+    const interval = window.setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % totalSlides);
+    }, 6000);
     return () => clearInterval(interval);
-  }, [images.length]);
+  }, [isHoverPaused, isTabHidden, totalSlides]);
 
   const scrollToSection = (id: string) => {
     const el = document.getElementById(id);
@@ -53,7 +75,15 @@ export function IndexHeroSection({ heroImages }: { heroImages?: HeroImageRow[] }
   };
 
   return (
-    <section className="relative min-h-[85vh] w-full flex items-center justify-center overflow-hidden bg-white">
+    <section 
+      aria-label="Programmes and Initiatives Hero"
+      aria-roledescription="carousel"
+      onMouseEnter={() => setIsHoverPaused(true)}
+      onMouseLeave={() => setIsHoverPaused(false)}
+      onFocusCapture={() => setIsHoverPaused(true)}
+      onBlurCapture={() => setIsHoverPaused(false)}
+      className="relative min-h-[85vh] w-full flex items-center justify-center overflow-hidden bg-white"
+    >
       {/* Dynamic Background Image Slider with Ken Burns effect */}
       <div className="absolute inset-0 z-0 bg-black">
         <AnimatePresence mode="popLayout">
@@ -78,9 +108,6 @@ export function IndexHeroSection({ heroImages }: { heroImages?: HeroImageRow[] }
             />
           </motion.div>
         </AnimatePresence>
-        
-        {/* Subtle, Bright Gradient Overlay for text readability (white to transparent) */}
-        <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-white/40 to-transparent" />
       </div>
 
       <div className="relative z-10 mx-auto w-full max-w-7xl px-6 lg:px-8 flex flex-col items-center text-center justify-center">
@@ -111,19 +138,52 @@ export function IndexHeroSection({ heroImages }: { heroImages?: HeroImageRow[] }
       </div>
 
 
-      {/* Slider Indicators */}
-      {images.length > 1 && (
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-          {images.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setCurrentIndex(idx)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                idx === currentIndex ? 'w-6 bg-[#233A8B]' : 'w-2 bg-[#233A8B]/30 hover:bg-[#233A8B]/50'
-              }`}
-              aria-label={`Go to slide ${idx + 1}`}
-            />
-          ))}
+      {/* Left/Right Navigation Controls */}
+      {totalSlides > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={goToPrevSlide}
+            aria-label="Previous hero image"
+            className="flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-30 items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/30 hover:bg-black/50 border border-white/20 text-white backdrop-blur-sm transition-all focus-visible:outline-2 focus-visible:outline-white shadow-md"
+          >
+            <ChevronLeft className="w-6 h-6 sm:w-7 sm:h-7" />
+          </button>
+
+          <button
+            type="button"
+            onClick={goToNextSlide}
+            aria-label="Next hero image"
+            className="flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-30 items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/30 hover:bg-black/50 border border-white/20 text-white backdrop-blur-sm transition-all focus-visible:outline-2 focus-visible:outline-white shadow-md"
+          >
+            <ChevronRight className="w-6 h-6 sm:w-7 sm:h-7" />
+          </button>
+        </>
+      )}
+
+      {/* Bottom Bar: Slide Indicators */}
+      {totalSlides > 1 && (
+        <div className="absolute bottom-6 sm:bottom-8 inset-x-0 z-30 flex justify-center">
+          <div role="tablist" aria-label="Hero slides" className="flex items-center gap-2 sm:gap-2.5">
+            {images.map((_, index) => {
+              const isActive = index === currentIndex;
+              return (
+                <button
+                  key={index}
+                  type="button"
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-label={`Go to hero image ${index + 1}`}
+                  onClick={() => goToSlide(index)}
+                  className={`h-2.5 rounded-full transition-all duration-300 focus-visible:outline-2 focus-visible:outline-white shadow-md ${
+                    isActive
+                      ? "w-8 sm:w-10 bg-white"
+                      : "w-2.5 sm:w-3 bg-white/50 hover:bg-white/80"
+                  }`}
+                />
+              );
+            })}
+          </div>
         </div>
       )}
     </section>
