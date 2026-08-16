@@ -1,13 +1,9 @@
 import type { Metadata } from 'next';
 import React from 'react';
 
-import { CommunityCTASection } from '@/components/news-and-stories/CommunityCTASection';
-import { ImpactStoriesSection } from '@/components/news-and-stories/ImpactStoriesSection';
-import { LatestUpdatesSection } from '@/components/news-and-stories/LatestUpdatesSection';
-import { NewsHeroSection } from '@/components/news-and-stories/NewsHeroSection';
-import { UDBHAVPodcastSection } from '@/components/news-and-stories/UDBHAVPodcastSection';
-import { UpcomingEventsSection } from '@/components/news-and-stories/UpcomingEventsSection';
+import { NewsAndStoriesHub } from '@/components/news-and-stories/NewsAndStoriesHub';
 import { listPublicArticles } from '@/features/news/actions';
+import { UPCOMING_EVENTS, PODCAST_EPISODES } from '@/data/news-data';
 
 export const metadata: Metadata = {
   title:
@@ -23,28 +19,18 @@ export const metadata: Metadata = {
 };
 
 export default async function NewsAndStoriesPage() {
-  const result = await listPublicArticles({ page: 1, limit: 50 });
+  // Fetch dynamic articles
+  const result = await listPublicArticles({ page: 1, limit: 100 });
   const articles = result.success && result.data ? result.data.data : [];
 
+  // Pass all data to the client-side Hub component
   return (
     <main className="bg-pure-white flex min-h-screen flex-col">
-      {/* 1. Compact News Hero */}
-      <NewsHeroSection />
-
-      {/* 3. Upcoming Events & Notifications */}
-      <UpcomingEventsSection />
-
-      {/* 4. Latest from UDBHAV (News, Activities & Community Updates) */}
-      <LatestUpdatesSection articles={articles} />
-
-      {/* 6. Impact Stories (Real People. Real Change.) */}
-      <ImpactStoriesSection articles={articles} />
-
-      {/* 7. UDBHAV Podcast (Voices That Inspire) */}
-      <UDBHAVPodcastSection />
-
-      {/* 8. Community CTA / Story Submission */}
-      <CommunityCTASection />
+      <NewsAndStoriesHub 
+        articles={articles} 
+        events={UPCOMING_EVENTS} 
+        podcasts={PODCAST_EPISODES} 
+      />
     </main>
   );
 }
