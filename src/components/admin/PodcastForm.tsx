@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 
 import { ImageUploader } from '@/components/admin/ImageUploader';
 import { createPodcast, updatePodcast } from '@/features/podcasts/actions';
+import { extractYouTubeVideoId } from '@/utils/youtube';
 
 export function PodcastForm({ initialData }: { initialData?: any }) {
   const router = useRouter();
@@ -35,6 +36,12 @@ export function PodcastForm({ initialData }: { initialData?: any }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (formData.youtube_url && !extractYouTubeVideoId(formData.youtube_url)) {
+      alert('Please enter a valid YouTube video URL.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -141,16 +148,50 @@ export function PodcastForm({ initialData }: { initialData?: any }) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700">Audio / Podcast URL</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">YouTube Video URL</label>
           <input
             type="url"
             name="youtube_url"
             value={formData.youtube_url}
             onChange={handleChange}
-            placeholder="https://youtube.com/..."
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            placeholder="Paste YouTube video link..."
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           />
-          <p className="mt-1 text-xs text-gray-500">YouTube, Spotify, or external audio URL</p>
+          <p className="mt-1 text-xs text-gray-500">Paste a YouTube video URL. The video will automatically be embedded on the podcast page.</p>
+          
+          {formData.youtube_url && (
+            <div className="mt-4">
+              {(() => {
+                const videoId = extractYouTubeVideoId(formData.youtube_url);
+                if (videoId) {
+                  return (
+                    <div className="rounded-md border border-gray-200 p-4 bg-gray-50">
+                      <div className="text-sm font-semibold text-gray-800 mb-2">YouTube Preview</div>
+                      <div className="aspect-video w-full max-w-sm rounded-md overflow-hidden bg-black mb-3">
+                        <iframe
+                          width="100%"
+                          height="100%"
+                          src={`https://www.youtube.com/embed/${videoId}`}
+                          title="YouTube video player"
+                          frameBorder="0"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                        />
+                      </div>
+                      <div className="text-xs font-medium text-green-600">✓ Video ID detected successfully: {videoId}</div>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div className="rounded-md border border-red-200 p-3 bg-red-50 text-sm text-red-600">
+                      <span className="font-semibold block">Invalid YouTube URL</span>
+                      Please paste a valid YouTube video link.
+                    </div>
+                  );
+                }
+              })()}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">

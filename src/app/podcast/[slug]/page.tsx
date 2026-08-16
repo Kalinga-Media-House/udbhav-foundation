@@ -3,11 +3,10 @@ import {
   Clock,
   Calendar,
   Tv,
-  Award,
   Play,
-  Share2
+  VideoOff
 } from "lucide-react";
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -16,33 +15,14 @@ import { format } from "date-fns";
 
 import { Container } from "@/components/shared/Container";
 import { podcastRepository } from "@/features/podcasts/repository";
+import { extractYouTubeVideoId } from "@/utils/youtube";
+import { PodcastShare } from "@/components/podcast/PodcastShare";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-function isValidYouTubeUrl(url?: string): boolean {
-  if (!url || typeof url !== "string" || !url.trim()) return false;
-  try {
-    const parsed = new URL(url.trim());
-    const hostname = parsed.hostname.toLowerCase();
-    return (
-      hostname === "youtube.com" ||
-      hostname === "www.youtube.com" ||
-      hostname === "youtu.be"
-    );
-  } catch {
-    return false;
-  }
-}
-
-function extractYouTubeVideoId(url: string): string | null {
-  if (!isValidYouTubeUrl(url)) return null;
-  const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
-  return match ? match[1] : null;
-}
-
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
   const { slug } = await params;
   const result = await podcastRepository.findBySlug(slug);
   
@@ -52,9 +32,41 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
+  const podcast = result.data;
+  const title = `${podcast.title} | UDBHAV Foundation`;
+  const description = podcast.excerpt || podcast.description || "Listen to this podcast episode on UDBHAV Foundation.";
+  
+  // Try to use podcast thumbnail, otherwise fallback to parent generic og image (or nothing)
+  const imageUrl = podcast.thumbnail?.cdn_url || "https://udbhavfoundation.in/default-social.jpg";
+  const url = `https://udbhavfoundation.in/podcast/${slug}`;
+
   return {
-    title: `${result.data.title} | UDBHAV Podcast`,
-    description: result.data.excerpt || result.data.description || "Listen to this podcast episode on UDBHAV Foundation.",
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "article",
+      siteName: "UDBHAV Foundation",
+      images: [
+        {
+          url: imageUrl,
+          width: 1280,
+          height: 720,
+          alt: podcast.title,
+        }
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
+    },
   };
 }
 
@@ -69,6 +81,7 @@ export default async function PodcastEpisodePage({ params }: PageProps) {
   const podcast = result.data;
   const videoId = podcast.youtube_url ? extractYouTubeVideoId(podcast.youtube_url) : null;
   const formattedDate = podcast.release_date ? format(new Date(podcast.release_date), "MMMM d, yyyy") : "";
+  const shareDesc = podcast.excerpt || podcast.description || "Check out this podcast episode.";
 
   return (
     <div className="bg-[#F8FAF7] min-h-screen pb-24">
@@ -127,36 +140,34 @@ export default async function PodcastEpisodePage({ params }: PageProps) {
                   width="100%"
                   height="100%"
                   src={`https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`}
-                  title="YouTube video player"
+                  title={podcast.title || "YouTube video player"}
                   frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
                   className="absolute inset-0 w-full h-full"
                 ></iframe>
-              ) : podcast.thumbnail?.cdn_url ? (
-                <div className="relative w-full h-full group">
-                   <Image
-                    src={podcast.thumbnail.cdn_url}
-                    alt={podcast.title}
-                    fill
-                    className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                  />
-                  <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
-                    {podcast.youtube_url && (
-                      <a 
-                        href={podcast.youtube_url} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="bg-[#4FAF32] text-white rounded-full p-6 shadow-lg shadow-[#4FAF32]/40 hover:scale-110 transition-transform"
-                      >
-                        <Play className="h-8 w-8 fill-current ml-1" />
-                      </a>
-                    )}
-                  </div>
-                </div>
               ) : (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
-                  <Play className="h-16 w-16 text-[#4FAF32] opacity-30" />
+                <div className="relative w-full h-full flex flex-col items-center justify-center text-center group">
+                  {podcast.thumbnail?.cdn_url && (
+                    <>
+                      <Image
+                        src={podcast.thumbnail.cdn_url}
+                        alt={podcast.title}
+                        fill
+                        className="object-cover opacity-30 group-hover:opacity-40 transition-opacity"
+                      />
+                      <div className="absolute inset-0 bg-black/60" />
+                    </>
+                  )}
+                  <div className="relative z-10 flex flex-col items-center p-6">
+                    <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mb-4">
+                      <VideoOff className="h-8 w-8 text-white/80" />
+                    </div>
+                    <h3 className="text-xl font-heading font-bold text-white mb-2">Video coming soon</h3>
+                    <p className="text-white/70 text-sm max-w-sm">
+                      This podcast episode is available, but its video has not been added yet.
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
@@ -168,7 +179,7 @@ export default async function PodcastEpisodePage({ params }: PageProps) {
                 {podcast.description ? (
                   <p className="whitespace-pre-wrap">{podcast.description}</p>
                 ) : (
-                  <p>{podcast.excerpt}</p>
+                  <p className="whitespace-pre-wrap">{podcast.excerpt}</p>
                 )}
               </div>
             </div>
@@ -177,33 +188,44 @@ export default async function PodcastEpisodePage({ params }: PageProps) {
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-8">
             
-            {/* Quick Actions */}
+            {/* Listen & Share */}
             <div className="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100">
-              <h3 className="text-lg font-heading font-bold text-[#20256F] mb-6">Listen & Share</h3>
-              <div className="flex flex-col gap-4">
-                {podcast.youtube_url && !videoId && (
-                   <a 
+              <h3 className="text-lg font-heading font-bold text-[#20256F] mb-2">Listen & Share</h3>
+              <p className="text-gray-500 text-sm mb-6">Share this episode with your community.</p>
+              
+              <PodcastShare 
+                title={podcast.title} 
+                description={shareDesc} 
+                slug={podcast.slug} 
+              />
+              
+              {/* Optional external platform links could go below */}
+              {podcast.youtube_url && !videoId && (
+                <div className="mt-6 pt-6 border-t border-gray-100">
+                  <a 
                     href={podcast.youtube_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center w-full px-6 py-3.5 bg-[#FF0000]/10 hover:bg-[#FF0000]/20 text-[#FF0000] rounded-xl font-bold transition-colors"
+                    className="flex items-center justify-center w-full px-6 py-3 bg-[#FF0000]/10 hover:bg-[#FF0000]/20 text-[#FF0000] rounded-xl font-semibold transition-colors text-sm"
                   >
-                    <Tv className="h-5 w-5 mr-2" />
+                    <Tv className="h-4 w-4 mr-2" />
                     Watch on YouTube
                   </a>
-                )}
-                {podcast.audio_url && (
+                </div>
+              )}
+              {podcast.audio_url && (
+                <div className="mt-4">
                   <a 
                     href={podcast.audio_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-center w-full px-6 py-3.5 bg-[#4FAF32] hover:bg-[#3E8B28] text-white rounded-xl font-bold transition-colors shadow-sm"
+                    className="flex items-center justify-center w-full px-6 py-3 bg-[#4FAF32]/10 hover:bg-[#4FAF32]/20 text-[#4FAF32] rounded-xl font-semibold transition-colors text-sm"
                   >
-                    <Play className="h-5 w-5 mr-2 fill-current" />
+                    <Play className="h-4 w-4 mr-2 fill-current" />
                     Listen to Audio
                   </a>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Tags/Topics */}
