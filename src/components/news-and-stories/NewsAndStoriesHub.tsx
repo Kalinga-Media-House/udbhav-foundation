@@ -3,13 +3,13 @@
 import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, ChevronDown, Clock, MapPin, Play, Calendar, ArrowRight } from 'lucide-react';
+import { Search, ChevronDown, Clock, MapPin, Play, ArrowRight } from 'lucide-react';
 import { getEventLifecycle } from '@/features/news/utils';
 import { format } from 'date-fns';
 
 import { Container } from '@/components/shared/Container';
 import { ArticleWithMedia } from '@/features/news/repository';
-import { UpcomingEventItem, PodcastEpisodeItem } from '@/types/news';
+import { PodcastEpisodeItem } from '@/types/news';
 
 type TabType = 'All' | 'News & Stories' | 'Upcoming Events' | 'Past Events' | 'Podcast';
 type SortType = 'newest' | 'oldest';
@@ -91,16 +91,7 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
     return baseSearchedArticles.filter(a => a.category !== 'Event');
   }, [baseSearchedArticles]);
 
-  // 4. Determine featured article (can be news or event)
-  const featuredArticle = useMemo(() => {
-    if (activeTab !== 'All') return undefined; // Only feature an article on the All tab
-    return baseSearchedArticles.find(a => a.is_featured) || baseSearchedArticles[0];
-  }, [baseSearchedArticles, activeTab]);
-
-  const regularNewsAndStories = filteredNewsAndStories.filter(a => a.id !== featuredArticle?.id);
-  const filteredUpcomingEvents = upcomingEvents.filter(a => a.id !== featuredArticle?.id);
-  const filteredPastEvents = pastEvents.filter(a => a.id !== featuredArticle?.id);
-
+  // 4. Filter Podcasts
   const filteredPodcasts = useMemo(() => {
     return podcasts.filter((p) => {
       const query = searchQuery.toLowerCase();
@@ -119,36 +110,36 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
   const showPodcast = activeTab === 'All' || activeTab === 'Podcast';
 
   return (
-    <div className="bg-pure-white w-full pb-20">
+    <div className="bg-[#FFFFFF] w-full pb-24">
       {/* 1. PAGE HEADER */}
-      <section className="bg-pure-white pt-16 pb-8 border-b border-soft-border/40">
+      <section className="bg-[#FFFFFF] pt-16 pb-8">
         <Container>
           <div className="max-w-3xl">
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-udbhav-blue-deep tracking-tight mb-4">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-bold text-[#20256F] tracking-tight mb-4">
               Stories, Updates & Events
             </h1>
-            <p className="text-text-secondary text-base sm:text-lg leading-relaxed max-w-2xl">
-              Stay connected with UDBHAV Foundation through our latest stories, community initiatives, events and updates.
+            <p className="text-[#667085] text-base sm:text-lg leading-relaxed max-w-2xl">
+              Stay connected with UDBHAV Foundation through community initiatives, upcoming events, stories and updates.
             </p>
           </div>
         </Container>
       </section>
 
       {/* 2. NAVIGATION & CONTROLS */}
-      <section className="sticky top-0 z-40 bg-pure-white/95 backdrop-blur-md border-b border-soft-border/50 py-4 shadow-sm">
+      <section className="sticky top-0 z-40 bg-[#FFFFFF]/95 backdrop-blur-md border-b border-gray-200 py-4 mb-10">
         <Container>
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
             
-            {/* Category Tabs */}
-            <div className="flex items-center gap-1 overflow-x-auto scrollbar-none pb-2 lg:pb-0 -mx-4 px-4 lg:mx-0 lg:px-0" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
+            {/* Category Tabs (Editorial Style) */}
+            <div className="flex items-center gap-6 overflow-x-auto scrollbar-none pb-2 lg:pb-0 -mx-4 px-4 lg:mx-0 lg:px-0" style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}>
               {(['All', 'News & Stories', 'Upcoming Events', 'Past Events', 'Podcast'] as TabType[]).map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-semibold transition-colors shrink-0 ${
+                  className={`whitespace-nowrap pb-1 text-sm font-semibold transition-all shrink-0 border-b-2 ${
                     activeTab === tab
-                      ? 'bg-[#EEF8E9] text-[#439B25]'
-                      : 'bg-transparent text-gray-500 hover:text-udbhav-blue-deep hover:bg-gray-50'
+                      ? 'text-[#4FAF32] border-[#4FAF32]'
+                      : 'text-[#667085] border-transparent hover:text-[#20256F]'
                   }`}
                 >
                   {tab}
@@ -157,7 +148,7 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
             </div>
 
             {/* Search & Sort */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 shrink-0">
               <div className="relative flex-1 sm:flex-none">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <Search className="h-4 w-4 text-gray-400" />
@@ -167,7 +158,7 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
                   placeholder="Search stories, events..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="block w-full sm:w-[280px] pl-10 pr-3 py-2 border border-gray-200 rounded-lg text-sm bg-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-[#439B25] focus:border-[#439B25] transition-colors"
+                  className="block w-full sm:w-[280px] pl-9 pr-3 py-2 border-b border-gray-200 text-sm bg-transparent placeholder-gray-400 focus:outline-none focus:border-[#4FAF32] transition-colors"
                 />
               </div>
 
@@ -176,7 +167,7 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
                   <select
                     value={sortOrder}
                     onChange={(e) => setSortOrder(e.target.value as SortType)}
-                    className="block w-full pl-3 pr-8 py-2 text-sm border border-gray-200 rounded-lg bg-white text-gray-700 focus:outline-none focus:ring-1 focus:ring-[#439B25] focus:border-[#439B25] appearance-none cursor-pointer transition-colors"
+                    className="block w-full pl-3 pr-8 py-2 text-sm border-b border-gray-200 bg-transparent text-[#182033] focus:outline-none focus:border-[#4FAF32] appearance-none cursor-pointer transition-colors"
                   >
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
@@ -191,156 +182,75 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
         </Container>
       </section>
 
-      <div className="py-10 space-y-16">
+      <div className="space-y-20">
         
-        {/* 3. FEATURED STORY */}
-        {showStories && featuredArticle && !searchQuery && activeTab === 'All' && (
-          <Container>
-            <div className="border border-gray-200 rounded-xl overflow-hidden bg-white">
-              <div className="flex flex-col lg:flex-row">
-                <div className="relative w-full lg:w-[55%] h-64 sm:h-80 lg:h-auto overflow-hidden bg-gray-100 shrink-0">
-                  <Image
-                    src={featuredArticle.cover_image?.cdn_url || '/placeholder-image.jpg'}
-                    alt={featuredArticle.title}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 55vw"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="p-6 sm:p-10 flex flex-col justify-center w-full lg:w-[45%]">
-                  <span className="text-[#439B25] text-xs font-bold uppercase tracking-wider mb-3">
-                    FEATURED {featuredArticle.category === 'Event' ? 'EVENT' : 'STORY'}
-                  </span>
-                  <h2 className="text-2xl sm:text-3xl font-heading font-bold text-udbhav-blue-deep mb-4 hover:text-[#439B25] transition-colors">
-                    <Link href={`/news-and-stories/${featuredArticle.slug}`}>
-                      {featuredArticle.title}
-                    </Link>
-                  </h2>
-                  <p className="text-gray-600 text-sm sm:text-base mb-6 line-clamp-3">
-                    {featuredArticle.summary}
-                  </p>
-                  <div className="flex items-center justify-between mt-auto pt-6 border-t border-gray-100">
-                    <span className="text-xs text-gray-500 font-medium">{formatDate(featuredArticle.published_at || featuredArticle.created_at)}</span>
-                    <Link href={`/news-and-stories/${featuredArticle.slug}`} className="inline-flex items-center text-[#439B25] font-semibold text-sm hover:text-[#317a19] transition-colors">
-                      Read Story <ArrowRight className="h-4 w-4 ml-1" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Container>
-        )}
-
-        {/* 4. LATEST STORIES */}
-        {showStories && (
-          <Container>
-            {activeTab !== 'News & Stories' && <h3 className="text-2xl font-heading font-bold text-udbhav-blue-deep mb-6">Latest Stories</h3>}
-            {regularNewsAndStories.length > 0 ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {regularNewsAndStories.map((article) => (
-                  <div key={article.id} className="flex flex-col sm:flex-row gap-5 border-b border-gray-100 pb-6 last:border-0 last:pb-0">
-                    <div className="relative w-full sm:w-[240px] h-[160px] sm:h-auto shrink-0 bg-gray-100 rounded-xl overflow-hidden">
-                      <Image
-                        src={article.cover_image?.cdn_url || '/placeholder-image.jpg'}
-                        alt={article.title}
-                        fill
-                        sizes="(max-width: 640px) 100vw, 240px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div className="flex flex-col flex-1 py-1">
-                      <div className="mb-2">
-                        <span className="text-xs font-bold uppercase tracking-wider text-[#439B25]">
-                          {article.category || 'Update'}
-                        </span>
-                      </div>
-                      <h4 className="text-lg font-heading font-bold text-udbhav-blue-deep mb-2 line-clamp-2 hover:text-[#439B25] transition-colors">
-                        <Link href={`/news-and-stories/${article.slug}`}>
-                          {article.title}
-                        </Link>
-                      </h4>
-                      <p className="text-gray-600 text-sm line-clamp-2 mb-3">
-                        {article.summary}
-                      </p>
-                      <div className="mt-auto flex items-center justify-between text-sm text-gray-500">
-                        <span>{formatDate(article.published_at || article.created_at)}</span>
-                        <Link href={`/news-and-stories/${article.slug}`} className="font-semibold text-[#439B25] hover:text-[#317a19] transition-colors">
-                          Read Story <ArrowRight className="h-3.5 w-3.5 inline-block ml-0.5" />
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-16">
-                <p className="text-center text-gray-500 text-lg">No stories found.</p>
-                <p className="text-center text-gray-400 mt-2">Try changing your search or filter.</p>
-              </div>
-            )}
-          </Container>
-        )}
-
-        {/* 5. UPCOMING EVENTS */}
+        {/* 3. UPCOMING EVENTS (HIGHEST PRIORITY) */}
         {showUpcomingEvents && (
           <Container>
-            <div className="flex items-end justify-between mb-6">
-              <h3 className="text-2xl font-heading font-bold text-udbhav-blue-deep">Upcoming Events</h3>
+            <div className="mb-8 border-b border-gray-200 pb-4">
+              <span className="text-[#4FAF32] text-xs font-bold uppercase tracking-widest block mb-2">WHAT'S COMING UP</span>
+              <h3 className="text-3xl font-heading font-bold text-[#20256F]">Upcoming Events</h3>
+              <p className="text-[#667085] mt-2">Join us in the next chapter of community action.</p>
             </div>
             
-            {filteredUpcomingEvents.length > 0 ? (
+            {upcomingEvents.length > 0 ? (
               <div className="flex flex-col">
-                {filteredUpcomingEvents.map((event) => {
+                {upcomingEvents.map((event) => {
                   const evtDate = new Date(event.event_date || event.published_at || event.created_at);
                   const day = evtDate.getDate().toString().padStart(2, '0');
                   const month = evtDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
                   
                   return (
-                  <div key={event.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 py-6 border-b border-gray-100 last:border-0">
-                    <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
-                      <div className="flex flex-col items-center justify-center min-w-[50px] shrink-0">
-                        <span className="font-heading text-2xl font-bold leading-none text-udbhav-blue-deep">
+                  <div key={event.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-6 sm:gap-8 py-8 border-b border-gray-100 last:border-0">
+                    <div className="flex items-center gap-6 sm:gap-8 w-full sm:w-auto">
+                      <div className="flex flex-col items-center justify-center min-w-[60px] shrink-0 text-center">
+                        <span className="font-heading text-4xl font-bold leading-none text-[#20256F]">
                           {day}
                         </span>
-                        <span className="text-xs font-bold uppercase tracking-widest text-[#439B25] mt-1">
+                        <span className="text-sm font-bold uppercase tracking-widest text-[#4FAF32] mt-1">
                           {month}
                         </span>
                       </div>
-                      <div className="relative w-24 h-16 sm:w-32 sm:h-20 shrink-0 rounded-lg overflow-hidden bg-gray-100">
+                      <div className="relative w-full sm:w-[220px] h-[135px] shrink-0 rounded-[8px] overflow-hidden bg-gray-100">
                         <Image
                           src={event.cover_image?.cdn_url || '/placeholder-image.jpg'}
                           alt={event.title}
                           fill
-                          sizes="(max-width: 640px) 96px, 128px"
+                          sizes="(max-width: 640px) 100vw, 220px"
                           className="object-cover"
                         />
                       </div>
                     </div>
                     
-                    <div className="flex flex-col flex-1 min-w-0">
-                      <h4 className="text-lg font-heading font-bold text-udbhav-blue-deep mb-1 truncate">
-                        {event.title}
+                    <div className="flex flex-col flex-1 min-w-0 mt-4 sm:mt-0">
+                      <span className="text-[#4FAF32] text-xs font-bold uppercase tracking-wider mb-2">
+                        EVENT
+                      </span>
+                      <h4 className="text-2xl font-heading font-bold text-[#182033] mb-2 hover:text-[#4FAF32] transition-colors">
+                        <Link href={`/news-and-stories/${event.slug}`}>
+                          {event.title}
+                        </Link>
                       </h4>
-                      <p className="text-gray-600 text-sm truncate mb-2">
+                      <p className="text-[#667085] text-sm mb-4 line-clamp-2">
                         {event.summary}
                       </p>
-                      <div className="flex items-center gap-3 text-xs text-gray-500">
-                        <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{event.event_location || 'TBA'}</span>
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5" />
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm text-[#667085]">
+                        <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4 text-[#20256F]" />{event.event_location || 'TBA'}</span>
+                        <span className="flex items-center gap-1.5">
+                          <Clock className="h-4 w-4 text-[#20256F]" />
                           {event.event_start_time ? new Date(`1970-01-01T${event.event_start_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'TBA'}
                           {event.event_end_time && ` – ${new Date(`1970-01-01T${event.event_end_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 mt-4 sm:mt-0 shrink-0 w-full sm:w-auto">
-                      <Link href={`/news-and-stories/${event.slug}`} className="text-sm font-semibold text-gray-600 hover:text-udbhav-blue-deep transition-colors">
+                    <div className="flex items-center gap-4 mt-6 sm:mt-0 shrink-0 w-full sm:w-auto self-start sm:self-center">
+                      <Link href={`/news-and-stories/${event.slug}`} className="text-sm font-semibold text-[#182033] hover:text-[#4FAF32] transition-colors">
                         Details &rarr;
                       </Link>
                       {event.registration_url && (
-                        <Link href={event.registration_url} className="text-sm font-semibold text-[#439B25] hover:text-[#317a19] transition-colors ml-2" target="_blank">
-                          Register
+                        <Link href={event.registration_url} className="text-sm font-semibold text-[#4FAF32] hover:text-[#317a19] transition-colors" target="_blank">
+                          Register &rarr;
                         </Link>
                       )}
                     </div>
@@ -349,50 +259,104 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
                 })}
               </div>
             ) : (
-              <div className="py-16 text-center">
-                <p className="text-gray-500 text-lg">No upcoming events found.</p>
-                <p className="text-gray-400 mt-2">Try changing your search or filter.</p>
+              <div className="py-8">
+                <p className="text-[#667085] text-base">No upcoming events at the moment.</p>
+                <p className="text-[#667085] text-sm mt-1">Check back soon for our next community initiative.</p>
               </div>
             )}
           </Container>
         )}
 
-        {/* PAST EVENTS */}
-        {showPastEvents && activeTab === 'Past Events' && (
+        {/* 4. LATEST NEWS & STORIES */}
+        {showStories && (
           <Container>
-            <h3 className="text-2xl font-heading font-bold text-udbhav-blue-deep mb-6">Past Events</h3>
-            {filteredPastEvents.length > 0 ? (
-              <div className="flex flex-col">
-                {filteredPastEvents.map((event) => {
-                  const evtDate = new Date(event.event_date || event.published_at || event.created_at);
-                  const formattedDate = evtDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-                  return (
-                  <div key={event.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 py-4 border-b border-gray-100 last:border-0 opacity-80 hover:opacity-100 transition-opacity">
-                    <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
-                      <div className="relative w-20 h-14 sm:w-28 sm:h-16 shrink-0 rounded-lg overflow-hidden bg-gray-100 grayscale-[0.3]">
-                        <Image
-                          src={event.cover_image?.cdn_url || '/placeholder-image.jpg'}
-                          alt={event.title}
-                          fill
-                          sizes="(max-width: 640px) 80px, 112px"
-                          className="object-cover"
-                        />
+            <div className="mb-8 border-b border-gray-200 pb-4">
+              <h3 className="text-3xl font-heading font-bold text-[#20256F]">Latest News & Stories</h3>
+            </div>
+            
+            {filteredNewsAndStories.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-10">
+                {filteredNewsAndStories.map((article) => (
+                  <div key={article.id} className="flex flex-col sm:flex-row gap-6 border-b border-gray-100 pb-8 last:border-0 last:pb-0">
+                    <div className="relative w-full sm:w-[250px] h-[160px] shrink-0 bg-gray-100 rounded-[8px] overflow-hidden">
+                      <Image
+                        src={article.cover_image?.cdn_url || '/placeholder-image.jpg'}
+                        alt={article.title}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 250px"
+                        className="object-cover transition-transform duration-500 hover:scale-105"
+                      />
+                    </div>
+                    <div className="flex flex-col flex-1">
+                      <div className="mb-2">
+                        {article.is_featured ? (
+                          <span className="text-xs font-bold uppercase tracking-wider text-[#20256F] bg-[#F7F9F5] px-2 py-1 rounded">
+                            FEATURED
+                          </span>
+                        ) : (
+                          <span className="text-[#4FAF32] text-xs font-bold uppercase tracking-wider">
+                            {article.category || 'Update'}
+                          </span>
+                        )}
                       </div>
+                      <h4 className={`font-heading font-bold text-[#182033] mb-2 line-clamp-2 hover:text-[#4FAF32] transition-colors ${article.is_featured ? 'text-xl' : 'text-lg'}`}>
+                        <Link href={`/news-and-stories/${article.slug}`}>
+                          {article.title}
+                        </Link>
+                      </h4>
+                      <p className="text-[#667085] text-sm line-clamp-2 mb-4">
+                        {article.summary}
+                      </p>
+                      <div className="mt-auto flex items-center justify-between text-sm">
+                        <span className="text-[#667085]">{formatDate(article.published_at || article.created_at)}</span>
+                        <Link href={`/news-and-stories/${article.slug}`} className="font-semibold text-[#182033] hover:text-[#4FAF32] transition-colors">
+                          Read Story &rarr;
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="py-8">
+                <p className="text-[#667085] text-base">No stories found.</p>
+                <p className="text-[#667085] text-sm mt-1">Try changing your search or filter.</p>
+              </div>
+            )}
+          </Container>
+        )}
+
+        {/* 5. PAST EVENTS */}
+        {showPastEvents && (
+          <Container>
+            <div className="mb-8 border-b border-gray-200 pb-4">
+              <h3 className="text-2xl font-heading font-bold text-[#20256F]">Past Events</h3>
+            </div>
+            
+            {pastEvents.length > 0 ? (
+              <div className="flex flex-col">
+                {pastEvents.map((event) => {
+                  const evtDate = new Date(event.event_date || event.published_at || event.created_at);
+                  const formattedDate = evtDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+                  
+                  return (
+                  <div key={event.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-6 py-6 border-b border-gray-100 last:border-0 opacity-80 hover:opacity-100 transition-opacity">
+                    <div className="w-full sm:w-32 shrink-0">
+                      <span className="text-sm font-bold text-[#667085]">{formattedDate}</span>
                     </div>
                     
                     <div className="flex flex-col flex-1 min-w-0">
-                      <h4 className="text-base font-heading font-bold text-gray-700 mb-1 truncate">
-                        {event.title}
+                      <h4 className="text-lg font-heading font-bold text-[#182033] mb-1 truncate">
+                        <Link href={`/news-and-stories/${event.slug}`} className="hover:text-[#4FAF32] transition-colors">
+                          {event.title}
+                        </Link>
                       </h4>
-                      <div className="flex items-center gap-3 text-xs text-gray-500">
-                        <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{formattedDate}</span>
-                        {event.event_location && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{event.event_location}</span>}
-                      </div>
+                      <p className="text-sm text-[#667085] line-clamp-1">{event.summary}</p>
                     </div>
 
-                    <div className="mt-4 sm:mt-0 shrink-0 w-full sm:w-auto">
-                      <Link href={`/news-and-stories/${event.slug}`} className="text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors">
-                        View Recap &rarr;
+                    <div className="mt-2 sm:mt-0 shrink-0">
+                      <Link href={`/news-and-stories/${event.slug}`} className="text-sm font-semibold text-[#182033] hover:text-[#4FAF32] transition-colors">
+                        View Details &rarr;
                       </Link>
                     </div>
                   </div>
@@ -400,58 +364,60 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
                 })}
               </div>
             ) : (
-              <div className="py-16 text-center">
-                <p className="text-gray-500 text-lg">No past events found.</p>
-                <p className="text-gray-400 mt-2">Try changing your search or filter.</p>
+              <div className="py-8">
+                <p className="text-[#667085] text-base">No past events found.</p>
               </div>
             )}
           </Container>
         )}
 
-        {/* 6. PODCAST SECTION */}
+        {/* 6. UDBHAV PODCAST */}
         {showPodcast && (
           <Container>
-            <div className="bg-[#12245F] rounded-2xl p-6 sm:p-8 lg:p-10 shadow-lg relative overflow-hidden">
-              <div className="absolute right-0 top-0 h-full w-1/2 bg-gradient-to-l from-[#439B25]/10 to-transparent pointer-events-none" />
-              
-              <div className="relative z-10 flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
+            <div className="bg-[#F7F9F5] rounded-[8px] p-8 lg:p-12 mb-10">
+              <div className="flex flex-col lg:flex-row gap-12 items-start">
                 <div className="lg:w-1/3">
-                  <h3 className="text-2xl sm:text-3xl font-heading font-bold text-white mb-3">
-                    UDBHAV Podcast
-                  </h3>
-                  <p className="text-white/80 text-sm mb-6">
+                  <span className="text-[#4FAF32] text-xs font-bold uppercase tracking-widest block mb-2">UDBHAV PODCAST</span>
+                  <h3 className="text-3xl font-heading font-bold text-[#20256F] mb-4">
                     Listen to conversations, ideas and stories from the UDBHAV community.
-                  </p>
-                  <a href="https://youtube.com" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
-                    Official Channel <ArrowRight className="h-4 w-4" />
+                  </h3>
+                  <a href="https://youtube.com" target="_blank" rel="noreferrer" className="inline-flex items-center text-[#182033] font-semibold hover:text-[#4FAF32] transition-colors">
+                    Official Channel &rarr;
                   </a>
                 </div>
                 
                 <div className="lg:w-2/3 w-full">
                   {filteredPodcasts.length > 0 ? (
-                    <div className="flex flex-col gap-4">
+                    <div className="flex flex-col border-t border-gray-200">
                       {filteredPodcasts.slice(0, activeTab === 'Podcast' ? 10 : 3).map((ep) => (
-                        <Link key={ep.id} href={`/news-and-stories/podcast/${ep.slug}`} className="group flex flex-col sm:flex-row bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl overflow-hidden transition-colors">
-                          <div className="relative w-full sm:w-48 h-32 sm:h-auto shrink-0 bg-black/40">
-                            <Image src={ep.thumbnailUrl} alt={ep.title} fill className="object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="h-10 w-10 bg-[#439B25] rounded-full flex items-center justify-center text-white shadow-lg transform group-hover:scale-110 transition-transform">
-                                <Play className="h-4 w-4 fill-current ml-0.5" />
+                        <div key={ep.id} className="group flex flex-col sm:flex-row gap-6 py-6 border-b border-gray-200 transition-colors">
+                          <div className="flex flex-col flex-1 justify-center">
+                            <span className="text-[#667085] text-xs font-bold uppercase mb-2">EPISODE {ep.episodeNumber} • {ep.releaseDate}</span>
+                            <h4 className="text-xl font-heading font-bold text-[#182033] line-clamp-2 mb-2 group-hover:text-[#4FAF32] transition-colors">
+                              <Link href={`/news-and-stories/podcast/${ep.slug}`}>
+                                {ep.title}
+                              </Link>
+                            </h4>
+                            <p className="text-[#667085] text-sm line-clamp-2 mb-4">{ep.description}</p>
+                            <Link href={`/news-and-stories/podcast/${ep.slug}`} className="inline-flex items-center text-[#182033] font-semibold text-sm hover:text-[#4FAF32] transition-colors">
+                              Listen <ArrowRight className="h-4 w-4 ml-1" />
+                            </Link>
+                          </div>
+                          <div className="relative w-full sm:w-[200px] h-[120px] shrink-0 rounded-[8px] overflow-hidden bg-gray-100 self-start">
+                            <Image src={ep.thumbnailUrl} alt={ep.title} fill className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <div className="h-10 w-10 bg-white/90 rounded-full flex items-center justify-center shadow-sm">
+                                <Play className="h-4 w-4 text-[#20256F] fill-current ml-0.5" />
                               </div>
                             </div>
                           </div>
-                          <div className="p-4 flex flex-col justify-center flex-1">
-                            <span className="text-[#439B25] text-[10px] font-bold uppercase mb-1">{ep.episodeNumber} • {ep.releaseDate}</span>
-                            <h4 className="text-white font-heading font-bold text-sm sm:text-base line-clamp-2 mb-1 group-hover:text-[#439B25] transition-colors">{ep.title}</h4>
-                            <p className="text-white/60 text-xs line-clamp-1">Guest: {ep.guest.fullName} - {ep.guest.role}</p>
-                          </div>
-                        </Link>
+                        </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8">
-                      <p className="text-white/70 text-base">No podcast episodes found.</p>
-                      <p className="text-white/50 text-sm mt-1">Try changing your search or filter.</p>
+                    <div className="py-8">
+                      <p className="text-[#667085] text-base">No podcast episodes available yet.</p>
+                      <Link href="https://youtube.com" className="text-sm font-semibold text-[#182033] mt-2 block hover:text-[#4FAF32]">Official Channel &rarr;</Link>
                     </div>
                   )}
                 </div>
