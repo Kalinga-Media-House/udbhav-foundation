@@ -2,22 +2,20 @@ import {
   Calendar,
   Clock,
   ArrowLeft,
-  BookOpen,
-  FolderOpen,
-  CalendarDays,
   ArrowRight,
   ExternalLink,
+  MapPin,
 } from 'lucide-react';
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import React from 'react';
+import { format } from 'date-fns';
 
 import { Container } from '@/components/shared/Container';
-import { listEvents } from '@/features/events/actions';
 import { getArticleBySlug, listPublicArticles } from '@/features/news/actions';
-import { listPrograms } from '@/features/programs/actions';
+import { ArticleInteractions } from '@/components/news-and-stories/ArticleInteractions';
 
 export const dynamic = 'force-dynamic';
 
@@ -77,33 +75,20 @@ export default async function NewsArticlePage({ params }: PageProps) {
   }
 
   const article = articleResult.data;
+  const isEvent = article.category === 'Event';
 
-  // Fetch related content (Articles, Programs, Events)
-  const [articlesResult, programsResult, eventsResult] = await Promise.all([
-    listPublicArticles({ page: 1, limit: 6 }, { category: article.category }),
-    listPrograms({ page: 1, limit: 3 }),
-    listEvents({ page: 1, limit: 3 }),
-  ]);
+  // Fetch related content (Articles only now, no programmes)
+  const articlesResult = await listPublicArticles({ page: 1, limit: 4 }, { category: article.category });
 
   const relatedArticles =
     articlesResult.success && articlesResult.data
       ? articlesResult.data.data.filter((a) => a.id !== article.id).slice(0, 3)
       : [];
 
-  const relatedPrograms =
-    programsResult.success && programsResult.data
-      ? programsResult.data.data.slice(0, 3)
-      : [];
-
-  const relatedEvents =
-    eventsResult.success && eventsResult.data
-      ? eventsResult.data.data.slice(0, 3)
-      : [];
-
   // Generate Article JSON-LD Schema
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'NewsArticle',
+    '@type': isEvent ? 'Event' : 'NewsArticle',
     headline: article.title,
     description: article.summary || article.subtitle || '',
     image: article.cover_image?.cdn_url ? [article.cover_image.cdn_url] : [],
@@ -118,379 +103,216 @@ export default async function NewsArticlePage({ params }: PageProps) {
       name: 'UDBHAV Foundation',
       url: 'https://udbhavfoundation.org',
     },
+    ...(isEvent && article.event_date ? {
+      startDate: `${article.event_date}T${article.event_start_time || '00:00:00'}`,
+      endDate: `${article.event_date}T${article.event_end_time || '23:59:59'}`,
+      location: {
+        '@type': 'Place',
+        name: article.event_location || 'TBA',
+        address: article.event_address || undefined
+      }
+    } : {})
   };
 
+  const publishDate = article.published_at 
+    ? format(new Date(article.published_at), 'dd MMMM yyyy')
+    : format(new Date(article.created_at), 'dd MMMM yyyy');
+
   return (
-    <main className="min-h-screen py-12 sm:py-16 md:py-20 bg-pure-white">
+    <main className="min-h-screen bg-[#F8FAF7] pb-16 md:pb-24 overflow-hidden relative">
       {/* Inject Article JSON-LD */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
+      <ArticleInteractions title={article.title} slug={article.slug} />
+
       <Container>
-        {/* Back Navigation */}
-        <div className="mb-8">
-          <Link
-            href="/news-and-stories"
-            className="inline-flex items-center gap-2 text-sm font-heading font-semibold text-[#12245F] hover:text-[#439B25] transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to News & Stories
-          </Link>
-        </div>
-
-        {/* Article Header */}
-        <div className="max-w-4xl mx-auto mb-8 sm:mb-10">
-          <div className="flex flex-wrap items-center gap-3 mb-4">
-            <span
-              className="px-3.5 py-1 rounded-full text-xs font-heading font-bold uppercase tracking-wider text-white"
-              style={{ background: '#439B25' }}
-            >
-              {article.category || 'News'}
-            </span>
-
-            {article.is_featured && (
-              <span className="px-3 py-1 rounded-full text-xs font-heading font-bold bg-amber-100 text-amber-800">
-                Featured
-              </span>
-            )}
-          </div>
-
-          <h1
-            className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight leading-tight mb-5"
-            style={{ color: '#12245F' }}
-          >
-            {article.title}
-          </h1>
-
-          {article.subtitle && (
-            <p className="text-lg sm:text-xl text-gray-600 italic mb-4">
-              {article.subtitle}
-            </p>
-          )}
-
-          {/* Meta Info Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-4 py-4 border-y border-soft-border/40 text-xs sm:text-sm text-[#5E6B63]">
-            <div className="flex flex-wrap items-center gap-5">
-              <span className="font-semibold text-[#12245F]">
-                By {article.author_name || 'UDBHAV Foundation'}
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Calendar className="w-4 h-4 text-[#439B25]" />
-                {article.published_at
-                  ? new Date(article.published_at).toLocaleDateString('en-IN', {
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric',
-                    })
-                  : new Date(article.created_at).toLocaleDateString('en-IN')}
-              </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Clock className="w-4 h-4 text-[#439B25]" />
-                {article.reading_time || 1} min read
-              </span>
-            </div>
-
+        {/* Editorial Layout Wrapper */}
+        <div className="max-w-[800px] mx-auto pt-10 md:pt-16">
+          
+          {/* Header Section */}
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both">
             <Link
-              href="/volunteers"
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#EEF8E9] text-[#439B25] font-heading text-xs font-bold hover:bg-[#E5F4DF] transition-colors"
+              href="/news-and-stories"
+              className="group inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-[#4FAF32] transition-colors mb-6 md:mb-8"
             >
-              Volunteer With UDBHAV
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              Back to News & Stories
             </Link>
-          </div>
-        </div>
 
-        {/* Hero Cover Image */}
-        {article.cover_image?.cdn_url && (
-          <div className="max-w-4xl mx-auto mb-10 sm:mb-12">
-            <div className="relative h-64 sm:h-96 md:h-110 w-full rounded-3xl overflow-hidden shadow-lg border border-[#12245F]/10 bg-[#EAF3FF]">
-              <Image
-                src={article.cover_image.cdn_url}
-                alt={article.cover_image.alt_text || article.title}
-                fill
-                sizes="(max-width: 1024px) 100vw, 900px"
-                className="object-cover"
-                priority
-              />
+            <div className="mb-4">
+              <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-widest text-[#4FAF32] border border-[#4FAF32]/30 bg-[#4FAF32]/5">
+                {article.category || 'News'}
+              </span>
             </div>
-            {article.cover_image.caption && (
-              <p className="text-xs text-center text-gray-500 mt-2 italic">
-                {article.cover_image.caption}
+
+            <h1 className="text-3xl md:text-[40px] lg:text-[48px] leading-[1.15] font-heading font-bold text-[#20256F] mb-6">
+              {article.title}
+            </h1>
+
+            {article.subtitle && (
+              <p className="text-lg md:text-xl text-gray-500 mb-6 font-medium">
+                {article.subtitle}
               </p>
             )}
-          </div>
-        )}
 
-        {/* Event Information Box (Only if Category === 'Event') */}
-        {article.category === 'Event' && article.event_date && (
-          <div className="max-w-3xl mx-auto mb-8 p-6 rounded-2xl bg-[#EEF8E9] border border-[#439B25]/20 shadow-sm">
-            <h3 className="text-xl font-heading font-bold text-udbhav-blue-deep mb-4">Event Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1">
-                <span className="text-sm font-semibold text-gray-500 uppercase">Date</span>
-                <span className="text-base text-gray-800 font-medium">
-                  {new Date(article.event_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-sm font-semibold text-gray-500 uppercase">Time</span>
-                <span className="text-base text-gray-800 font-medium">
-                  {article.event_start_time ? new Date(`1970-01-01T${article.event_start_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'TBA'}
-                  {article.event_end_time && ` - ${new Date(`1970-01-01T${article.event_end_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`}
-                </span>
-              </div>
-              <div className="flex flex-col gap-1 md:col-span-2">
-                <span className="text-sm font-semibold text-gray-500 uppercase">Location</span>
-                <span className="text-base text-gray-800 font-medium">
-                  {article.event_location || 'TBA'}
-                </span>
-                {article.event_address && (
-                  <span className="text-sm text-gray-600 mt-1">{article.event_address}</span>
-                )}
-              </div>
+            <div className="flex flex-wrap items-center gap-2 text-sm text-gray-500 mb-8 md:mb-12 font-medium">
+              <span>By <span className="text-[#20256F] font-semibold">{article.author_name || 'UDBHAV Foundation'}</span></span>
+              <span>·</span>
+              <span>{publishDate}</span>
+              <span>·</span>
+              <span>{article.reading_time || 1} min read</span>
             </div>
-            {article.registration_url && (
-              <div className="mt-6 pt-4 border-t border-[#439B25]/20">
-                <Link
-                  href={article.registration_url}
-                  target="_blank"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#439B25] text-white font-heading font-bold hover:bg-[#317a19] transition-colors"
-                >
-                  Register Now <ExternalLink className="h-4 w-4" />
-                </Link>
+          </div>
+
+          {/* Hero Image */}
+          {article.cover_image?.cdn_url && (
+            <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 delay-150 ease-out fill-mode-both mb-8 md:mb-12">
+              <div className="relative w-full aspect-[16/9] md:aspect-[1.8/1] rounded-[18px] md:rounded-[24px] overflow-hidden shadow-sm group">
+                <Image
+                  src={article.cover_image.cdn_url}
+                  alt={article.cover_image.alt_text || article.title}
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 800px"
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                />
               </div>
-            )}
-          </div>
-        )}
+              {article.cover_image.caption && (
+                <p className="text-xs text-center text-gray-400 mt-3 italic">
+                  {article.cover_image.caption}
+                </p>
+              )}
+            </div>
+          )}
 
-        {/* Article Summary Excerpt */}
-        {article.summary && (
-          <div className="max-w-3xl mx-auto mb-8 p-6 rounded-2xl bg-[#EAF3FF]/60 border-l-4 border-[#12245F] text-gray-800 font-medium text-base sm:text-lg">
-            {article.summary}
-          </div>
-        )}
+          {/* Event Details Panel (Compact) */}
+          {isEvent && article.event_date && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 ease-out fill-mode-both mb-10 md:mb-14 bg-white border border-gray-100 rounded-2xl p-5 md:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div className="flex-1 grid grid-cols-2 md:flex md:flex-wrap md:items-center gap-y-4 gap-x-8">
+                
+                {/* Date */}
+                <div>
+                  <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Date</span>
+                  <div className="flex items-center gap-2 text-[#20256F] font-semibold text-sm">
+                    <Calendar className="w-4 h-4 text-[#4FAF32]" />
+                    {format(new Date(article.event_date), 'dd MMM yyyy')}
+                  </div>
+                </div>
 
-        {/* Main Article Content */}
-        <article className="max-w-3xl mx-auto prose prose-lg">
-          <div className="text-base sm:text-lg leading-relaxed text-[#17231D] space-y-6 whitespace-pre-wrap">
-            {article.content}
-          </div>
+                {/* Location */}
+                <div>
+                  <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Location</span>
+                  <div className="flex items-center gap-2 text-[#20256F] font-semibold text-sm">
+                    <MapPin className="w-4 h-4 text-[#4FAF32]" />
+                    <span className="truncate max-w-[120px] md:max-w-none">{article.event_location || 'TBA'}</span>
+                  </div>
+                </div>
 
-          {/* Tags Display */}
+                {/* Time */}
+                <div className="col-span-2 md:col-span-1">
+                  <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Time</span>
+                  <div className="flex items-center gap-2 text-[#20256F] font-semibold text-sm">
+                    <Clock className="w-4 h-4 text-[#4FAF32]" />
+                    {article.event_start_time ? format(new Date(`1970-01-01T${article.event_start_time}`), 'hh:mm a') : 'TBA'}
+                    {article.event_end_time && ` – ${format(new Date(`1970-01-01T${article.event_end_time}`), 'hh:mm a')}`}
+                  </div>
+                </div>
+
+              </div>
+
+              {/* Action */}
+              {article.registration_url && (
+                <div className="md:border-l md:border-gray-100 md:pl-6 shrink-0">
+                  <Link
+                    href={article.registration_url}
+                    target="_blank"
+                    className="group inline-flex items-center justify-center w-full md:w-auto px-6 py-2.5 rounded-full bg-[#4FAF32] text-white font-semibold text-sm hover:bg-[#3d8c25] transition-colors"
+                  >
+                    Register for Event
+                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Article Summary (If present and not just redundant) */}
+          {article.summary && !article.subtitle && (
+            <div className="mb-10 text-lg md:text-xl text-gray-700 font-medium leading-relaxed border-l-2 border-[#4FAF32] pl-4 md:pl-6">
+              {article.summary}
+            </div>
+          )}
+
+          {/* Main Content */}
+          <article className="prose prose-lg prose-slate prose-headings:font-heading prose-headings:text-[#20256F] prose-headings:font-bold prose-a:text-[#4FAF32] prose-a:no-underline hover:prose-a:underline prose-img:rounded-2xl max-w-none mb-12">
+            <div className="text-gray-700 space-y-6 leading-relaxed whitespace-pre-wrap">
+              {article.content}
+            </div>
+          </article>
+
+          {/* Article Tags */}
           {(article.tags || []).length > 0 && (
-            <div className="mt-10 pt-6 border-t border-gray-200 flex flex-wrap items-center gap-2">
-              <span className="text-sm font-semibold text-gray-700 mr-2">Tags:</span>
+            <div className="flex flex-wrap items-center gap-2 border-t border-gray-100 pt-8 mb-12">
+              <span className="text-sm font-semibold text-gray-400 mr-2 uppercase tracking-wider">Tags</span>
               {(article.tags || []).map((tag) => (
                 <span
                   key={tag}
-                  className="px-3 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full"
+                  className="px-3 py-1 bg-white border border-gray-100 text-gray-500 text-xs font-semibold rounded-full shadow-sm"
                 >
-                  #{tag}
+                  {tag}
                 </span>
               ))}
             </div>
           )}
 
-          {/* Call to Action Box */}
-          <div className="mt-12 p-6 sm:p-8 rounded-2xl bg-[#EEF8E9] border border-[#439B25]/30 text-center">
-            <BookOpen className="w-8 h-8 text-[#439B25] mx-auto mb-3" />
-            <h3 className="font-heading text-xl font-bold text-[#12245F] mb-2">
-              Inspired by This Story?
-            </h3>
-            <p className="text-sm text-[#5E6B63] max-w-md mx-auto mb-5">
-              Join UDBHAV FOUNDATION as a volunteer, mentor, or supporter to make
-              a direct impact in rural and underserved communities across Odisha.
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <Link
-                href="/volunteers"
-                className="px-6 py-2.5 rounded-xl font-heading text-sm font-semibold text-white bg-[#439B25] hover:bg-[#38841F] transition-colors"
-              >
-                Become a Volunteer
-              </Link>
-              <Link
-                href="/donate"
-                className="px-6 py-2.5 rounded-xl font-heading text-sm font-semibold text-[#12245F] bg-pure-white border border-[#12245F]/20 hover:bg-[#EAF3FF] transition-colors"
-              >
-                Support Our Mission
-              </Link>
-            </div>
-          </div>
-        </article>
+        </div>
+      </Container>
 
-        {/* RELATED CONTENT SECTIONS */}
-        <div className="max-w-5xl mx-auto mt-20 space-y-16 border-t border-gray-200 pt-16">
-          {/* 1. Related Articles */}
-          {relatedArticles.length > 0 && (
-            <div>
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#439B25]">
-                    More From UDBHAV
-                  </span>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-[#12245F]">
-                    Related Articles & Stories
-                  </h2>
-                </div>
-                <Link
-                  href="/news-and-stories"
-                  className="inline-flex items-center gap-1 text-sm font-semibold text-[#12245F] hover:text-[#439B25]"
-                >
-                  View All <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {relatedArticles.map((rel) => (
+      {/* MORE FROM UDBHAV (Horizontal Editorial List) */}
+      {relatedArticles.length > 0 && (
+        <div className="mt-8 border-t border-gray-100 bg-white">
+          <Container>
+            <div className="max-w-[800px] mx-auto py-12 md:py-16">
+              <h2 className="text-xl md:text-2xl font-heading font-bold text-[#20256F] mb-8">
+                More from UDBHAV
+              </h2>
+              <div className="flex flex-col">
+                {relatedArticles.map((rel, index) => (
                   <Link
                     key={rel.id}
                     href={`/news-and-stories/${rel.slug}`}
-                    className="group bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                    className={`group py-5 flex items-center justify-between gap-6 border-t border-gray-100 hover:bg-gray-50/50 transition-colors ${index === relatedArticles.length - 1 ? 'border-b' : ''}`}
                   >
-                    <div>
-                      {rel.cover_image?.cdn_url && (
-                        <div className="relative h-44 w-full bg-gray-100 overflow-hidden">
-                          <Image
-                            src={rel.cover_image.cdn_url}
-                            alt={rel.title}
-                            fill
-                            sizes="300px"
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          />
-                        </div>
-                      )}
-                      <div className="p-5 space-y-3">
-                        <span className="px-2.5 py-0.5 bg-[#EEF8E9] text-[#439B25] text-xs font-bold rounded-full uppercase">
-                          {rel.category || 'News'}
-                        </span>
-                        <h3 className="font-bold text-lg text-[#12245F] group-hover:text-[#439B25] transition-colors line-clamp-2">
+                    <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-8 flex-1 min-w-0">
+                      <span className="text-xs font-bold text-[#4FAF32] uppercase tracking-wider w-24 shrink-0">
+                        {rel.category || 'News'}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-base md:text-lg font-semibold text-[#20256F] group-hover:text-[#4FAF32] transition-colors truncate">
                           {rel.title}
                         </h3>
-                        {rel.summary && (
-                          <p className="text-sm text-gray-600 line-clamp-2">
-                            {rel.summary}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="px-5 pb-5 pt-2 flex items-center justify-between text-xs text-gray-400 border-t border-gray-50">
-                      <span>{rel.author_name || 'UDBHAV'}</span>
-                      <span>{rel.reading_time || 1} min read</span>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* 2. Related Programs */}
-          {relatedPrograms.length > 0 && (
-            <div>
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#439B25]">
-                    Initiatives
-                  </span>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-[#12245F]">
-                    Related Programmes
-                  </h2>
-                </div>
-                <Link
-                  href="/programmes"
-                  className="inline-flex items-center gap-1 text-sm font-semibold text-[#12245F] hover:text-[#439B25]"
-                >
-                  Explore All Programmes <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {relatedPrograms.map((prog) => (
-                  <Link
-                    key={prog.id}
-                    href={`/programmes/${prog.slug}`}
-                    className="group bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
-                  >
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2 text-xs font-bold text-[#439B25] uppercase">
-                        <FolderOpen className="w-4 h-4" />
-                        <span>Programme</span>
-                      </div>
-                      <h3 className="font-bold text-lg text-[#12245F] group-hover:text-[#439B25] transition-colors">
-                        {prog.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 line-clamp-2">
-                        {prog.short_description}
-                      </p>
-                    </div>
-                    <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between text-xs font-semibold text-[#12245F] group-hover:text-[#439B25]">
-                      <span>Learn more</span>
-                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* 3. Related Upcoming Events */}
-          {relatedEvents.length > 0 && (
-            <div>
-              <div className="flex items-center justify-between mb-8">
-                <div>
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#439B25]">
-                    Get Involved
-                  </span>
-                  <h2 className="text-2xl sm:text-3xl font-bold text-[#12245F]">
-                    Upcoming Events
-                  </h2>
-                </div>
-                <Link
-                  href="/events"
-                  className="inline-flex items-center gap-1 text-sm font-semibold text-[#12245F] hover:text-[#439B25]"
-                >
-                  View Events <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {relatedEvents.map((ev) => (
-                  <Link
-                    key={ev.id}
-                    href={`/events/${ev.slug}`}
-                    className="group bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
-                  >
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2 text-xs font-bold text-[#439B25] uppercase">
-                        <CalendarDays className="w-4 h-4" />
-                        <span>
-                          {ev.start_time
-                            ? new Date(ev.start_time).toLocaleDateString('en-IN', {
-                                day: 'numeric',
-                                month: 'short',
-                                year: 'numeric',
-                              })
-                            : 'Upcoming'}
+                        <span className="text-sm text-gray-400 mt-1 block md:hidden">
+                          {rel.published_at ? format(new Date(rel.published_at), 'dd MMM yyyy') : format(new Date(rel.created_at), 'dd MMM yyyy')}
                         </span>
                       </div>
-                      <h3 className="font-bold text-lg text-[#12245F] group-hover:text-[#439B25] transition-colors">
-                        {ev.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 line-clamp-2">
-                        {ev.description}
-                      </p>
                     </div>
-                    <div className="mt-4 pt-4 border-t border-gray-50 flex items-center justify-between text-xs font-semibold text-[#12245F] group-hover:text-[#439B25]">
-                      <span>Register / View details</span>
-                      <ExternalLink className="w-3.5 h-3.5" />
+                    <div className="flex items-center gap-6 shrink-0">
+                      <span className="hidden md:block text-sm text-gray-400">
+                        {rel.published_at ? format(new Date(rel.published_at), 'dd MMM yyyy') : format(new Date(rel.created_at), 'dd MMM yyyy')}
+                      </span>
+                      <ArrowRight className="w-4 h-4 text-gray-300 group-hover:text-[#4FAF32] group-hover:translate-x-1 transition-all" />
                     </div>
                   </Link>
                 ))}
               </div>
             </div>
-          )}
+          </Container>
         </div>
-      </Container>
+      )}
+
     </main>
   );
 }
