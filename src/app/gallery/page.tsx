@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 
 import { GalleryHeroSection } from "@/components/gallery/GalleryHeroSection";
-import { GalleryStatsSection } from "@/components/gallery/GalleryStatsSection";
 import { PhotoGridSection } from "@/components/gallery/PhotoGridSection";
-import { getGalleryStatsAction, listPublicPhotosAction, getPublicGalleryFiltersAction } from "@/features/gallery/actions";
+import { listPublicPhotosAction, getPublicGalleryFiltersAction, getRandomPublicPhotosAction } from "@/features/gallery/actions";
 import type { PublicGallerySort } from "@/features/gallery/repository";
 
 export const dynamic = "force-dynamic";
@@ -37,30 +36,23 @@ export default async function GalleryPage({ searchParams }: { searchParams: Sear
   const event_id = typeof resolvedParams.event === 'string' ? resolvedParams.event : undefined;
   const search = typeof resolvedParams.search === 'string' ? resolvedParams.search : undefined;
 
-  const [statsResult, photosResult, filtersResult] = await Promise.all([
-    getGalleryStatsAction(),
+  const [photosResult, filtersResult, heroPhotosResult] = await Promise.all([
     listPublicPhotosAction(
       { page: 1, limit: page * 16 }, 
       { program_id, event_id, search },
       sort
     ),
-    getPublicGalleryFiltersAction()
+    getPublicGalleryFiltersAction(),
+    getRandomPublicPhotosAction(21)
   ]);
-  
-  const stats = statsResult.success && statsResult.data ? statsResult.data : {
-    totalPhotos: 0,
-    eventsCovered: 0,
-    programmesRepresented: 0,
-    locationsReached: 0
-  };
   
   const photosData = photosResult.success && photosResult.data ? photosResult.data : { data: [], total: 0, page: 1, limit: 16 };
   const filterOptions = filtersResult.success && filtersResult.data ? filtersResult.data : { programs: [], events: [] };
+  const heroPhotos = heroPhotosResult.success && heroPhotosResult.data ? heroPhotosResult.data : [];
 
   return (
     <>
-      <GalleryHeroSection />
-      <GalleryStatsSection stats={stats} />
+      <GalleryHeroSection heroPhotos={heroPhotos} />
       <PhotoGridSection 
         initialPhotos={photosData.data} 
         totalPhotos={photosData.total}

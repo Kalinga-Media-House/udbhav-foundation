@@ -173,6 +173,18 @@ export async function listPublicPhotosAction(
 }
 
 /**
+ * Server action to get random public photos for the hero section.
+ */
+export async function getRandomPublicPhotosAction(limit: number = 21): Promise<ActionResult<AdminPhotoItem[]>> {
+  return handleAction('getRandomPublicPhotosAction', async () => {
+    // Public action, no auth required
+    const result = await import('./repository').then(m => m.galleryRepository.getRandomPublicPhotos(limit));
+    if (result.error) throw new Error(result.error.message || 'Get random photos failed');
+    return result.data!;
+  });
+}
+
+/**
  * Server action to get available public gallery programs and events filters.
  */
 export async function getPublicGalleryFiltersAction(): Promise<ActionResult<PublicGalleryFilterOptions>> {

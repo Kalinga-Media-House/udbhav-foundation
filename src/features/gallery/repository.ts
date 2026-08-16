@@ -668,6 +668,64 @@ export class GalleryRepository implements IWriteRepository<AlbumRow, AlbumCreate
       return { data: false, error: error as Error };
     }
   }
+
+  /**
+   * Fetches a random selection of public photos for the hero section.
+   * Efficiently grabs a pool of recent photos and shuffles them server-side.
+   */
+  async getRandomPublicPhotos(limit: number = 21): Promise<RepositoryResult<AdminPhotoItem[]>> {
+    const supabase = await createServerSupabaseClient();
+    
+    // Fetch a pool of up to 100 recent public photos to pick from.
+    // This avoids downloading the entire database while still providing good variety.
+    const { data: rawItems, error } = await supabase
+      .from('gallery_items')
+      .select(`
+        *,
+        album:gallery_albums!inner(
+          id, title, visibility, is_deleted
+        )
+      `)
+      .eq('gallery_albums.is_deleted', false)
+      .eq('gallery_albums.visibility', 'Public')
+      .order('created_at', { ascending: false })
+      .limit(100);
+
+    if (error) {
+      serverLogger.error('GalleryRepository.getRandomPublicPhotos failed', new DatabaseError(error.message));
+      return { data: [], error: new DatabaseError(error.message) };
+    }
+
+    const items = (rawItems as any[]) ?? [];
+    if (items.length === 0) {
+      return { data: [], error: null };
+    }
+
+    // Shuffle the items and take the required amount
+    const shuffled = [...items].sort(() => 0.5 - Math.random());
+    const selectedItems = shuffled.slice(0, limit);
+
+    // Fetch media details only for the selected subset
+    const mediaIds = selectedItems.map((item) => item.media_file_id);
+    const { data: rawMediaList } = await supabase
+      .from('media_files')
+      .select('id, cdn_url, alt_text, caption, width, height')
+      .in('id', mediaIds);
+
+    const mediaList = (rawMediaList as any[]) ?? [];
+    const mediaMap = new Map(mediaList.map((m) => [m.id, m]));
+
+    const enrichedItems: AdminPhotoItem[] = selectedItems.map((item) => ({
+      ...item,
+      media: mediaMap.get(item.media_file_id) || null,
+      album: item.album || null
+    }));
+
+    // Filter out items that failed to load media or have no cdn_url
+    const validItems = enrichedItems.filter(item => item.media?.cdn_url);
+
+    return { data: validItems, error: null };
+  }
 }
 
 
