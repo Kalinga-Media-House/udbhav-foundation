@@ -57,7 +57,7 @@ export function PublicVolunteerDirectorySection() {
   }, [selectedType, searchQuery]);
 
   return (
-    <section className="py-20 bg-gradient-to-b from-pure-white via-[#F8FAF9] to-pure-white border-y border-[#E6EBE9]">
+    <section className="py-20 bg-gradient-to-b from-pure-white via-[#F8FAF9] to-pure-white border-b border-[#E6EBE9]">
       <Container>
         <div className="max-w-3xl mx-auto text-center mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8F2EC] text-[#006633] text-sm font-semibold mb-4">

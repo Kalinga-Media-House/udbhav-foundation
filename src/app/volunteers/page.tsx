@@ -5,7 +5,6 @@ import { HowVolunteeringWorksSection } from '@/components/volunteers/HowVoluntee
 import { PublicVolunteerDirectorySection } from '@/components/volunteers/PublicVolunteerDirectorySection';
 import { VolunteerApplicationSection } from '@/components/volunteers/VolunteerApplicationSection';
 import { VolunteerFaqSection } from '@/components/volunteers/VolunteerFaqSection';
-import { VolunteerHeroSection } from '@/components/volunteers/VolunteerHeroSection';
 import { WhoCanJoinSection } from '@/components/volunteers/WhoCanJoinSection';
 
 export const metadata: Metadata = {
@@ -16,8 +15,7 @@ export const metadata: Metadata = {
 
 export default function VolunteersPage() {
   return (
-    <main className="bg-pure-white min-h-screen text-[#17231D]">
-      <VolunteerHeroSection />
+    <main className="bg-pure-white min-h-screen text-[#17231D] pt-12">
       <PublicVolunteerDirectorySection />
       <HowVolunteeringWorksSection />
       <WhoCanJoinSection />
