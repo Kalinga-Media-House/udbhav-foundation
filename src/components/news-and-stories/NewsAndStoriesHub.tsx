@@ -173,14 +173,24 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
             {nearestEvent ? (
               <div className="flex flex-col md:flex-row md:items-center gap-6 lg:gap-10 relative z-10 w-full">
                 
-                {/* Date Block */}
-                <div className="flex flex-col items-center justify-center shrink-0">
-                  <span className="font-heading text-4xl sm:text-5xl font-bold leading-none text-white">
-                    {new Date(nearestEvent.event_date || nearestEvent.published_at || nearestEvent.created_at).getDate().toString().padStart(2, '0')}
-                  </span>
-                  <span className="text-sm font-bold uppercase tracking-widest text-[#4FAF32] mt-1">
-                    {new Date(nearestEvent.event_date || nearestEvent.published_at || nearestEvent.created_at).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
-                  </span>
+                {/* Calendar Date Badge */}
+                <div 
+                  className="flex flex-col shrink-0 rounded-[12px] overflow-hidden bg-white shadow-lg border border-white/20 w-[88px] sm:w-[100px]"
+                  aria-label={`Event date: ${new Date(nearestEvent.event_date || nearestEvent.published_at || nearestEvent.created_at).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}`}
+                >
+                  <div className="bg-[#4FAF32] text-white py-1.5 text-center">
+                    <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">
+                      {new Date(nearestEvent.event_date || nearestEvent.published_at || nearestEvent.created_at).toLocaleDateString('en-US', { month: 'short' }).toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center justify-center py-2 sm:py-3 bg-white text-center">
+                    <span className="font-heading text-4xl sm:text-5xl font-bold leading-none text-[#182033]">
+                      {new Date(nearestEvent.event_date || nearestEvent.published_at || nearestEvent.created_at).getDate().toString().padStart(2, '0')}
+                    </span>
+                    <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[#667085] mt-1">
+                      {new Date(nearestEvent.event_date || nearestEvent.published_at || nearestEvent.created_at).toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase()}
+                    </span>
+                  </div>
                 </div>
                 
                 {/* Divider on desktop */}
@@ -453,14 +463,24 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
                   <div className="absolute inset-0 bg-[#EAF6E4] opacity-0 group-hover:opacity-[0.15] transition-opacity duration-500 pointer-events-none" />
 
                   <div className="relative flex items-center gap-6 sm:gap-8 w-full md:w-auto z-10">
-                    {/* Animated Date Block */}
-                    <div className="flex flex-col items-center justify-center min-w-[60px] shrink-0 text-center">
-                      <span className="font-heading text-4xl sm:text-5xl font-bold leading-none text-[#20256F] transform group-hover:scale-110 transition-transform duration-300">
-                        {day}
-                      </span>
-                      <span className="text-sm font-bold uppercase tracking-widest text-[#4FAF32] mt-2">
-                        {month}
-                      </span>
+                    {/* Animated Calendar Block */}
+                    <div 
+                      className="flex flex-col shrink-0 rounded-xl overflow-hidden bg-white shadow-sm border border-gray-100 w-[72px] sm:w-[88px] group-hover:shadow-md transition-shadow duration-300"
+                      aria-label={`Event date: ${evtDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}`}
+                    >
+                      <div className="bg-[#20256F] text-white py-1.5 text-center transition-colors duration-300 group-hover:bg-[#4FAF32]">
+                        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">
+                          {month}
+                        </span>
+                      </div>
+                      <div className="flex flex-col items-center justify-center py-2 bg-white text-center">
+                        <span className="font-heading text-3xl sm:text-4xl font-bold leading-none text-[#182033] transform group-hover:scale-105 transition-transform duration-300">
+                          {day}
+                        </span>
+                        <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-[#667085] mt-0.5">
+                          {evtDate.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase()}
+                        </span>
+                      </div>
                     </div>
                     
                     {/* Event Image */}
