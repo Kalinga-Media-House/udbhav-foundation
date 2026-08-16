@@ -149,7 +149,13 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
             onMouseLeave={() => setIsHovered(false)}
           >
             {/* Carousel Track */}
-            <div className="relative w-full h-[220px] sm:h-[300px] md:h-[360px] flex items-center justify-center perspective-[1200px] [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)] md:[mask-image:linear-gradient(to_right,transparent,black_20%,black_80%,transparent)]">
+            <div 
+              className="relative w-full h-[220px] sm:h-[300px] md:h-[360px] flex items-center justify-center perspective-[1200px]"
+              style={{
+                WebkitMaskImage: "linear-gradient(to right, transparent, black 15%, black 85%, transparent)",
+                maskImage: "linear-gradient(to right, transparent, black 15%, black 85%, transparent)"
+              }}
+            >
               
               <AnimatePresence initial={false}>
                 {randomPhotos.map((photo, i) => {
@@ -167,17 +173,16 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
                   const x = baseSpacing * offset;
                   const zIndex = 50 - absOffset;
                   const blur = absOffset === 0 ? 0 : absOffset * 1.5;
-                  const brightness = absOffset === 0 ? 1 : 1 - (absOffset * 0.15);
                   
                   const isActive = absOffset === 0;
 
                   return (
                     <motion.div
                       key={photo.id}
-                      className={`absolute rounded-[18px] md:rounded-[22px] overflow-hidden cursor-pointer bg-white ${
+                      className={`absolute rounded-[18px] md:rounded-[22px] overflow-hidden cursor-pointer ${
                         isActive 
-                          ? 'ring-1 ring-slate-200 shadow-[0_20px_50px_rgba(15,23,42,0.15),0_0_40px_rgba(15,23,42,0.05)]' 
-                          : 'ring-1 ring-slate-200/50 shadow-[0_8px_30px_rgba(15,23,42,0.08)]'
+                          ? 'ring-1 ring-slate-200 shadow-[0_20px_50px_rgba(15,23,42,0.15)] bg-white' 
+                          : 'ring-1 ring-slate-200/40 bg-transparent'
                       }`}
                       style={{
                         width: isMobile ? "260px" : (isTablet ? "360px" : "480px"),
@@ -190,7 +195,7 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
                         scale,
                         opacity,
                         zIndex,
-                        filter: `brightness(${brightness}) blur(${blur}px)`,
+                        filter: `blur(${blur}px)`,
                       }}
                       transition={{
                         duration: 0.9,
@@ -219,8 +224,6 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
                         sizes="(max-width: 640px) 260px, (max-width: 1024px) 360px, 480px"
                         priority={isActive || absOffset === 1}
                       />
-                      {/* Optional subtle gradient overlay just to make the image distinct on white edges, if any */}
-                      {!isActive && <div className="absolute inset-0 bg-white/5 pointer-events-none transition-opacity duration-700" />}
                     </motion.div>
                   );
                 })}
