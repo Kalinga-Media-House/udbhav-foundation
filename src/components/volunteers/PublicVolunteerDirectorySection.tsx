@@ -21,16 +21,6 @@ interface PublicVolunteer {
   };
 }
 
-const TYPE_FILTERS = [
-  "All",
-  "Event",
-  "Core",
-  "Mentor",
-  "Trainer",
-  "Medical",
-  "Disaster Relief",
-  "Technical",
-];
 
 export function PublicVolunteerDirectorySection() {
   const [volunteers, setVolunteers] = useState<PublicVolunteer[]>([]);
@@ -59,46 +49,23 @@ export function PublicVolunteerDirectorySection() {
   return (
     <section className="py-20 bg-gradient-to-b from-pure-white via-[#F8FAF9] to-pure-white border-b border-[#E6EBE9]">
       <Container>
-        <div className="max-w-3xl mx-auto text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E8F2EC] text-[#006633] text-sm font-semibold mb-4">
-            <ShieldCheck className="w-4 h-4" />
-            <span>Public Volunteer Directory</span>
-          </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-[#17231D] tracking-tight">
+        <div className="max-w-3xl mx-auto text-center mb-8">
+          <h2 className="text-3xl md:text-4xl font-bold text-[#17231D] tracking-tight mb-6">
             Meet Our Active Changemakers
           </h2>
-          <p className="mt-4 text-base text-[#4F5E57]">
-            Our verified volunteers drive ground-level impact across India. Recognized by their immutable UDBHAV Volunteer Codes, they represent integrity and service.
-          </p>
-        </div>
-
-        {/* Search and Filters */}
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-10 bg-white p-4 rounded-2xl border border-[#E6EBE9] shadow-sm">
-          <div className="flex flex-wrap gap-2 w-full md:w-auto">
-            {TYPE_FILTERS.map((type) => (
-              <button
-                key={type}
-                type="button"
-                onClick={() => setSelectedType(type)}
-                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                  selectedType === type
-                    ? "bg-[#006633] text-white shadow-md shadow-[#006633]/20"
-                    : "bg-[#F3F7F5] text-[#4F5E57] hover:bg-[#E8F2EC] hover:text-[#006633]"
-                }`}
-              >
-                {type}
-              </button>
-            ))}
-          </div>
-          <div className="relative w-full md:w-72">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#7A8A82]" />
-            <input
-              type="text"
-              placeholder="Search by bio or skill..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl border border-[#D9E2DE] bg-white text-sm text-[#17231D] placeholder-[#7A8A82] focus:outline-none focus:border-[#006633] focus:ring-2 focus:ring-[#006633]/10"
-            />
+          
+          {/* Search Field */}
+          <div className="flex justify-center">
+            <div className="relative w-full max-w-md mx-auto">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#7A8A82]" />
+              <input
+                type="text"
+                placeholder="Search by bio or skill..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 rounded-full border border-[#D9E2DE] bg-white text-base text-[#17231D] placeholder-[#7A8A82] focus:outline-none focus:border-[#006633] focus:ring-2 focus:ring-[#006633]/10 shadow-sm transition-all"
+              />
+            </div>
           </div>
         </div>
 
