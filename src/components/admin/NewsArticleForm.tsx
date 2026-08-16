@@ -1,6 +1,6 @@
 'use client';
 
-import { Edit3, Eye, Plus, X } from 'lucide-react';
+import { Edit3, Eye, ChevronDown, ChevronRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
@@ -24,7 +24,7 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
   const [error, setError] = useState<string | null>(null);
 
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
-  const [tagInput, setTagInput] = useState('');
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const [formData, setFormData] = useState<Partial<CreateArticleDTO>>({
     article_code: initialData?.article_code || `ART-${Date.now().toString().slice(-6)}`,
@@ -39,7 +39,13 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
     is_featured: initialData?.is_featured || false,
     metadata: {
       category: (initialData?.category || 'News') as
-        'News' | 'Story' | 'Press Release' | 'Announcement' | 'Blog' | 'Report' | 'Update',
+        | 'News'
+        | 'Story'
+        | 'Press Release'
+        | 'Announcement'
+        | 'Blog'
+        | 'Report'
+        | 'Update',
       tags: initialData?.tags || [],
       author_name: initialData?.author_name || 'UDBHAV Foundation',
       program_id: initialData?.program_id || null,
@@ -77,32 +83,6 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
     }));
   };
 
-  const handleAddTag = () => {
-    if (!tagInput.trim()) return;
-    const currentTags = formData.metadata?.tags || [];
-    if (!currentTags.includes(tagInput.trim())) {
-      setFormData((prev) => ({
-        ...prev,
-        metadata: {
-          ...prev.metadata!,
-          tags: [...currentTags, tagInput.trim()],
-        },
-      }));
-    }
-    setTagInput('');
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    const currentTags = formData.metadata?.tags || [];
-    setFormData((prev) => ({
-      ...prev,
-      metadata: {
-        ...prev.metadata!,
-        tags: currentTags.filter((t) => t !== tagToRemove),
-      },
-    }));
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -123,8 +103,8 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
   };
 
   return (
-    <div className="space-y-6">
-      {/* Mode Tabs: Edit vs Preview */}
+    <div className="mx-auto max-w-3xl space-y-6">
+      {/* Mode Tabs */}
       <div className="flex items-center justify-between border-b border-gray-200 pb-4">
         <div className="flex gap-2">
           <Button
@@ -143,7 +123,7 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
             className="flex items-center gap-2"
           >
             <Eye className="h-4 w-4" />
-            Live Preview
+            Preview
           </Button>
         </div>
       </div>
@@ -174,20 +154,6 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
             {formData.title || 'Untitled Article'}
           </h1>
 
-          {formData.subtitle && <p className="text-lg italic text-gray-600">{formData.subtitle}</p>}
-
-          <div className="flex items-center gap-4 border-b border-gray-100 pb-4 text-sm text-gray-500">
-            <span>By {formData.metadata?.author_name || 'UDBHAV Foundation'}</span>
-            <span>•</span>
-            <span>
-              {new Date().toLocaleDateString('en-IN', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })}
-            </span>
-          </div>
-
           {formData.summary && (
             <div className="rounded border-l-4 border-primary bg-gray-50 p-4 font-medium text-gray-700">
               {formData.summary}
@@ -197,302 +163,224 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
           <div className="prose max-w-none whitespace-pre-wrap leading-relaxed text-gray-800">
             {formData.content || 'No article content provided yet.'}
           </div>
-
-          {(formData.metadata?.tags || []).length > 0 && (
-            <div className="flex flex-wrap gap-2 border-t border-gray-100 pt-4">
-              {(formData.metadata?.tags || []).map((t) => (
-                <span key={t} className="rounded-md bg-gray-100 px-2.5 py-1 text-xs text-gray-700">
-                  #{t}
-                </span>
-              ))}
-            </div>
-          )}
         </div>
       ) : (
         <form
           onSubmit={handleSubmit}
-          className="space-y-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm"
+          className="space-y-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm md:p-8"
         >
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <div>
-              <Label htmlFor="article_code">Article Code</Label>
-              <Input
-                id="article_code"
-                value={formData.article_code}
-                onChange={(e) => setFormData({ ...formData, article_code: e.target.value })}
-                placeholder="e.g. ART-001"
-                required
-                disabled={!!initialData}
-              />
-            </div>
-            <div>
-              <Label htmlFor="category">Category</Label>
-              <select
-                id="category"
-                value={formData.metadata?.category || 'News'}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    metadata: {
-                      ...formData.metadata!,
-                      category: e.target.value as
-                        | 'News'
-                        | 'Story'
-                        | 'Press Release'
-                        | 'Announcement'
-                        | 'Blog'
-                        | 'Report'
-                        | 'Update',
-                    },
-                  })
-                }
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="News">News</option>
-                <option value="Story">Story</option>
-                <option value="Press Release">Press Release</option>
-                <option value="Announcement">Announcement</option>
-                <option value="Blog">Blog</option>
-                <option value="Report">Report</option>
-                <option value="Update">Update</option>
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="status">Status</Label>
-              <select
-                id="status"
-                value={formData.status}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    status: e.target.value as 'Draft' | 'In Review' | 'Published' | 'Archived',
-                  })
-                }
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="Draft">Draft</option>
-                <option value="In Review">In Review</option>
-                <option value="Published">Published</option>
-                <option value="Archived">Archived</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div>
-              <Label htmlFor="title">Article Title</Label>
-              <Input
-                id="title"
-                value={formData.title}
-                onChange={handleTitleChange}
-                placeholder="e.g. UDBHAV Launches New Girls Scholarship Program"
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="slug">URL Slug</Label>
-              <Input
-                id="slug"
-                value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                placeholder="e.g. udbhav-launches-new-girls-scholarship"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div>
-              <Label htmlFor="subtitle">Subtitle (Optional)</Label>
-              <Input
-                id="subtitle"
-                value={formData.subtitle || ''}
-                onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-                placeholder="Brief secondary headline"
-              />
-            </div>
-            <div>
-              <Label htmlFor="author_name">Author Name</Label>
-              <Input
-                id="author_name"
-                value={formData.metadata?.author_name || ''}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    metadata: { ...formData.metadata!, author_name: e.target.value },
-                  })
-                }
-                placeholder="e.g. Priya Sharma"
-              />
-            </div>
-          </div>
-
+          {/* Title */}
           <div>
-            <Label htmlFor="summary">Summary / Excerpt (Optional)</Label>
+            <Label htmlFor="title" className="text-base font-semibold">Title *</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={handleTitleChange}
+              placeholder="Enter article title"
+              required
+              className="mt-1.5"
+            />
+          </div>
+
+          {/* Type / Category */}
+          <div>
+            <Label htmlFor="category" className="text-base font-semibold">Type *</Label>
+            <select
+              id="category"
+              value={formData.metadata?.category || 'News'}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  metadata: {
+                    ...formData.metadata!,
+                    category: e.target.value as any,
+                  },
+                })
+              }
+              className="mt-1.5 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              required
+            >
+              <option value="News">News</option>
+              <option value="Story">Story</option>
+              <option value="Announcement">Announcement</option>
+              <option value="Press Release">Press Release</option>
+            </select>
+          </div>
+
+          {/* Short Description */}
+          <div>
+            <Label htmlFor="summary" className="text-base font-semibold">Short Description</Label>
+            <p className="mb-2 text-xs text-gray-500">A brief summary shown on article cards and search results.</p>
             <textarea
               id="summary"
               rows={2}
               value={formData.summary || ''}
               onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-              placeholder="Short summary displayed on cards and search results (max 1000 chars)"
+              placeholder="Write a short summary of this article..."
               className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             />
           </div>
 
+          {/* Article Content */}
           <div>
-            <Label htmlFor="content">Full Article Content (Markdown / Rich Text)</Label>
+            <Label htmlFor="content" className="text-base font-semibold">Article Content *</Label>
             <textarea
               id="content"
-              rows={12}
+              rows={16}
               value={formData.content}
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-              placeholder="Write full article content here. Supports headings (#, ##), bullet points, and paragraphs..."
-              className="flex w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-sm"
+              placeholder="Write your article here..."
+              className="mt-1.5 flex w-full rounded-md border border-input bg-background px-4 py-3 font-mono text-sm leading-relaxed"
               required
             />
           </div>
 
           {/* Cover Image Upload */}
-          <div className="space-y-3 rounded-md border border-gray-200 bg-gray-50 p-4">
-            <Label>Cover Image</Label>
-            <ImageUploader folder="news-covers" onUploadComplete={handleUploadComplete} />
+          <div className="space-y-2 rounded-md border border-gray-100 bg-gray-50 p-5">
+            <Label className="text-base font-semibold">Cover Image</Label>
+            <p className="mb-3 text-xs text-gray-500">Recommended landscape image for article previews.</p>
+            <div className="max-w-xs">
+              <ImageUploader folder="news-covers" onUploadComplete={handleUploadComplete} />
+            </div>
             {formData.cover_image_id && (
-              <span className="block text-xs font-medium text-green-600">
-                ✓ Cover Image Attached ({formData.cover_image_id})
+              <span className="mt-2 block text-xs font-medium text-green-600">
+                ✓ Cover Image Attached
               </span>
             )}
           </div>
 
-          {/* Tags Manager */}
-          <div className="space-y-2">
-            <Label>Tags</Label>
-            <div className="flex items-center gap-2">
-              <Input
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                placeholder="e.g. Education, Odisha, Grassroots"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    handleAddTag();
-                  }
-                }}
-              />
-              <Button type="button" variant="outline" onClick={handleAddTag}>
-                <Plus className="mr-1 h-4 w-4" /> Add Tag
-              </Button>
-            </div>
-            <div className="flex flex-wrap gap-2 pt-2">
-              {(formData.metadata?.tags || []).map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs text-gray-700"
-                >
-                  #{tag}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveTag(tag)}
-                    className="text-gray-400 hover:text-red-600"
+          {/* Advanced Options Toggle */}
+          <div className="border-t border-gray-200 pt-4">
+            <button
+              type="button"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="flex items-center gap-1.5 text-sm font-medium text-gray-600 hover:text-gray-900"
+            >
+              {showAdvanced ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+              Advanced Options
+            </button>
+            
+            {showAdvanced && (
+              <div className="mt-4 grid grid-cols-1 gap-5 rounded-md bg-gray-50 p-5 md:grid-cols-2">
+                <div>
+                  <Label htmlFor="slug">URL Slug</Label>
+                  <Input
+                    id="slug"
+                    value={formData.slug}
+                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
+                    className="mt-1 text-sm"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="visibility">Visibility</Label>
+                  <select
+                    id="visibility"
+                    value={formData.visibility}
+                    onChange={(e) =>
+                      setFormData({ ...formData, visibility: e.target.value as 'public' | 'private' })
+                    }
+                    className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   >
-                    <X className="h-3 w-3" />
-                  </button>
-                </span>
-              ))}
-            </div>
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="program_id">Associated Program</Label>
+                  <select
+                    id="program_id"
+                    value={formData.metadata?.program_id || ''}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        metadata: { ...formData.metadata!, program_id: e.target.value || null },
+                      })
+                    }
+                    className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
+                    <option value="">-- No Program --</option>
+                    {programs.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="event_id">Associated Event</Label>
+                  <select
+                    id="event_id"
+                    value={formData.metadata?.event_id || ''}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        metadata: { ...formData.metadata!, event_id: e.target.value || null },
+                      })
+                    }
+                    className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  >
+                    <option value="">-- No Event --</option>
+                    {events.map((ev) => (
+                      <option key={ev.id} value={ev.id}>
+                        {ev.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Program & Event Associations */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div>
-              <Label htmlFor="program_id">Associated Program (Optional)</Label>
-              <select
-                id="program_id"
-                value={formData.metadata?.program_id || ''}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    metadata: { ...formData.metadata!, program_id: e.target.value || null },
-                  })
-                }
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="">-- No Program Associated --</option>
-                {programs.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="event_id">Associated Event (Optional)</Label>
-              <select
-                id="event_id"
-                value={formData.metadata?.event_id || ''}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    metadata: { ...formData.metadata!, event_id: e.target.value || null },
-                  })
-                }
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-              >
-                <option value="">-- No Event Associated --</option>
-                {events.map((ev) => (
-                  <option key={ev.id} value={ev.id}>
-                    {ev.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Visibility & Featured Toggle */}
-          <div className="flex items-center justify-between border-t border-gray-100 pt-4">
-            <div className="flex items-center gap-4">
+          {/* Publishing Controls */}
+          <div className="flex flex-col gap-4 border-t border-gray-200 pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-6">
+              <div>
+                <Label htmlFor="status" className="sr-only">Status</Label>
+                <select
+                  id="status"
+                  value={formData.status}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      status: e.target.value as 'Draft' | 'Published',
+                    })
+                  }
+                  className="flex h-10 w-36 rounded-md border border-input bg-background px-3 py-2 text-sm font-medium"
+                >
+                  <option value="Draft">Draft</option>
+                  <option value="Published">Published</option>
+                </select>
+              </div>
               <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="checkbox"
                   checked={formData.is_featured}
                   onChange={(e) => setFormData({ ...formData, is_featured: e.target.checked })}
-                  className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  className="h-4 w-4 rounded border-gray-300 text-[#439B25] focus:ring-[#439B25]"
                 />
                 <span className="text-sm font-medium text-gray-700">
-                  Featured Article (show on home & banners)
+                  Feature this article
                 </span>
               </label>
             </div>
-            <div>
-              <Label htmlFor="visibility" className="mr-2 text-sm">
-                Visibility:
-              </Label>
-              <select
-                id="visibility"
-                value={formData.visibility}
-                onChange={(e) =>
-                  setFormData({ ...formData, visibility: e.target.value as 'public' | 'private' })
-                }
-                className="rounded-md border border-input bg-background px-3 py-1 text-sm"
+            
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => router.push('/admin/dashboard/news')}
+                disabled={isPending}
               >
-                <option value="public">Public</option>
-                <option value="private">Private</option>
-              </select>
+                Cancel
+              </Button>
+              <Button 
+                type="submit" 
+                disabled={isPending}
+                className="bg-[#439B25] hover:bg-[#367d1d] text-white"
+              >
+                {isPending ? 'Saving...' : formData.status === 'Draft' ? 'Save Draft' : 'Publish Article'}
+              </Button>
             </div>
-          </div>
-
-          {/* Submit Actions */}
-          <div className="flex justify-end gap-3 border-t border-gray-100 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push('/admin/dashboard/news')}
-              disabled={isPending}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? 'Saving...' : initialData ? 'Update Article' : 'Create Article'}
-            </Button>
           </div>
         </form>
       )}
