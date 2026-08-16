@@ -82,9 +82,6 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-10 relative z-20">
             <div>
-              <span className="inline-block text-xs sm:text-sm font-heading font-bold text-impact-green tracking-wider uppercase mb-2">
-                UDBHAV IN ACTION
-              </span>
               <h2 className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-udbhav-blue-deep tracking-tight mb-2">
                 OUR MOMENTS
               </h2>
@@ -117,9 +114,6 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
           className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-10 relative z-20"
         >
           <div>
-            <span className="inline-block text-xs sm:text-sm font-heading font-bold text-impact-green tracking-wider uppercase mb-2">
-              UDBHAV IN ACTION
-            </span>
             <h2
               id="our-moments-heading"
               className="font-heading text-2xl sm:text-3xl lg:text-4xl font-bold text-udbhav-blue-deep tracking-tight mb-2"
@@ -148,18 +142,12 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
         </RevealCard>
 
         {/* Carousel Visual Stage */}
-        <RevealCard as="div" index={1} className="relative w-full mt-4">
+        <RevealCard as="div" index={1} className="relative w-full mt-4 sm:mt-8">
           <div 
-            className="relative w-full rounded-[32px] overflow-hidden bg-[#061A3A] py-8 md:py-12 shadow-2xl"
+            className="relative w-full overflow-hidden bg-transparent py-4 md:py-8"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           >
-            {/* Premium Background Glows */}
-            <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
-              <div className="absolute w-[80%] h-[80%] bg-[#1a4a9c] rounded-full blur-[100px] opacity-[0.25] mix-blend-screen" />
-              <div className="absolute w-[300px] h-[300px] bg-cyan-400 rounded-full blur-[120px] opacity-[0.1]" />
-            </div>
-
             {/* Carousel Track */}
             <div className="relative w-full h-[220px] sm:h-[300px] md:h-[360px] flex items-center justify-center perspective-[1200px]">
               
@@ -186,10 +174,10 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
                   return (
                     <motion.div
                       key={photo.id}
-                      className={`absolute rounded-[18px] md:rounded-[22px] overflow-hidden cursor-pointer ${
+                      className={`absolute rounded-[18px] md:rounded-[22px] overflow-hidden cursor-pointer bg-white ${
                         isActive 
-                          ? 'ring-1 ring-white/30 shadow-[0_20px_50px_rgba(0,0,0,0.5),0_0_40px_rgba(34,211,238,0.15)]' 
-                          : 'ring-1 ring-white/10 shadow-xl'
+                          ? 'ring-1 ring-slate-200 shadow-[0_20px_50px_rgba(15,23,42,0.15),0_0_40px_rgba(15,23,42,0.05)]' 
+                          : 'ring-1 ring-slate-200/50 shadow-[0_8px_30px_rgba(15,23,42,0.08)]'
                       }`}
                       style={{
                         width: isMobile ? "260px" : (isTablet ? "360px" : "480px"),
@@ -231,7 +219,8 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
                         sizes="(max-width: 640px) 260px, (max-width: 1024px) 360px, 480px"
                         priority={isActive || absOffset === 1}
                       />
-                      {!isActive && <div className="absolute inset-0 bg-black/10 pointer-events-none transition-opacity duration-700" />}
+                      {/* Optional subtle gradient overlay just to make the image distinct on white edges, if any */}
+                      {!isActive && <div className="absolute inset-0 bg-white/5 pointer-events-none transition-opacity duration-700" />}
                     </motion.div>
                   );
                 })}
@@ -240,31 +229,31 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
               {/* Navigation Arrows */}
               <button 
                 onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-                className="absolute left-3 sm:left-6 md:left-8 z-50 p-2 sm:p-3 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md transition-all ring-1 ring-white/20 hover:scale-110 shadow-lg group"
+                className="absolute left-1 sm:left-4 md:left-6 z-50 p-2 sm:p-3 rounded-full bg-white/90 hover:bg-white text-udbhav-blue-deep border border-slate-200/60 backdrop-blur-md transition-all shadow-[0_4px_14px_rgba(15,23,42,0.08)] hover:shadow-[0_6px_20px_rgba(15,23,42,0.12)] hover:scale-105 group"
                 aria-label="Previous photo"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 sm:w-6 sm:h-6 group-hover:-translate-x-0.5 transition-transform"><path d="m15 18-6-6 6-6"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 sm:w-6 sm:h-6 group-hover:-translate-x-0.5 transition-transform"><path d="m15 18-6-6 6-6"/></svg>
               </button>
               
               <button 
                 onClick={(e) => { e.stopPropagation(); handleNext(); }}
-                className="absolute right-3 sm:right-6 md:right-8 z-50 p-2 sm:p-3 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md transition-all ring-1 ring-white/20 hover:scale-110 shadow-lg group"
+                className="absolute right-1 sm:right-4 md:right-6 z-50 p-2 sm:p-3 rounded-full bg-white/90 hover:bg-white text-udbhav-blue-deep border border-slate-200/60 backdrop-blur-md transition-all shadow-[0_4px_14px_rgba(15,23,42,0.08)] hover:shadow-[0_6px_20px_rgba(15,23,42,0.12)] hover:scale-105 group"
                 aria-label="Next photo"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-0.5 transition-transform"><path d="m9 18 6-6-6-6"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-0.5 transition-transform"><path d="m9 18 6-6-6-6"/></svg>
               </button>
             </div>
 
             {/* Pagination Dots */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-6 sm:mt-8 z-50 max-w-[80vw] mx-auto">
+            <div className="flex flex-wrap items-center justify-center gap-2 mt-6 sm:mt-10 z-50 max-w-[80vw] mx-auto">
               {randomPhotos.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentIndex(i)}
                   className={`rounded-full transition-all duration-300 ${
                     i === currentIndex 
-                      ? "w-6 h-2 bg-white ring-1 ring-white/50" 
-                      : "w-2 h-2 bg-white/30 hover:bg-white/60"
+                      ? "w-6 h-2 bg-impact-green" 
+                      : "w-2 h-2 bg-slate-300 hover:bg-slate-400"
                   }`}
                   aria-label={`Go to slide ${i + 1}`}
                 />
