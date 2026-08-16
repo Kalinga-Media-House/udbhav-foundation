@@ -15,11 +15,10 @@ type SortType = 'newest' | 'oldest';
 
 interface NewsAndStoriesHubProps {
   articles: ArticleWithMedia[];
-  events: UpcomingEventItem[];
   podcasts: PodcastEpisodeItem[];
 }
 
-export function NewsAndStoriesHub({ articles, events, podcasts }: NewsAndStoriesHubProps) {
+export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps) {
   const [activeTab, setActiveTab] = useState<TabType>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<SortType>('newest');
@@ -35,47 +34,80 @@ export function NewsAndStoriesHub({ articles, events, podcasts }: NewsAndStories
   };
 
   // Derived state for filtering
-  const filteredArticles = useMemo(() => {
-    let result = articles.filter((a) => {
+  // 1. Process all base articles through search query
+  const baseSearchedArticles = useMemo(() => {
+    return articles.filter((a) => {
       const query = searchQuery.toLowerCase();
       return (
         a.title.toLowerCase().includes(query) ||
         (a.summary && a.summary.toLowerCase().includes(query)) ||
-        (a.category && a.category.toLowerCase().includes(query))
+        (a.category && a.category.toLowerCase().includes(query)) ||
+        (a.event_location && a.event_location.toLowerCase().includes(query))
       );
+    }).sort((a, b) => {
+      if (sortOrder === 'newest') {
+        return new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime();
+      }
+      return new Date(a.published_at || a.created_at).getTime() - new Date(b.published_at || b.created_at).getTime();
     });
-
-    if (sortOrder === 'newest') {
-      result.sort((a, b) => new Date(b.published_at || b.created_at).getTime() - new Date(a.published_at || a.created_at).getTime());
-    } else {
-      result.sort((a, b) => new Date(a.published_at || a.created_at).getTime() - new Date(b.published_at || b.created_at).getTime());
-    }
-    return result;
   }, [articles, searchQuery, sortOrder]);
 
-  const featuredArticle = filteredArticles.find(a => a.is_featured) || filteredArticles[0];
-  const regularArticles = filteredArticles.filter(a => a.id !== featuredArticle?.id);
+  // 2. Classify Events using Asia/Kolkata rules
+  const { upcomingEvents, pastEvents } = useMemo(() => {
+    const eventsOnly = baseSearchedArticles.filter(a => a.category === 'Event');
+    
+    // Get current time in Asia/Kolkata
+    const nowInKolkata = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })).getTime();
 
-  const filteredUpcomingEvents = useMemo(() => {
-    return events.filter((e) => {
-      const query = searchQuery.toLowerCase();
-      return (
-        e.title.toLowerCase().includes(query) ||
-        e.description.toLowerCase().includes(query) ||
-        e.location.toLowerCase().includes(query)
-      );
-    }).filter(e => e.registrationStatus !== 'Completed' && e.registrationStatus !== 'Cancelled');
-  }, [events, searchQuery]);
+    const upcoming: typeof eventsOnly = [];
+    const past: typeof eventsOnly = [];
 
-  const filteredPastEvents = useMemo(() => {
-    return events.filter((e) => {
-      const query = searchQuery.toLowerCase();
-      return (
-        e.title.toLowerCase().includes(query) ||
-        e.description.toLowerCase().includes(query)
-      );
-    }).filter(e => e.registrationStatus === 'Completed' || e.registrationStatus === 'Cancelled');
-  }, [events, searchQuery]);
+    eventsOnly.forEach(e => {
+      if (!e.event_date) {
+        past.push(e); // Invalid event data
+        return;
+      }
+      // Create a date object representing the event end in Kolkata
+      let endDateStr = e.event_date;
+      if (e.event_end_time) {
+        endDateStr = `${e.event_date}T${e.event_end_time}`;
+      } else if (e.event_start_time) {
+        endDateStr = `${e.event_date}T${e.event_start_time}`;
+      } else {
+        endDateStr = `${e.event_date}T23:59:59`;
+      }
+      
+      const effectiveEndDate = new Date(new Date(endDateStr).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })).getTime();
+      
+      if (effectiveEndDate >= nowInKolkata) {
+        upcoming.push(e);
+      } else {
+        past.push(e);
+      }
+    });
+
+    return { upcomingEvents: upcoming, pastEvents: past };
+  }, [baseSearchedArticles]);
+
+  // 3. Filter News/Stories explicitly (no events)
+  const filteredNewsAndStories = useMemo(() => {
+    return baseSearchedArticles.filter(a => a.category !== 'Event');
+  }, [baseSearchedArticles]);
+
+  // 4. Determine featured article (can be news or event)
+  const featuredArticle = useMemo(() => {
+    if (activeTab === 'Podcast') return undefined; // No featured article on podcast tab
+    let pool = baseSearchedArticles;
+    if (activeTab === 'News & Stories') pool = filteredNewsAndStories;
+    if (activeTab === 'Upcoming Events') pool = upcomingEvents;
+    if (activeTab === 'Past Events') pool = pastEvents;
+    
+    return pool.find(a => a.is_featured) || pool[0];
+  }, [baseSearchedArticles, filteredNewsAndStories, upcomingEvents, pastEvents, activeTab]);
+
+  const regularNewsAndStories = filteredNewsAndStories.filter(a => a.id !== featuredArticle?.id);
+  const filteredUpcomingEvents = upcomingEvents.filter(a => a.id !== featuredArticle?.id);
+  const filteredPastEvents = pastEvents.filter(a => a.id !== featuredArticle?.id);
 
   const filteredPodcasts = useMemo(() => {
     return podcasts.filter((p) => {
@@ -184,7 +216,9 @@ export function NewsAndStoriesHub({ articles, events, podcasts }: NewsAndStories
                   />
                 </div>
                 <div className="p-6 sm:p-10 flex flex-col justify-center w-full lg:w-[45%]">
-                  <span className="text-[#439B25] text-xs font-bold uppercase tracking-wider mb-3">FEATURED STORY</span>
+                  <span className="text-[#439B25] text-xs font-bold uppercase tracking-wider mb-3">
+                    FEATURED {featuredArticle.category === 'Event' ? 'EVENT' : 'STORY'}
+                  </span>
                   <h2 className="text-2xl sm:text-3xl font-heading font-bold text-udbhav-blue-deep mb-4 hover:text-[#439B25] transition-colors">
                     <Link href={`/news-and-stories/${featuredArticle.slug}`}>
                       {featuredArticle.title}
@@ -264,20 +298,25 @@ export function NewsAndStoriesHub({ articles, events, podcasts }: NewsAndStories
             
             {filteredUpcomingEvents.length > 0 ? (
               <div className="flex flex-col">
-                {filteredUpcomingEvents.map((event) => (
+                {filteredUpcomingEvents.map((event) => {
+                  const evtDate = new Date(event.event_date || event.published_at || event.created_at);
+                  const day = evtDate.getDate().toString().padStart(2, '0');
+                  const month = evtDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+                  
+                  return (
                   <div key={event.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 py-6 border-b border-gray-100 last:border-0">
                     <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
                       <div className="flex flex-col items-center justify-center min-w-[50px] shrink-0">
                         <span className="font-heading text-2xl font-bold leading-none text-udbhav-blue-deep">
-                          {event.dayMonthBadge.day}
+                          {day}
                         </span>
                         <span className="text-xs font-bold uppercase tracking-widest text-[#439B25] mt-1">
-                          {event.dayMonthBadge.month}
+                          {month}
                         </span>
                       </div>
                       <div className="relative w-24 h-16 sm:w-32 sm:h-20 shrink-0 rounded-lg overflow-hidden bg-gray-100">
                         <Image
-                          src={event.imageUrl}
+                          src={event.cover_image?.cdn_url || '/placeholder-image.jpg'}
                           alt={event.title}
                           fill
                           sizes="(max-width: 640px) 96px, 128px"
@@ -291,26 +330,31 @@ export function NewsAndStoriesHub({ articles, events, podcasts }: NewsAndStories
                         {event.title}
                       </h4>
                       <p className="text-gray-600 text-sm truncate mb-2">
-                        {event.description}
+                        {event.summary}
                       </p>
                       <div className="flex items-center gap-3 text-xs text-gray-500">
-                        <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{event.location}</span>
-                        <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" />{event.startTime} {event.endTime && `– ${event.endTime}`}</span>
+                        <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{event.event_location || 'TBA'}</span>
+                        <span className="flex items-center gap-1">
+                          <Clock className="h-3.5 w-3.5" />
+                          {event.event_start_time ? new Date(`1970-01-01T${event.event_start_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'TBA'}
+                          {event.event_end_time && ` – ${new Date(`1970-01-01T${event.event_end_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`}
+                        </span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3 mt-4 sm:mt-0 shrink-0 w-full sm:w-auto">
-                      <Link href="/volunteers" className="text-sm font-semibold text-gray-600 hover:text-udbhav-blue-deep transition-colors">
+                      <Link href={`/news-and-stories/${event.slug}`} className="text-sm font-semibold text-gray-600 hover:text-udbhav-blue-deep transition-colors">
                         Details &rarr;
                       </Link>
-                      {event.registrationStatus === 'Registration Open' && (
-                        <Link href={event.registrationUrl || '/volunteers'} className="text-sm font-semibold text-[#439B25] hover:text-[#317a19] transition-colors ml-2">
+                      {event.registration_url && (
+                        <Link href={event.registration_url} className="text-sm font-semibold text-[#439B25] hover:text-[#317a19] transition-colors ml-2" target="_blank">
                           Register
                         </Link>
                       )}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="py-16 text-center">
@@ -327,12 +371,15 @@ export function NewsAndStoriesHub({ articles, events, podcasts }: NewsAndStories
             <h3 className="text-2xl font-heading font-bold text-udbhav-blue-deep mb-6">Past Events</h3>
             {filteredPastEvents.length > 0 ? (
               <div className="flex flex-col">
-                {filteredPastEvents.map((event) => (
+                {filteredPastEvents.map((event) => {
+                  const evtDate = new Date(event.event_date || event.published_at || event.created_at);
+                  const formattedDate = evtDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+                  return (
                   <div key={event.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 py-4 border-b border-gray-100 last:border-0 opacity-80 hover:opacity-100 transition-opacity">
                     <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
                       <div className="relative w-20 h-14 sm:w-28 sm:h-16 shrink-0 rounded-lg overflow-hidden bg-gray-100 grayscale-[0.3]">
                         <Image
-                          src={event.imageUrl}
+                          src={event.cover_image?.cdn_url || '/placeholder-image.jpg'}
                           alt={event.title}
                           fill
                           sizes="(max-width: 640px) 80px, 112px"
@@ -346,12 +393,19 @@ export function NewsAndStoriesHub({ articles, events, podcasts }: NewsAndStories
                         {event.title}
                       </h4>
                       <div className="flex items-center gap-3 text-xs text-gray-500">
-                        <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{event.eventDate}</span>
-                        {event.location && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{event.location}</span>}
+                        <span className="flex items-center gap-1"><Calendar className="h-3.5 w-3.5" />{formattedDate}</span>
+                        {event.event_location && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" />{event.event_location}</span>}
                       </div>
                     </div>
+
+                    <div className="mt-4 sm:mt-0 shrink-0 w-full sm:w-auto">
+                      <Link href={`/news-and-stories/${event.slug}`} className="text-sm font-semibold text-gray-500 hover:text-gray-800 transition-colors">
+                        View Recap &rarr;
+                      </Link>
+                    </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="py-16 text-center">

@@ -115,6 +115,7 @@ export function NewsListClient({ initialArticles }: NewsListClientProps) {
             <option value="ALL">All Categories</option>
             <option value="News">News</option>
             <option value="Story">Story</option>
+            <option value="Event">Event</option>
             <option value="Press Release">Press Release</option>
             <option value="Announcement">Announcement</option>
             <option value="Blog">Blog</option>
@@ -222,9 +223,16 @@ export function NewsListClient({ initialArticles }: NewsListClientProps) {
                       </button>
                     </td>
                     <td data-label="Date" className="px-0 md:px-6 py-2 md:py-4 text-xs text-gray-500 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
-                      {article.published_at
-                        ? new Date(article.published_at).toLocaleDateString('en-IN')
-                        : new Date(article.created_at).toLocaleDateString('en-IN')}
+                      {article.category === 'Event' && article.event_date ? (
+                        <span>
+                          <span className="font-semibold text-gray-700">Event:</span>{' '}
+                          {new Date(article.event_date).toLocaleDateString('en-IN')}
+                        </span>
+                      ) : article.published_at ? (
+                        new Date(article.published_at).toLocaleDateString('en-IN')
+                      ) : (
+                        new Date(article.created_at).toLocaleDateString('en-IN')
+                      )}
                     </td>
                     <td className="space-x-2 px-0 md:px-6 py-3 md:py-4 text-left md:text-right block md:table-cell">
                       <button

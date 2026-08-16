@@ -11,6 +11,7 @@ export type ArticleRow = {
   title: string;
   subtitle: string | null;
   content: string;
+  excerpt: string | null;
   summary: string | null;
   cover_image_id: string | null;
   author_profile_id: string | null;
@@ -25,6 +26,12 @@ export type ArticleRow = {
   created_at: string;
   updated_at: string;
   is_deleted: boolean;
+  event_date?: string | null;
+  event_start_time?: string | null;
+  event_end_time?: string | null;
+  event_location?: string | null;
+  event_address?: string | null;
+  registration_url?: string | null;
 };
 
 export type ArticleWithMedia = ArticleRow & {
@@ -55,9 +62,11 @@ function computeReadingTime(content: string): number {
 }
 
 export function enrichArticleMetadata(article: ArticleRow): ArticleWithMedia {
+  const raw = article as unknown as Record<string, unknown>;
   const meta = (article.metadata || {}) as Record<string, unknown>;
   return {
     ...article,
+    summary: (raw.summary as string | null) ?? (raw.excerpt as string | null) ?? null,
     category: typeof meta.category === 'string' ? meta.category : 'News',
     tags: Array.isArray(meta.tags) ? (meta.tags as string[]) : [],
     author_name: typeof meta.author_name === 'string' ? meta.author_name : 'UDBHAV Foundation',
@@ -380,7 +389,7 @@ export class NewsRepository implements IWriteRepository<ArticleRow, ArticleCreat
       .select('*', { count: 'exact' })
       .eq('is_deleted', false)
       .eq('status', 'Published')
-      .or(`title.ilike.%${query}%,summary.ilike.%${query}%,content.ilike.%${query}%`)
+      .or(`title.ilike.%${query}%,excerpt.ilike.%${query}%,content.ilike.%${query}%`)
       .order('published_at', { ascending: false })
       .range(from, from + pagination.limit - 1);
 

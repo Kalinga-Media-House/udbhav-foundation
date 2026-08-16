@@ -8,6 +8,7 @@ export type ArticleStatus = z.infer<typeof articleStatusSchema>;
 export const articleCategorySchema = z.enum([
   'News',
   'Story',
+  'Event',
   'Press Release',
   'Announcement',
   'Blog',
@@ -40,7 +41,7 @@ export const articleMetadataSchema = z.object({
   reading_time: z.number().int().nonnegative().optional(),
 }).passthrough();
 
-export const createArticleSchema = z.object({
+export const createArticleBaseSchema = z.object({
   article_code: z.string().min(2).max(30).regex(/^[A-Z0-9-]+$/, 'Article code must be uppercase alphanumeric and hyphens'),
   slug: slugValidator,
   title: z.string().min(3, 'Title must be at least 3 characters').max(300, 'Title cannot exceed 300 characters'),
@@ -54,9 +55,36 @@ export const createArticleSchema = z.object({
   published_at: z.string().datetime().nullable().optional(),
   is_featured: z.boolean().default(false),
   metadata: articleMetadataSchema.default({}),
+  
+  event_date: z.string().nullable().optional(),
+  event_start_time: z.string().nullable().optional(),
+  event_end_time: z.string().nullable().optional(),
+  event_location: z.string().nullable().optional(),
+  event_address: z.string().nullable().optional(),
+  registration_url: z.string().trim().optional().nullable().transform(val => val === '' ? null : val).refine(val => val === null || z.string().url().safeParse(val).success, { message: 'Invalid URL format' }),
 });
 
-export const updateArticleSchema = createArticleSchema.omit({ article_code: true }).partial();
+const validateEventFields = (data: any, ctx: z.RefinementCtx) => {
+  if (data.metadata?.category === 'Event' && !data.event_date) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Event date is required for events',
+      path: ['event_date'],
+    });
+  }
+  if (data.event_start_time && data.event_end_time) {
+    if (data.event_end_time < data.event_start_time) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'End time cannot be before start time',
+        path: ['event_end_time'],
+      });
+    }
+  }
+};
+
+export const createArticleSchema = createArticleBaseSchema.superRefine(validateEventFields);
+export const updateArticleSchema = createArticleBaseSchema.omit({ article_code: true }).partial().superRefine(validateEventFields);
 
 export type CreateArticleDTO = z.infer<typeof createArticleSchema>;
 export type UpdateArticleDTO = z.infer<typeof updateArticleSchema>;

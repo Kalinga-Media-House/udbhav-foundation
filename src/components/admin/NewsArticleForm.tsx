@@ -41,6 +41,7 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
       category: (initialData?.category || 'News') as
         | 'News'
         | 'Story'
+        | 'Event'
         | 'Press Release'
         | 'Announcement'
         | 'Blog'
@@ -58,6 +59,12 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
       canonical_url:
         (((initialData?.metadata || {}) as Record<string, unknown>).canonical_url as string) || '',
     },
+    event_date: (initialData as any)?.event_date || null,
+    event_start_time: (initialData as any)?.event_start_time || null,
+    event_end_time: (initialData as any)?.event_end_time || null,
+    event_location: (initialData as any)?.event_location || null,
+    event_address: (initialData as any)?.event_address || null,
+    registration_url: (initialData as any)?.registration_url || null,
   });
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -208,6 +215,7 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
             >
               <option value="News">News</option>
               <option value="Story">Story</option>
+              <option value="Event">Event</option>
               <option value="Announcement">Announcement</option>
               <option value="Press Release">Press Release</option>
             </select>
@@ -226,6 +234,82 @@ export function NewsArticleForm({ initialData, programs, events }: NewsArticleFo
               className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
             />
           </div>
+
+          {/* Event Details (Conditional) */}
+          {formData.metadata?.category === 'Event' && (
+            <div className="space-y-4 rounded-md border border-gray-200 bg-gray-50 p-5">
+              <h3 className="text-base font-semibold">Event Details</h3>
+              
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                <div>
+                  <Label htmlFor="event_date" className="text-sm font-medium">Event Date *</Label>
+                  <Input
+                    id="event_date"
+                    type="date"
+                    value={(formData as any).event_date || ''}
+                    onChange={(e) => setFormData({ ...formData, event_date: e.target.value } as any)}
+                    required
+                    className="mt-1.5"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="event_start_time" className="text-sm font-medium">Start Time</Label>
+                  <Input
+                    id="event_start_time"
+                    type="time"
+                    value={(formData as any).event_start_time || ''}
+                    onChange={(e) => setFormData({ ...formData, event_start_time: e.target.value } as any)}
+                    className="mt-1.5"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="event_end_time" className="text-sm font-medium">End Time</Label>
+                  <Input
+                    id="event_end_time"
+                    type="time"
+                    value={(formData as any).event_end_time || ''}
+                    onChange={(e) => setFormData({ ...formData, event_end_time: e.target.value } as any)}
+                    className="mt-1.5"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <Label htmlFor="event_location" className="text-sm font-medium">Location (e.g. City)</Label>
+                  <Input
+                    id="event_location"
+                    value={(formData as any).event_location || ''}
+                    onChange={(e) => setFormData({ ...formData, event_location: e.target.value } as any)}
+                    placeholder="Bhubaneswar"
+                    className="mt-1.5"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="event_address" className="text-sm font-medium">Full Address</Label>
+                  <Input
+                    id="event_address"
+                    value={(formData as any).event_address || ''}
+                    onChange={(e) => setFormData({ ...formData, event_address: e.target.value } as any)}
+                    placeholder="123 Main St..."
+                    className="mt-1.5"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="registration_url" className="text-sm font-medium">Registration URL</Label>
+                <Input
+                  id="registration_url"
+                  type="url"
+                  value={(formData as any).registration_url || ''}
+                  onChange={(e) => setFormData({ ...formData, registration_url: e.target.value } as any)}
+                  placeholder="https://..."
+                  className="mt-1.5"
+                />
+              </div>
+            </div>
+          )}
 
           {/* Article Content */}
           <div>

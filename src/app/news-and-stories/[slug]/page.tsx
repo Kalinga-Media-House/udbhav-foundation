@@ -222,6 +222,48 @@ export default async function NewsArticlePage({ params }: PageProps) {
           </div>
         )}
 
+        {/* Event Information Box (Only if Category === 'Event') */}
+        {article.category === 'Event' && article.event_date && (
+          <div className="max-w-3xl mx-auto mb-8 p-6 rounded-2xl bg-[#EEF8E9] border border-[#439B25]/20 shadow-sm">
+            <h3 className="text-xl font-heading font-bold text-udbhav-blue-deep mb-4">Event Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1">
+                <span className="text-sm font-semibold text-gray-500 uppercase">Date</span>
+                <span className="text-base text-gray-800 font-medium">
+                  {new Date(article.event_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                </span>
+              </div>
+              <div className="flex flex-col gap-1">
+                <span className="text-sm font-semibold text-gray-500 uppercase">Time</span>
+                <span className="text-base text-gray-800 font-medium">
+                  {article.event_start_time ? new Date(`1970-01-01T${article.event_start_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'TBA'}
+                  {article.event_end_time && ` - ${new Date(`1970-01-01T${article.event_end_time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`}
+                </span>
+              </div>
+              <div className="flex flex-col gap-1 md:col-span-2">
+                <span className="text-sm font-semibold text-gray-500 uppercase">Location</span>
+                <span className="text-base text-gray-800 font-medium">
+                  {article.event_location || 'TBA'}
+                </span>
+                {article.event_address && (
+                  <span className="text-sm text-gray-600 mt-1">{article.event_address}</span>
+                )}
+              </div>
+            </div>
+            {article.registration_url && (
+              <div className="mt-6 pt-4 border-t border-[#439B25]/20">
+                <Link
+                  href={article.registration_url}
+                  target="_blank"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#439B25] text-white font-heading font-bold hover:bg-[#317a19] transition-colors"
+                >
+                  Register Now <ExternalLink className="h-4 w-4" />
+                </Link>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Article Summary Excerpt */}
         {article.summary && (
           <div className="max-w-3xl mx-auto mb-8 p-6 rounded-2xl bg-[#EAF3FF]/60 border-l-4 border-[#12245F] text-gray-800 font-medium text-base sm:text-lg">
