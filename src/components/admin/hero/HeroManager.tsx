@@ -37,7 +37,11 @@ export function HeroManager({ section, initialImages, title }: HeroManagerProps)
     setError(null);
 
     try {
-      await adminAddHeroImages(section, imageUrls);
+      const res = await adminAddHeroImages(section, imageUrls);
+      if (res.error) {
+        setError(res.error);
+        return;
+      }
       setClearTrigger(prev => prev + 1);
       window.location.reload(); 
     } catch (err: any) {
@@ -48,7 +52,11 @@ export function HeroManager({ section, initialImages, title }: HeroManagerProps)
   const handleDelete = async (id: string, url: string) => {
     if (!confirm('Are you sure you want to delete this image?')) return;
     try {
-      await adminDeleteHeroImage(id, url);
+      const res = await adminDeleteHeroImage(id, url);
+      if (res.error) {
+        setError(res.error);
+        return;
+      }
       setImages(images.filter(img => img.id !== id));
     } catch (err: any) {
       setError(err.message || 'Failed to delete image.');
@@ -57,7 +65,11 @@ export function HeroManager({ section, initialImages, title }: HeroManagerProps)
 
   const handleToggle = async (id: string, currentStatus: boolean) => {
     try {
-      await adminToggleHeroImage(id, !currentStatus);
+      const res = await adminToggleHeroImage(id, !currentStatus);
+      if (res.error) {
+        setError(res.error);
+        return;
+      }
       setImages(images.map(img => img.id === id ? { ...img, is_active: !currentStatus } : img));
     } catch (err: any) {
       setError(err.message || 'Failed to toggle status.');
@@ -73,9 +85,15 @@ export function HeroManager({ section, initialImages, title }: HeroManagerProps)
     setImages(newImages);
 
     try {
-      await adminReorderHeroImages(section, newImages.map(img => img.id));
+      const res = await adminReorderHeroImages(section, newImages.map(img => img.id));
+      if (res.error) {
+        setError(res.error);
+        // Revert visually if failed
+        setImages(images);
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to reorder.');
+      setImages(images);
     }
   };
 
@@ -88,9 +106,14 @@ export function HeroManager({ section, initialImages, title }: HeroManagerProps)
     setImages(newImages);
 
     try {
-      await adminReorderHeroImages(section, newImages.map(img => img.id));
+      const res = await adminReorderHeroImages(section, newImages.map(img => img.id));
+      if (res.error) {
+        setError(res.error);
+        setImages(images);
+      }
     } catch (err: any) {
       setError(err.message || 'Failed to reorder.');
+      setImages(images);
     }
   };
 

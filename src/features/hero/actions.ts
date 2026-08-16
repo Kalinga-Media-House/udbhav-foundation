@@ -2,8 +2,11 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { deleteFile } from '@/lib/storage/delete';
 
-export async function adminAddHeroImages(section: 'home_hero' | 'programmes_hero', imageUrls: string[]) {
+export type HeroActionResponse = { success: boolean; error?: string };
+
+export async function adminAddHeroImages(section: 'home_hero' | 'programmes_hero', imageUrls: string[]): Promise<HeroActionResponse> {
   const supabase = await createClient();
 
   // Check auth
@@ -17,7 +20,7 @@ export async function adminAddHeroImages(section: 'home_hero' | 'programmes_hero
     .eq('section', section);
 
   if (currentImages && currentImages.length + imageUrls.length > 5) {
-    throw new Error('Maximum of 5 images allowed per section');
+    return { success: false, error: 'Maximum of 5 images allowed per section' };
   }
 
   // Insert DB records
@@ -35,7 +38,7 @@ export async function adminAddHeroImages(section: 'home_hero' | 'programmes_hero
 
   if (dbError) {
     console.error('Database insert error:', dbError);
-    throw new Error('Failed to save image records');
+    return { success: false, error: `Database insert error: ${dbError.message}` };
   }
 
   revalidatePath('/');
@@ -45,12 +48,10 @@ export async function adminAddHeroImages(section: 'home_hero' | 'programmes_hero
   return { success: true };
 }
 
-export async function adminDeleteHeroImage(id: string, imageUrl: string) {
+export async function adminDeleteHeroImage(id: string, imageUrl: string): Promise<HeroActionResponse> {
   const supabase = await createClient();
   
-  // Note: We don't delete from R2 / media_files here to ensure we don't 
-  // break images that might be used elsewhere. We just remove it from the hero.
-
+  // 1. Delete from Supabase hero_images
   const { error } = await supabase
     .from('hero_images')
     .delete()
@@ -58,7 +59,20 @@ export async function adminDeleteHeroImage(id: string, imageUrl: string) {
 
   if (error) {
     console.error('Database delete error:', error);
-    throw new Error('Failed to delete image record');
+    return { success: false, error: `Database delete error: ${error.message}` };
+  }
+
+  // 2. Extract R2 object key from the imageUrl and delete it from R2 and media_files
+  try {
+    const urlObj = new URL(imageUrl);
+    const pathname = urlObj.pathname.startsWith('/') ? urlObj.pathname.substring(1) : urlObj.pathname;
+    if (pathname) {
+      await deleteFile(pathname);
+      await supabase.from('media_files').delete().eq('r2_object_key', pathname);
+    }
+  } catch (deleteErr) {
+    console.error('Failed to delete from R2/media_files:', deleteErr);
+    // Non-fatal, we successfully deleted from DB
   }
 
   revalidatePath('/');
@@ -68,7 +82,7 @@ export async function adminDeleteHeroImage(id: string, imageUrl: string) {
   return { success: true };
 }
 
-export async function adminToggleHeroImage(id: string, isActive: boolean) {
+export async function adminToggleHeroImage(id: string, isActive: boolean): Promise<HeroActionResponse> {
   const supabase = await createClient();
   
   const { error } = await supabase
@@ -78,7 +92,7 @@ export async function adminToggleHeroImage(id: string, isActive: boolean) {
 
   if (error) {
     console.error('Database update error:', error);
-    throw new Error('Failed to update image status');
+    return { success: false, error: `Database update error: ${error.message}` };
   }
 
   revalidatePath('/');
@@ -88,7 +102,7 @@ export async function adminToggleHeroImage(id: string, isActive: boolean) {
   return { success: true };
 }
 
-export async function adminReorderHeroImages(section: 'home_hero' | 'programmes_hero', orderedIds: string[]) {
+export async function adminReorderHeroImages(section: 'home_hero' | 'programmes_hero', orderedIds: string[]): Promise<HeroActionResponse> {
   const supabase = await createClient();
   
   // Upsert display_order for multiple records isn't straightforward without RPC,
