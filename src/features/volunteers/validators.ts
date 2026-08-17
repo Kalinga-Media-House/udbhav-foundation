@@ -126,7 +126,10 @@ export const updateVolunteerProfileSchema = z.object({
   skills: z.string().nullable().optional(),
   profile_picture_url: z.string().nullable().optional(),
   is_publicly_visible: z.boolean().optional(),
-  blood_group: z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown']).nullable().optional(),
+  blood_group: z.preprocess(
+    (val) => (val === "" ? null : val),
+    z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown']).nullable().optional()
+  ),
   notes: z.string().nullable().optional(),
 });
 

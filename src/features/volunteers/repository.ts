@@ -315,29 +315,109 @@ export class VolunteersRepository implements IWriteRepository<VolunteerRow, Volu
     try {
       const supabase = createAdminClient();
       
-      let appId = id;
+      let appId: string = id;
+      let volunteerId: string | null = null;
       
-      // 1. Check if the provided ID is a volunteer ID (when editing from Active Volunteers)
-      const { data: volCheck } = await (supabase as any).from('volunteers').select('application_id, id').eq('id', id).single();
+      // ── Step 1: Resolve the passed ID ──────────────────────────────────
+      // The Edit Profile button in the Applications tab passes a volunteer_applications.id.
+      // The Active Volunteers tab (if it ever adds an Edit Profile button) would pass a volunteers.id.
+      // We need to figure out which table the ID belongs to and find both IDs.
+      
+      const { data: volCheck } = await (supabase as any)
+        .from('volunteers')
+        .select('application_id, id')
+        .eq('id', id)
+        .maybeSingle();
       
       if (volCheck) {
+        // The passed ID is a volunteers.id
+        volunteerId = volCheck.id;
         appId = volCheck.application_id;
-        // 2. Explicitly sync the public visibility flag to the volunteers table
-        if (data.is_publicly_visible !== undefined) {
-          await (supabase as any).from('volunteers')
-            .update({ is_publicly_visible: data.is_publicly_visible, updated_at: new Date().toISOString() })
-            .eq('id', volCheck.id);
-        }
+        serverLogger.info(`[updateApplicationProfile] ID ${id} is a volunteers.id, application_id=${appId}`);
       } else {
-        // If it's an application ID, we might also want to update the volunteer if it exists
-        const { data: volFromApp } = await (supabase as any).from('volunteers').select('id').eq('application_id', id).single();
-        if (volFromApp && data.is_publicly_visible !== undefined) {
-          await (supabase as any).from('volunteers')
-            .update({ is_publicly_visible: data.is_publicly_visible, updated_at: new Date().toISOString() })
-            .eq('id', volFromApp.id);
+        // The passed ID is (presumably) a volunteer_applications.id
+        appId = id;
+        serverLogger.info(`[updateApplicationProfile] ID ${id} is a volunteer_applications.id`);
+        
+        // Find the linked volunteers record
+        const { data: volFromApp } = await (supabase as any)
+          .from('volunteers')
+          .select('id')
+          .eq('application_id', id)
+          .maybeSingle();
+        
+        if (volFromApp) {
+          volunteerId = volFromApp.id;
+          serverLogger.info(`[updateApplicationProfile] Found linked volunteer ${volunteerId} for application ${id}`);
+        } else {
+          serverLogger.warn(`[updateApplicationProfile] No volunteers record found for application_id=${id}`);
         }
       }
-
+      
+      // ── Step 2: Update volunteers.is_publicly_visible (authoritative) ──
+      if (data.is_publicly_visible !== undefined) {
+        if (volunteerId) {
+          const { error: volUpdateErr, data: volUpdateData } = await (supabase as any)
+            .from('volunteers')
+            .update({ is_publicly_visible: data.is_publicly_visible, updated_at: new Date().toISOString() })
+            .eq('id', volunteerId)
+            .select('id, is_publicly_visible')
+            .single();
+          
+          if (volUpdateErr) {
+            serverLogger.error(`[updateApplicationProfile] FAILED to update volunteers.is_publicly_visible for volunteer ${volunteerId}`, volUpdateErr);
+            throw new DatabaseError(`Failed to update volunteer visibility: ${volUpdateErr.message}`);
+          }
+          serverLogger.info(`[updateApplicationProfile] Updated volunteers.is_publicly_visible=${data.is_publicly_visible} for volunteer ${volunteerId}`, volUpdateData);
+        } else {
+          // No volunteer record exists. If the application is accepted, auto-create one.
+          const { data: appRow } = await (supabase as any)
+            .from('volunteer_applications')
+            .select('id, full_name, status, motivation, availability, skills, preferred_areas, city_district, state, occupation')
+            .eq('id', appId)
+            .single();
+          
+          if (appRow && appRow.status === 'accepted') {
+            serverLogger.warn(`[updateApplicationProfile] Auto-creating missing volunteer record for accepted application ${appId} (${appRow.full_name})`);
+            const code = await this.generateVolunteerCode();
+            const { data: newVol, error: createErr } = await (supabase as any)
+              .from('volunteers')
+              .insert({
+                application_id: appId,
+                volunteer_code: code,
+                status: 'Active',
+                biography: appRow.motivation,
+                is_publicly_visible: data.is_publicly_visible,
+                metadata: {
+                  skills: appRow.skills,
+                  preferred_areas: appRow.preferred_areas,
+                  city_district: appRow.city_district,
+                  state: appRow.state,
+                  occupation: appRow.occupation,
+                  application_id: appId,
+                  auto_created: true,
+                },
+              })
+              .select('id, is_publicly_visible')
+              .single();
+            
+            if (createErr) {
+              serverLogger.error(`[updateApplicationProfile] FAILED to auto-create volunteer record for application ${appId}`, createErr);
+              throw new DatabaseError(`Failed to create volunteer record: ${createErr.message}`);
+            }
+            volunteerId = newVol.id;
+            serverLogger.info(`[updateApplicationProfile] Auto-created volunteer ${volunteerId} with is_publicly_visible=${data.is_publicly_visible}`);
+          } else {
+            serverLogger.error(`[updateApplicationProfile] Cannot update visibility: no volunteer record and application ${appId} status is '${appRow?.status ?? 'NOT FOUND'}'`);
+            throw new DatabaseError(`Cannot update visibility: volunteer record not found for application ${appId}. Application must be accepted first.`);
+          }
+        }
+      }
+      
+      // ── Step 3: Update volunteer_applications profile fields ───────────
+      // Strip is_publicly_visible from the application update — it is authoritative only in the volunteers table.
+      // We still write it to volunteer_applications for backward compatibility / display in the admin UI,
+      // but the volunteers table is the single source of truth for public visibility.
       const updateData = { ...data, updated_at: new Date().toISOString() };
       const { data: row, error } = await (supabase as any).from('volunteer_applications')
         .update(updateData)
@@ -366,7 +446,7 @@ export class VolunteersRepository implements IWriteRepository<VolunteerRow, Volu
         is_publicly_visible,
         status,
         created_at,
-        volunteer_applications (
+        volunteer_applications!inner (
           full_name,
           profile_picture_url,
           occupation,

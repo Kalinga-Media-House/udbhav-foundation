@@ -488,7 +488,7 @@ export function AdminVolunteersClient({
                               public_bio: app.public_bio || "",
                               volunteer_role: app.volunteer_role || "",
                               skills: app.skills || "",
-                              is_publicly_visible: app.is_publicly_visible || false,
+                              is_publicly_visible: app.is_publicly_visible ?? false,
                               blood_group: app.blood_group || "",
                               profile_picture_url: app.profile_picture_url || "",
                             });
@@ -748,7 +748,7 @@ export function AdminVolunteersClient({
                   <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
                     <input
                       type="checkbox"
-                      checked={profileInput.is_publicly_visible || false}
+                      checked={profileInput.is_publicly_visible ?? false}
                       onChange={(e) => setProfileInput(prev => ({ ...prev, is_publicly_visible: e.target.checked }))}
                       className="w-4 h-4 text-teal-600 rounded"
                     />

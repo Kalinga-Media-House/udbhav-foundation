@@ -2,6 +2,7 @@ import type { PaginatedResult } from '@/contracts/repositories';
 import { ok, fail, fromRepo } from '@/contracts/services';
 import type { ServiceResult } from '@/contracts/services';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { serverLogger } from '@/lib/logger/server-logger';
 import type { Pagination, ID } from '@/types';
 
 import { volunteersRepository } from './repository';
@@ -199,31 +200,36 @@ export class VolunteersService {
       const { data: existingVol } = await (supabase.from('volunteers') as any)
         .select('id')
         .eq('application_id', application.id)
-        .single();
+        .maybeSingle();
 
       if (!existingVol) {
         const code = await volunteersRepository.generateVolunteerCode();
-        const volCreate = {
-          application_id: application.id,
-          volunteer_code: code,
-          status: 'Active',
-          biography: application.motivation,
-          availability: application.availability,
-          metadata: {
-            skills: application.skills,
-            preferred_areas: application.preferred_areas,
-            city_district: application.city_district,
-            state: application.state,
-            occupation: application.occupation,
+        const { data: newVol, error: createErr } = await (supabase.from('volunteers') as any)
+          .insert({
             application_id: application.id,
-          } as any,
-          created_by: userId,
-          updated_by: userId,
-        };
-        const volCreateResult = await volunteersRepository.create(volCreate as any);
-        if (volCreateResult.error) {
-          return fail(`Failed to create active volunteer record: ${volCreateResult.error.message}`);
+            volunteer_code: code,
+            status: 'Active',
+            biography: application.motivation,
+            is_publicly_visible: false,
+            metadata: {
+              skills: application.skills,
+              preferred_areas: application.preferred_areas,
+              city_district: application.city_district,
+              state: application.state,
+              occupation: application.occupation,
+              application_id: application.id,
+            },
+            created_by: userId,
+            updated_by: userId,
+          })
+          .select('id')
+          .single();
+
+        if (createErr) {
+          serverLogger.error(`[reviewApplication] Failed to create volunteer for application ${application.id}`, createErr);
+          return fail(`Failed to create active volunteer record: ${createErr.message}`);
         }
+        serverLogger.info(`[reviewApplication] Created volunteer ${newVol.id} for accepted application ${application.id} (${application.full_name})`);
       }
 
       await this.notifyByEmail(

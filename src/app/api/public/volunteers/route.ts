@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { volunteersService } from "@/features/volunteers";
 import { serverLogger } from "@/lib/logger/server-logger";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
