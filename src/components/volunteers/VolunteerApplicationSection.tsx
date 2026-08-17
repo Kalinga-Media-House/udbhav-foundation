@@ -1,16 +1,21 @@
 "use client";
 
 import {
-  HeartHandshake,
   CheckCircle2,
   AlertCircle,
   Loader2,
+  ChevronDown,
   Check,
+  Search,
+  X,
 } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
+import { INDIAN_STATES } from "@/constants/indian-states";
+
+// ─── Constants ───────────────────────────────────────────────────────────────
 
 const OCCUPATION_OPTIONS = [
   "School Student",
@@ -44,6 +49,348 @@ const AVAILABILITY_OPTIONS = [
   "Regular Field Volunteering",
 ];
 
+// ─── Shared Sub-Components ───────────────────────────────────────────────────
+
+/**
+ * Searchable Combobox for single-value selection (e.g. State).
+ */
+function SearchableCombobox({
+  id,
+  label,
+  value,
+  onChange,
+  options,
+  placeholder,
+  error,
+  disabled = false,
+}: {
+  id: string;
+  label: React.ReactNode;
+  value: string;
+  onChange: (val: string) => void;
+  options: readonly string[];
+  placeholder: string;
+  error?: string;
+  disabled?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [highlightIdx, setHighlightIdx] = useState(-1);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+
+  const filtered = query
+    ? options.filter((o) => o.toLowerCase().includes(query.toLowerCase()))
+    : [...options];
+
+  // Close on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+        // Reset query to selected value when closing
+        setQuery("");
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  // Scroll highlighted item into view
+  useEffect(() => {
+    if (highlightIdx >= 0 && listRef.current) {
+      const el = listRef.current.children[highlightIdx] as HTMLElement | undefined;
+      el?.scrollIntoView({ block: "nearest" });
+    }
+  }, [highlightIdx]);
+
+  const handleSelect = useCallback(
+    (val: string) => {
+      onChange(val);
+      setQuery("");
+      setOpen(false);
+      setHighlightIdx(-1);
+    },
+    [onChange]
+  );
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!open) {
+      if (e.key === "ArrowDown" || e.key === "Enter") {
+        e.preventDefault();
+        setOpen(true);
+      }
+      return;
+    }
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setHighlightIdx((prev) => (prev < filtered.length - 1 ? prev + 1 : 0));
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setHighlightIdx((prev) => (prev > 0 ? prev - 1 : filtered.length - 1));
+        break;
+      case "Enter":
+        e.preventDefault();
+        if (highlightIdx >= 0 && filtered[highlightIdx]) {
+          handleSelect(filtered[highlightIdx]);
+        }
+        break;
+      case "Escape":
+        e.preventDefault();
+        setOpen(false);
+        setQuery("");
+        setHighlightIdx(-1);
+        break;
+    }
+  };
+
+  return (
+    <div ref={containerRef} className="relative">
+      <label
+        htmlFor={id}
+        className="block text-xs sm:text-sm font-semibold mb-1.5"
+        style={{ color: "#17231D" }}
+      >
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          ref={inputRef}
+          id={id}
+          type="text"
+          role="combobox"
+          aria-expanded={open}
+          aria-autocomplete="list"
+          aria-controls={`${id}-listbox`}
+          aria-invalid={!!error}
+          disabled={disabled}
+          value={open ? query : value}
+          placeholder={disabled ? "Select state first" : placeholder}
+          onFocus={() => {
+            setOpen(true);
+            setQuery("");
+            setHighlightIdx(-1);
+          }}
+          onChange={(e) => {
+            setQuery(e.target.value);
+            setHighlightIdx(-1);
+            if (!open) setOpen(true);
+          }}
+          onKeyDown={handleKeyDown}
+          className={`w-full rounded-xl px-4 py-3 pr-10 text-sm border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all ${
+            disabled
+              ? "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
+              : "bg-[#FDFCF8] border-soft-border"
+          } ${error ? "border-red-400" : ""}`}
+        />
+        <ChevronDown
+          className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none transition-transform ${
+            open ? "rotate-180" : ""
+          } ${disabled ? "text-gray-300" : "text-[#7A8A82]"}`}
+        />
+      </div>
+
+      {open && !disabled && (
+        <ul
+          ref={listRef}
+          id={`${id}-listbox`}
+          role="listbox"
+          className="absolute z-50 mt-1 w-full max-h-48 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-lg py-1"
+        >
+          {filtered.length === 0 ? (
+            <li className="px-4 py-2 text-sm text-gray-400">No results found</li>
+          ) : (
+            filtered.map((opt, idx) => (
+              <li
+                key={opt}
+                role="option"
+                aria-selected={value === opt}
+                className={`px-4 py-2.5 text-sm cursor-pointer flex items-center gap-2 ${
+                  highlightIdx === idx
+                    ? "bg-[#EEF8E9] text-[#439B25]"
+                    : value === opt
+                      ? "bg-[#F3F7F5] text-[#17231D] font-semibold"
+                      : "text-[#17231D] hover:bg-[#F8FAF9]"
+                }`}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleSelect(opt);
+                }}
+                onMouseEnter={() => setHighlightIdx(idx)}
+              >
+                {value === opt && <Check className="w-3.5 h-3.5 text-[#439B25] shrink-0" />}
+                <span className={value === opt ? "" : "pl-5.5"}>{opt}</span>
+              </li>
+            ))
+          )}
+        </ul>
+      )}
+
+      {error && <p className="text-red-600 text-xs mt-1">{error}</p>}
+    </div>
+  );
+}
+
+/**
+ * Multi-Select Dropdown for selecting multiple values.
+ */
+function MultiSelectDropdown({
+  id,
+  label,
+  helperText,
+  options,
+  selected,
+  onChange,
+  placeholder,
+  error,
+}: {
+  id: string;
+  label: React.ReactNode;
+  helperText?: string;
+  options: readonly string[];
+  selected: string[];
+  onChange: (val: string[]) => void;
+  placeholder: string;
+  error?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  const toggle = (opt: string) => {
+    onChange(
+      selected.includes(opt)
+        ? selected.filter((s) => s !== opt)
+        : [...selected, opt]
+    );
+  };
+
+  const removeItem = (opt: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    onChange(selected.filter((s) => s !== opt));
+  };
+
+  // Build display summary
+  const getSummary = () => {
+    if (selected.length === 0) return null;
+    if (selected.length <= 2) return selected.join(", ");
+    return `${selected.slice(0, 2).join(", ")} +${selected.length - 2}`;
+  };
+
+  const summary = getSummary();
+
+  return (
+    <div ref={containerRef} className="relative">
+      <label
+        htmlFor={id}
+        className="block text-xs sm:text-sm font-semibold mb-1"
+        style={{ color: "#17231D" }}
+      >
+        {label}
+      </label>
+      {helperText && (
+        <p className="text-xs text-[#5E6B63] mb-1.5">{helperText}</p>
+      )}
+
+      <button
+        id={id}
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        aria-haspopup="listbox"
+        className={`w-full rounded-xl px-4 py-3 text-sm border bg-[#FDFCF8] text-left flex items-center justify-between gap-2 focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all ${
+          error ? "border-red-400" : "border-soft-border"
+        }`}
+      >
+        <span className={summary ? "text-[#17231D]" : "text-[#7A8A82]"}>
+          {summary || placeholder}
+        </span>
+        <ChevronDown
+          className={`w-4 h-4 shrink-0 text-[#7A8A82] transition-transform ${
+            open ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {/* Selected Tags (shown below the button when items are selected) */}
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {selected.map((item) => (
+            <span
+              key={item}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#EEF8E9] text-[#2D7A16] text-xs font-medium border border-[#439B25]/20"
+            >
+              {item}
+              <button
+                type="button"
+                onClick={(e) => removeItem(item, e)}
+                className="hover:text-red-600 transition-colors"
+                aria-label={`Remove ${item}`}
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {open && (
+        <ul
+          role="listbox"
+          aria-multiselectable="true"
+          className="absolute z-50 mt-1 w-full max-h-56 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-lg py-1"
+        >
+          {options.map((opt) => {
+            const isSelected = selected.includes(opt);
+            return (
+              <li
+                key={opt}
+                role="option"
+                aria-selected={isSelected}
+                className="px-4 py-2.5 text-sm cursor-pointer flex items-center gap-3 hover:bg-[#F8FAF9] transition-colors"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  toggle(opt);
+                }}
+              >
+                <span
+                  className={`w-4 h-4 rounded flex items-center justify-center border shrink-0 transition-colors ${
+                    isSelected
+                      ? "bg-[#439B25] border-[#439B25] text-white"
+                      : "border-gray-300 bg-white"
+                  }`}
+                >
+                  {isSelected && <Check className="w-3 h-3 stroke-[2.5]" />}
+                </span>
+                <span className={isSelected ? "text-[#17231D] font-medium" : "text-[#17231D]"}>
+                  {opt}
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {error && <p className="text-red-600 text-xs mt-1.5">{error}</p>}
+    </div>
+  );
+}
+
+// ─── Form Types ──────────────────────────────────────────────────────────────
+
 interface FormErrors {
   fullName?: string;
   email?: string;
@@ -58,6 +405,8 @@ interface FormErrors {
   general?: string;
 }
 
+// ─── Main Component ──────────────────────────────────────────────────────────
+
 export function VolunteerApplicationSection() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -65,10 +414,10 @@ export function VolunteerApplicationSection() {
   const [age, setAge] = useState("");
   const [occupation, setOccupation] = useState("");
   const [cityDistrict, setCityDistrict] = useState("");
-  const [state, setState] = useState("Odisha");
+  const [state, setState] = useState("");
   const [preferredAreas, setPreferredAreas] = useState<string[]>([]);
   const [skills, setSkills] = useState("");
-  const [availability, setAvailability] = useState("");
+  const [availability, setAvailability] = useState<string[]>([]);
   const [motivation, setMotivation] = useState("");
   const [consent, setConsent] = useState(false);
 
@@ -93,14 +442,19 @@ export function VolunteerApplicationSection() {
       window.removeEventListener("select-volunteer-area", handleSelectArea);
   }, []);
 
-  const togglePreferredArea = (area: string) => {
-    setPreferredAreas((prev) =>
-      prev.includes(area) ? prev.filter((a) => a !== area) : [...prev, area]
-    );
-    if (errors.preferredAreas) {
-      setErrors((prev) => ({ ...prev, preferredAreas: undefined }));
-    }
-  };
+  // Reset city when state changes
+  const handleStateChange = useCallback(
+    (newState: string) => {
+      if (newState !== state) {
+        setCityDistrict("");
+      }
+      setState(newState);
+      if (errors.state) {
+        setErrors((prev) => ({ ...prev, state: undefined }));
+      }
+    },
+    [state, errors.state]
+  );
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -124,19 +478,19 @@ export function VolunteerApplicationSection() {
       newErrors.occupation = "Please select your current occupation.";
     }
 
-    if (!cityDistrict.trim()) {
-      newErrors.cityDistrict = "Please enter your city or district.";
+    if (!state.trim()) {
+      newErrors.state = "Please select your state.";
     }
 
-    if (!state.trim()) {
-      newErrors.state = "Please enter your state.";
+    if (!cityDistrict.trim()) {
+      newErrors.cityDistrict = "Please enter your city or district.";
     }
 
     if (preferredAreas.length === 0) {
       newErrors.preferredAreas = "Please select at least one volunteer area.";
     }
 
-    if (!availability) {
+    if (availability.length === 0) {
       newErrors.availability = "Please select your availability.";
     }
 
@@ -179,7 +533,8 @@ export function VolunteerApplicationSection() {
           state: state.trim(),
           preferredAreas,
           skills: skills.trim(),
-          availability,
+          // Join availability array into comma-separated string for backend compatibility
+          availability: availability.join(", "),
           motivation: motivation.trim(),
           consent,
         }),
@@ -200,6 +555,23 @@ export function VolunteerApplicationSection() {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const resetForm = () => {
+    setIsSubmitted(false);
+    setFullName("");
+    setEmail("");
+    setMobileNumber("");
+    setAge("");
+    setOccupation("");
+    setCityDistrict("");
+    setState("");
+    setPreferredAreas([]);
+    setSkills("");
+    setAvailability([]);
+    setMotivation("");
+    setConsent(false);
+    setErrors({});
   };
 
   return (
@@ -241,11 +613,9 @@ export function VolunteerApplicationSection() {
         {/* Form Card */}
         <div className="max-w-4xl mx-auto">
           <RevealCard as="div" index={1}>
-            <div
-              className="rounded-3xl p-6 sm:p-8 md:p-11 shadow-xl border border-[#12245F]/15 bg-pure-white"
-            >
+            <div className="rounded-3xl p-6 sm:p-8 md:p-11 shadow-xl border border-[#12245F]/15 bg-pure-white">
               {isSubmitted ? (
-                /* Success Message State */
+                /* ── Success State ── */
                 <div className="flex flex-col items-center text-center py-10 sm:py-14 space-y-4">
                   <div className="w-16 h-16 rounded-full bg-[#EEF8E9] text-[#439B25] flex items-center justify-center border-2 border-[#439B25]">
                     <CheckCircle2 className="w-9 h-9" />
@@ -266,21 +636,7 @@ export function VolunteerApplicationSection() {
                   </p>
                   <button
                     type="button"
-                    onClick={() => {
-                      setIsSubmitted(false);
-                      setFullName("");
-                      setEmail("");
-                      setMobileNumber("");
-                      setAge("");
-                      setOccupation("");
-                      setCityDistrict("");
-                      setState("Odisha");
-                      setPreferredAreas([]);
-                      setSkills("");
-                      setAvailability("");
-                      setMotivation("");
-                      setConsent(false);
-                    }}
+                    onClick={resetForm}
                     className="mt-4 px-6 py-2.5 rounded-xl text-xs sm:text-sm font-heading font-semibold text-pure-white cursor-pointer"
                     style={{ background: "#439B25" }}
                   >
@@ -288,10 +644,11 @@ export function VolunteerApplicationSection() {
                   </button>
                 </div>
               ) : (
+                /* ── Form ── */
                 <form
                   onSubmit={handleSubmit}
                   noValidate
-                  className="space-y-6 sm:space-y-8"
+                  className="space-y-8"
                 >
                   {errors.general && (
                     <div
@@ -303,13 +660,13 @@ export function VolunteerApplicationSection() {
                     </div>
                   )}
 
-                  {/* SECTION 1: Personal Details */}
+                  {/* ── SECTION 1: Personal Information ── */}
                   <div>
                     <h3
                       className="font-heading text-base sm:text-lg font-bold pb-2.5 mb-4 border-b border-soft-border/60"
                       style={{ color: "#12245F" }}
                     >
-                      1. Personal Information
+                      Personal Information
                     </h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
@@ -327,19 +684,20 @@ export function VolunteerApplicationSection() {
                           type="text"
                           required
                           value={fullName}
-                          onChange={(e) => setFullName(e.target.value)}
+                          onChange={(e) => {
+                            setFullName(e.target.value);
+                            if (errors.fullName) setErrors((p) => ({ ...p, fullName: undefined }));
+                          }}
                           placeholder="Enter your full name"
                           aria-invalid={!!errors.fullName}
                           className="w-full rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8]"
                         />
                         {errors.fullName && (
-                          <p className="text-red-600 text-xs mt-1">
-                            {errors.fullName}
-                          </p>
+                          <p className="text-red-600 text-xs mt-1">{errors.fullName}</p>
                         )}
                       </div>
 
-                      {/* Email Address */}
+                      {/* Email */}
                       <div>
                         <label
                           htmlFor="email"
@@ -353,15 +711,16 @@ export function VolunteerApplicationSection() {
                           type="email"
                           required
                           value={email}
-                          onChange={(e) => setEmail(e.target.value)}
+                          onChange={(e) => {
+                            setEmail(e.target.value);
+                            if (errors.email) setErrors((p) => ({ ...p, email: undefined }));
+                          }}
                           placeholder="your.email@example.com"
                           aria-invalid={!!errors.email}
                           className="w-full rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8]"
                         />
                         {errors.email && (
-                          <p className="text-red-600 text-xs mt-1">
-                            {errors.email}
-                          </p>
+                          <p className="text-red-600 text-xs mt-1">{errors.email}</p>
                         )}
                       </div>
 
@@ -379,15 +738,16 @@ export function VolunteerApplicationSection() {
                           type="tel"
                           required
                           value={mobileNumber}
-                          onChange={(e) => setMobileNumber(e.target.value)}
+                          onChange={(e) => {
+                            setMobileNumber(e.target.value);
+                            if (errors.mobileNumber) setErrors((p) => ({ ...p, mobileNumber: undefined }));
+                          }}
                           placeholder="10-digit Indian mobile number"
                           aria-invalid={!!errors.mobileNumber}
                           className="w-full rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8]"
                         />
                         {errors.mobileNumber && (
-                          <p className="text-red-600 text-xs mt-1">
-                            {errors.mobileNumber}
-                          </p>
+                          <p className="text-red-600 text-xs mt-1">{errors.mobileNumber}</p>
                         )}
                       </div>
 
@@ -399,9 +759,7 @@ export function VolunteerApplicationSection() {
                           style={{ color: "#17231D" }}
                         >
                           Age{" "}
-                          <span className="font-normal text-xs text-[#5E6B63]">
-                            (Optional)
-                          </span>
+                          <span className="font-normal text-xs text-[#5E6B63]">(Optional)</span>
                         </label>
                         <input
                           id="age"
@@ -428,7 +786,10 @@ export function VolunteerApplicationSection() {
                           id="occupation"
                           required
                           value={occupation}
-                          onChange={(e) => setOccupation(e.target.value)}
+                          onChange={(e) => {
+                            setOccupation(e.target.value);
+                            if (errors.occupation) setErrors((p) => ({ ...p, occupation: undefined }));
+                          }}
                           aria-invalid={!!errors.occupation}
                           className="w-full rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8]"
                         >
@@ -440,208 +801,162 @@ export function VolunteerApplicationSection() {
                           ))}
                         </select>
                         {errors.occupation && (
-                          <p className="text-red-600 text-xs mt-1">
-                            {errors.occupation}
-                          </p>
+                          <p className="text-red-600 text-xs mt-1">{errors.occupation}</p>
                         )}
                       </div>
 
-                      {/* City / District */}
-                      <div>
+                      {/* State (Searchable Combobox) */}
+                      <SearchableCombobox
+                        id="state"
+                        label={<>State *</>}
+                        value={state}
+                        onChange={handleStateChange}
+                        options={INDIAN_STATES}
+                        placeholder="Search and select your state"
+                        error={errors.state}
+                      />
+
+                      {/* City / District (dependent on State) */}
+                      <div className="sm:col-span-2 sm:max-w-[calc(50%-0.625rem)]">
                         <label
                           htmlFor="cityDistrict"
                           className="block text-xs sm:text-sm font-semibold mb-1.5"
                           style={{ color: "#17231D" }}
                         >
-                          Current City / District *
+                          City / District *
                         </label>
                         <input
                           id="cityDistrict"
                           type="text"
                           required
+                          disabled={!state}
                           value={cityDistrict}
-                          onChange={(e) => setCityDistrict(e.target.value)}
-                          placeholder="e.g. Bhubaneswar / Khordha"
+                          onChange={(e) => {
+                            setCityDistrict(e.target.value);
+                            if (errors.cityDistrict) setErrors((p) => ({ ...p, cityDistrict: undefined }));
+                          }}
+                          placeholder={state ? `Enter city or district in ${state}` : "Select state first"}
                           aria-invalid={!!errors.cityDistrict}
-                          className="w-full rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8]"
+                          className={`w-full rounded-xl px-4 py-3 text-sm border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all ${
+                            !state
+                              ? "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
+                              : "bg-[#FDFCF8] border-soft-border"
+                          } ${errors.cityDistrict ? "border-red-400" : ""}`}
                         />
                         {errors.cityDistrict && (
-                          <p className="text-red-600 text-xs mt-1">
-                            {errors.cityDistrict}
-                          </p>
-                        )}
-                      </div>
-
-                      {/* State */}
-                      <div className="sm:col-span-2">
-                        <label
-                          htmlFor="state"
-                          className="block text-xs sm:text-sm font-semibold mb-1.5"
-                          style={{ color: "#17231D" }}
-                        >
-                          State *
-                        </label>
-                        <input
-                          id="state"
-                          type="text"
-                          required
-                          value={state}
-                          onChange={(e) => setState(e.target.value)}
-                          placeholder="State"
-                          aria-invalid={!!errors.state}
-                          className="w-full sm:w-1/2 rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8]"
-                        />
-                        {errors.state && (
-                          <p className="text-red-600 text-xs mt-1">
-                            {errors.state}
-                          </p>
+                          <p className="text-red-600 text-xs mt-1">{errors.cityDistrict}</p>
                         )}
                       </div>
                     </div>
                   </div>
 
-                  {/* SECTION 2: Volunteering Preferences */}
+                  {/* ── SECTION 2: Contribution Preferences ── */}
                   <div>
                     <h3
                       className="font-heading text-base sm:text-lg font-bold pb-2.5 mb-4 border-b border-soft-border/60"
                       style={{ color: "#12245F" }}
                     >
-                      2. Contribution Preferences
+                      Contribution Preferences
                     </h3>
 
-                    {/* Preferred Volunteer Areas */}
-                    <div className="mb-6">
-                      <label className="block text-xs sm:text-sm font-semibold mb-2" style={{ color: "#17231D" }}>
-                        Preferred Volunteer Area *{" "}
-                        <span className="font-normal text-xs text-[#5E6B63]">
-                          (Select one or more)
-                        </span>
-                      </label>
+                    <MultiSelectDropdown
+                      id="preferredAreas"
+                      label={<>Contribution Preferences *</>}
+                      helperText="Select the areas where you would like to contribute."
+                      options={VOLUNTEER_AREAS}
+                      selected={preferredAreas}
+                      onChange={(val) => {
+                        setPreferredAreas(val);
+                        if (errors.preferredAreas) setErrors((p) => ({ ...p, preferredAreas: undefined }));
+                      }}
+                      placeholder="Select contribution areas"
+                      error={errors.preferredAreas}
+                    />
+                  </div>
 
-                      <div className="flex flex-wrap gap-2 sm:gap-2.5">
-                        {VOLUNTEER_AREAS.map((area) => {
-                          const selected = preferredAreas.includes(area);
-                          return (
-                            <button
-                              key={area}
-                              type="button"
-                              onClick={() => togglePreferredArea(area)}
-                              className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer border ${
-                                selected
-                                  ? "bg-[#EEF8E9] border-[#439B25] text-[#439B25] shadow-sm font-semibold"
-                                  : "bg-[#FDFCF8] border-soft-border text-[#17231D] hover:border-[#12245F]/30"
-                              }`}
-                            >
-                              <span
-                                className={`w-4 h-4 rounded-md flex items-center justify-center border ${
-                                  selected
-                                    ? "bg-[#439B25] border-[#439B25] text-pure-white"
-                                    : "border-soft-border"
-                                }`}
-                              >
-                                {selected && <Check className="w-3 h-3 stroke-[2.5]" />}
-                              </span>
-                              {area}
-                            </button>
-                          );
-                        })}
+                  {/* ── SECTION 3: Availability ── */}
+                  <div>
+                    <h3
+                      className="font-heading text-base sm:text-lg font-bold pb-2.5 mb-4 border-b border-soft-border/60"
+                      style={{ color: "#12245F" }}
+                    >
+                      Availability
+                    </h3>
+
+                    <MultiSelectDropdown
+                      id="availability"
+                      label={<>Availability *</>}
+                      options={AVAILABILITY_OPTIONS}
+                      selected={availability}
+                      onChange={(val) => {
+                        setAvailability(val);
+                        if (errors.availability) setErrors((p) => ({ ...p, availability: undefined }));
+                      }}
+                      placeholder="Select your availability"
+                      error={errors.availability}
+                    />
+                  </div>
+
+                  {/* ── SECTION 4: Additional Information ── */}
+                  <div>
+                    <h3
+                      className="font-heading text-base sm:text-lg font-bold pb-2.5 mb-4 border-b border-soft-border/60"
+                      style={{ color: "#12245F" }}
+                    >
+                      Additional Information
+                    </h3>
+
+                    <div className="space-y-5">
+                      {/* Skills */}
+                      <div>
+                        <label
+                          htmlFor="skills"
+                          className="block text-xs sm:text-sm font-semibold mb-1.5"
+                          style={{ color: "#17231D" }}
+                        >
+                          Skills You Can Contribute{" "}
+                          <span className="font-normal text-xs text-[#5E6B63]">(Optional)</span>
+                        </label>
+                        <textarea
+                          id="skills"
+                          rows={3}
+                          value={skills}
+                          onChange={(e) => setSkills(e.target.value)}
+                          placeholder="Tell us about your skills, experience, interests, or ideas."
+                          className="w-full rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8] resize-y"
+                        />
                       </div>
-                      {errors.preferredAreas && (
-                        <p className="text-red-600 text-xs mt-1.5">
-                          {errors.preferredAreas}
-                        </p>
-                      )}
-                    </div>
 
-                    {/* Availability */}
-                    <div className="mb-6">
-                      <label className="block text-xs sm:text-sm font-semibold mb-2" style={{ color: "#17231D" }}>
-                        Availability *
-                      </label>
-                      <div className="flex flex-wrap gap-2 sm:gap-2.5">
-                        {AVAILABILITY_OPTIONS.map((opt) => {
-                          const selected = availability === opt;
-                          return (
-                            <button
-                              key={opt}
-                              type="button"
-                              onClick={() => {
-                                setAvailability(opt);
-                                if (errors.availability) {
-                                  setErrors((prev) => ({
-                                    ...prev,
-                                    availability: undefined,
-                                  }));
-                                }
-                              }}
-                              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 cursor-pointer border ${
-                                selected
-                                  ? "bg-[#EAF3FF] border-[#202B78] text-[#202B78] shadow-sm font-semibold"
-                                  : "bg-[#FDFCF8] border-soft-border text-[#17231D] hover:border-[#12245F]/30"
-                              }`}
-                            >
-                              {opt}
-                            </button>
-                          );
-                        })}
+                      {/* Motivation */}
+                      <div>
+                        <label
+                          htmlFor="motivation"
+                          className="block text-xs sm:text-sm font-semibold mb-1.5"
+                          style={{ color: "#17231D" }}
+                        >
+                          Why Do You Want to Join UDBHAV? *
+                        </label>
+                        <textarea
+                          id="motivation"
+                          rows={4}
+                          required
+                          value={motivation}
+                          onChange={(e) => {
+                            setMotivation(e.target.value);
+                            if (errors.motivation) setErrors((p) => ({ ...p, motivation: undefined }));
+                          }}
+                          placeholder="Share your motivation for volunteering with our community..."
+                          aria-invalid={!!errors.motivation}
+                          className="w-full rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8] resize-y"
+                        />
+                        {errors.motivation && (
+                          <p className="text-red-600 text-xs mt-1">{errors.motivation}</p>
+                        )}
                       </div>
-                      {errors.availability && (
-                        <p className="text-red-600 text-xs mt-1.5">
-                          {errors.availability}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Skills You Can Contribute */}
-                    <div className="mb-6">
-                      <label
-                        htmlFor="skills"
-                        className="block text-xs sm:text-sm font-semibold mb-1.5"
-                        style={{ color: "#17231D" }}
-                      >
-                        Skills You Can Contribute{" "}
-                        <span className="font-normal text-xs text-[#5E6B63]">
-                          (Optional)
-                        </span>
-                      </label>
-                      <textarea
-                        id="skills"
-                        rows={3}
-                        value={skills}
-                        onChange={(e) => setSkills(e.target.value)}
-                        placeholder="Tell us about your skills, experience, interests, or ideas."
-                        className="w-full rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8] resize-y"
-                      />
-                    </div>
-
-                    {/* Why Do You Want to Join UDBHAV? */}
-                    <div>
-                      <label
-                        htmlFor="motivation"
-                        className="block text-xs sm:text-sm font-semibold mb-1.5"
-                        style={{ color: "#17231D" }}
-                      >
-                        Why Do You Want to Join UDBHAV? *
-                      </label>
-                      <textarea
-                        id="motivation"
-                        rows={4}
-                        required
-                        value={motivation}
-                        onChange={(e) => setMotivation(e.target.value)}
-                        placeholder="Share your motivation for volunteering with our community..."
-                        aria-invalid={!!errors.motivation}
-                        className="w-full rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8] resize-y"
-                      />
-                      {errors.motivation && (
-                        <p className="text-red-600 text-xs mt-1">
-                          {errors.motivation}
-                        </p>
-                      )}
                     </div>
                   </div>
 
-                  {/* Consent Checkbox */}
+                  {/* ── Agreement ── */}
                   <div className="pt-2">
                     <label className="flex items-start gap-3 cursor-pointer select-none">
                       <input
@@ -649,29 +964,25 @@ export function VolunteerApplicationSection() {
                         checked={consent}
                         onChange={(e) => {
                           setConsent(e.target.checked);
-                          if (errors.consent) {
-                            setErrors((prev) => ({
-                              ...prev,
-                              consent: undefined,
-                            }));
-                          }
+                          if (errors.consent) setErrors((p) => ({ ...p, consent: undefined }));
                         }}
                         className="mt-1 w-4 h-4 rounded accent-[#439B25] cursor-pointer"
                       />
-                      <span className="text-xs sm:text-sm leading-relaxed" style={{ color: "#17231D" }}>
+                      <span
+                        className="text-xs sm:text-sm leading-relaxed"
+                        style={{ color: "#17231D" }}
+                      >
                         I confirm that the information provided is accurate and
-                        agree to follow UDBHAV Foundation’s volunteer guidelines
+                        agree to follow UDBHAV Foundation&apos;s volunteer guidelines
                         and code of conduct. *
                       </span>
                     </label>
                     {errors.consent && (
-                      <p className="text-red-600 text-xs mt-1">
-                        {errors.consent}
-                      </p>
+                      <p className="text-red-600 text-xs mt-1">{errors.consent}</p>
                     )}
                   </div>
 
-                  {/* Submit Button */}
+                  {/* ── Submit Button ── */}
                   <div className="pt-2">
                     <button
                       type="submit"
@@ -682,13 +993,10 @@ export function VolunteerApplicationSection() {
                       {isSubmitting ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
-                          <span>Submitting Application...</span>
+                          <span>Submitting...</span>
                         </>
                       ) : (
-                        <>
-                          <HeartHandshake className="w-5 h-5" />
-                          <span>Submit Volunteer Application</span>
-                        </>
+                        <span>Submit Volunteer Application</span>
                       )}
                     </button>
                   </div>
