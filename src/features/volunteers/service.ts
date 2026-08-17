@@ -139,7 +139,7 @@ export class VolunteersService {
     // Check for existing application (application-level duplicate guard)
     const existing = await volunteersRepository.findExistingApplication(normalizedMobile, normalizedEmail);
     if (existing) {
-      return fail('DUPLICATE_APPLICATION');
+      return fail(`DUPLICATE_APPLICATION:${existing.status}`);
     }
 
     const applicationCreate: VolunteerApplicationCreate = {

@@ -248,7 +248,7 @@ export function AdminVolunteersClient({
               : "border-transparent text-gray-500 hover:text-gray-900"
           }`}
         >
-          Application Queue ({applications.filter((a) => a.status === "pending").length} pending)
+          Application History ({applications.length})
         </button>
       </div>
 
@@ -350,7 +350,7 @@ export function AdminVolunteersClient({
         </div>
       )}
 
-      {/* Tab 2: Applications Queue */}
+      {/* Tab 2: Application History */}
       {activeTab === "applications" && (
         <div className="bg-transparent md:bg-white md:rounded-2xl md:border md:border-gray-200 md:shadow-sm overflow-hidden">
           <table className="w-full text-left border-collapse block md:table">
@@ -368,7 +368,7 @@ export function AdminVolunteersClient({
               {applications.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-gray-500">
-                    No applications found in the queue.
+                    No applications found in history.
                   </td>
                 </tr>
               ) : (

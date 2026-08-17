@@ -1,3 +1,4 @@
+import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server";
 
 import { volunteersService } from "@/features/volunteers";
@@ -11,11 +12,23 @@ export async function POST(request: Request) {
 
     if (!result.success) {
       // Specific handling for duplicate applications
-      if (result.error === 'DUPLICATE_APPLICATION') {
+      if (result.error && result.error.startsWith('DUPLICATE_APPLICATION')) {
+        const statusMatch = result.error.split(':');
+        const status = statusMatch.length > 1 ? statusMatch[1] : 'pending';
+        let customMessage = "An application with this mobile number or email address has already been submitted. Your application is currently under review.";
+        
+        if (status === 'Verified' || status === 'Accepted' || status === 'active') {
+          customMessage = "Your volunteer application has already been approved. Our team will contact you with the next steps.";
+        } else if (status === 'Rejected' || status === 'rejected') {
+          customMessage = "An application with this mobile number or email address already exists. Please contact UDBHAV if you need further assistance.";
+        } else {
+          customMessage = "Your application has already been submitted. Our team will review your application and contact you.";
+        }
+
         return NextResponse.json(
           {
             error: "DUPLICATE_APPLICATION",
-            message: "An application with this mobile number or email address has already been submitted. Your application is currently under review.",
+            message: customMessage,
           },
           { status: 409 }
         );
@@ -36,6 +49,8 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    revalidateTag("volunteers");
 
     return NextResponse.json(
       {

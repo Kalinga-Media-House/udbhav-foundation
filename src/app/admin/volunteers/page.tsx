@@ -20,7 +20,7 @@ export default async function AdminVolunteersPage() {
     const applications = appRes.data?.data || [];
 
     // Calculate Statistics for Dashboard Cards
-    const totalVolunteers = volunteers.length;
+    const totalApplications = applications.length;
     const activeVolunteers = volunteers.filter((v) => v.status === 'Verified').length;
     const pendingApplications = applications.filter((a) => a.status === 'pending').length;
     const hoursContributed = volunteers.reduce((acc, v) => acc + (v.total_hours || 0), 0);
@@ -41,8 +41,8 @@ export default async function AdminVolunteersPage() {
               <Users className="h-6 w-6 text-indigo-600" />
             </div>
             <div>
-              <p className="truncate text-sm font-medium text-gray-500">Total Volunteers</p>
-              <p className="text-2xl font-bold text-gray-900">{totalVolunteers}</p>
+              <p className="truncate text-sm font-medium text-gray-500">Total Applications</p>
+              <p className="text-2xl font-bold text-gray-900">{totalApplications}</p>
             </div>
           </div>
 

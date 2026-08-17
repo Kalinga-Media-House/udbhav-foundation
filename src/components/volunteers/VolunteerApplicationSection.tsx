@@ -422,9 +422,10 @@ export function VolunteerApplicationSection() {
   const [consent, setConsent] = useState(false);
 
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isDuplicate, setIsDuplicate] = useState(false);
+  const [duplicateMessage, setDuplicateMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Listen for 'select-volunteer-area' custom event dispatched by opportunity cards
   useEffect(() => {
@@ -543,6 +544,8 @@ export function VolunteerApplicationSection() {
 
       // Handle duplicate application (409 Conflict)
       if (response.status === 409) {
+        const data = await response.json().catch(() => ({}));
+        setDuplicateMessage(data.message || "An application with this mobile number or email address has already been submitted.");
         setIsDuplicate(true);
         return;
       }
@@ -567,6 +570,7 @@ export function VolunteerApplicationSection() {
   const resetForm = () => {
     setIsSubmitted(false);
     setIsDuplicate(false);
+    setDuplicateMessage("");
     setFullName("");
     setEmail("");
     setMobileNumber("");
@@ -638,20 +642,7 @@ export function VolunteerApplicationSection() {
                     className="max-w-md text-sm sm:text-base leading-relaxed"
                     style={{ color: "#5E6B63" }}
                   >
-                    An application with this mobile number or email address has already been
-                    submitted. Your application is currently under review.
-                  </p>
-                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#EAF3FF] border border-[#12245F]/20">
-                    <span className="w-2 h-2 rounded-full bg-[#E6A817] animate-pulse" />
-                    <span className="text-sm font-semibold" style={{ color: "#12245F" }}>
-                      Under Review
-                    </span>
-                  </div>
-                  <p
-                    className="max-w-sm text-sm leading-relaxed"
-                    style={{ color: "#5E6B63" }}
-                  >
-                    Our team will review your application and contact you.
+                    {duplicateMessage}
                   </p>
                   <button
                     type="button"
