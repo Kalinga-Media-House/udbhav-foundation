@@ -10,8 +10,18 @@ export async function POST(request: Request) {
     const result = await volunteersService.submitApplication(body);
 
     if (!result.success) {
+      // Sanitize error: never expose database internals to public users
+      const isValidationError = result.error && !result.error.includes('schema cache') && !result.error.includes('SQLSTATE') && !result.error.includes('relation') && !result.error.includes('column');
+      const userMessage = isValidationError
+        ? result.error
+        : "Unable to submit your application right now. Please try again in a moment.";
+      
+      if (!isValidationError) {
+        serverLogger.error("Volunteer application submission failed (sanitized)", new Error(result.error || "Unknown error"));
+      }
+      
       return NextResponse.json(
-        { error: result.error || "Missing required fields or consent." },
+        { error: userMessage },
         { status: 400 }
       );
     }
