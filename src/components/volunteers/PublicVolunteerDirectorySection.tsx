@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, Clock, Search, ShieldCheck, User } from "lucide-react";
+import { Award } from "lucide-react";
 import React, { useState, useEffect } from "react";
 
 import { Container } from "@/components/shared/Container";
@@ -8,18 +8,15 @@ import { RevealCard } from "@/components/shared/RevealCard";
 
 import { VolunteerProfileCard, type PublicVolunteer } from "./VolunteerProfileCard";
 
-
 export function PublicVolunteerDirectorySection() {
   const [volunteers, setVolunteers] = useState<PublicVolunteer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedType, setSelectedType] = useState("All");
-  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     async function loadVolunteers() {
       setIsLoading(true);
       try {
-        const res = await fetch(`/api/public/volunteers?type=${encodeURIComponent(selectedType)}&q=${encodeURIComponent(searchQuery)}`);
+        const res = await fetch(`/api/public/volunteers?limit=100`);
         if (res.ok) {
           const data = await res.json();
           setVolunteers(data.volunteers || []);
@@ -31,29 +28,31 @@ export function PublicVolunteerDirectorySection() {
       }
     }
     loadVolunteers();
-  }, [selectedType, searchQuery]);
+  }, []);
 
   return (
-    <section className="py-20 bg-gradient-to-b from-pure-white via-[#F8FAF9] to-pure-white border-b border-[#E6EBE9]">
-      <Container>
-        <div className="max-w-3xl mx-auto text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-bold text-[#17231D] tracking-tight mb-6">
-            Meet Our Active Changemakers
-          </h2>
-          
-          {/* Search Field */}
-          <div className="flex justify-center">
-            <div className="relative w-full max-w-md mx-auto">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#7A8A82]" />
-              <input
-                type="text"
-                placeholder="Search by bio or skill..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 rounded-full border border-[#D9E2DE] bg-white text-base text-[#17231D] placeholder-[#7A8A82] focus:outline-none focus:border-[#006633] focus:ring-2 focus:ring-[#006633]/10 shadow-sm transition-all"
-              />
-            </div>
-          </div>
+    <section className="relative pt-16 md:pt-24 pb-20 bg-gradient-to-b from-white via-[#F8FAF9] to-white border-b border-[#E6EBE9] overflow-hidden">
+      
+      {/* Decorative Background Elements */}
+      <div className="absolute top-0 inset-x-0 h-[400px] bg-gradient-to-b from-[#E8F2EC]/60 to-transparent pointer-events-none" />
+      <div className="absolute top-10 left-1/2 -translate-x-[150%] w-72 h-72 bg-[#006633]/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-10 left-1/2 translate-x-[50%] w-72 h-72 bg-[#12245F]/5 rounded-full blur-3xl pointer-events-none" />
+
+      <Container className="relative z-10">
+        
+        {/* Premium Hero Header */}
+        <div className="max-w-3xl mx-auto text-center mb-12 md:mb-16 px-4 sm:px-6">
+          <RevealCard>
+            <span className="inline-block py-1.5 px-4 rounded-full bg-[#E8F2EC] text-[#006633] text-[11px] md:text-xs font-bold tracking-widest uppercase mb-4 sm:mb-5 shadow-sm border border-[#006633]/10">
+              Our Change Makers
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-[#12245F] tracking-tight mb-4 sm:mb-6 leading-tight">
+              Meet Our Active Changemakers
+            </h2>
+            <p className="text-[14px] sm:text-[15px] md:text-lg text-[#4F5E57] max-w-2xl mx-auto leading-relaxed">
+              People who volunteer their time, skills, and passion to create meaningful change with UDBHAV FOUNDATION.
+            </p>
+          </RevealCard>
         </div>
 
         {/* Directory Grid */}
@@ -68,14 +67,14 @@ export function PublicVolunteerDirectorySection() {
             <Award className="w-12 h-12 text-[#7A8A82] mx-auto mb-3" />
             <h3 className="text-lg font-bold text-[#17231D]">No Volunteers Found</h3>
             <p className="text-sm text-[#4F5E57] mt-1">
-              No active volunteers match your current filter or search query.
+              There are currently no active public volunteers.
             </p>
           </div>
         ) : (
           <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5 lg:gap-6">
             {volunteers.map((vol, index) => (
-              <RevealCard key={vol.id}>
-                <VolunteerProfileCard volunteer={vol} index={index} />
+              <RevealCard key={vol.id} index={index}>
+                <VolunteerProfileCard volunteer={vol} />
               </RevealCard>
             ))}
           </div>
