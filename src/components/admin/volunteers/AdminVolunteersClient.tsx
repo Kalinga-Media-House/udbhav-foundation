@@ -6,9 +6,10 @@ import {
   Search,
   ShieldCheck,
   User,
+  Check,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   reviewVolunteerApplication,
@@ -24,6 +25,9 @@ import type {
   VolunteerRow,
   VolunteerApplicationRow,
 } from "@/features/volunteers/repository";
+import type { ProgramRow } from "@/features/programs/repository";
+import type { EventRow } from "@/features/events/repository";
+import { SearchableSelect } from "./SearchableSelect";
 
 const Avatar = ({ src, alt }: { src?: string | null; alt: string }) => {
   const [error, setError] = useState(false);
@@ -50,16 +54,22 @@ const Avatar = ({ src, alt }: { src?: string | null; alt: string }) => {
 interface Props {
   initialVolunteers: VolunteerRow[];
   initialApplications: VolunteerApplicationRow[];
+  initialPrograms: ProgramRow[];
+  initialEvents: EventRow[];
 }
 
 export function AdminVolunteersClient({
   initialVolunteers,
   initialApplications,
+  initialPrograms,
+  initialEvents,
 }: Props) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"volunteers" | "applications">("volunteers");
   const [volunteers, setVolunteers] = useState<VolunteerRow[]>(initialVolunteers);
   const [applications, setApplications] = useState<VolunteerApplicationRow[]>(initialApplications);
+  const [programs] = useState<ProgramRow[]>(initialPrograms);
+  const [events] = useState<EventRow[]>(initialEvents);
   const [searchQuery, setSearchQuery] = useState("");
   const [isExporting, setIsExporting] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
@@ -76,9 +86,23 @@ export function AdminVolunteersClient({
   const [notesInput, setNotesInput] = useState("");
   const [titleInput, setTitleInput] = useState("Certificate of Appreciation");
   const [mediaIdInput, setMediaIdInput] = useState("");
+  const [certificateFileName, setCertificateFileName] = useState("");
 
   // Profile Edit Inputs
   const [profileInput, setProfileInput] = useState<Partial<VolunteerApplicationRow>>({});
+
+  useEffect(() => {
+    if (modalType) {
+      setTargetId("");
+      setRoleInput(modalType === "event" ? "Event Staff" : "Volunteer");
+      setHoursInput("4");
+      setNotesInput("");
+      setTitleInput("Certificate of Appreciation");
+      setMediaIdInput("");
+      setCertificateFileName("");
+      // Note: profileInput is set just before modal opens, so we don't reset it here
+    }
+  }, [modalType]);
 
   const handleExportCSV = async () => {
     setIsExporting(true);
@@ -525,15 +549,17 @@ export function AdminVolunteersClient({
                 <>
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      {modalType === "program" ? "Program UUID" : "Event UUID"}
+                      {modalType === "program" ? "Program" : "Event"}
                     </label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. 11111111-1111-1111-1111-111111111111"
+                    <SearchableSelect
+                      options={
+                        modalType === "program" 
+                          ? programs.map(p => ({ value: p.id, label: p.title, sublabel: p.program_code }))
+                          : events.map(e => ({ value: e.id, label: e.title, sublabel: e.event_code }))
+                      }
                       value={targetId}
-                      onChange={(e) => setTargetId(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm"
+                      onChange={setTargetId}
+                      placeholder={`Search and select ${modalType}...`}
                     />
                   </div>
                   <div>
@@ -559,7 +585,8 @@ export function AdminVolunteersClient({
                     </label>
                     <input
                       type="number"
-                      min="1"
+                      min="0.5"
+                      step="0.5"
                       max="500"
                       required
                       value={hoursInput}
@@ -598,15 +625,44 @@ export function AdminVolunteersClient({
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-gray-700 mb-1">
-                      Cloudflare R2 / Media File UUID
+                      Certificate File
                     </label>
-                    <input
-                      type="text"
-                      placeholder="UUID of uploaded media file in storage"
-                      value={mediaIdInput}
-                      onChange={(e) => setMediaIdInput(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm"
-                    />
+                    {!mediaIdInput ? (
+                      <ImageUploader
+                        folder="certificates"
+                        multiple={false}
+                        maxFiles={1}
+                        onUploadComplete={(result) => {
+                          const resArray = Array.isArray(result) ? result : [result];
+                          if (resArray?.[0]?.id) {
+                            setMediaIdInput(resArray[0].id);
+                            // Set a friendly name if we don't have originalFilename, we'll just show success
+                            setCertificateFileName((resArray[0] as any).originalFilename || "Certificate Uploaded");
+                          }
+                        }}
+                      />
+                    ) : (
+                      <div className="flex items-center justify-between p-3 border border-green-200 bg-green-50 rounded-xl">
+                        <div className="flex items-center gap-2">
+                          <Check className="w-5 h-5 text-green-600" />
+                          <span className="text-sm font-medium text-green-800">
+                            {certificateFileName || "Uploaded successfully"}
+                          </span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMediaIdInput("");
+                            setCertificateFileName("");
+                          }}
+                          className="text-xs text-red-600 font-medium hover:underline"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+                    {/* Hidden input to enforce required validation if not uploaded */}
+                    <input type="text" className="hidden" required value={mediaIdInput} onChange={() => {}} />
                   </div>
                 </>
               )}

@@ -5,19 +5,25 @@ import React from 'react';
 import { AdminVolunteersClient } from '@/components/admin/volunteers/AdminVolunteersClient';
 import { requireAuth } from '@/contracts/actions';
 import { listVolunteers, listVolunteerApplications } from '@/features/volunteers';
+import { listPrograms } from '@/features/programs';
+import { listEvents } from '@/features/events';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminVolunteersPage() {
   try {
     await requireAuth();
-    const [volRes, appRes] = await Promise.all([
+    const [volRes, appRes, progRes, evtRes] = await Promise.all([
       listVolunteers({ page: 1, limit: 100 }),
       listVolunteerApplications({ page: 1, limit: 100 }),
+      listPrograms({ page: 1, limit: 100 }),
+      listEvents({ page: 1, limit: 100 }),
     ]);
 
     const volunteers = volRes.data?.data || [];
     const applications = appRes.data?.data || [];
+    const programs = progRes.data?.data || [];
+    const events = evtRes.data?.data || [];
 
     // Calculate Statistics for Dashboard Cards
     const totalApplications = applications.length;
@@ -77,7 +83,12 @@ export default async function AdminVolunteersPage() {
           </div>
         </div>
 
-        <AdminVolunteersClient initialVolunteers={volunteers} initialApplications={applications} />
+        <AdminVolunteersClient 
+          initialVolunteers={volunteers} 
+          initialApplications={applications} 
+          initialPrograms={programs} 
+          initialEvents={events} 
+        />
       </div>
     );
   } catch {
