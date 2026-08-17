@@ -110,6 +110,7 @@ export const createVolunteerApplicationSchema = z.object({
   consent: z.literal(true, {
     errorMap: () => ({ message: "Missing required fields or consent." }),
   }),
+  profilePictureUrl: z.string().nullable().optional(),
 });
 
 export type CreateVolunteerApplicationDTO = z.infer<typeof createVolunteerApplicationSchema>;

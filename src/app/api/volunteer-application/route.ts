@@ -3,14 +3,78 @@ import { NextResponse } from "next/server";
 
 import { volunteersService } from "@/features/volunteers";
 import { serverLogger } from "@/lib/logger/server-logger";
+import { downloadFileInternal } from "@/lib/storage/download-internal";
+import { processImage } from "@/lib/storage/image-pipeline";
+import { uploadFile } from "@/lib/storage/upload";
+import { deleteFile } from "@/lib/storage/delete";
+import { getStorageConfig } from "@/lib/storage/config";
+import { sanitizePath } from "@/lib/storage/helpers";
 
 export async function POST(request: Request) {
+  let finalStorageKey: string | null = null;
+  let tempStorageKey: string | null = null;
+
   try {
     const body = await request.json();
+    tempStorageKey = body.tempStorageKey;
 
+    // Phase 1: Photo Processing (if present)
+    let profilePictureUrl = body.profilePictureUrl || null;
+
+    if (tempStorageKey) {
+      try {
+        // Download temp file
+        const downloadRes = await downloadFileInternal(tempStorageKey);
+        if (!downloadRes.data) {
+          throw new Error('Failed to retrieve the uploaded temporary photo.');
+        }
+
+        const originalFilename = body.originalFilename || 'photo.jpg';
+        // Process with sharp
+        const processed = await processImage(downloadRes.data, originalFilename);
+        
+        // Generate permanent key
+        const baseName = originalFilename.substring(0, originalFilename.lastIndexOf('.'));
+        const finalExtension = processed.format === 'gif' ? '.gif' : `.${processed.format}`;
+        const safeFilename = `profile-${Date.now()}${finalExtension}`;
+        finalStorageKey = sanitizePath('volunteer-profiles', safeFilename);
+        const bucket = getStorageConfig().defaultBucket;
+
+        // Upload optimized permanent file
+        const uploadRes = await uploadFile(processed.buffer, safeFilename, {
+          contentType: processed.mimeType,
+          folder: 'volunteer-profiles',
+          bucket,
+          key: finalStorageKey,
+        });
+
+        if (uploadRes.error || !uploadRes.data) {
+          throw new Error('Failed to save optimized photo.');
+        }
+
+        // Get CDN URL
+        profilePictureUrl = `${getStorageConfig().publicUrl}/${finalStorageKey}`;
+        body.profilePictureUrl = profilePictureUrl;
+      } catch (e) {
+        serverLogger.error("Error processing volunteer profile photo", e as Error);
+        return NextResponse.json(
+          { error: "Failed to process the uploaded photo. Please try submitting without it." },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Phase 2: Database Submission
     const result = await volunteersService.submitApplication(body);
 
     if (!result.success) {
+      // Rollback permanent photo if database insertion failed
+      if (finalStorageKey) {
+        await deleteFile(finalStorageKey).catch(e => {
+          serverLogger.error("Failed to cleanup orphaned volunteer photo", e as Error);
+        });
+      }
+
       // Specific handling for duplicate applications
       if (result.error && result.error.startsWith('DUPLICATE_APPLICATION')) {
         const statusMatch = result.error.split(':');
@@ -34,7 +98,7 @@ export async function POST(request: Request) {
         );
       }
 
-      // Sanitize error: never expose database internals to public users
+      // Sanitize error
       const isValidationError = result.error && !result.error.includes('schema cache') && !result.error.includes('SQLSTATE') && !result.error.includes('relation') && !result.error.includes('column');
       const userMessage = isValidationError
         ? result.error
@@ -50,6 +114,14 @@ export async function POST(request: Request) {
       );
     }
 
+    // Phase 3: Cleanup temporary file after everything succeeded
+    if (tempStorageKey) {
+      deleteFile(tempStorageKey).catch(e => {
+        // Just log, don't fail the request since application is already saved
+        serverLogger.error("Failed to cleanup temporary volunteer photo", e as Error);
+      });
+    }
+
     revalidateTag("volunteers");
 
     return NextResponse.json(
@@ -61,6 +133,11 @@ export async function POST(request: Request) {
       { status: 200 }
     );
   } catch (err) {
+    // Rollback permanent photo if unexpected error
+    if (finalStorageKey) {
+      await deleteFile(finalStorageKey).catch(() => {});
+    }
+    
     serverLogger.error("Volunteer Application POST error", err instanceof Error ? err : new Error(String(err)));
     return NextResponse.json(
       { error: "Internal server error while processing volunteer application." },

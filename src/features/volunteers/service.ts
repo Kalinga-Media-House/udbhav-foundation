@@ -155,6 +155,7 @@ export class VolunteersService {
       availability: data.availability,
       motivation: data.motivation,
       consent: data.consent,
+      profile_picture_url: data.profilePictureUrl ?? null,
       status: 'pending',
     } as VolunteerApplicationCreate;
 

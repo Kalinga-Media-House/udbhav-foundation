@@ -6,16 +6,17 @@ import {
   Loader2,
   ChevronDown,
   Check,
-  Search,
   X,
-  ArrowRight,
-  ArrowLeft,
+  FileImage,
+  Upload,
 } from "lucide-react";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
 import { INDIAN_STATES } from "@/constants/indian-states";
+import { requestPublicVolunteerImageUpload } from "@/features/volunteers/public-actions";
+import { STORAGE } from "@/constants";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -53,9 +54,6 @@ const AVAILABILITY_OPTIONS = [
 
 // ─── Shared Sub-Components ───────────────────────────────────────────────────
 
-/**
- * Searchable Combobox for single-value selection (e.g. State).
- */
 function SearchableCombobox({
   id,
   label,
@@ -234,9 +232,6 @@ function SearchableCombobox({
   );
 }
 
-/**
- * Multi-Select Dropdown for selecting multiple values.
- */
 function MultiSelectDropdown({
   id,
   label,
@@ -399,6 +394,7 @@ interface FormErrors {
   availability?: string;
   motivation?: string;
   consent?: string;
+  photo?: string;
   general?: string;
 }
 
@@ -411,14 +407,21 @@ export function VolunteerApplicationSection() {
   const [email, setEmail] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [age, setAge] = useState("");
+  
   const [occupation, setOccupation] = useState("");
   const [cityDistrict, setCityDistrict] = useState("");
   const [state, setState] = useState("");
+  
   const [preferredAreas, setPreferredAreas] = useState<string[]>([]);
-  const [skills, setSkills] = useState("");
   const [availability, setAvailability] = useState<string[]>([]);
+  
+  const [skills, setSkills] = useState("");
   const [motivation, setMotivation] = useState("");
   const [consent, setConsent] = useState(false);
+  
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -441,6 +444,16 @@ export function VolunteerApplicationSection() {
     return () =>
       window.removeEventListener("select-volunteer-area", handleSelectArea);
   }, []);
+  
+  useEffect(() => {
+    if (photo) {
+      const url = URL.createObjectURL(photo);
+      setPhotoPreview(url);
+      return () => URL.revokeObjectURL(url);
+    } else {
+      setPhotoPreview(null);
+    }
+  }, [photo]);
 
   const handleStateChange = useCallback(
     (newState: string) => {
@@ -473,6 +486,13 @@ export function VolunteerApplicationSection() {
         "Please enter a valid 10-digit Indian mobile number.";
     }
 
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const validateStep2 = (): boolean => {
+    const newErrors: FormErrors = {};
+
     if (!occupation) {
       newErrors.occupation = "Please select your current occupation.";
     }
@@ -489,11 +509,11 @@ export function VolunteerApplicationSection() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const validateStep2 = (): boolean => {
+  const validateStep3 = (): boolean => {
     const newErrors: FormErrors = {};
 
     if (preferredAreas.length === 0) {
-      newErrors.preferredAreas = "Please select at least one volunteer area.";
+      newErrors.preferredAreas = "Please select at least one contribution area.";
     }
 
     if (availability.length === 0) {
@@ -504,7 +524,7 @@ export function VolunteerApplicationSection() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const validateStep3 = (): boolean => {
+  const validateStep4 = (): boolean => {
     const newErrors: FormErrors = {};
 
     if (!motivation.trim() || motivation.trim().length < 15) {
@@ -520,19 +540,80 @@ export function VolunteerApplicationSection() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  
+  const validateStep5 = (): boolean => {
+    const newErrors: FormErrors = {};
+    if (photo) {
+       if (photo.size > STORAGE.LIMITS.MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+           newErrors.photo = `File is too large. Max size is ${STORAGE.LIMITS.MAX_IMAGE_SIZE_MB}MB.`;
+       }
+       if (!STORAGE.ALLOWED_IMAGE_TYPES.includes(photo.type as any)) {
+           newErrors.photo = "Please upload a JPG, PNG, or WebP image.";
+       }
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  }
+
+  const handleNext = () => {
+    if (step === 1 && !validateStep1()) return;
+    if (step === 2 && !validateStep2()) return;
+    if (step === 3 && !validateStep3()) return;
+    if (step === 4 && !validateStep4()) return;
+    setStep(s => s + 1);
+  };
+  
+  const handleBack = () => {
+    setStep(s => s - 1);
+  };
+
+  const uploadPhotoToTemp = async (file: File): Promise<string> => {
+    // 1. Get presigned URL
+    const res = await requestPublicVolunteerImageUpload({
+      filename: file.name,
+      size: file.size,
+      contentType: file.type,
+    });
+    
+    if (!res.success || !res.data) {
+      throw new Error(res.error || "Failed to initiate photo upload");
+    }
+    
+    const { url, storageKey } = res.data;
+    
+    // 2. Upload via XHR
+    await new Promise<void>((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', url);
+      xhr.setRequestHeader('Content-Type', file.type);
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) resolve();
+        else reject(new Error('Upload failed'));
+      };
+      xhr.onerror = () => reject(new Error('Upload network error'));
+      xhr.send(file);
+    });
+    
+    return storageKey;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting || isSubmitted || isDuplicate) return;
 
-    if (!validateStep3()) {
-      return;
-    }
+    if (!validateStep5()) return;
 
     setIsSubmitting(true);
     setErrors({});
 
     try {
+      let tempStorageKey: string | undefined = undefined;
+      
+      // Upload photo if present
+      if (photo) {
+         tempStorageKey = await uploadPhotoToTemp(photo);
+      }
+
       const response = await fetch("/api/volunteer-application", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -549,6 +630,8 @@ export function VolunteerApplicationSection() {
           availability: availability.join(", "),
           motivation: motivation.trim(),
           consent,
+          tempStorageKey,
+          originalFilename: photo?.name,
         }),
       });
 
@@ -592,14 +675,17 @@ export function VolunteerApplicationSection() {
     setAvailability([]);
     setMotivation("");
     setConsent(false);
+    setPhoto(null);
     setErrors({});
     setStep(1);
   };
 
   const stepIndicators = [
-    { num: 1, label: "Personal Information" },
-    { num: 2, label: "Contribution" },
-    { num: 3, label: "Additional Information" }
+    { num: 1, label: "Basic Information" },
+    { num: 2, label: "Location & Occupation" },
+    { num: 3, label: "Contribution" },
+    { num: 4, label: "Additional Information" },
+    { num: 5, label: "Photo & Submit" },
   ];
 
   return (
@@ -639,7 +725,7 @@ export function VolunteerApplicationSection() {
         </div>
 
         {/* Form Card */}
-        <div className="max-w-[900px] mx-auto">
+        <div className="max-w-[800px] mx-auto">
           <RevealCard as="div" index={1}>
             <div className="rounded-3xl p-6 sm:p-8 md:p-11 shadow-xl border border-[#12245F]/15 bg-pure-white">
               {isDuplicate ? (
@@ -689,14 +775,14 @@ export function VolunteerApplicationSection() {
                   <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FFF8E1] border border-[#E6A817]/30">
                     <span className="w-2 h-2 rounded-full bg-[#E6A817] animate-pulse" />
                     <span className="text-sm font-semibold" style={{ color: "#8B6914" }}>
-                      Pending Review
+                      Under Review
                     </span>
                   </div>
                   <p
                     className="max-w-sm text-sm leading-relaxed"
                     style={{ color: "#5E6B63" }}
                   >
-                    Our team will review your application and contact you.
+                    Our coordination team will review your application and reach out to you soon.
                   </p>
                   <button
                     type="button"
@@ -715,16 +801,16 @@ export function VolunteerApplicationSection() {
                   className="space-y-8"
                 >
                   {/* Step Indicator */}
-                  <div className="flex items-center justify-center gap-2 sm:gap-4 mb-8 flex-wrap">
+                  <div className="flex items-center justify-center gap-1.5 sm:gap-3 mb-8 flex-wrap">
                     {stepIndicators.map((s, i) => (
                       <React.Fragment key={s.num}>
-                        <div className={`flex items-center gap-2 text-xs sm:text-sm font-semibold transition-colors ${step === s.num ? 'text-[#12245F]' : step > s.num ? 'text-[#439B25]' : 'text-gray-400'}`}>
-                          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs ${step === s.num ? 'bg-[#12245F] text-white shadow-sm' : step > s.num ? 'bg-[#EEF8E9] text-[#439B25]' : 'bg-gray-100'}`}>
-                            {step > s.num ? <Check className="w-4 h-4" /> : s.num}
+                        <div className={`flex items-center gap-1.5 text-xs sm:text-sm font-semibold transition-colors ${step === s.num ? 'text-[#12245F]' : step > s.num ? 'text-[#439B25]' : 'text-gray-400'}`}>
+                          <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs ${step === s.num ? 'bg-[#12245F] text-white shadow-sm' : step > s.num ? 'bg-[#EEF8E9] text-[#439B25]' : 'bg-gray-100'}`}>
+                            {step > s.num ? <Check className="w-3.5 h-3.5" /> : s.num}
                           </div>
                           <span className={`${step === s.num || step > s.num ? 'inline' : 'hidden sm:inline'}`}>{s.label}</span>
                         </div>
-                        {i < stepIndicators.length - 1 && <div className="w-4 sm:w-8 h-px bg-gray-200 shrink-0" />}
+                        {i < stepIndicators.length - 1 && <div className="w-2 sm:w-4 h-px bg-gray-200 shrink-0" />}
                       </React.Fragment>
                     ))}
                   </div>
@@ -739,14 +825,14 @@ export function VolunteerApplicationSection() {
                     </div>
                   )}
 
-                  {/* ── STEP 1: Personal Information ── */}
+                  {/* ── STEP 1: Basic Information ── */}
                   {step === 1 && (
                     <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
                       <h3
                         className="font-heading text-lg sm:text-xl font-bold pb-2.5 mb-6 border-b border-soft-border/60"
                         style={{ color: "#12245F" }}
                       >
-                        Personal Information
+                        Basic Information
                       </h3>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
@@ -813,19 +899,26 @@ export function VolunteerApplicationSection() {
                           >
                             Mobile Number *
                           </label>
-                          <input
-                            id="mobileNumber"
-                            type="tel"
-                            required
-                            value={mobileNumber}
-                            onChange={(e) => {
-                              setMobileNumber(e.target.value);
-                              if (errors.mobileNumber) setErrors((p) => ({ ...p, mobileNumber: undefined }));
-                            }}
-                            placeholder="10-digit Indian mobile number"
-                            aria-invalid={!!errors.mobileNumber}
-                            className="w-full rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8]"
-                          />
+                          <div className="flex relative">
+                            <span className="inline-flex items-center px-4 rounded-l-xl border border-r-0 border-soft-border bg-gray-50 text-gray-500 text-sm">
+                              +91
+                            </span>
+                            <input
+                              id="mobileNumber"
+                              type="tel"
+                              required
+                              value={mobileNumber}
+                              onChange={(e) => {
+                                setMobileNumber(e.target.value.replace(/\D/g, ""));
+                                if (errors.mobileNumber)
+                                  setErrors((p) => ({ ...p, mobileNumber: undefined }));
+                              }}
+                              placeholder="10-digit number"
+                              maxLength={10}
+                              aria-invalid={!!errors.mobileNumber}
+                              className="w-full rounded-r-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8]"
+                            />
+                          </div>
                           {errors.mobileNumber && (
                             <p className="text-red-600 text-xs mt-1">{errors.mobileNumber}</p>
                           )}
@@ -838,21 +931,45 @@ export function VolunteerApplicationSection() {
                             className="block text-xs sm:text-sm font-semibold mb-1.5"
                             style={{ color: "#17231D" }}
                           >
-                            Age{" "}
-                            <span className="font-normal text-xs text-[#5E6B63]">(Optional)</span>
+                            Age <span className="text-gray-400 font-normal">(Optional)</span>
                           </label>
                           <input
                             id="age"
                             type="number"
-                            min="16"
-                            max="99"
+                            min="10"
+                            max="100"
                             value={age}
                             onChange={(e) => setAge(e.target.value)}
-                            placeholder="e.g. 24"
+                            placeholder="Your age"
                             className="w-full rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8]"
                           />
                         </div>
+                      </div>
+                      
+                      <div className="mt-8 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={handleNext}
+                          className="px-8 py-3 rounded-xl text-sm font-heading font-semibold text-pure-white transition-all hover:opacity-90 flex items-center gap-2"
+                          style={{ background: "#439B25" }}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  )}
 
+                  {/* ── STEP 2: Location & Occupation ── */}
+                  {step === 2 && (
+                    <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                      <h3
+                        className="font-heading text-lg sm:text-xl font-bold pb-2.5 mb-6 border-b border-soft-border/60"
+                        style={{ color: "#12245F" }}
+                      >
+                        Location & Occupation
+                      </h3>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
                         {/* Occupation */}
                         <div>
                           <label
@@ -862,24 +979,23 @@ export function VolunteerApplicationSection() {
                           >
                             Current Occupation *
                           </label>
-                          <select
-                            id="occupation"
-                            required
-                            value={occupation}
-                            onChange={(e) => {
-                              setOccupation(e.target.value);
-                              if (errors.occupation) setErrors((p) => ({ ...p, occupation: undefined }));
-                            }}
-                            aria-invalid={!!errors.occupation}
-                            className="w-full rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8]"
-                          >
-                            <option value="">Select your occupation</option>
-                            {OCCUPATION_OPTIONS.map((opt) => (
-                              <option key={opt} value={opt}>
-                                {opt}
-                              </option>
-                            ))}
-                          </select>
+                          <div className="relative">
+                            <select
+                              id="occupation"
+                              value={occupation}
+                              onChange={(e) => {
+                                setOccupation(e.target.value);
+                                if (errors.occupation) setErrors((p) => ({ ...p, occupation: undefined }));
+                              }}
+                              className="w-full rounded-xl px-4 py-3 pr-10 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] appearance-none bg-[#FDFCF8]"
+                            >
+                              <option value="" disabled>Select occupation</option>
+                              {OCCUPATION_OPTIONS.map((opt) => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))}
+                            </select>
+                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                          </div>
                           {errors.occupation && (
                             <p className="text-red-600 text-xs mt-1">{errors.occupation}</p>
                           )}
@@ -888,11 +1004,11 @@ export function VolunteerApplicationSection() {
                         {/* State */}
                         <SearchableCombobox
                           id="state"
-                          label={<>State *</>}
+                          label="State *"
                           value={state}
                           onChange={handleStateChange}
                           options={INDIAN_STATES}
-                          placeholder="Search and select your state"
+                          placeholder="Search state..."
                           error={errors.state}
                         />
 
@@ -913,107 +1029,109 @@ export function VolunteerApplicationSection() {
                             value={cityDistrict}
                             onChange={(e) => {
                               setCityDistrict(e.target.value);
-                              if (errors.cityDistrict) setErrors((p) => ({ ...p, cityDistrict: undefined }));
+                              if (errors.cityDistrict)
+                                setErrors((p) => ({ ...p, cityDistrict: undefined }));
                             }}
-                            placeholder={state ? `Enter city or district in ${state}` : "Select state first"}
+                            placeholder={!state ? "Select state first" : "Enter your city or district"}
                             aria-invalid={!!errors.cityDistrict}
                             className={`w-full rounded-xl px-4 py-3 text-sm border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all ${
                               !state
                                 ? "bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
                                 : "bg-[#FDFCF8] border-soft-border"
-                            } ${errors.cityDistrict ? "border-red-400" : ""}`}
+                            }`}
                           />
                           {errors.cityDistrict && (
                             <p className="text-red-600 text-xs mt-1">{errors.cityDistrict}</p>
                           )}
                         </div>
                       </div>
-
-                      <div className="pt-8 mt-6 border-t border-soft-border/60 flex justify-end">
+                      
+                      <div className="mt-8 flex justify-between">
                         <button
                           type="button"
-                          onClick={() => {
-                            if (validateStep1()) setStep(2);
-                          }}
-                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-heading font-semibold text-sm sm:text-base text-pure-white transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer bg-[#12245F]"
+                          onClick={handleBack}
+                          className="px-6 py-3 rounded-xl text-sm font-heading font-semibold border border-gray-200 text-gray-600 transition-all hover:bg-gray-50"
                         >
-                          Next <ArrowRight className="w-4 h-4" />
+                          Back
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleNext}
+                          className="px-8 py-3 rounded-xl text-sm font-heading font-semibold text-pure-white transition-all hover:opacity-90"
+                          style={{ background: "#439B25" }}
+                        >
+                          Next
                         </button>
                       </div>
                     </div>
                   )}
 
-                  {/* ── STEP 2: Contribution & Availability ── */}
-                  {step === 2 && (
-                    <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-                      <div className="space-y-8">
-                        <div>
-                          <h3
-                            className="font-heading text-lg sm:text-xl font-bold pb-2.5 mb-6 border-b border-soft-border/60"
-                            style={{ color: "#12245F" }}
-                          >
-                            Contribution Preferences
-                          </h3>
-                          <MultiSelectDropdown
-                            id="preferredAreas"
-                            label={<>Contribution Preferences *</>}
-                            helperText="Select the areas where you would like to contribute."
-                            options={VOLUNTEER_AREAS}
-                            selected={preferredAreas}
-                            onChange={(val) => {
-                              setPreferredAreas(val);
-                              if (errors.preferredAreas) setErrors((p) => ({ ...p, preferredAreas: undefined }));
-                            }}
-                            placeholder="Select contribution areas"
-                            error={errors.preferredAreas}
-                          />
-                        </div>
-
-                        <div>
-                          <h3
-                            className="font-heading text-lg sm:text-xl font-bold pb-2.5 mb-6 border-b border-soft-border/60"
-                            style={{ color: "#12245F" }}
-                          >
-                            Availability
-                          </h3>
-                          <MultiSelectDropdown
-                            id="availability"
-                            label={<>Availability *</>}
-                            options={AVAILABILITY_OPTIONS}
-                            selected={availability}
-                            onChange={(val) => {
-                              setAvailability(val);
-                              if (errors.availability) setErrors((p) => ({ ...p, availability: undefined }));
-                            }}
-                            placeholder="Select your availability"
-                            error={errors.availability}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="pt-8 mt-8 border-t border-soft-border/60 flex flex-col sm:flex-row justify-between gap-4">
-                        <button
-                          type="button"
-                          onClick={() => setStep(1)}
-                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-heading font-semibold text-sm sm:text-base border border-gray-300 text-gray-700 transition-all duration-300 hover:bg-gray-50 active:scale-[0.98] cursor-pointer"
-                        >
-                          <ArrowLeft className="w-4 h-4" /> Back
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (validateStep2()) setStep(3);
-                          }}
-                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-heading font-semibold text-sm sm:text-base text-pure-white transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] cursor-pointer bg-[#12245F]"
-                        >
-                          Next <ArrowRight className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* ── STEP 3: Additional Information ── */}
+                  {/* ── STEP 3: Contribution ── */}
                   {step === 3 && (
+                    <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                      <h3
+                        className="font-heading text-lg sm:text-xl font-bold pb-2.5 mb-6 border-b border-soft-border/60"
+                        style={{ color: "#12245F" }}
+                      >
+                        Contribution
+                      </h3>
+
+                      <div className="space-y-6">
+                        {/* Preferred Areas */}
+                        <MultiSelectDropdown
+                          id="preferredAreas"
+                          label="Contribution Preferences *"
+                          helperText="Select the areas where you would like to contribute."
+                          options={VOLUNTEER_AREAS}
+                          selected={preferredAreas}
+                          onChange={(val) => {
+                            setPreferredAreas(val);
+                            if (errors.preferredAreas)
+                              setErrors((p) => ({ ...p, preferredAreas: undefined }));
+                          }}
+                          placeholder="Select areas of interest..."
+                          error={errors.preferredAreas}
+                        />
+
+                        {/* Availability */}
+                        <MultiSelectDropdown
+                          id="availability"
+                          label="Availability *"
+                          helperText="When are you generally available to volunteer?"
+                          options={AVAILABILITY_OPTIONS}
+                          selected={availability}
+                          onChange={(val) => {
+                            setAvailability(val);
+                            if (errors.availability)
+                              setErrors((p) => ({ ...p, availability: undefined }));
+                          }}
+                          placeholder="Select availability..."
+                          error={errors.availability}
+                        />
+                      </div>
+                      
+                      <div className="mt-8 flex justify-between">
+                        <button
+                          type="button"
+                          onClick={handleBack}
+                          className="px-6 py-3 rounded-xl text-sm font-heading font-semibold border border-gray-200 text-gray-600 transition-all hover:bg-gray-50"
+                        >
+                          Back
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleNext}
+                          className="px-8 py-3 rounded-xl text-sm font-heading font-semibold text-pure-white transition-all hover:opacity-90"
+                          style={{ background: "#439B25" }}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── STEP 4: Additional Information ── */}
+                  {step === 4 && (
                     <div className="animate-in fade-in slide-in-from-right-4 duration-300">
                       <h3
                         className="font-heading text-lg sm:text-xl font-bold pb-2.5 mb-6 border-b border-soft-border/60"
@@ -1023,15 +1141,14 @@ export function VolunteerApplicationSection() {
                       </h3>
 
                       <div className="space-y-6">
-                        {/* Skills */}
+                        {/* Skills (Optional) */}
                         <div>
                           <label
                             htmlFor="skills"
                             className="block text-xs sm:text-sm font-semibold mb-1.5"
                             style={{ color: "#17231D" }}
                           >
-                            Skills You Can Contribute{" "}
-                            <span className="font-normal text-xs text-[#5E6B63]">(Optional)</span>
+                            Skills You Can Contribute <span className="text-gray-400 font-normal">(Optional)</span>
                           </label>
                           <textarea
                             id="skills"
@@ -1039,7 +1156,7 @@ export function VolunteerApplicationSection() {
                             value={skills}
                             onChange={(e) => setSkills(e.target.value)}
                             placeholder="Tell us about your skills, experience, interests, or ideas."
-                            className="w-full rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8] resize-y"
+                            className="w-full rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8] resize-none"
                           />
                         </div>
 
@@ -1059,66 +1176,168 @@ export function VolunteerApplicationSection() {
                             value={motivation}
                             onChange={(e) => {
                               setMotivation(e.target.value);
-                              if (errors.motivation) setErrors((p) => ({ ...p, motivation: undefined }));
+                              if (errors.motivation)
+                                setErrors((p) => ({ ...p, motivation: undefined }));
                             }}
-                            placeholder="Share your motivation for volunteering with our community..."
+                            placeholder="Share your motivation for joining our foundation (at least 15 characters)."
                             aria-invalid={!!errors.motivation}
-                            className="w-full rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8] resize-y"
+                            className="w-full rounded-xl px-4 py-3 text-sm border border-soft-border focus:outline-none focus:ring-2 focus:ring-[#202B78] transition-all bg-[#FDFCF8] resize-none"
                           />
                           {errors.motivation && (
                             <p className="text-red-600 text-xs mt-1">{errors.motivation}</p>
                           )}
                         </div>
+                        
+                        <div className="pt-4 border-t border-soft-border/40">
+                          <label className="flex items-start gap-3 cursor-pointer group">
+                            <div className="relative flex items-start mt-0.5">
+                              <input
+                                type="checkbox"
+                                checked={consent}
+                                onChange={(e) => {
+                                  setConsent(e.target.checked);
+                                  if (errors.consent) setErrors((p) => ({ ...p, consent: undefined }));
+                                }}
+                                className="peer sr-only"
+                              />
+                              <div
+                                className={`w-5 h-5 rounded border transition-colors flex items-center justify-center ${
+                                  consent
+                                    ? "bg-[#439B25] border-[#439B25]"
+                                    : "bg-white border-gray-300 group-hover:border-[#439B25]/50"
+                                } ${errors.consent ? "border-red-400 bg-red-50" : ""}`}
+                              >
+                                {consent && <Check className="w-3.5 h-3.5 text-white" />}
+                              </div>
+                            </div>
+                            <span className="text-sm leading-relaxed" style={{ color: "#5E6B63" }}>
+                              I confirm that the information provided is accurate and agree to follow UDBHAV Foundation's volunteer guidelines and code of conduct. *
+                            </span>
+                          </label>
+                          {errors.consent && (
+                            <p className="text-red-600 text-xs mt-2 ml-8">{errors.consent}</p>
+                          )}
+                        </div>
                       </div>
-
-                      {/* ── Agreement ── */}
-                      <div className="pt-6 mt-2">
-                        <label className="flex items-start gap-3 cursor-pointer select-none">
-                          <input
-                            type="checkbox"
-                            checked={consent}
-                            onChange={(e) => {
-                              setConsent(e.target.checked);
-                              if (errors.consent) setErrors((p) => ({ ...p, consent: undefined }));
-                            }}
-                            className="mt-1 w-4 h-4 rounded accent-[#439B25] cursor-pointer"
-                          />
-                          <span
-                            className="text-xs sm:text-sm leading-relaxed"
-                            style={{ color: "#17231D" }}
-                          >
-                            I confirm that the information provided is accurate and
-                            agree to follow UDBHAV Foundation&apos;s volunteer guidelines
-                            and code of conduct. *
-                          </span>
-                        </label>
-                        {errors.consent && (
-                          <p className="text-red-600 text-xs mt-1">{errors.consent}</p>
-                        )}
-                      </div>
-
-                      <div className="pt-8 mt-8 border-t border-soft-border/60 flex flex-col sm:flex-row justify-between gap-4">
+                      
+                      <div className="mt-8 flex justify-between">
                         <button
                           type="button"
-                          onClick={() => setStep(2)}
-                          disabled={isSubmitting}
-                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-xl font-heading font-semibold text-sm sm:text-base border border-gray-300 text-gray-700 transition-all duration-300 hover:bg-gray-50 active:scale-[0.98] cursor-pointer disabled:opacity-70 disabled:pointer-events-none"
+                          onClick={handleBack}
+                          className="px-6 py-3 rounded-xl text-sm font-heading font-semibold border border-gray-200 text-gray-600 transition-all hover:bg-gray-50"
                         >
-                          <ArrowLeft className="w-4 h-4" /> Back
+                          Back
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleNext}
+                          className="px-8 py-3 rounded-xl text-sm font-heading font-semibold text-pure-white transition-all hover:opacity-90"
+                          style={{ background: "#439B25" }}
+                        >
+                          Next
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ── STEP 5: Photo & Submit ── */}
+                  {step === 5 && (
+                    <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+                      <h3
+                        className="font-heading text-lg sm:text-xl font-bold pb-2.5 mb-6 border-b border-soft-border/60"
+                        style={{ color: "#12245F" }}
+                      >
+                        Photo & Submit
+                      </h3>
+                      
+                      <div className="space-y-6">
+                        <div>
+                          <label className="block text-xs sm:text-sm font-semibold mb-1.5" style={{ color: "#17231D" }}>
+                            Upload Profile Photo <span className="text-gray-400 font-normal">(Optional)</span>
+                          </label>
+                          <p className="text-xs text-[#5E6B63] mb-4">
+                            A clear profile photo helps us identify you. JPG, PNG or WebP only.
+                          </p>
+                          
+                          <div className="flex flex-col items-center">
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept="image/jpeg,image/png,image/webp"
+                              className="hidden"
+                              onChange={(e) => {
+                                if (e.target.files && e.target.files[0]) {
+                                  setPhoto(e.target.files[0]);
+                                  setErrors((prev) => ({ ...prev, photo: undefined }));
+                                }
+                                // clear value so same file can be selected again
+                                e.target.value = "";
+                              }}
+                            />
+                            
+                            {photoPreview ? (
+                              <div className="relative group">
+                                <img
+                                  src={photoPreview}
+                                  alt="Profile Preview"
+                                  className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md"
+                                />
+                                <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2">
+                                  <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    className="text-white text-xs font-semibold hover:underline"
+                                  >
+                                    Replace
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => setPhoto(null)}
+                                    className="text-red-200 text-xs font-semibold hover:underline"
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="w-32 h-32 rounded-full bg-gray-50 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-500 hover:border-[#12245F]/40 hover:bg-[#FDFCF8] transition-colors"
+                              >
+                                <Upload className="w-6 h-6 mb-2 text-gray-400" />
+                                <span className="text-xs font-medium">Upload Photo</span>
+                              </button>
+                            )}
+                            {errors.photo && (
+                              <p className="text-red-600 text-xs mt-3 text-center">{errors.photo}</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-8 flex justify-between items-center pt-6 border-t border-soft-border/40">
+                        <button
+                          type="button"
+                          onClick={handleBack}
+                          disabled={isSubmitting}
+                          className="px-6 py-3 rounded-xl text-sm font-heading font-semibold border border-gray-200 text-gray-600 transition-all hover:bg-gray-50 disabled:opacity-50"
+                        >
+                          Back
                         </button>
                         <button
                           type="submit"
                           disabled={isSubmitting}
-                          className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-xl font-heading font-semibold text-sm sm:text-base text-pure-white transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-70 disabled:pointer-events-none cursor-pointer"
+                          className="px-8 py-3.5 rounded-xl text-sm font-heading font-semibold text-pure-white transition-all hover:opacity-90 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md shadow-[#439B25]/20"
                           style={{ background: "#439B25" }}
                         >
                           {isSubmitting ? (
                             <>
-                              <Loader2 className="w-5 h-5 animate-spin" />
-                              <span>Submitting...</span>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              Submitting...
                             </>
                           ) : (
-                            <span>Submit Volunteer Application</span>
+                            "Submit Volunteer Application"
                           )}
                         </button>
                       </div>
@@ -1133,5 +1352,3 @@ export function VolunteerApplicationSection() {
     </section>
   );
 }
-
-export default VolunteerApplicationSection;
