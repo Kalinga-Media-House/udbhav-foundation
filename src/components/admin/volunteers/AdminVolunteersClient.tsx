@@ -5,6 +5,7 @@ import {
   Loader2,
   Search,
   ShieldCheck,
+  User,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -23,6 +24,28 @@ import type {
   VolunteerRow,
   VolunteerApplicationRow,
 } from "@/features/volunteers/repository";
+
+const Avatar = ({ src, alt }: { src?: string | null; alt: string }) => {
+  const [error, setError] = useState(false);
+  const sizeClasses = "w-[28px] h-[28px] md:w-[30px] md:h-[30px] lg:w-[32px] lg:h-[32px]";
+  
+  if (!src || error) {
+    return (
+      <div className={`${sizeClasses} rounded-full bg-teal-50 text-teal-600 flex items-center justify-center border border-teal-100 shadow-sm shrink-0`}>
+        <User className="w-[14px] h-[14px] md:w-[16px] md:h-[16px] opacity-80" />
+      </div>
+    );
+  }
+  
+  return (
+    <img
+      src={src}
+      alt={alt}
+      onError={() => setError(true)}
+      className={`${sizeClasses} rounded-full object-cover border border-gray-200 shadow-sm shrink-0`}
+    />
+  );
+};
 
 interface Props {
   initialVolunteers: VolunteerRow[];
@@ -296,17 +319,7 @@ export function AdminVolunteersClient({
                     <tr key={vol.id} className="hover:bg-gray-50/60 transition-colors block md:table-row border border-gray-200 md:border-none rounded-xl mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none bg-white md:bg-transparent">
                       <td data-label="Volunteer" className="py-2 md:py-4 px-0 md:px-6 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                         <div className="flex items-center gap-3">
-                          {app?.profile_picture_url ? (
-                            <img 
-                              src={app.profile_picture_url} 
-                              alt={app.full_name || 'Volunteer'} 
-                              className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold shadow-sm">
-                              {(app?.full_name || 'V').charAt(0).toUpperCase()}
-                            </div>
-                          )}
+                          <Avatar src={app?.profile_picture_url} alt={app?.full_name || 'Volunteer'} />
                           <div>
                             <div className="font-bold text-gray-900">{app?.full_name || 'Unknown Volunteer'}</div>
                             <div className="text-xs text-gray-500 font-mono mt-0.5">{vol.volunteer_code}</div>
@@ -397,11 +410,16 @@ export function AdminVolunteersClient({
               ) : (
                 applications.map((app) => (
                   <tr key={app.id} className="hover:bg-gray-50/60 transition-colors block md:table-row border border-gray-200 md:border-none rounded-xl mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none bg-white md:bg-transparent">
-                    <td data-label="Applicant" className="py-2 md:py-4 px-0 md:px-6 font-bold text-gray-900 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
-                      {app.full_name}
-                      <p className="text-xs text-gray-500 font-normal mt-0.5 line-clamp-1">
-                        {app.motivation}
-                      </p>
+                    <td data-label="Applicant" className="py-2 md:py-4 px-0 md:px-6 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
+                      <div className="flex items-center gap-2.5">
+                        <Avatar src={app.profile_picture_url} alt={app.full_name} />
+                        <div>
+                          <div className="font-bold text-gray-900">{app.full_name}</div>
+                          <p className="text-xs text-gray-500 font-normal mt-0.5 line-clamp-1">
+                            {app.motivation}
+                          </p>
+                        </div>
+                      </div>
                     </td>
                     <td data-label="Contact" className="py-2 md:py-4 px-0 md:px-6 text-gray-700 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                       <p>{app.email}</p>
