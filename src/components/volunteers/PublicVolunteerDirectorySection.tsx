@@ -6,18 +6,7 @@ import React, { useState, useEffect } from "react";
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
 
-interface PublicVolunteer {
-  id: string;
-  full_name: string;
-  profile_picture_url?: string | null;
-  occupation: string;
-  city_district: string;
-  state: string;
-  preferred_areas?: string[] | null;
-  skills?: string | null;
-  public_bio?: string | null;
-  volunteer_role?: string | null;
-}
+import { VolunteerProfileCard, type PublicVolunteer } from "./VolunteerProfileCard";
 
 
 export function PublicVolunteerDirectorySection() {
@@ -83,67 +72,10 @@ export function PublicVolunteerDirectorySection() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {volunteers.map((vol) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8">
+            {volunteers.map((vol, index) => (
               <RevealCard key={vol.id}>
-                <div className="h-full bg-white rounded-2xl border border-[#E6EBE9] p-6 flex flex-col justify-between hover:shadow-xl transition-all hover:border-[#006633]/40 group">
-                  <div>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E8F2EC] text-[#006633] text-xs font-bold tracking-wider">
-                        <Award className="w-3.5 h-3.5" />
-                        {vol.volunteer_role || "Volunteer"}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-4 mb-4">
-                      {vol.profile_picture_url ? (
-                        <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-[#E8F2EC] shadow-sm shrink-0">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img 
-                            src={vol.profile_picture_url} 
-                            alt={vol.full_name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      ) : (
-                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#006633] to-[#004D26] text-white flex items-center justify-center font-bold text-xl shadow-md shrink-0">
-                          {vol.full_name.charAt(0).toUpperCase()}
-                        </div>
-                      )}
-                      <div>
-                        <h4 className="font-bold text-base text-[#17231D] group-hover:text-[#006633] transition-colors">
-                          {vol.full_name}
-                        </h4>
-                        <p className="text-xs text-[#7A8A82]">
-                          {vol.city_district}, {vol.state}
-                        </p>
-                        <p className="text-xs text-[#4F5E57] font-medium mt-0.5">
-                          {vol.occupation}
-                        </p>
-                      </div>
-                    </div>
-
-                    <p className="text-sm text-[#4F5E57] line-clamp-3 mb-4">
-                      {vol.public_bio || vol.skills || "Dedicated volunteer contributing to community welfare and grassroots social impact."}
-                    </p>
-                    
-                    {vol.preferred_areas && vol.preferred_areas.length > 0 && (
-                      <div className="flex flex-wrap gap-1.5 mb-4">
-                        {vol.preferred_areas.slice(0, 3).map((area, idx) => (
-                          <span key={idx} className="px-2 py-0.5 bg-[#F3F7F5] text-[#4F5E57] rounded-md text-[10px] font-semibold border border-[#E6EBE9]">
-                            {area}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="pt-4 border-t border-[#F0F4F2] flex items-center justify-between text-xs text-[#4F5E57]">
-                    <span className="inline-flex items-center gap-1 text-[#006633] font-medium">
-                      <ShieldCheck className="w-3.5 h-3.5" /> Verified UDBHAV Member
-                    </span>
-                  </div>
-                </div>
+                <VolunteerProfileCard volunteer={vol} index={index} />
               </RevealCard>
             ))}
           </div>
