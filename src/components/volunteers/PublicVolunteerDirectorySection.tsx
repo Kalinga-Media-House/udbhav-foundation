@@ -58,9 +58,9 @@ export function PublicVolunteerDirectorySection() {
 
         {/* Directory Grid */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-64 bg-white rounded-2xl border border-[#E6EBE9] animate-pulse p-6" />
+          <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="h-[260px] bg-white rounded-2xl border border-[#E6EBE9] animate-pulse p-6" />
             ))}
           </div>
         ) : volunteers.length === 0 ? (
@@ -72,7 +72,7 @@ export function PublicVolunteerDirectorySection() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             {volunteers.map((vol, index) => (
               <RevealCard key={vol.id}>
                 <VolunteerProfileCard volunteer={vol} index={index} />
