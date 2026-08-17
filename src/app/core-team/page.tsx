@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { CoreTeamAdvisoryBoardSection } from '@/components/core-team/CoreTeamAdvisoryBoardSection';
 import { CoreTeamHeroSection } from '@/components/core-team/CoreTeamHeroSection';
 import { GoverningBodyGridSection } from '@/components/core-team/GoverningBodyGridSection';
-import { LeadershipIntroSection } from '@/components/core-team/LeadershipIntroSection';
 
 export const metadata: Metadata = {
   title: 'Core Team & Governance — UDBHAV Foundation',
@@ -16,9 +15,6 @@ export default function CoreTeamPage() {
     <div className="bg-pure-white w-full overflow-hidden">
       {/* 1. Compact Core Team Hero */}
       <CoreTeamHeroSection />
-
-      {/* 2. Leadership Introduction */}
-      <LeadershipIntroSection />
 
       {/* 4. Governing Body Grid */}
       <GoverningBodyGridSection />
