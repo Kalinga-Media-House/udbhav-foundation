@@ -220,7 +220,10 @@ export class VolunteersService {
           created_by: userId,
           updated_by: userId,
         };
-        await volunteersRepository.create(volCreate as any);
+        const volCreateResult = await volunteersRepository.create(volCreate as any);
+        if (volCreateResult.error) {
+          return fail(`Failed to create active volunteer record: ${volCreateResult.error.message}`);
+        }
       }
 
       await this.notifyByEmail(
