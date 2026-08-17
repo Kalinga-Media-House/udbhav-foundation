@@ -6,6 +6,7 @@ import {
   Search,
   ShieldCheck,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 import {
@@ -32,6 +33,7 @@ export function AdminVolunteersClient({
   initialVolunteers,
   initialApplications,
 }: Props) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<"volunteers" | "applications">("volunteers");
   const [volunteers, setVolunteers] = useState<VolunteerRow[]>(initialVolunteers);
   const [applications, setApplications] = useState<VolunteerApplicationRow[]>(initialApplications);
@@ -122,6 +124,9 @@ export function AdminVolunteersClient({
         prev.map((a) => (a.id === applicationId ? { ...a, status } : a))
       );
       setStatusMessage(`Application successfully ${status === "accepted" ? "approved" : "rejected"}.`);
+      if (status === "accepted") {
+        router.refresh(); // Refresh Server Components to fetch new VolunteerRow
+      }
     } catch (err) {
       setStatusMessage(err instanceof Error ? err.message : "Failed to review application.");
     }
@@ -179,6 +184,7 @@ export function AdminVolunteersClient({
           prev.map((a) => (a.id === selectedVolId ? { ...a, ...profileInput } : a))
         );
         setStatusMessage("Volunteer profile updated successfully.");
+        router.refresh(); // Refresh to reflect revalidated state
       }
       setModalType(null);
       setSelectedVolId(null);
@@ -284,12 +290,28 @@ export function AdminVolunteersClient({
                     </td>
                   </tr>
                 ) : (
-                  filteredVolunteers.map((vol) => (
+                  filteredVolunteers.map((vol) => {
+                    const app = applications.find(a => a.id === vol.application_id || (vol.metadata as any)?.application_id === a.id);
+                    return (
                     <tr key={vol.id} className="hover:bg-gray-50/60 transition-colors block md:table-row border border-gray-200 md:border-none rounded-xl mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none bg-white md:bg-transparent">
-                      <td data-label="Volunteer Code" className="py-2 md:py-4 px-0 md:px-6 font-bold text-gray-900 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-teal-50 text-teal-700 font-mono text-xs">
-                          {vol.volunteer_code}
-                        </span>
+                      <td data-label="Volunteer" className="py-2 md:py-4 px-0 md:px-6 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
+                        <div className="flex items-center gap-3">
+                          {app?.profile_picture_url ? (
+                            <img 
+                              src={app.profile_picture_url} 
+                              alt={app.full_name || 'Volunteer'} 
+                              className="w-10 h-10 rounded-full object-cover border border-gray-200 shadow-sm"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-bold shadow-sm">
+                              {(app?.full_name || 'V').charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          <div>
+                            <div className="font-bold text-gray-900">{app?.full_name || 'Unknown Volunteer'}</div>
+                            <div className="text-xs text-gray-500 font-mono mt-0.5">{vol.volunteer_code}</div>
+                          </div>
+                        </div>
                       </td>
                       <td data-label="Status" className="py-2 md:py-4 px-0 md:px-6 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
                         <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-green-100 text-green-800">
@@ -342,7 +364,8 @@ export function AdminVolunteersClient({
                         </button>
                       </td>
                     </tr>
-                  ))
+                    );
+                  })
                 )}
               </tbody>
             </table>

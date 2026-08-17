@@ -1,6 +1,6 @@
 'use server';
 
-import { revalidateTag } from 'next/cache';
+import { revalidateTag, revalidatePath } from 'next/cache';
 
 import { handleAction, requireAuth, requirePermission, CacheTags } from '@/contracts/actions';
 import type { ActionResult } from '@/contracts/actions';
@@ -123,6 +123,8 @@ export async function updateVolunteerProfile(dto: UpdateVolunteerProfileDTO): Pr
     const result = await volunteersService.updateApplicationProfile(dto.id, dto, session.id);
     if (!result.success) throw new Error(result.error ?? 'Failed to update profile');
     (revalidateTag as any)(CacheTags.volunteers());
+    revalidatePath('/admin/volunteers');
+    revalidatePath('/volunteers');
     return result.data!;
   });
 }

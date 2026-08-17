@@ -194,47 +194,42 @@ export class VolunteersService {
 
     if (status === 'accepted') {
       const supabase = createAdminClient();
-      const { data: profile } = await (supabase.from('profiles') as any)
-        .select('id, email')
-        .eq('email', application.email)
+      
+      // Check if volunteer record already exists for this application
+      const { data: existingVol } = await (supabase.from('volunteers') as any)
+        .select('id')
+        .eq('application_id', application.id)
         .single();
 
-      if (profile) {
-        const { data: existingVol } = await (supabase.from('volunteers') as any)
-          .select('id')
-          .eq('profile_id', profile.id)
-          .single();
-
-        if (!existingVol) {
-          const code = await volunteersRepository.generateVolunteerCode();
-          const volCreate = {
-            profile_id: profile.id,
-            volunteer_code: code,
-            status: 'Active',
-            biography: application.motivation,
-            availability: application.availability,
-            metadata: {
-              skills: application.skills,
-              preferred_areas: application.preferred_areas,
-              city_district: application.city_district,
-              state: application.state,
-              occupation: application.occupation,
-              application_id: application.id,
-            } as any,
-            created_by: userId,
-            updated_by: userId,
-          };
-          await volunteersRepository.create(volCreate as any);
-        }
-
-        await this.notifyUser(
-          profile.id,
-          'Application Approved',
-          'Congratulations! Your volunteer application has been approved. You are now an active volunteer.',
-          'application_approved',
-          '/volunteers/dashboard'
-        );
+      if (!existingVol) {
+        const code = await volunteersRepository.generateVolunteerCode();
+        const volCreate = {
+          application_id: application.id,
+          volunteer_code: code,
+          status: 'Active',
+          biography: application.motivation,
+          availability: application.availability,
+          metadata: {
+            skills: application.skills,
+            preferred_areas: application.preferred_areas,
+            city_district: application.city_district,
+            state: application.state,
+            occupation: application.occupation,
+            application_id: application.id,
+          } as any,
+          created_by: userId,
+          updated_by: userId,
+        };
+        await volunteersRepository.create(volCreate as any);
       }
+
+      await this.notifyByEmail(
+        application.email,
+        'Application Approved',
+        'Congratulations! Your volunteer application has been approved. You are now an active volunteer.',
+        'application_approved',
+        '/volunteers'
+      );
     } else if (status === 'rejected') {
       await this.notifyByEmail(
         application.email,

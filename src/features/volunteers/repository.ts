@@ -7,6 +7,7 @@ import type { Pagination, ID } from '@/types';
 import type { Database } from '@/types/database/database.generated';
 
 export type VolunteerRow = Database['public']['Tables']['volunteers']['Row'] & {
+  application_id?: string | null;
   total_hours?: number;
   event_count?: number;
   bio?: string | null;
