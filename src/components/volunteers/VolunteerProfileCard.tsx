@@ -19,49 +19,7 @@ interface VolunteerProfileCardProps {
   index: number;
 }
 
-// UDBHAV inspired colour palettes for the cards
-const colorPalettes = [
-  {
-    header: "bg-gradient-to-br from-blue-900 to-teal-700",
-    ring: "ring-teal-100",
-    badgeBg: "bg-teal-50",
-    badgeText: "text-teal-700",
-    tagBg: "bg-blue-50",
-    tagText: "text-blue-700",
-  },
-  {
-    header: "bg-gradient-to-br from-teal-700 to-emerald-500",
-    ring: "ring-emerald-100",
-    badgeBg: "bg-emerald-50",
-    badgeText: "text-emerald-700",
-    tagBg: "bg-teal-50",
-    tagText: "text-teal-700",
-  },
-  {
-    header: "bg-gradient-to-br from-amber-500 via-yellow-500 to-emerald-600",
-    ring: "ring-amber-100",
-    badgeBg: "bg-amber-50",
-    badgeText: "text-amber-700",
-    tagBg: "bg-emerald-50",
-    tagText: "text-emerald-700",
-  },
-  {
-    header: "bg-gradient-to-br from-indigo-800 to-teal-600",
-    ring: "ring-indigo-100",
-    badgeBg: "bg-indigo-50",
-    badgeText: "text-indigo-700",
-    tagBg: "bg-teal-50",
-    tagText: "text-teal-700",
-  },
-];
-
-export function VolunteerProfileCard({ volunteer, index }: VolunteerProfileCardProps) {
-  // Use volunteer ID to deterministically pick a palette, fallback to index
-  const paletteIndex = volunteer.id
-    ? volunteer.id.charCodeAt(0) % colorPalettes.length
-    : index % colorPalettes.length;
-  const palette = colorPalettes[paletteIndex];
-
+export function VolunteerProfileCard({ volunteer }: VolunteerProfileCardProps) {
   const bioText =
     volunteer.public_bio ||
     volunteer.skills ||
@@ -71,88 +29,82 @@ export function VolunteerProfileCard({ volunteer, index }: VolunteerProfileCardP
   const remainingTagsCount = Math.max(0, (volunteer.preferred_areas?.length || 0) - 2);
 
   return (
-    <div className="relative flex flex-col h-full bg-white rounded-3xl border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
-      {/* Colourful Header */}
-      <div className={`h-24 sm:h-28 w-full ${palette.header} relative`} />
-
-      <div className="px-6 pb-6 flex-grow flex flex-col relative z-10 -mt-12 sm:-mt-14">
-        {/* Profile Picture */}
-        <div className="flex justify-center mb-3">
-          <div
-            className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white p-1 shadow-md ring-4 ${palette.ring} transition-transform duration-300 group-hover:scale-105 shrink-0`}
-          >
-            {volunteer.profile_picture_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={volunteer.profile_picture_url}
-                alt={volunteer.full_name}
-                className="w-full h-full object-cover rounded-full"
-                loading="lazy"
-              />
-            ) : (
-              <div
-                className={`w-full h-full rounded-full flex items-center justify-center font-bold text-2xl sm:text-3xl text-white ${palette.header}`}
-              >
-                {volunteer.full_name.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Role Badge */}
-        <div className="flex justify-center mb-3">
-          <span
-            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-wide ${palette.badgeBg} ${palette.badgeText}`}
-          >
-            {volunteer.volunteer_role || "Volunteer"}
-          </span>
-        </div>
-
-        {/* Name */}
-        <h3 className="text-xl sm:text-2xl font-bold text-[#12245F] text-center mb-1 line-clamp-1">
-          {volunteer.full_name}
-        </h3>
-
-        {/* Location & Occupation */}
-        <div className="flex items-center justify-center gap-1.5 text-xs sm:text-sm text-gray-500 mb-4">
-          <MapPin className="w-3.5 h-3.5 shrink-0" />
-          <span className="truncate">
-            {volunteer.city_district}, {volunteer.state}
-          </span>
-          <span className="text-gray-300 px-0.5">•</span>
-          <span className="truncate">{volunteer.occupation}</span>
-        </div>
-
-        {/* Bio */}
-        <p className="text-sm text-gray-600 line-clamp-2 text-center mb-5 leading-relaxed flex-grow">
-          {bioText}
-        </p>
-
-        {/* Tags and Verification Footer */}
-        <div className="mt-auto">
-          {visibleTags.length > 0 && (
-            <div className="flex flex-wrap justify-center gap-2 mb-4">
-              {visibleTags.map((area, idx) => (
-                <span
-                  key={idx}
-                  className={`px-2.5 py-1 rounded-md text-[11px] font-semibold border border-opacity-20 border-current ${palette.tagBg} ${palette.tagText}`}
-                >
-                  {area}
-                </span>
-              ))}
-              {remainingTagsCount > 0 && (
-                <span className="px-2.5 py-1 bg-gray-50 text-gray-500 rounded-md text-[11px] font-semibold border border-gray-100">
-                  +{remainingTagsCount} more
-                </span>
-              )}
+    <div className="relative flex flex-col h-full bg-white rounded-[22px] border border-gray-200/70 shadow-[0_4px_16px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:-translate-y-[3px] transition-all duration-300 overflow-hidden group p-6 sm:p-7">
+      
+      {/* Profile Picture (Top Center) */}
+      <div className="flex justify-center mb-5 mt-1">
+        <div className="w-20 h-20 sm:w-[92px] sm:h-[92px] rounded-full bg-white shadow-sm ring-[3px] ring-[#006633]/15 transition-transform duration-300 group-hover:scale-[1.02] shrink-0 p-0.5">
+          {volunteer.profile_picture_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={volunteer.profile_picture_url}
+              alt={volunteer.full_name}
+              className="w-full h-full object-cover rounded-full"
+              loading="lazy"
+            />
+          ) : (
+            <div className="w-full h-full rounded-full flex items-center justify-center font-bold text-2xl sm:text-3xl text-[#006633] bg-[#E8F2EC]">
+              {volunteer.full_name.charAt(0).toUpperCase()}
             </div>
           )}
+        </div>
+      </div>
 
-          <div className="flex items-center justify-center pt-4 border-t border-gray-50">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-medium">
-              <ShieldCheck className="w-4 h-4" /> Verified UDBHAV Member
-            </span>
+      {/* Name */}
+      <h3 className="text-[20px] sm:text-[22px] font-semibold text-[#12245F] text-center mb-2 line-clamp-1">
+        {volunteer.full_name}
+      </h3>
+
+      {/* Accent Line */}
+      <div className="flex justify-center mb-3">
+        <div className="w-12 h-0.5 bg-[#006633]/30 rounded-full" />
+      </div>
+
+      {/* Role / Designation */}
+      <div className="text-center mb-4">
+        <span className="text-[14px] sm:text-[15px] font-medium text-[#006633]">
+          {volunteer.volunteer_role || "Volunteer"}
+        </span>
+      </div>
+
+      {/* Location & Occupation */}
+      <div className="flex flex-col items-center justify-center text-[13px] sm:text-[14px] text-[#5E6B63] mb-5 space-y-1">
+        <div className="flex items-center gap-1.5">
+          <MapPin className="w-3.5 h-3.5 text-gray-400" />
+          <span className="truncate">{volunteer.city_district}, {volunteer.state}</span>
+        </div>
+        <span className="truncate font-medium">{volunteer.occupation}</span>
+      </div>
+
+      {/* Bio */}
+      <p className="text-[13px] sm:text-[14px] text-gray-500 line-clamp-2 text-center mb-6 leading-relaxed flex-grow">
+        {bioText}
+      </p>
+
+      {/* Tags and Verification Footer */}
+      <div className="mt-auto">
+        {visibleTags.length > 0 && (
+          <div className="flex flex-wrap justify-center gap-1.5 mb-5">
+            {visibleTags.map((area, idx) => (
+              <span
+                key={idx}
+                className="px-2.5 py-1 rounded-md text-[11px] sm:text-[12px] font-medium text-[#006633] bg-[#006633]/5 border border-[#006633]/10"
+              >
+                {area}
+              </span>
+            ))}
+            {remainingTagsCount > 0 && (
+              <span className="px-2.5 py-1 rounded-md text-[11px] sm:text-[12px] font-medium text-[#5E6B63] bg-gray-50 border border-gray-100">
+                +{remainingTagsCount} more
+              </span>
+            )}
           </div>
+        )}
+
+        <div className="flex items-center justify-center pt-5 border-t border-gray-100">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#006633]/10 text-[#006633] text-[12px] font-medium">
+            <ShieldCheck className="w-3.5 h-3.5" /> Verified UDBHAV Member
+          </span>
         </div>
       </div>
     </div>
