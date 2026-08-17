@@ -311,14 +311,40 @@ export class VolunteersRepository implements IWriteRepository<VolunteerRow, Volu
     }
   }
 
-  async updateApplicationProfile(id: ID, data: Partial<VolunteerApplicationRow>): Promise<RepositoryResult<VolunteerApplicationRow>> {
+  async updateApplicationProfile(id: ID, data: Partial<VolunteerApplicationRow & { is_publicly_visible?: boolean }>): Promise<RepositoryResult<VolunteerApplicationRow>> {
     try {
       const supabase = createAdminClient();
+      
+      let appId = id;
+      
+      // 1. Check if the provided ID is a volunteer ID (when editing from Active Volunteers)
+      const { data: volCheck } = await (supabase as any).from('volunteers').select('application_id, id').eq('id', id).single();
+      
+      if (volCheck) {
+        appId = volCheck.application_id;
+        // 2. Explicitly sync the public visibility flag to the volunteers table
+        if (data.is_publicly_visible !== undefined) {
+          await (supabase as any).from('volunteers')
+            .update({ is_publicly_visible: data.is_publicly_visible, updated_at: new Date().toISOString() })
+            .eq('id', volCheck.id);
+        }
+      } else {
+        // If it's an application ID, we might also want to update the volunteer if it exists
+        const { data: volFromApp } = await (supabase as any).from('volunteers').select('id').eq('application_id', id).single();
+        if (volFromApp && data.is_publicly_visible !== undefined) {
+          await (supabase as any).from('volunteers')
+            .update({ is_publicly_visible: data.is_publicly_visible, updated_at: new Date().toISOString() })
+            .eq('id', volFromApp.id);
+        }
+      }
+
+      const updateData = { ...data, updated_at: new Date().toISOString() };
       const { data: row, error } = await (supabase as any).from('volunteer_applications')
-        .update({ ...data, updated_at: new Date().toISOString() })
-        .eq('id', id)
+        .update(updateData)
+        .eq('id', appId)
         .select()
         .single();
+        
       if (error) throw new DatabaseError(error.message);
       return { data: row, error: null };
     } catch (error) {
@@ -330,15 +356,37 @@ export class VolunteersRepository implements IWriteRepository<VolunteerRow, Volu
   async listPublicProfiles(params: { pagination: Pagination; filters?: Record<string, unknown> }): Promise<PaginatedResult<Partial<VolunteerApplicationRow>>> {
     const { pagination, filters } = params;
     const supabase = createAdminClient();
+    
+    // The public query MUST return accepted (Active) volunteers where is_publicly_visible = true.
+    // It must join with volunteer_applications to fetch the public profile metadata (bio, skills, photo, etc).
     let query = (supabase as any)
-      .from('volunteer_applications')
-      .select('id, full_name, profile_picture_url, occupation, city_district, state, preferred_areas, skills, public_bio, volunteer_role', { count: 'exact' })
-      .eq('status', 'accepted')
-      .eq('is_publicly_visible', true);
+      .from('volunteers')
+      .select(`
+        id,
+        is_publicly_visible,
+        status,
+        created_at,
+        volunteer_applications (
+          full_name,
+          profile_picture_url,
+          occupation,
+          city_district,
+          state,
+          preferred_areas,
+          skills,
+          public_bio,
+          volunteer_role
+        )
+      `, { count: 'exact' })
+      .eq('status', 'Active')
+      .eq('is_publicly_visible', true)
+      .eq('is_deleted', false);
 
+    // Filtering currently works by filtering the inner application fields. 
+    // Supabase allows filtering on joined tables using the foreign table name prefix.
     if (filters?.search && typeof filters.search === 'string') {
       const q = filters.search;
-      query = query.or(`full_name.ilike.%${q}%,occupation.ilike.%${q}%,skills.ilike.%${q}%,volunteer_role.ilike.%${q}%,city_district.ilike.%${q}%,state.ilike.%${q}%`);
+      query = query.or(`volunteer_applications.full_name.ilike.%${q}%,volunteer_applications.occupation.ilike.%${q}%,volunteer_applications.skills.ilike.%${q}%,volunteer_applications.volunteer_role.ilike.%${q}%,volunteer_applications.city_district.ilike.%${q}%,volunteer_applications.state.ilike.%${q}%`);
     }
 
     query = query.order('created_at', { ascending: false });
@@ -347,7 +395,15 @@ export class VolunteersRepository implements IWriteRepository<VolunteerRow, Volu
     
     const { data, count, error } = await query;
     if (error) serverLogger.error('VolunteersRepository.listPublicProfiles failed', new DatabaseError(error.message));
-    return { data: data ?? [], total: count ?? 0, page: pagination.page, limit: pagination.limit };
+    
+    // Flatten the joined structure so the frontend component receives the expected flat object
+    const flattenedData = (data ?? []).map((v: any) => ({
+      id: v.id, // Expose volunteer ID, not application ID
+      is_publicly_visible: v.is_publicly_visible,
+      ...(v.volunteer_applications || {})
+    }));
+
+    return { data: flattenedData, total: count ?? 0, page: pagination.page, limit: pagination.limit };
   }
 
   async exportApplications(filters?: Record<string, unknown>): Promise<RepositoryResult<VolunteerApplicationRow[]>> {
