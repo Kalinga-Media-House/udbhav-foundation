@@ -319,17 +319,17 @@ export function AdminVolunteersClient({
             />
           </div>
 
-          <div className="bg-transparent md:bg-white md:rounded-2xl md:border md:border-gray-200 md:shadow-sm overflow-hidden">
-            <table className="w-full text-left border-collapse block md:table">
-              <thead className="hidden md:table-header-group">
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-max">
+              <thead>
                 <tr className="border-b border-gray-200 bg-gray-50 text-xs font-semibold text-gray-600 uppercase">
-                  <th className="py-3 px-6">Volunteer Code</th>
+                  <th className="py-3 px-6 sticky left-0 z-10 bg-gray-50 shadow-[1px_0_0_#f3f4f6]">Volunteer Code</th>
                   <th className="py-3 px-6">Status</th>
                   <th className="py-3 px-6">Total Hours</th>
                   <th className="py-3 px-6 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 text-sm block md:table-row-group">
+              <tbody className="divide-y divide-gray-100 text-sm">
                 {filteredVolunteers.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="py-12 text-center text-gray-500">
@@ -340,8 +340,8 @@ export function AdminVolunteersClient({
                   filteredVolunteers.map((vol) => {
                     const app = applications.find(a => a.id === vol.application_id || (vol.metadata as any)?.application_id === a.id);
                     return (
-                    <tr key={vol.id} className="hover:bg-gray-50/60 transition-colors block md:table-row border border-gray-200 md:border-none rounded-xl mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none bg-white md:bg-transparent">
-                      <td data-label="Volunteer" className="py-2 md:py-4 px-0 md:px-6 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
+                    <tr key={vol.id} className="hover:bg-gray-50/60 transition-colors group">
+                      <td className="py-4 px-6 sticky left-0 z-10 bg-white group-hover:bg-gray-50/60 transition-colors shadow-[1px_0_0_#f3f4f6]">
                         <div className="flex items-center gap-3">
                           <Avatar src={app?.profile_picture_url} alt={app?.full_name || 'Volunteer'} />
                           <div>
@@ -350,15 +350,15 @@ export function AdminVolunteersClient({
                           </div>
                         </div>
                       </td>
-                      <td data-label="Status" className="py-2 md:py-4 px-0 md:px-6 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
+                      <td className="py-4 px-6">
                         <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full bg-green-100 text-green-800">
                           <ShieldCheck className="w-3 h-3" /> {vol.status}
                         </span>
                       </td>
-                      <td data-label="Total Hours" className="py-2 md:py-4 px-0 md:px-6 font-bold text-teal-700 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
+                      <td className="py-4 px-6 font-bold text-teal-700">
                         {vol.total_hours || 0} hrs
                       </td>
-                      <td className="py-3 md:py-4 px-0 md:px-6 text-left md:text-right space-x-2 block md:table-cell">
+                      <td className="py-4 px-6 text-right space-x-2">
                         <button
                           type="button"
                           onClick={() => {
@@ -412,11 +412,11 @@ export function AdminVolunteersClient({
 
       {/* Tab 2: Application History */}
       {activeTab === "applications" && (
-        <div className="bg-transparent md:bg-white md:rounded-2xl md:border md:border-gray-200 md:shadow-sm overflow-hidden">
-          <table className="w-full text-left border-collapse block md:table">
-            <thead className="hidden md:table-header-group">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-max">
+            <thead>
               <tr className="border-b border-gray-200 bg-gray-50 text-xs font-semibold text-gray-600 uppercase">
-                <th className="py-3 px-6">Applicant</th>
+                <th className="py-3 px-6 sticky left-0 z-10 bg-gray-50 shadow-[1px_0_0_#f3f4f6]">Applicant</th>
                 <th className="py-3 px-6">Contact</th>
                 <th className="py-3 px-6">Occupation & City</th>
                 <th className="py-3 px-6">Preferred Areas</th>
@@ -424,7 +424,7 @@ export function AdminVolunteersClient({
                 <th className="py-3 px-6 text-right">Review Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 text-sm block md:table-row-group">
+            <tbody className="divide-y divide-gray-100 text-sm">
               {applications.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-gray-500">
@@ -433,29 +433,29 @@ export function AdminVolunteersClient({
                 </tr>
               ) : (
                 applications.map((app) => (
-                  <tr key={app.id} className="hover:bg-gray-50/60 transition-colors block md:table-row border border-gray-200 md:border-none rounded-xl mb-4 md:mb-0 p-4 md:p-0 shadow-sm md:shadow-none bg-white md:bg-transparent">
-                    <td data-label="Applicant" className="py-2 md:py-4 px-0 md:px-6 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
+                  <tr key={app.id} className="hover:bg-gray-50/60 transition-colors group">
+                    <td className="py-4 px-6 sticky left-0 z-10 bg-white group-hover:bg-gray-50/60 transition-colors shadow-[1px_0_0_#f3f4f6]">
                       <div className="flex items-center gap-2.5">
                         <Avatar src={app.profile_picture_url} alt={app.full_name} />
                         <div>
                           <div className="font-bold text-gray-900">{app.full_name}</div>
-                          <p className="text-xs text-gray-500 font-normal mt-0.5 line-clamp-1">
+                          <p className="text-xs text-gray-500 font-normal mt-0.5 line-clamp-1 max-w-[150px]">
                             {app.motivation}
                           </p>
                         </div>
                       </div>
                     </td>
-                    <td data-label="Contact" className="py-2 md:py-4 px-0 md:px-6 text-gray-700 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
+                    <td className="py-4 px-6 text-gray-700">
                       <p>{app.email}</p>
                       <p className="text-xs text-gray-500">{app.mobile_number}</p>
                     </td>
-                    <td data-label="Occupation & City" className="py-2 md:py-4 px-0 md:px-6 text-gray-700 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
+                    <td className="py-4 px-6 text-gray-700">
                       <p>{app.occupation}</p>
                       <p className="text-xs text-gray-500">
                         {app.city_district}, {app.state}
                       </p>
                     </td>
-                    <td data-label="Preferred Areas" className="py-2 md:py-4 px-0 md:px-6 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
+                    <td className="py-4 px-6">
                       <div className="flex flex-wrap gap-1">
                         {(app.preferred_areas || []).slice(0, 2).map((a, idx) => (
                           <span
@@ -467,7 +467,7 @@ export function AdminVolunteersClient({
                         ))}
                       </div>
                     </td>
-                    <td data-label="Status" className="py-2 md:py-4 px-0 md:px-6 block md:table-cell before:content-[attr(data-label)] before:font-semibold before:text-gray-500 before:text-xs before:uppercase before:mb-1 before:block md:before:hidden">
+                    <td className="py-4 px-6">
                       <span
                         className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full ${
                           app.status === "accepted"
@@ -480,7 +480,7 @@ export function AdminVolunteersClient({
                         {app.status}
                       </span>
                     </td>
-                    <td className="py-3 md:py-4 px-0 md:px-6 text-left md:text-right space-x-2 block md:table-cell">
+                    <td className="py-4 px-6 text-right space-x-2">
                       {app.status === "pending" && (
                         <>
                           <button
