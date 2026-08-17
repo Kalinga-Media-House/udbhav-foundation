@@ -424,6 +424,7 @@ export function VolunteerApplicationSection() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isDuplicate, setIsDuplicate] = useState(false);
 
   // Listen for 'select-volunteer-area' custom event dispatched by opportunity cards
   useEffect(() => {
@@ -510,7 +511,7 @@ export function VolunteerApplicationSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSubmitting || isSubmitted) return;
+    if (isSubmitting || isSubmitted || isDuplicate) return;
 
     if (!validateForm()) {
       return;
@@ -540,6 +541,12 @@ export function VolunteerApplicationSection() {
         }),
       });
 
+      // Handle duplicate application (409 Conflict)
+      if (response.status === 409) {
+        setIsDuplicate(true);
+        return;
+      }
+
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
         throw new Error(data.error || "Submission failed. Please try again.");
@@ -559,6 +566,7 @@ export function VolunteerApplicationSection() {
 
   const resetForm = () => {
     setIsSubmitted(false);
+    setIsDuplicate(false);
     setFullName("");
     setEmail("");
     setMobileNumber("");
@@ -614,7 +622,46 @@ export function VolunteerApplicationSection() {
         <div className="max-w-4xl mx-auto">
           <RevealCard as="div" index={1}>
             <div className="rounded-3xl p-6 sm:p-8 md:p-11 shadow-xl border border-[#12245F]/15 bg-pure-white">
-              {isSubmitted ? (
+              {isDuplicate ? (
+                /* ── Duplicate Application State ── */
+                <div className="flex flex-col items-center text-center py-10 sm:py-14 space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-[#EAF3FF] text-[#12245F] flex items-center justify-center border-2 border-[#12245F]/30">
+                    <AlertCircle className="w-9 h-9" />
+                  </div>
+                  <h3
+                    className="font-heading text-2xl sm:text-3xl font-bold"
+                    style={{ color: "#12245F" }}
+                  >
+                    Application Already Exists
+                  </h3>
+                  <p
+                    className="max-w-md text-sm sm:text-base leading-relaxed"
+                    style={{ color: "#5E6B63" }}
+                  >
+                    An application with this mobile number or email address has already been
+                    submitted. Your application is currently under review.
+                  </p>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#EAF3FF] border border-[#12245F]/20">
+                    <span className="w-2 h-2 rounded-full bg-[#E6A817] animate-pulse" />
+                    <span className="text-sm font-semibold" style={{ color: "#12245F" }}>
+                      Under Review
+                    </span>
+                  </div>
+                  <p
+                    className="max-w-sm text-sm leading-relaxed"
+                    style={{ color: "#5E6B63" }}
+                  >
+                    Our team will review your application and contact you.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={resetForm}
+                    className="mt-4 px-6 py-2.5 rounded-xl text-xs sm:text-sm font-heading font-semibold border border-[#12245F]/20 text-[#12245F] cursor-pointer hover:bg-[#EAF3FF] transition-colors"
+                  >
+                    Submit a Different Application
+                  </button>
+                </div>
+              ) : isSubmitted ? (
                 /* ── Success State ── */
                 <div className="flex flex-col items-center text-center py-10 sm:py-14 space-y-4">
                   <div className="w-16 h-16 rounded-full bg-[#EEF8E9] text-[#439B25] flex items-center justify-center border-2 border-[#439B25]">
@@ -630,9 +677,19 @@ export function VolunteerApplicationSection() {
                     className="max-w-md text-sm sm:text-base leading-relaxed"
                     style={{ color: "#5E6B63" }}
                   >
-                    Your volunteer application has been received successfully. Our
-                    coordination team will review your application and reach out to
-                    you soon.
+                    Your volunteer application has been received successfully.
+                  </p>
+                  <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FFF8E1] border border-[#E6A817]/30">
+                    <span className="w-2 h-2 rounded-full bg-[#E6A817] animate-pulse" />
+                    <span className="text-sm font-semibold" style={{ color: "#8B6914" }}>
+                      Pending Review
+                    </span>
+                  </div>
+                  <p
+                    className="max-w-sm text-sm leading-relaxed"
+                    style={{ color: "#5E6B63" }}
+                  >
+                    Our team will review your application and contact you.
                   </p>
                   <button
                     type="button"

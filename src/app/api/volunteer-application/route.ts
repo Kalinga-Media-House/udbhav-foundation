@@ -10,6 +10,17 @@ export async function POST(request: Request) {
     const result = await volunteersService.submitApplication(body);
 
     if (!result.success) {
+      // Specific handling for duplicate applications
+      if (result.error === 'DUPLICATE_APPLICATION') {
+        return NextResponse.json(
+          {
+            error: "DUPLICATE_APPLICATION",
+            message: "An application with this mobile number or email address has already been submitted. Your application is currently under review.",
+          },
+          { status: 409 }
+        );
+      }
+
       // Sanitize error: never expose database internals to public users
       const isValidationError = result.error && !result.error.includes('schema cache') && !result.error.includes('SQLSTATE') && !result.error.includes('relation') && !result.error.includes('column');
       const userMessage = isValidationError
@@ -42,4 +53,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

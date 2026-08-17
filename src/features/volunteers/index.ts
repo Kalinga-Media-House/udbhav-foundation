@@ -26,6 +26,7 @@ export {
   uploadVolunteerCertificate,
   getVolunteerDashboardData,
   exportVolunteersCSV,
+  updateVolunteerProfile,
 } from './actions';
 export {
   createVolunteerSchema,
@@ -36,6 +37,7 @@ export {
   assignEventSchema,
   logVolunteerHoursSchema,
   uploadCertificateSchema,
+  updateVolunteerProfileSchema,
   type CreateVolunteerDTO,
   type UpdateVolunteerDTO,
   type CreateVolunteerApplicationDTO,
@@ -44,4 +46,5 @@ export {
   type AssignEventDTO,
   type LogVolunteerHoursDTO,
   type UploadCertificateDTO,
+  type UpdateVolunteerProfileDTO,
 } from './validators';

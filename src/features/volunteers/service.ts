@@ -24,6 +24,7 @@ import {
   assignEventSchema,
   logVolunteerHoursSchema,
   uploadCertificateSchema,
+  updateVolunteerProfileSchema,
 } from './validators';
 import type { CreateVolunteerDTO, UpdateVolunteerDTO } from './validators';
 
@@ -121,6 +122,7 @@ export class VolunteersService {
 
   /**
    * Submits a new volunteer application after validating input data.
+   * Checks for duplicate applications by mobile number or email before inserting.
    * @param dto - Volunteer application payload from public form.
    * @returns Service result containing the created application or error.
    */
@@ -128,10 +130,22 @@ export class VolunteersService {
     const parsed = createVolunteerApplicationSchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
     const data = parsed.data;
+
+    // Normalize mobile: strip non-digits, remove leading 91 country code
+    const normalizedMobile = data.mobileNumber.replace(/\D/g, '').replace(/^91(\d{10})$/, '$1');
+    // Normalize email: trim + lowercase
+    const normalizedEmail = data.email.trim().toLowerCase();
+
+    // Check for existing application (application-level duplicate guard)
+    const existing = await volunteersRepository.findExistingApplication(normalizedMobile, normalizedEmail);
+    if (existing) {
+      return fail('DUPLICATE_APPLICATION');
+    }
+
     const applicationCreate: VolunteerApplicationCreate = {
       full_name: data.fullName,
-      email: data.email,
-      mobile_number: data.mobileNumber,
+      email: normalizedEmail,
+      mobile_number: normalizedMobile,
       age: data.age ?? null,
       occupation: data.occupation,
       city_district: data.cityDistrict,
@@ -142,11 +156,18 @@ export class VolunteersService {
       motivation: data.motivation,
       consent: data.consent,
       status: 'pending',
-    };
+    } as VolunteerApplicationCreate;
+
     const result = await volunteersRepository.createApplication(applicationCreate);
+
+    // Handle race-condition duplicate (DB unique constraint caught it)
+    if (result.error?.message === 'DUPLICATE_APPLICATION') {
+      return fail('DUPLICATE_APPLICATION');
+    }
+
     if (result.data) {
       await this.notifyByEmail(
-        data.email,
+        normalizedEmail,
         'Application Submitted',
         'We have received your volunteer application. Our team will review it shortly.',
         'application_submitted',
@@ -234,6 +255,16 @@ export class VolunteersService {
     return ok(await volunteersRepository.listPublicVolunteers({ pagination, filters }));
   }
 
+  async listPublicProfiles(pagination: Pagination, filters?: Record<string, unknown>): Promise<ServiceResult<PaginatedResult<Partial<VolunteerApplicationRow>>>> {
+    return ok(await volunteersRepository.listPublicProfiles({ pagination, filters }));
+  }
+
+  async updateApplicationProfile(id: ID, dto: unknown, userId: string): Promise<ServiceResult<VolunteerApplicationRow>> {
+    const parsed = updateVolunteerProfileSchema.safeParse(dto);
+    if (!parsed.success) return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
+    return fromRepo(await volunteersRepository.updateApplicationProfile(id, parsed.data));
+  }
+
   async assignToProgram(dto: unknown): Promise<ServiceResult<ProgramVolunteerRow>> {
     const parsed = assignProgramSchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
@@ -311,8 +342,8 @@ export class VolunteersService {
     return fromRepo(await volunteersRepository.getDashboardData(userId));
   }
 
-  async export(filters?: Record<string, unknown>): Promise<ServiceResult<VolunteerRow[]>> {
-    return fromRepo(await volunteersRepository.exportVolunteers(filters));
+  async export(filters?: Record<string, unknown>): Promise<ServiceResult<VolunteerApplicationRow[]>> {
+    return fromRepo(await volunteersRepository.exportApplications(filters));
   }
 
   private async notifyUser(userId: string, title: string, message: string, type: string, actionUrl?: string): Promise<void> {

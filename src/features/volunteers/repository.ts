@@ -32,7 +32,15 @@ export type VolunteerApplicationRow = {
   motivation: string;
   consent: boolean;
   status: string;
+  notes: string | null;
+  profile_picture_url: string | null;
+  blood_group: string | null;
+  public_bio: string | null;
+  volunteer_role: string | null;
+  is_publicly_visible: boolean;
+  reviewed_at: string | null;
   created_at: string;
+  updated_at: string;
 };
 
 export type VolunteerApplicationCreate = Omit<VolunteerApplicationRow, 'id' | 'created_at'>;
@@ -218,8 +226,36 @@ export class VolunteersRepository implements IWriteRepository<VolunteerRow, Volu
   }
 
   /**
+   * Checks if a volunteer application already exists with the given mobile number or email.
+   * Uses createAdminClient to bypass RLS for the lookup.
+   * @param mobileNumber - Normalized 10-digit mobile number.
+   * @param email - Normalized lowercase email.
+   * @returns The existing application row if found, null otherwise.
+   */
+  async findExistingApplication(mobileNumber: string, email: string): Promise<VolunteerApplicationRow | null> {
+    try {
+      const supabase = createAdminClient();
+      const { data, error } = await (supabase as any)
+        .from('volunteer_applications')
+        .select('*')
+        .or(`mobile_number.eq.${mobileNumber},email.eq.${email}`)
+        .limit(1)
+        .maybeSingle();
+      if (error) {
+        serverLogger.error('VolunteersRepository.findExistingApplication failed', new DatabaseError(error.message));
+        return null;
+      }
+      return data || null;
+    } catch (error) {
+      serverLogger.error('VolunteersRepository.findExistingApplication failed', error as Error);
+      return null;
+    }
+  }
+
+  /**
    * Submits a new volunteer application from the public website.
    * Uses createAdminClient to reliably insert applications regardless of RLS context.
+   * Handles unique constraint violations gracefully for race-condition protection.
    * @param data - The volunteer application data.
    * @returns A promise resolving to the repository result containing the created application row.
    */
@@ -227,7 +263,13 @@ export class VolunteersRepository implements IWriteRepository<VolunteerRow, Volu
     try {
       const supabase = createAdminClient();
       const { data: row, error } = await (supabase as any).from('volunteer_applications').insert(data as any).select().single();
-      if (error) throw new DatabaseError(error.message);
+      if (error) {
+        // Detect unique constraint violation (PostgreSQL error code 23505)
+        if (error.code === '23505' || error.message?.includes('duplicate key') || error.message?.includes('unique constraint')) {
+          throw new DatabaseError('DUPLICATE_APPLICATION');
+        }
+        throw new DatabaseError(error.message);
+      }
       return { data: row, error: null };
     } catch (error) {
       serverLogger.error('VolunteersRepository.createApplication failed', error as Error);
@@ -264,6 +306,65 @@ export class VolunteersRepository implements IWriteRepository<VolunteerRow, Volu
       return { data: row, error: null };
     } catch (error) {
       serverLogger.error('VolunteersRepository.updateApplicationStatus failed', error as Error);
+      return { data: null, error: error as Error };
+    }
+  }
+
+  async updateApplicationProfile(id: ID, data: Partial<VolunteerApplicationRow>): Promise<RepositoryResult<VolunteerApplicationRow>> {
+    try {
+      const supabase = createAdminClient();
+      const { data: row, error } = await (supabase as any).from('volunteer_applications')
+        .update({ ...data, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw new DatabaseError(error.message);
+      return { data: row, error: null };
+    } catch (error) {
+      serverLogger.error('VolunteersRepository.updateApplicationProfile failed', error as Error);
+      return { data: null, error: error as Error };
+    }
+  }
+
+  async listPublicProfiles(params: { pagination: Pagination; filters?: Record<string, unknown> }): Promise<PaginatedResult<Partial<VolunteerApplicationRow>>> {
+    const { pagination, filters } = params;
+    const supabase = createAdminClient();
+    let query = (supabase as any)
+      .from('volunteer_applications')
+      .select('id, full_name, profile_picture_url, occupation, city_district, state, preferred_areas, skills, public_bio, volunteer_role', { count: 'exact' })
+      .eq('status', 'accepted')
+      .eq('is_publicly_visible', true);
+
+    if (filters?.search && typeof filters.search === 'string') {
+      const q = filters.search;
+      query = query.or(`full_name.ilike.%${q}%,occupation.ilike.%${q}%,skills.ilike.%${q}%,volunteer_role.ilike.%${q}%,city_district.ilike.%${q}%,state.ilike.%${q}%`);
+    }
+
+    query = query.order('created_at', { ascending: false });
+    const from = (pagination.page - 1) * pagination.limit;
+    query = query.range(from, from + pagination.limit - 1);
+    
+    const { data, count, error } = await query;
+    if (error) serverLogger.error('VolunteersRepository.listPublicProfiles failed', new DatabaseError(error.message));
+    return { data: data ?? [], total: count ?? 0, page: pagination.page, limit: pagination.limit };
+  }
+
+  async exportApplications(filters?: Record<string, unknown>): Promise<RepositoryResult<VolunteerApplicationRow[]>> {
+    try {
+      const supabase = createAdminClient();
+      let query = (supabase as any)
+        .from('volunteer_applications')
+        .select('*');
+
+      if (filters?.status && filters.status !== 'all') {
+        query = query.eq('status', filters.status as string);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
+      if (error) throw new DatabaseError(error.message);
+      return { data: data ?? [], error: null };
+    } catch (error) {
+      serverLogger.error('VolunteersRepository.exportApplications failed', error as Error);
       return { data: null, error: error as Error };
     }
   }

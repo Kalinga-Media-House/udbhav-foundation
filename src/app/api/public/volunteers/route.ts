@@ -15,7 +15,7 @@ export async function GET(request: Request) {
     if (type !== "All") filters.volunteer_type = type;
     if (q) filters.search = q;
 
-    const result = await volunteersService.listPublic({ page, limit }, filters);
+    const result = await volunteersService.listPublicProfiles({ page, limit }, filters);
 
     if (!result.success) {
       return NextResponse.json(

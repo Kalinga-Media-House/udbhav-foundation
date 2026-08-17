@@ -114,3 +114,19 @@ export const createVolunteerApplicationSchema = z.object({
 
 export type CreateVolunteerApplicationDTO = z.infer<typeof createVolunteerApplicationSchema>;
 
+export const updateVolunteerProfileSchema = z.object({
+  id: z.string().uuid(),
+  full_name: z.string().min(1).optional(),
+  occupation: z.string().min(1).optional(),
+  city_district: z.string().min(1).optional(),
+  state: z.string().min(1).optional(),
+  public_bio: z.string().nullable().optional(),
+  volunteer_role: z.string().nullable().optional(),
+  skills: z.string().nullable().optional(),
+  profile_picture_url: z.string().nullable().optional(),
+  is_publicly_visible: z.boolean().optional(),
+  blood_group: z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown']).nullable().optional(),
+  notes: z.string().nullable().optional(),
+});
+
+export type UpdateVolunteerProfileDTO = z.infer<typeof updateVolunteerProfileSchema>;

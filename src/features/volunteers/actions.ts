@@ -24,6 +24,7 @@ import type {
   AssignEventDTO,
   LogVolunteerHoursDTO,
   UploadCertificateDTO,
+  UpdateVolunteerProfileDTO,
 } from './validators';
 
 /**
@@ -106,6 +107,21 @@ export async function reviewVolunteerApplication(dto: ReviewApplicationDTO): Pro
     requirePermission(session, 'volunteers.manage');
     const result = await volunteersService.reviewApplication(dto, session.id);
     if (!result.success) throw new Error(result.error ?? 'Failed to review application');
+    (revalidateTag as any)(CacheTags.volunteers());
+    return result.data!;
+  });
+}
+
+/**
+ * Server action to update volunteer profile from admin panel.
+ * Requires volunteers.manage permission.
+ */
+export async function updateVolunteerProfile(dto: UpdateVolunteerProfileDTO): Promise<ActionResult<VolunteerApplicationRow>> {
+  return handleAction('updateVolunteerProfile', async () => {
+    const session = await requireAuth();
+    requirePermission(session, 'volunteers.manage');
+    const result = await volunteersService.updateApplicationProfile(dto.id, dto, session.id);
+    if (!result.success) throw new Error(result.error ?? 'Failed to update profile');
     (revalidateTag as any)(CacheTags.volunteers());
     return result.data!;
   });
@@ -212,7 +228,7 @@ export async function getVolunteerDashboardData(): Promise<ActionResult<Voluntee
  * Requires volunteers.manage permission.
  * Excludes sensitive information unless authorized.
  */
-export async function exportVolunteersCSV(filters?: Record<string, unknown>): Promise<ActionResult<VolunteerRow[]>> {
+export async function exportVolunteersCSV(filters?: Record<string, unknown>): Promise<ActionResult<VolunteerApplicationRow[]>> {
   return handleAction('exportVolunteersCSV', async () => {
     const session = await requireAuth();
     requirePermission(session, 'volunteers.manage');

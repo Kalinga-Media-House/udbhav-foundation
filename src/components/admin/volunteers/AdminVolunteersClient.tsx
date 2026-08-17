@@ -15,7 +15,9 @@ import {
   logVolunteerActivityHours,
   uploadVolunteerCertificate,
   exportVolunteersCSV,
+  updateVolunteerProfile,
 } from "@/features/volunteers/actions";
+import { ImageUploader } from "@/components/admin/ImageUploader";
 import type {
   VolunteerRow,
   VolunteerApplicationRow,
@@ -39,7 +41,7 @@ export function AdminVolunteersClient({
 
   // Modal states
   const [selectedVolId, setSelectedVolId] = useState<string | null>(null);
-  const [modalType, setModalType] = useState<"program" | "event" | "hours" | "certificate" | null>(null);
+  const [modalType, setModalType] = useState<"program" | "event" | "hours" | "certificate" | "profile" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form inputs for modals
@@ -49,6 +51,9 @@ export function AdminVolunteersClient({
   const [notesInput, setNotesInput] = useState("");
   const [titleInput, setTitleInput] = useState("Certificate of Appreciation");
   const [mediaIdInput, setMediaIdInput] = useState("");
+
+  // Profile Edit Inputs
+  const [profileInput, setProfileInput] = useState<Partial<VolunteerApplicationRow>>({});
 
   const handleExportCSV = async () => {
     setIsExporting(true);
@@ -62,12 +67,14 @@ export function AdminVolunteersClient({
       }
       const headers = [
         "ID",
-        "Volunteer Code",
+        "Full Name",
+        "Email",
+        "Mobile Number",
+        "Occupation",
+        "City/District",
+        "State",
         "Status",
-        "Type",
-        "Total Hours",
-        "Event Count",
-        "Bio",
+        "Public Visibility",
         "Created At",
       ];
       const csvContent = [
@@ -75,12 +82,14 @@ export function AdminVolunteersClient({
         ...rows.map((r: any) =>
           [
             r.id,
-            r.volunteer_code || "",
+            `"${(r.full_name || "").replace(/"/g, '""')}"`,
+            r.email || "",
+            r.mobile_number || "",
+            `"${(r.occupation || "").replace(/"/g, '""')}"`,
+            `"${(r.city_district || "").replace(/"/g, '""')}"`,
+            `"${(r.state || "").replace(/"/g, '""')}"`,
             r.status || "",
-            r.volunteer_type || "",
-            r.total_hours || 0,
-            r.event_count || 0,
-            `"${(r.bio || "").replace(/"/g, '""')}"`,
+            r.is_publicly_visible ? "Yes" : "No",
             r.created_at || "",
           ].join(",")
         ),
@@ -161,6 +170,15 @@ export function AdminVolunteersClient({
           media_file_id: mediaIdInput || "00000000-0000-0000-0000-000000000000",
         });
         setStatusMessage("Certificate issued and verified successfully.");
+      } else if (modalType === "profile") {
+        await updateVolunteerProfile({
+          id: selectedVolId,
+          ...profileInput,
+        } as any);
+        setApplications((prev) =>
+          prev.map((a) => (a.id === selectedVolId ? { ...a, ...profileInput } : a))
+        );
+        setStatusMessage("Volunteer profile updated successfully.");
       }
       setModalType(null);
       setSelectedVolId(null);
@@ -416,6 +434,30 @@ export function AdminVolunteersClient({
                           </button>
                         </>
                       )}
+                      {app.status === "accepted" && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedVolId(app.id);
+                            setProfileInput({
+                              full_name: app.full_name,
+                              occupation: app.occupation,
+                              city_district: app.city_district,
+                              state: app.state,
+                              public_bio: app.public_bio || "",
+                              volunteer_role: app.volunteer_role || "",
+                              skills: app.skills || "",
+                              is_publicly_visible: app.is_publicly_visible || false,
+                              blood_group: app.blood_group || "",
+                              profile_picture_url: app.profile_picture_url || "",
+                            });
+                            setModalType("profile");
+                          }}
+                          className="px-3 py-1 rounded-lg border border-teal-200 text-teal-700 bg-teal-50 text-xs font-semibold hover:bg-teal-100 transition-colors"
+                        >
+                          Edit Profile
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))
@@ -434,6 +476,7 @@ export function AdminVolunteersClient({
               {modalType === "event" && "Assign Volunteer to Event"}
               {modalType === "hours" && "Log Individual Activity Hours"}
               {modalType === "certificate" && "Issue Verified Certificate"}
+              {modalType === "profile" && "Edit Volunteer Profile"}
             </h3>
 
             <form onSubmit={handleModalSubmit} className="space-y-4">
@@ -525,6 +568,154 @@ export function AdminVolunteersClient({
                     />
                   </div>
                 </>
+              )}
+
+              {modalType === "profile" && (
+                <div className="space-y-4 max-h-[60vh] overflow-y-auto px-1">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Profile Picture (Admin Upload)
+                    </label>
+                    <ImageUploader
+                      folder="volunteers"
+                      multiple={false}
+                      maxFiles={1}
+                      onUploadComplete={(result) => {
+                        const resArray = Array.isArray(result) ? result : [result];
+                        if (resArray?.[0]?.cdnUrl) {
+                          setProfileInput(prev => ({ ...prev, profile_picture_url: resArray[0].cdnUrl }));
+                        }
+                      }}
+                    />
+                    {profileInput.profile_picture_url && (
+                      <div className="mt-2 text-xs text-teal-600 font-medium truncate">
+                        Current Image: {profileInput.profile_picture_url}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Full Name
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={profileInput.full_name || ""}
+                      onChange={(e) => setProfileInput(prev => ({ ...prev, full_name: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Occupation
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={profileInput.occupation || ""}
+                      onChange={(e) => setProfileInput(prev => ({ ...prev, occupation: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">City/District</label>
+                      <input
+                        type="text"
+                        required
+                        value={profileInput.city_district || ""}
+                        onChange={(e) => setProfileInput(prev => ({ ...prev, city_district: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">State</label>
+                      <input
+                        type="text"
+                        required
+                        value={profileInput.state || ""}
+                        onChange={(e) => setProfileInput(prev => ({ ...prev, state: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Public Bio
+                    </label>
+                    <textarea
+                      rows={3}
+                      value={profileInput.public_bio || ""}
+                      onChange={(e) => setProfileInput(prev => ({ ...prev, public_bio: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Volunteer Role
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Core Team, Event Organizer"
+                      value={profileInput.volunteer_role || ""}
+                      onChange={(e) => setProfileInput(prev => ({ ...prev, volunteer_role: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-700 mb-1">
+                      Skills / Contribution Areas
+                    </label>
+                    <input
+                      type="text"
+                      value={profileInput.skills || ""}
+                      onChange={(e) => setProfileInput(prev => ({ ...prev, skills: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm"
+                    />
+                  </div>
+
+                  <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-4">
+                    <h4 className="text-xs font-bold text-gray-900 uppercase tracking-wider">Private Admin Area</h4>
+                    <div>
+                      <label className="block text-xs font-semibold text-gray-700 mb-1">
+                        Blood Group (Never Public)
+                      </label>
+                      <select
+                        value={profileInput.blood_group || "Unknown"}
+                        onChange={(e) => setProfileInput(prev => ({ ...prev, blood_group: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-200 rounded-xl text-sm bg-white"
+                      >
+                        <option value="Unknown">Unknown / Not Provided</option>
+                        <option value="A+">A+</option>
+                        <option value="A-">A-</option>
+                        <option value="B+">B+</option>
+                        <option value="B-">B-</option>
+                        <option value="AB+">AB+</option>
+                        <option value="AB-">AB-</option>
+                        <option value="O+">O+</option>
+                        <option value="O-">O-</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
+                    <input
+                      type="checkbox"
+                      checked={profileInput.is_publicly_visible || false}
+                      onChange={(e) => setProfileInput(prev => ({ ...prev, is_publicly_visible: e.target.checked }))}
+                      className="w-4 h-4 text-teal-600 rounded"
+                    />
+                    <span className="text-sm font-semibold text-gray-900">
+                      Show Profile on Public Volunteers Page
+                    </span>
+                  </label>
+                </div>
               )}
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
