@@ -38,10 +38,10 @@ export function GoverningBodySection({ members }: GoverningBodySectionProps) {
   const dragStartScrollLeftRef = useRef<number>(0);
   const totalDragDistanceRef = useRef<number>(0);
 
-  // Measure the width of exactly 1 original member set (11 cards)
+  // Measure the width of exactly 1 original member set
   const measureSetWidth = useCallback(() => {
     const track = trackRef.current;
-    if (!track) return;
+    if (!track || members.length === 0) return;
     const children = track.children;
     const originalCount = members.length;
     if (children.length >= originalCount * 2) {
@@ -57,7 +57,7 @@ export function GoverningBodySection({ members }: GoverningBodySectionProps) {
         }
       }
     }
-  }, []);
+  }, [members.length]);
 
   // Listen for reduced motion preference
   useEffect(() => {
@@ -317,7 +317,11 @@ export function GoverningBodySection({ members }: GoverningBodySectionProps) {
     }
   };
 
-  // Render 3 identical sets of 11 members (33 cards total) for bidirectional infinite scrolling
+  if (!members || members.length === 0) {
+    return null;
+  }
+
+  // Render 3 identical sets of members for bidirectional infinite scrolling
   const tripleMembers = [
     ...members,
     ...members,
@@ -399,7 +403,8 @@ export function GoverningBodySection({ members }: GoverningBodySectionProps) {
                 onClickCapture={preventClickWhenDragging}
               >
                 {tripleMembers.map((member, idx) => {
-                  const isDuplicate = idx < 11 || idx >= 22;
+                  const originalCount = members.length;
+                  const isDuplicate = idx < originalCount || idx >= originalCount * 2;
                   return (
                     <MemberProfileCard
                       key={`${member.full_name}-${idx}`}

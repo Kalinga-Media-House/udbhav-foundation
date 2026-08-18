@@ -271,6 +271,10 @@ export function GoverningBodyGridSection({ members }: GoverningBodyGridSectionPr
     }
   };
 
+  if (!members || members.length === 0) {
+    return null;
+  }
+
   // Duplicate member set 3 times for seamless infinite loop (Set 1, Set 2, Set 3)
   const infiniteMembers = [
     ...members,
