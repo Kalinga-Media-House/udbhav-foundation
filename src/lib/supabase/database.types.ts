@@ -2840,6 +2840,45 @@ export type Database = {
         }
         Relationships: []
       }
+      partners: {
+        Row: {
+          id: string
+          name: string
+          logo_url: string | null
+          website_url: string | null
+          display_order: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          logo_url?: string | null
+          website_url?: string | null
+          display_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          logo_url?: string | null
+          website_url?: string | null
+          display_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       news_articles: {
         Row: {
           allow_comments: boolean

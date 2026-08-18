@@ -19,12 +19,14 @@ import { UpcomingEventsSection } from '@/components/home/UpcomingEventsSection';
 import { getActiveHeroImages } from '@/features/hero/repository';
 import { getRandomPublicPhotosAction } from '@/features/gallery/actions';
 import { getActiveGoverningBodyMembers } from '@/features/governing-body';
+import { getActivePartners } from '@/features/partners/repository';
 
 export default async function Home() {
   const heroImages = await getActiveHeroImages('home_hero');
   const randomPhotosResult = await getRandomPublicPhotosAction(15);
   const galleryPhotos = randomPhotosResult.success && randomPhotosResult.data ? randomPhotosResult.data : [];
   const governingBodyMembers = await getActiveGoverningBodyMembers();
+  const partners = await getActivePartners();
 
   return (
     <main className="bg-warm-white text-text-primary flex flex-1 flex-col">
@@ -33,7 +35,7 @@ export default async function Home() {
       <UpcomingEventsSection />
       <GoverningBodySection members={governingBodyMembers} />
       <SupportOurInitiativesSection />
-      <OurPartnersSection />
+      <OurPartnersSection partners={partners} />
     </main>
   );
 }

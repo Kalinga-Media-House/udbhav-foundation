@@ -10,56 +10,10 @@ import React, {
 
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
-
-export interface PartnerLogo {
-  id: string;
-  name: string;
-  logo: string;
-}
-
-// Upper Row (17 partners scrolling Right -> Left)
-export const UPPER_ROW_PARTNERS: PartnerLogo[] = [
-  { id: "queens-club", name: "Queens Club", logo: "/images/partners/queens-club.png" },
-  { id: "round-table-india", name: "Round Table India", logo: "/images/partners/round-table-india.png" },
-  { id: "ladies-circle-india", name: "Ladies Circle India", logo: "/images/partners/ladies-circle-india.png" },
-  { id: "knight-round-table-230", name: "Knight Round Table 230", logo: "/images/partners/knight-round-table-230.png" },
-  { id: "shreehari", name: "ShreeHari", logo: "/images/partners/shreehari.png" },
-  { id: "bank-of-baroda", name: "Bank of Baroda", logo: "/images/partners/bank-of-baroda.png" },
-  { id: "state-bank-of-india", name: "State Bank of India", logo: "/images/partners/state-bank-of-india.png" },
-  { id: "idbi-bank", name: "IDBI Bank", logo: "/images/partners/idbi-bank.png" },
-  { id: "nirvana-eye-hospital", name: "Nirvana Eye Hospital", logo: "/images/partners/nirvana-eye-hospital.png" },
-  { id: "centre-for-sight", name: "Centre for Sight", logo: "/images/partners/centre-for-sight.png" },
-  { id: "nalco", name: "NALCO", logo: "/images/partners/nalco.png" },
-  { id: "imfa", name: "IMFA", logo: "/images/partners/imfa.png" },
-  { id: "utkal-pratidin", name: "Utkal Pratidin", logo: "/images/partners/utkal-pratidin.png" },
-  { id: "odisha-ias-banking-academy", name: "Odisha IAS & Banking Academy", logo: "/images/partners/odisha-ias-banking-academy.png" },
-  { id: "threatsys", name: "Threatsys", logo: "/images/partners/threatsys.png" },
-  { id: "duramix", name: "Duramix", logo: "/images/partners/duramix.png" },
-  { id: "apollo-hospitals", name: "Apollo Hospitals", logo: "/images/partners/apollo-hospitals.png" },
-];
-
-// Lower Row (16 partners scrolling Left -> Right)
-export const LOWER_ROW_PARTNERS: PartnerLogo[] = [
-  { id: "ibl-beauty-academy", name: "IBL Beauty Academy", logo: "/images/partners/ibl-beauty-academy.png" },
-  { id: "sparc", name: "SPARC", logo: "/images/partners/sparc.png" },
-  { id: "decathlon", name: "Decathlon", logo: "/images/partners/decathlon.png" },
-  { id: "ajanta-advertisers", name: "Ajanta Advertisers", logo: "/images/partners/ajanta-advertisers.png" },
-  { id: "eco-saathi", name: "Eco Saathi", logo: "/images/partners/eco-saathi.png" },
-  { id: "niswa", name: "Niswa", logo: "/images/partners/niswa.png" },
-  { id: "koustuv-group", name: "Koustuv Group", logo: "/images/partners/koustuv-group.png" },
-  { id: "sdg-partner", name: "SDG Partner", logo: "/images/partners/sdg-partner.png" },
-  { id: "dr-lal-pathlabs", name: "Dr. Lal PathLabs", logo: "/images/partners/dr-lal-pathlabs.png" },
-  { id: "ucmas", name: "UCMAS", logo: "/images/partners/ucmas.png" },
-  { id: "kidzee", name: "Kidzee", logo: "/images/partners/kidzee.png" },
-  { id: "gurukulam-india-school", name: "Gurukulam India School", logo: "/images/partners/gurukulam-india-school.png" },
-  { id: "radha-govind-homes", name: "Radha Govind Homes", logo: "/images/partners/radha-govind-homes.png" },
-  { id: "reach-digitally", name: "Reach Digitally", logo: "/images/partners/reach-digitally.png" },
-  { id: "digital-ratha", name: "Digital Ratha", logo: "/images/partners/digital-ratha.png" },
-  { id: "suravi-milk", name: "Suravi Milk", logo: "/images/partners/suravi-milk.png" },
-];
+import type { PartnerRow } from "@/features/partners/repository";
 
 interface PartnerMarqueeRowProps {
-  partners: PartnerLogo[];
+  partners: PartnerRow[];
   direction: "rtl" | "ltr";
   ariaLabel: string;
   reducedMotion: boolean;
@@ -90,7 +44,7 @@ function PartnerMarqueeRow({
   // Measure the width of exactly 1 original partner set
   const measureSetWidth = useCallback(() => {
     const track = trackRef.current;
-    if (!track) return;
+    if (!track || partners.length === 0) return;
     const children = track.children;
     const originalCount = partners.length;
     if (children.length >= originalCount * 2) {
@@ -188,7 +142,7 @@ function PartnerMarqueeRow({
       animationFrameIdRef.current = requestAnimationFrame(animate);
     };
 
-    if (isVisible && !reducedMotion) {
+    if (isVisible && !reducedMotion && partners.length > 0) {
       animationFrameIdRef.current = requestAnimationFrame(animate);
     }
 
@@ -198,7 +152,7 @@ function PartnerMarqueeRow({
         animationFrameIdRef.current = null;
       }
     };
-  }, [direction, isVisible, normalizeInfiniteScroll, reducedMotion]);
+  }, [direction, isVisible, normalizeInfiniteScroll, reducedMotion, partners.length]);
 
   // Mouse drag handlers
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -241,6 +195,8 @@ function PartnerMarqueeRow({
     }
   };
 
+  if (!partners || partners.length === 0) return null;
+
   const triplePartners = [...partners, ...partners, ...partners];
 
   return (
@@ -278,14 +234,14 @@ function PartnerMarqueeRow({
   );
 }
 
-function PartnerCard({ partner }: { partner: PartnerLogo }) {
+function PartnerCard({ partner }: { partner: PartnerRow }) {
   const [imgError, setImgError] = useState(false);
 
   return (
     <article className="group relative w-[135px] sm:w-[170px] lg:w-[216px] h-[70px] sm:h-[86px] lg:h-[104px] rounded-xl sm:rounded-2xl bg-pure-white border border-impact-green/20 shadow-sm hover:shadow-md hover:-translate-y-1 hover:border-impact-green/45 active:scale-[0.985] transition-all duration-300 ease-out flex items-center justify-center p-3 sm:p-4 shrink-0 select-none overflow-hidden">
-      {!imgError ? (
+      {!imgError && partner.logo_url ? (
         <Image
-          src={partner.logo}
+          src={partner.logo_url}
           alt={`${partner.name} — UDBHAV Foundation partner`}
           fill
           sizes="(max-width: 640px) 135px, (max-width: 1024px) 170px, 216px"
@@ -312,7 +268,7 @@ function PartnerCard({ partner }: { partner: PartnerLogo }) {
   );
 }
 
-export function OurPartnersSection() {
+export function OurPartnersSection({ partners }: { partners?: PartnerRow[] }) {
   const [isVisible, setIsVisible] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
@@ -350,6 +306,15 @@ export function OurPartnersSection() {
 
     return () => observer.disconnect();
   }, [reducedMotion]);
+
+  if (!partners || partners.length === 0) {
+    return null; // Gracefully handle empty state
+  }
+
+  // Dynamically split into two halves
+  const half = Math.ceil(partners.length / 2);
+  const upperRow = partners.slice(0, half);
+  const lowerRow = partners.slice(half);
 
   return (
     <section
@@ -393,30 +358,32 @@ export function OurPartnersSection() {
         {/* Two Infinite Marquee Rows */}
         <div className="flex flex-col gap-4 sm:gap-5 lg:gap-6">
           {/* Upper Row: Right to Left */}
-          <RevealCard as="div" index={2} className="w-full">
-            <PartnerMarqueeRow
-              partners={UPPER_ROW_PARTNERS}
-              direction="rtl"
-              ariaLabel="UDBHAV Foundation partners scrolling from right to left"
-              reducedMotion={reducedMotion}
-              isVisible={isVisible}
-            />
-          </RevealCard>
+          {upperRow.length > 0 && (
+            <RevealCard as="div" index={2} className="w-full">
+              <PartnerMarqueeRow
+                partners={upperRow}
+                direction="rtl"
+                ariaLabel="UDBHAV Foundation partners scrolling from right to left"
+                reducedMotion={reducedMotion}
+                isVisible={isVisible}
+              />
+            </RevealCard>
+          )}
 
           {/* Lower Row: Left to Right */}
-          <RevealCard as="div" index={3} className="w-full">
-            <PartnerMarqueeRow
-              partners={LOWER_ROW_PARTNERS}
-              direction="ltr"
-              ariaLabel="UDBHAV Foundation partners scrolling from left to right"
-              reducedMotion={reducedMotion}
-              isVisible={isVisible}
-            />
-          </RevealCard>
+          {lowerRow.length > 0 && (
+            <RevealCard as="div" index={3} className="w-full">
+              <PartnerMarqueeRow
+                partners={lowerRow}
+                direction="ltr"
+                ariaLabel="UDBHAV Foundation partners scrolling from left to right"
+                reducedMotion={reducedMotion}
+                isVisible={isVisible}
+              />
+            </RevealCard>
+          )}
         </div>
       </Container>
     </section>
   );
 }
-
-export default OurPartnersSection;
