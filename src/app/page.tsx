@@ -18,20 +18,23 @@ import { UpcomingEventsSection } from '@/components/home/UpcomingEventsSection';
  */
 import { getActiveHeroImages } from '@/features/hero/repository';
 import { getRandomPublicPhotosAction } from '@/features/gallery/actions';
+import { getActiveGoverningBodyMembers } from '@/features/governing-body';
 
 export default async function Home() {
   const heroImages = await getActiveHeroImages('home_hero');
   const randomPhotosResult = await getRandomPublicPhotosAction(15);
   const galleryPhotos = randomPhotosResult.success && randomPhotosResult.data ? randomPhotosResult.data : [];
+  const governingBodyMembers = await getActiveGoverningBodyMembers();
 
   return (
     <main className="bg-warm-white text-text-primary flex flex-1 flex-col">
       <HeroCarousel heroImages={heroImages} />
       <OurMomentsGallerySection galleryPhotos={galleryPhotos} />
       <UpcomingEventsSection />
-      <GoverningBodySection />
+      <GoverningBodySection members={governingBodyMembers} />
       <SupportOurInitiativesSection />
       <OurPartnersSection />
     </main>
   );
 }
+

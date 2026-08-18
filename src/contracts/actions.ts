@@ -159,4 +159,5 @@ export const CacheTags = {
   profile: (id: ID) => `profile-${id}` as const,
   indexInitiatives: () => 'index-initiatives' as const,
   indexInitiative: (id: ID) => `index-initiative-${id}` as const,
+  governingBody: () => 'governing-body' as const,
 } as const;

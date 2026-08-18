@@ -4,12 +4,18 @@ import { User, Award } from "lucide-react";
 import Image from "next/image";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 
-import {
-  GOVERNING_BODY_MEMBERS,
-  type GoverningBodyMember,
-} from "@/components/home/GoverningBodySection";
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
+
+interface GoverningBodyMember {
+  full_name: string;
+  designation: string;
+  photo_url?: string | null;
+}
+
+interface GoverningBodyGridSectionProps {
+  members: GoverningBodyMember[];
+}
 
 function GoverningBodyCarouselCard({
   member,
@@ -31,10 +37,10 @@ function GoverningBodyCarouselCard({
       <div className="flex flex-col items-center w-full">
         {/* Circular Profile Photo Area */}
         <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-2 border-impact-green/30 bg-gradient-to-br from-soft-green via-warm-white to-soft-green/40 shadow-sm mb-3 shrink-0">
-          {member.image && !imgError ? (
+          {member.photo_url && !imgError ? (
             <Image
-              src={member.image}
-              alt={member.name}
+              src={member.photo_url}
+              alt={member.full_name}
               fill
               sizes="96px"
               className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105 select-none pointer-events-none"
@@ -43,7 +49,7 @@ function GoverningBodyCarouselCard({
           ) : (
             <div
               role="img"
-              aria-label={member.name}
+              aria-label={member.full_name}
               className="w-full h-full flex flex-col items-center justify-center bg-soft-green/50 text-impact-green select-none"
             >
               <User className="w-8 h-8 stroke-[1.5]" />
@@ -53,7 +59,7 @@ function GoverningBodyCarouselCard({
 
         {/* Name */}
         <h3 className="font-heading font-bold text-sm sm:text-base text-udbhav-blue-deep tracking-tight mb-1 group-hover:text-impact-green transition-colors line-clamp-1">
-          {member.name}
+          {member.full_name}
         </h3>
 
         {/* Subtle Decorative Divider */}
@@ -71,7 +77,7 @@ function GoverningBodyCarouselCard({
   );
 }
 
-export function GoverningBodyGridSection() {
+export function GoverningBodyGridSection({ members }: GoverningBodyGridSectionProps) {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -88,15 +94,16 @@ export function GoverningBodyGridSection() {
   const dragStartXRef = useRef<number>(0);
   const dragStartScrollLeftRef = useRef<number>(0);
 
-  // Measure single set width (11 cards)
+  // Measure single set width
   const measureSetWidth = useCallback(() => {
     const track = trackRef.current;
-    if (!track) return;
+    if (!track || members.length === 0) return;
     const children = track.children;
-    if (children.length >= 22) {
+    const count = members.length;
+    if (children.length >= count * 2) {
       const firstChild = children[0] as HTMLElement;
-      const eleventhChild = children[11] as HTMLElement;
-      const setWidth = eleventhChild.offsetLeft - firstChild.offsetLeft;
+      const nextSetChild = children[count] as HTMLElement;
+      const setWidth = nextSetChild.offsetLeft - firstChild.offsetLeft;
       if (setWidth > 0) {
         singleSetWidthRef.current = setWidth;
         if (exactScrollLeftRef.current === 0 && containerRef.current) {
@@ -105,7 +112,7 @@ export function GoverningBodyGridSection() {
         }
       }
     }
-  }, []);
+  }, [members.length]);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -266,9 +273,9 @@ export function GoverningBodyGridSection() {
 
   // Duplicate member set 3 times for seamless infinite loop (Set 1, Set 2, Set 3)
   const infiniteMembers = [
-    ...GOVERNING_BODY_MEMBERS,
-    ...GOVERNING_BODY_MEMBERS,
-    ...GOVERNING_BODY_MEMBERS,
+    ...members,
+    ...members,
+    ...members,
   ];
 
   return (
@@ -334,7 +341,7 @@ export function GoverningBodyGridSection() {
           >
             {infiniteMembers.map((member, index) => (
               <GoverningBodyCarouselCard
-                key={`${member.name}-${index}`}
+                key={`${member.full_name}-${index}`}
                 member={member}
               />
             ))}

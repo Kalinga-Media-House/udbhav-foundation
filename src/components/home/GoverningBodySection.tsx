@@ -5,60 +5,16 @@ import Image from "next/image";
 import React, { useEffect, useRef, useState, useCallback } from "react";
 
 export interface GoverningBodyMember {
-  name: string;
+  full_name: string;
   designation: string;
-  image?: string;
+  photo_url?: string | null;
 }
 
-export const GOVERNING_BODY_MEMBERS: GoverningBodyMember[] = [
-  {
-    name: "JAYSURAJ PATTANAYAK",
-    designation: "Visionary Founder",
-  },
-  {
-    name: "SUJIT MOHARANA",
-    designation: "Co-Founder",
-  },
-  {
-    name: "ARCHITA JENA",
-    designation: "Project Coordinator",
-  },
-  {
-    name: "SANJAY PATTANAYAK",
-    designation: "Executive Director cum CSR & Collaboration Lead",
-  },
-  {
-    name: "JANAKI ROUT",
-    designation: "Volunteer Coordinator",
-  },
-  {
-    name: "PRASANJIT HOTA",
-    designation: "Operation Lead",
-  },
-  {
-    name: "SANJIB MANDAL",
-    designation: "Creative Lead",
-  },
-  {
-    name: "RAJASHREE KAR",
-    designation:
-      "Research and Innovation & Communication and Media Lead",
-  },
-  {
-    name: "SUJATA BEHERA",
-    designation: "Field Coordinator",
-  },
-  {
-    name: "LIPU BEHERA",
-    designation: "Event Coordinator & Monitoring and Evaluation Lead",
-  },
-  {
-    name: "SAKTI SWAGAT PATTANAYAK",
-    designation: "Finance & Compliance Lead",
-  },
-];
+interface GoverningBodySectionProps {
+  members: GoverningBodyMember[];
+}
 
-export function GoverningBodySection() {
+export function GoverningBodySection({ members }: GoverningBodySectionProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -87,7 +43,7 @@ export function GoverningBodySection() {
     const track = trackRef.current;
     if (!track) return;
     const children = track.children;
-    const originalCount = GOVERNING_BODY_MEMBERS.length;
+    const originalCount = members.length;
     if (children.length >= originalCount * 2) {
       const firstChild = children[0] as HTMLElement;
       const nextSetChild = children[originalCount] as HTMLElement;
@@ -363,9 +319,9 @@ export function GoverningBodySection() {
 
   // Render 3 identical sets of 11 members (33 cards total) for bidirectional infinite scrolling
   const tripleMembers = [
-    ...GOVERNING_BODY_MEMBERS,
-    ...GOVERNING_BODY_MEMBERS,
-    ...GOVERNING_BODY_MEMBERS,
+    ...members,
+    ...members,
+    ...members,
   ];
 
   return (
@@ -446,7 +402,7 @@ export function GoverningBodySection() {
                   const isDuplicate = idx < 11 || idx >= 22;
                   return (
                     <MemberProfileCard
-                      key={`${member.name}-${idx}`}
+                      key={`${member.full_name}-${idx}`}
                       member={member}
                       ariaHidden={isDuplicate ? true : undefined}
                     />
@@ -475,10 +431,10 @@ function MemberProfileCard({
     >
       {/* Circular Profile Image (96px desktop / 80px mobile) */}
       <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-impact-green/30 bg-gradient-to-br from-soft-green via-warm-white to-soft-green/70 shadow-sm flex items-center justify-center shrink-0 mb-4 overflow-hidden group-hover:border-impact-green/60 transition-colors">
-        {member.image ? (
+        {member.photo_url ? (
           <Image
-            src={member.image}
-            alt={`Portrait of ${member.name}`}
+            src={member.photo_url}
+            alt={`Portrait of ${member.full_name}`}
             fill
             sizes="96px"
             draggable={false}
@@ -487,7 +443,7 @@ function MemberProfileCard({
         ) : (
           <div
             role="img"
-            aria-label={`Profile placeholder for ${member.name}`}
+            aria-label={`Profile placeholder for ${member.full_name}`}
             className="w-full h-full flex items-center justify-center text-udbhav-blue-deep/70 select-none"
           >
             <User
@@ -500,7 +456,7 @@ function MemberProfileCard({
 
       {/* Member Name */}
       <h3 className="font-heading text-[16px] sm:text-[17px] font-bold text-udbhav-blue-deep text-center leading-snug line-clamp-2 min-h-[42px] flex items-center justify-center w-full select-none">
-        {member.name}
+        {member.full_name}
       </h3>
 
       {/* Small Accent Line */}

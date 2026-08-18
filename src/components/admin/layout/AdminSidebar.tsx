@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Image as ImageIcon,
   LayoutTemplate,
+  Shield,
   X
 } from "lucide-react";
 import Link from "next/link";
@@ -46,6 +47,11 @@ const navItems = [
     title: "Hero Sections",
     href: "/admin/dashboard/hero",
     icon: LayoutTemplate,
+  },
+  {
+    title: "Governing Body",
+    href: "/admin/governing-body",
+    icon: Shield,
   },
   {
     title: "Users & Volunteers",
