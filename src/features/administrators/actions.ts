@@ -30,8 +30,15 @@ export const inviteAdministrator = async (payload: AdminInvitePayload) => {
 
     let userId: string;
 
+    // Use NEXT_PUBLIC_APP_URL so invitations redirect to the correct domain
+    // (production: https://udbhavfoundation.in, dev: http://localhost:3000)
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+
     // 1. Try to invite new user; if they already exist, look up their existing identity
-    const { data: authData, error: authError } = await adminClient.auth.admin.inviteUserByEmail(payload.email);
+    const { data: authData, error: authError } = await adminClient.auth.admin.inviteUserByEmail(
+      payload.email,
+      { redirectTo: `${appUrl}/login/update-password` }
+    );
 
     if (authError) {
       // Check if the user already exists in auth.users
