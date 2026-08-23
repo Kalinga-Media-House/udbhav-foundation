@@ -111,6 +111,16 @@ export function requirePermission(session: UserSession, permission: string): voi
 }
 
 /**
+ * Asserts the user has the super-admin role.
+ * Throws AuthorizationError if not.
+ */
+export function requireSuperAdminAuth(session: UserSession): void {
+  if (session.role !== 'super-admin') {
+    throw new AuthorizationError('Super Admin access required.');
+  }
+}
+
+/**
  * Wraps any server action handler with standardized error handling.
  * Converts all thrown errors into a safe ActionResult shape.
  */

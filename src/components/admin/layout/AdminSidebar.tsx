@@ -12,6 +12,7 @@ import {
   Image as ImageIcon,
   LayoutTemplate,
   Shield,
+  ShieldCheck,
   X
 } from "lucide-react";
 import Link from "next/link";
@@ -58,6 +59,11 @@ const navItems = [
     title: "Users & Volunteers",
     href: "/admin/volunteers",
     icon: Users,
+  },
+  {
+    title: "Administrators",
+    href: "/admin/administrators",
+    icon: ShieldCheck,
   },
   {
     title: "Settings",
