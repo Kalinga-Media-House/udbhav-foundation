@@ -2840,6 +2840,43 @@ export type Database = {
         }
         Relationships: []
       }
+
+      site_links: {
+        Row: {
+          id: string
+          slug: string
+          label: string
+          url: string
+          is_active: boolean
+          created_at: string
+          updated_at: string
+          created_by: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          slug: string
+          label: string
+          url: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          slug?: string
+          label?: string
+          url?: string
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+          created_by?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       partners: {
         Row: {
           id: string

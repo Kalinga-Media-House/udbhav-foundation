@@ -1,12 +1,16 @@
-import { Building, Globe, Link2, DollarSign, Mail, Search, ShieldCheck } from 'lucide-react';
+import { Building, Globe, Link2, DollarSign, Mail, Search, ShieldCheck, PlayCircle } from 'lucide-react';
 import React from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
+import { siteLinksRepository } from '@/features/site-links/repository';
+import { YouTubeSettings } from '@/components/admin/settings/YouTubeSettings';
+
 export const dynamic = 'force-dynamic';
 
-export default function AdminSettingsPage() {
+export default async function AdminSettingsPage() {
+  const youtubeSetting = await siteLinksRepository.getBySlug('youtube_channel');
   return (
     <div className="max-w-5xl space-y-8">
       <div>
@@ -62,11 +66,20 @@ export default function AdminSettingsPage() {
             >
               <ShieldCheck className="h-4 w-4 text-gray-400" /> Security
             </a>
+            <a
+              href="#youtube"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+            >
+              <PlayCircle className="h-4 w-4 text-red-500" /> YouTube Channel
+            </a>
           </nav>
         </div>
 
         {/* Settings Forms */}
         <div className="col-span-1 space-y-8 md:col-span-2">
+          
+          <YouTubeSettings initialData={youtubeSetting} />
+
           {/* Foundation */}
           <section
             id="foundation"

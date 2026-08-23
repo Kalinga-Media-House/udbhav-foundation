@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Search, ChevronDown, Play, Clock, ArrowRight } from 'lucide-react';
+import { Search, ChevronDown, Play, Clock, ArrowRight, PlayCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion, Variants } from 'framer-motion';
 import { Container } from '@/components/shared/Container';
@@ -28,6 +28,7 @@ interface PodcastWithMedia {
 
 interface PodcastHubProps {
   initialPodcasts: PodcastWithMedia[];
+  youtubeUrl?: string | null;
 }
 
 const fadeUpVariant: Variants = {
@@ -40,7 +41,7 @@ const staggerContainer: Variants = {
   visible: { opacity: 1, transition: { staggerChildren: 0.1 } }
 };
 
-export function PodcastHub({ initialPodcasts }: PodcastHubProps) {
+export function PodcastHub({ initialPodcasts, youtubeUrl }: PodcastHubProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'newest' | 'oldest'>('newest');
 
@@ -132,17 +133,31 @@ export function PodcastHub({ initialPodcasts }: PodcastHubProps) {
             <p className="text-xl md:text-2xl text-white font-medium mb-10 max-w-2xl mx-auto leading-relaxed">
               Listen to conversations, experiences and inspiring stories from the UDBHAV community.
             </p>
-            {featuredPodcast && (
-              <button 
-                onClick={() => {
-                  document.getElementById('latest-episode')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="inline-flex items-center justify-center px-8 py-3.5 bg-white text-[#20256F] hover:bg-[#F8FAF7] hover:scale-105 rounded-full text-base font-semibold transition-all shadow-lg"
-              >
-                Latest Episode
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </button>
-            )}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              {featuredPodcast && (
+                <button 
+                  onClick={() => {
+                    document.getElementById('latest-episode')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="inline-flex items-center justify-center px-8 py-3.5 bg-white text-[#20256F] hover:bg-[#F8FAF7] hover:scale-105 rounded-full text-base font-semibold transition-all shadow-lg"
+                >
+                  Latest Episode
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </button>
+              )}
+              
+              {youtubeUrl && (
+                <a 
+                  href={youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center px-8 py-3.5 bg-red-600 text-white hover:bg-red-700 hover:scale-105 rounded-full text-base font-semibold transition-all shadow-lg"
+                >
+                  <PlayCircle className="h-5 w-5 mr-2" />
+                  Visit Our YouTube Channel
+                </a>
+              )}
+            </div>
           </motion.div>
         </Container>
       </section>
