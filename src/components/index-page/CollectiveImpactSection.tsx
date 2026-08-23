@@ -1,29 +1,41 @@
 'use client';
 
-import { motion, useInView } from 'framer-motion';
+import { motion, useInView, useReducedMotion } from 'framer-motion';
 import React, { useRef, useState, useEffect } from 'react';
 
-function AnimatedCounter({ value, duration = 2 }: { value: number; duration?: number }) {
+function AnimatedCounter({ value, duration = 1.8 }: { value: number; duration?: number }) {
   const ref = useRef<HTMLSpanElement>(null);
-  const inView = useInView(ref, { once: true, margin: '-50px' });
+  const inView = useInView(ref, { once: false, margin: '-50px' });
+  const prefersReducedMotion = useReducedMotion();
   const [count, setCount] = useState(0);
 
   useEffect(() => {
+    if (prefersReducedMotion) {
+      setCount(value);
+      return;
+    }
+
     if (inView) {
       let startTime: number | null = null;
+      let animationFrame: number;
+      
       const animate = (currentTime: number) => {
         if (!startTime) startTime = currentTime;
         const progress = Math.min((currentTime - startTime) / (duration * 1000), 1);
-        const easeOut = 1 - Math.pow(1 - progress, 3);
+        // easeOutQuart
+        const easeOut = 1 - Math.pow(1 - progress, 4);
         setCount(Math.floor(easeOut * value));
         
         if (progress < 1) {
-          requestAnimationFrame(animate);
+          animationFrame = requestAnimationFrame(animate);
         }
       };
-      requestAnimationFrame(animate);
+      animationFrame = requestAnimationFrame(animate);
+      return () => cancelAnimationFrame(animationFrame);
+    } else {
+      setCount(0);
     }
-  }, [inView, value, duration]);
+  }, [inView, value, duration, prefersReducedMotion]);
 
   return <span ref={ref}>{count.toLocaleString()}</span>;
 }
@@ -37,20 +49,24 @@ const IMPACT_STATS = [
 
 export function CollectiveImpactSection() {
   return (
-    <section id="collective-impact" className="bg-white pb-16 pt-8 sm:pb-24 sm:pt-12">
+    <section id="collective-impact" className="bg-white py-16 sm:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:max-w-none text-center">
-          <dl className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 lg:gap-8 w-full max-w-full">
+          <dl className="grid grid-cols-2 lg:grid-cols-4 gap-y-12 sm:gap-y-16 lg:gap-y-0 lg:divide-x lg:divide-gray-200/60 w-full max-w-full">
             {IMPACT_STATS.map((stat, idx) => (
               <motion.div 
                 key={stat.label} 
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ duration: 0.5, delay: idx * 0.1 }}
-                className="flex flex-col items-center justify-center rounded-xl sm:rounded-2xl lg:rounded-[2rem] bg-[#FAFBFC] p-4 sm:p-6 lg:p-10 border border-gray-100 shadow-sm min-w-0"
+                initial={{ opacity: 0, y: 15 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, margin: '-50px' }}
+                transition={{ duration: 0.6, delay: idx * 0.1, ease: 'easeOut' }}
+                className="flex flex-col items-center justify-center min-w-0 px-4 sm:px-6"
               >
-                <dt className="text-xs sm:text-sm font-semibold leading-tight sm:leading-6 text-[#233A8B]/70 uppercase tracking-tight sm:tracking-wider text-center mt-1 sm:mt-0 break-words w-full px-2 sm:px-0">
+                <dd className="order-first font-heading text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-[#5E9F3B] mb-2 sm:mb-4 whitespace-nowrap">
+                  <AnimatedCounter value={stat.value} />
+                  {stat.suffix}
+                </dd>
+                <dt className="text-xs sm:text-sm font-medium leading-tight text-[#233A8B]/70 uppercase tracking-[0.1em] sm:tracking-[0.15em] text-center w-full">
                   {stat.label.split(' ').map((word, i, arr) => (
                     <React.Fragment key={i}>
                       {word}
@@ -59,10 +75,6 @@ export function CollectiveImpactSection() {
                     </React.Fragment>
                   ))}
                 </dt>
-                <dd className="order-first font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#5E9F3B] mb-1 sm:mb-3 whitespace-nowrap">
-                  <AnimatedCounter value={stat.value} />
-                  {stat.suffix}
-                </dd>
               </motion.div>
             ))}
           </dl>
