@@ -1,98 +1,62 @@
-import { Phone, Mail, MapPin, Heart, Users } from "lucide-react";
+import { Phone, Mail, MapPin, Heart, Users, MessageCircle, Send, MessageSquare, Radio } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 
 import { BrandLogo } from "@/components/shared/BrandLogo";
+import { Facebook, Instagram, Youtube, Twitter, Linkedin, Github, GenericWeb } from "@/components/shared/BrandIcons";
 import { Container } from "@/components/shared/Container";
 import {
   FOOTER_QUICK_LINKS,
   FOOTER_EXPLORE_LINKS,
   FOOTER_LEGAL_LINKS,
 } from "@/data/navigation";
+import { socialLinksRepository } from "@/features/social-links/repository";
 
-function Facebook({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-    </svg>
-  );
-}
-
-function Instagram({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-    </svg>
-  );
-}
-
-function Youtube({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17" />
-      <path d="m10 15 5-3-5-3v6Z" />
-    </svg>
-  );
-}
-
-const siteSettings = {
-  facebookUrl: process.env.NEXT_PUBLIC_FACEBOOK_URL || "",
-  instagramUrl: process.env.NEXT_PUBLIC_INSTAGRAM_URL || "",
-  youtubeUrl: process.env.NEXT_PUBLIC_YOUTUBE_URL || "",
+const ICON_MAP: Record<string, React.FC<any>> = {
+  facebook: Facebook,
+  instagram: Instagram,
+  youtube: Youtube,
+  twitter: Twitter,
+  linkedin: Linkedin,
+  whatsapp: MessageCircle,
+  telegram: Send,
+  threads: MessageSquare,
+  pinterest: GenericWeb,
+  snapchat: GenericWeb,
+  reddit: GenericWeb,
+  github: Github,
+  google_business: GenericWeb,
+  website: GenericWeb,
+  medium: GenericWeb,
+  spotify: Radio,
+  apple_podcasts: Radio,
+  discord: MessageSquare,
 };
 
-const socialLinks = [
-  {
-    name: "Facebook",
-    url: siteSettings.facebookUrl,
-    icon: Facebook,
-    ariaLabel: "Follow UDBHAV Foundation on Facebook",
-  },
-  {
-    name: "Instagram",
-    url: siteSettings.instagramUrl,
-    icon: Instagram,
-    ariaLabel: "Follow UDBHAV Foundation on Instagram",
-  },
-  {
-    name: "YouTube",
-    url: siteSettings.youtubeUrl,
-    icon: Youtube,
-    ariaLabel: "Subscribe to UDBHAV Foundation on YouTube",
-  },
-];
+const PLATFORM_NAMES: Record<string, string> = {
+  facebook: "Facebook",
+  instagram: "Instagram",
+  youtube: "YouTube",
+  twitter: "X / Twitter",
+  linkedin: "LinkedIn",
+  whatsapp: "WhatsApp",
+  telegram: "Telegram",
+  threads: "Threads",
+  pinterest: "Pinterest",
+  snapchat: "Snapchat",
+  reddit: "Reddit",
+  github: "GitHub",
+  google_business: "Google Business",
+  website: "Website",
+  medium: "Medium",
+  spotify: "Spotify",
+  apple_podcasts: "Apple Podcasts",
+  discord: "Discord",
+};
 
-export function Footer() {
+export async function Footer() {
   const currentYear = new Date().getFullYear();
+  const activeSocialLinks = await socialLinksRepository.getActiveLinks();
 
   return (
     <footer
@@ -118,31 +82,28 @@ export function Footer() {
             </p>
 
             {/* Social Media Channels — Follow Our Journey */}
-            <div className="pt-1 space-y-2.5 text-center sm:text-left">
-              <h2 className="font-heading text-xs sm:text-sm font-bold tracking-wider uppercase text-fresh-green">
-                FOLLOW OUR JOURNEY
-              </h2>
+            {activeSocialLinks.length > 0 && (
+              <div className="pt-1 space-y-2.5 text-center sm:text-left">
+                <h2 className="font-heading text-xs sm:text-sm font-bold tracking-wider uppercase text-fresh-green">
+                  FOLLOW OUR JOURNEY
+                </h2>
 
-              <div
-                role="group"
-                aria-label="Official UDBHAV Foundation social media channels"
-                className="flex items-center justify-center sm:justify-start gap-3.5"
-              >
-                {socialLinks.map((item) => {
-                  const Icon = item.icon;
-                  const isAvailable = Boolean(
-                    item.url && item.url.trim() !== ""
-                  );
-
-                  if (isAvailable) {
+                <div
+                  role="group"
+                  aria-label="Official UDBHAV Foundation social media channels"
+                  className="flex items-center justify-center sm:justify-start gap-3.5 flex-wrap"
+                >
+                  {activeSocialLinks.map((item) => {
+                    const Icon = ICON_MAP[item.platform] || GenericWeb;
+                    const platformName = PLATFORM_NAMES[item.platform] || item.platform;
                     return (
                       <a
-                        key={item.name}
+                        key={item.id}
                         href={item.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        aria-label={item.ariaLabel}
-                        title={item.ariaLabel}
+                        aria-label={`Visit UDBHAV Foundation on ${platformName}`}
+                        title={`Visit UDBHAV Foundation on ${platformName}`}
                         className="group inline-flex items-center justify-center w-10 h-10 rounded-full bg-pure-white/10 border border-pure-white/25 text-pure-white hover:border-impact-green hover:bg-pure-white/15 hover:-translate-y-[3px] hover:shadow-[0_0_12px_rgba(67,155,37,0.45)] transition-all duration-300 focus-visible:outline-2 focus-visible:outline-fresh-green focus-visible:outline-offset-2 shrink-0"
                       >
                         <Icon
@@ -151,27 +112,10 @@ export function Footer() {
                         />
                       </a>
                     );
-                  }
-
-                  return (
-                    <button
-                      key={item.name}
-                      type="button"
-                      disabled
-                      aria-disabled="true"
-                      aria-label={`${item.ariaLabel} (Coming Soon)`}
-                      title={`${item.ariaLabel} (Coming Soon)`}
-                      className="group inline-flex items-center justify-center w-10 h-10 rounded-full bg-pure-white/10 border border-pure-white/25 text-pure-white/60 cursor-not-allowed transition-all duration-300 focus-visible:outline-2 focus-visible:outline-fresh-green focus-visible:outline-offset-2 shrink-0"
-                    >
-                      <Icon
-                        className="w-4.5 h-4.5 text-pure-white/60"
-                        aria-hidden="true"
-                      />
-                    </button>
-                  );
-                })}
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* E. Community Action Callout Buttons */}
             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 pt-2">

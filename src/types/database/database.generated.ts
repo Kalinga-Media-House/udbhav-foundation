@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -2889,6 +2889,36 @@ export type Database = {
           updated_at?: string
           created_by?: string | null
           updated_by?: string | null
+        }
+        Relationships: []
+      }
+      site_social_links: {
+        Row: {
+          id: string
+          platform: string
+          url: string
+          is_visible: boolean
+          display_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          platform: string
+          url: string
+          is_visible?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          platform?: string
+          url?: string
+          is_visible?: boolean
+          display_order?: number
+          created_at?: string
+          updated_at?: string
         }
         Relationships: []
       }

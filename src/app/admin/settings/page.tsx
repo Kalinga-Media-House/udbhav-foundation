@@ -1,15 +1,18 @@
 import { Building, Globe, Link2, DollarSign, Mail, Search, ShieldCheck, PlayCircle } from 'lucide-react';
 import React from 'react';
 
+import { SocialMediaSettings } from '@/components/admin/settings/SocialMediaSettings';
 import { YouTubeSettings } from '@/components/admin/settings/YouTubeSettings';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { siteLinksRepository } from '@/features/site-links/repository';
+import { socialLinksRepository } from '@/features/social-links/repository';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminSettingsPage() {
   const youtubeSetting = await siteLinksRepository.getBySlug('youtube_channel');
+  const socialLinks = await socialLinksRepository.getAll();
   return (
     <div className="max-w-5xl space-y-8">
       <div>
@@ -172,42 +175,7 @@ export default async function AdminSettingsPage() {
             </div>
           </section>
 
-          {/* Social Links */}
-          <section
-            id="social"
-            className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm"
-          >
-            <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-              <h2 className="text-lg font-semibold text-gray-900">Social Media Links</h2>
-            </div>
-            <div className="space-y-4 p-6">
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">Facebook</label>
-                  <Input defaultValue="https://facebook.com/udbhavfoundation" />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">Instagram</label>
-                  <Input defaultValue="https://instagram.com/udbhavfoundation" />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">Twitter (X)</label>
-                  <Input defaultValue="https://twitter.com/udbhavfound" />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">LinkedIn</label>
-                  <Input defaultValue="https://linkedin.com/company/udbhavfoundation" />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-medium text-gray-700">YouTube</label>
-                  <Input defaultValue="https://youtube.com/c/udbhavfoundation" />
-                </div>
-              </div>
-            </div>
-            <div className="flex justify-end border-t border-gray-100 bg-gray-50/50 px-6 py-3">
-              <Button>Save Changes</Button>
-            </div>
-          </section>
+          <SocialMediaSettings initialLinks={socialLinks} />
 
           {/* Donation */}
           <section
