@@ -1,10 +1,10 @@
 'use client';
 
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState, useCallback } from 'react';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
-import { motion, AnimatePresence } from 'framer-motion';
 
 import type { AdminPhotoItem } from '@/features/gallery/repository';
 

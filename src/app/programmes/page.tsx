@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { Metadata } from 'next';
 
 import { CollectiveImpactSection } from '@/components/index-page/CollectiveImpactSection';

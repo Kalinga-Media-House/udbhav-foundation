@@ -7,6 +7,7 @@ import { useState, useEffect, useTransition } from 'react';
 
 import { Container } from '@/components/shared/Container';
 import type { AdminPhotoItem, PublicGalleryFilterOptions } from '@/features/gallery/repository';
+
 import { GalleryLightbox } from './GalleryLightbox';
 
 interface PhotoGridSectionProps {
@@ -190,7 +191,7 @@ export function PhotoGridSection({ initialPhotos, totalPhotos, filterOptions, cu
                   <ImageIcon className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-gray-800">No Gallery Photos Yet</h3>
                   <p className="text-sm text-gray-500 mt-1">
-                    We're preparing moments from UDBHAV Foundation's programmes, events, and community initiatives. Check back soon.
+                    We&apos;re preparing moments from UDBHAV Foundation&apos;s programmes, events, and community initiatives. Check back soon.
                   </p>
                 </>
               )}
