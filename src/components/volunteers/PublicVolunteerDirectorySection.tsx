@@ -10,15 +10,15 @@ import { VolunteerProfileCard, type PublicVolunteer } from "./VolunteerProfileCa
 
 function getGridConfig(count: number) {
   if (count === 1) return "grid-cols-1 max-w-sm mx-auto";
-  if (count === 2) return "grid-cols-1 min-[480px]:grid-cols-2 max-w-2xl mx-auto";
-  if (count === 3) return "grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 max-w-4xl mx-auto";
-  if (count === 4) return "grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-4 max-w-5xl mx-auto";
-  if (count === 5) return "grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 max-w-6xl mx-auto";
-  if (count === 6) return "grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 max-w-7xl mx-auto";
-  if (count === 7) return "grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 max-w-[1300px] mx-auto";
+  if (count === 2) return "grid-cols-2 max-w-2xl mx-auto";
+  if (count === 3) return "grid-cols-3 max-w-4xl mx-auto";
+  if (count === 4) return "grid-cols-3 sm:grid-cols-4 max-w-5xl mx-auto";
+  if (count === 5) return "grid-cols-3 sm:grid-cols-3 lg:grid-cols-5 max-w-6xl mx-auto";
+  if (count === 6) return "grid-cols-3 sm:grid-cols-3 lg:grid-cols-6 max-w-7xl mx-auto";
+  if (count === 7) return "grid-cols-3 sm:grid-cols-4 lg:grid-cols-7 max-w-[1300px] mx-auto";
   
   // 8 or more items
-  return "grid-cols-1 min-[480px]:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 max-w-[1440px] mx-auto";
+  return "grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 max-w-[1440px] mx-auto";
 }
 
 export function PublicVolunteerDirectorySection() {
@@ -26,13 +26,9 @@ export function PublicVolunteerDirectorySection() {
   const [isLoading, setIsLoading] = useState(true);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const MAX_INITIAL_ROWS = 3;
-  const CARDS_PER_ROW_LARGE = 8;
-  const INITIAL_MAX_CARDS = MAX_INITIAL_ROWS * CARDS_PER_ROW_LARGE;
-  
   const totalCards = volunteers.length;
-  const showViewMore = totalCards > INITIAL_MAX_CARDS;
-  const visibleVolunteers = isExpanded ? volunteers : volunteers.slice(0, INITIAL_MAX_CARDS);
+  const showButton = totalCards > 9;
+  const btnClass = totalCards > 24 ? "block" : "block sm:hidden";
 
   useEffect(() => {
     async function loadVolunteers() {
@@ -76,10 +72,10 @@ export function PublicVolunteerDirectorySection() {
         {isLoading ? (
           <div className={`grid gap-4 sm:gap-6 md:gap-8 w-full ${getGridConfig(8)}`}>
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="flex flex-col items-center animate-pulse p-4">
-                <div className="w-[85px] h-[85px] md:w-[115px] md:h-[115px] rounded-full bg-gray-100 mb-4" />
-                <div className="w-24 h-4 bg-gray-100 rounded mb-2" />
-                <div className="w-16 h-3 bg-gray-100 rounded" />
+              <div key={i} className="flex flex-col items-center animate-pulse p-2 sm:p-4">
+                <div className="w-[60px] h-[60px] sm:w-[95px] sm:h-[95px] md:w-[115px] md:h-[115px] rounded-full bg-gray-100 mb-4" />
+                <div className="w-20 sm:w-24 h-3 sm:h-4 bg-gray-100 rounded mb-2" />
+                <div className="w-12 sm:w-16 h-2.5 sm:h-3 bg-gray-100 rounded" />
               </div>
             ))}
           </div>
@@ -93,16 +89,29 @@ export function PublicVolunteerDirectorySection() {
           </div>
         ) : (
           <div className="w-full">
-            <div className={`grid gap-4 sm:gap-6 md:gap-8 w-full ${getGridConfig(totalCards)}`}>
-              {visibleVolunteers.map((vol, index) => (
-                <RevealCard key={vol.id} index={index}>
-                  <VolunteerProfileCard volunteer={vol} />
-                </RevealCard>
-              ))}
+            <div className={`grid gap-2 min-[375px]:gap-3 sm:gap-6 md:gap-8 w-full ${getGridConfig(totalCards)}`}>
+              {volunteers.map((vol, index) => {
+                let displayClass = "";
+                if (!isExpanded) {
+                  if (index >= 24) {
+                    displayClass = "hidden";
+                  } else if (index >= 9) {
+                    displayClass = "hidden sm:block";
+                  }
+                }
+
+                return (
+                  <div key={vol.id} className={displayClass}>
+                    <RevealCard index={index}>
+                      <VolunteerProfileCard volunteer={vol} />
+                    </RevealCard>
+                  </div>
+                );
+              })}
             </div>
 
-            {showViewMore && (
-              <div className="mt-12 md:mt-16 text-center">
+            {showButton && (
+              <div className={`mt-12 md:mt-16 text-center ${btnClass}`}>
                 <button
                   type="button"
                   onClick={() => setIsExpanded(!isExpanded)}
