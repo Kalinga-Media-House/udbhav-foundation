@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { fromRepo } from '@/contracts/services';
 import type { ServiceResult } from '@/contracts/services';
 import type { ID } from '@/types';
