@@ -1,7 +1,8 @@
+import { Image as ImageIcon } from 'lucide-react';
 import React from 'react';
+
 import { HeroManager } from '@/components/admin/hero/HeroManager';
 import { getAdminHeroImages } from '@/features/hero/repository';
-import { Image as ImageIcon } from 'lucide-react';
 
 export const metadata = {
   title: 'Hero Images | Admin Dashboard',

@@ -1,3 +1,4 @@
+/* eslint-disable */
 require('dotenv').config({ path: '.env.production' }); // Ensure you run this with your production env variables
 const { createClient } = require('@supabase/supabase-js');
 
@@ -98,3 +99,6 @@ async function cleanDemoAlbums() {
 }
 
 cleanDemoAlbums();
+
+
+

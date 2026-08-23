@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Search, ChevronDown, Play, Clock, ArrowRight, PlayCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion, Variants } from 'framer-motion';
+import { Search, ChevronDown, Play, Clock, ArrowRight, PlayCircle } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import React, { useState, useMemo } from 'react';
+
 import { Container } from '@/components/shared/Container';
 
 interface PodcastWithMedia {

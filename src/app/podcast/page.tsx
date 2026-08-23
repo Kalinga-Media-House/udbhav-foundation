@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import React from 'react';
+
 import { PodcastHub } from '@/components/podcast/PodcastHub';
 import { podcastRepository } from '@/features/podcasts/repository';
-
 import { siteLinksRepository } from '@/features/site-links/repository';
 
 export const metadata: Metadata = {

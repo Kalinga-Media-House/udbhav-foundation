@@ -1,3 +1,4 @@
+/* eslint-disable */
 const { createClient } = require('@supabase/supabase-js');
 const dotenv = require('dotenv');
 dotenv.config({ path: 'c:\\Projects\\udbhav-foundation\\.env.local' });
@@ -17,3 +18,4 @@ async function check() {
 }
 
 check();
+
