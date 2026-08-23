@@ -263,3 +263,64 @@ export const reactivateAdministrator = async (userId: string, roleSlug: 'admin' 
     return true;
   });
 };
+
+export const resendAdministratorInvitation = async (userId: string, email: string) => {
+  return handleAction('resendAdministratorInvitation', async () => {
+    const session = await requireAuth();
+    requireSuperAdminAuth(session);
+
+    const adminClient = createAdminClient();
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const redirectTo = `${appUrl}/login/update-password`;
+
+    // 1. Verify the Auth user exists
+    const { data: userData, error: userError } = await adminClient.auth.admin.getUserById(userId);
+    if (userError || !userData?.user) {
+      throw new Error('Administrator account not found in authentication system.');
+    }
+
+    const user = userData.user;
+    const isConfirmed = !!user.email_confirmed_at;
+
+    // 2. Use the appropriate link type based on user state
+    //    - 'invite' for unconfirmed users (never completed setup)
+    //    - 'recovery' for confirmed users (password reset/access recovery)
+    const linkType = isConfirmed ? 'recovery' : 'invite';
+
+    const { error: linkError } = await adminClient.auth.admin.generateLink({
+      type: linkType,
+      email: email,
+      options: {
+        redirectTo,
+      },
+    } as any);
+
+    if (linkError) {
+      throw new Error(`Failed to generate access link: ${linkError.message}`);
+    }
+
+    // 3. For unconfirmed users, also re-send the invitation email via inviteUserByEmail
+    //    generateLink with type 'invite' may not send an email automatically in all configs.
+    //    inviteUserByEmail for existing users resends the invitation email.
+    if (!isConfirmed) {
+      await adminClient.auth.admin.inviteUserByEmail(email, {
+        redirectTo,
+      });
+    }
+
+    // 4. Audit Log
+    await (adminClient.from('activity_logs') as any).insert({
+      actor_id: session.id,
+      action: 'RESEND_INVITATION',
+      category: 'Authorization',
+      module: 'administrators',
+      severity: 'info',
+      description: `${isConfirmed ? 'Sent password recovery link' : 'Resent invitation'} to ${email}`,
+      entity_type: 'profile',
+      entity_id: userId
+    });
+
+    revalidatePath('/admin/administrators');
+    return { sent: true, type: isConfirmed ? 'recovery' : 'invite' };
+  });
+};

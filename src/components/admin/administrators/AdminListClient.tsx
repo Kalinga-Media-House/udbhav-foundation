@@ -9,7 +9,8 @@ import {
   CheckCircle2, 
   XCircle, 
   Loader2,
-  AlertTriangle
+  AlertTriangle,
+  Mail
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +20,7 @@ import {
   updateAdministratorRole, 
   deactivateAdministrator,
   reactivateAdministrator,
+  resendAdministratorInvitation,
   AdminInvitePayload
 } from '@/features/administrators/actions';
 
@@ -115,6 +117,19 @@ export function AdminListClient({ initialAdmins, currentUserId }: AdminListClien
         return;
       }
       window.location.reload();
+    });
+  };
+
+  const handleResendInvitation = (userId: string, email: string) => {
+    if (!confirm(`Send a fresh access/setup link to ${email}?`)) return;
+
+    startTransition(async () => {
+      const result = await resendAdministratorInvitation(userId, email);
+      if (!result.success) {
+        alert(result.error || 'Failed to send access link.');
+        return;
+      }
+      alert('Access link sent successfully! The administrator should check their email.');
     });
   };
 
@@ -230,6 +245,16 @@ export function AdminListClient({ initialAdmins, currentUserId }: AdminListClien
                             onClick={() => handleRoleChange(admin.user_id, admin.role_slug === 'admin' ? 'super-admin' : 'admin')}
                           >
                             {admin.role_slug === 'admin' ? 'Promote' : 'Demote'}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                            disabled={isPending || admin.user_id === currentUserId}
+                            onClick={() => handleResendInvitation(admin.user_id, admin.profile.primary_email)}
+                          >
+                            <Mail className="h-3.5 w-3.5 mr-1" />
+                            Resend Invite
                           </Button>
                           <Button 
                             variant="outline" 
