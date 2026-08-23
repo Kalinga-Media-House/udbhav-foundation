@@ -2,8 +2,8 @@ import { Phone, Mail, MapPin, Heart, Users, MessageCircle, Send, MessageSquare, 
 import Link from "next/link";
 import React from "react";
 
-import { BrandLogo } from "@/components/shared/BrandLogo";
 import { Facebook, Instagram, Youtube, Twitter, Linkedin, Github, GenericWeb } from "@/components/shared/BrandIcons";
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { Container } from "@/components/shared/Container";
 import {
   FOOTER_QUICK_LINKS,

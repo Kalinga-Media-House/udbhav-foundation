@@ -2,8 +2,9 @@
 
 import { revalidatePath } from 'next/cache';
 
-import type { SocialLinkInsert, SocialLinkUpdate } from './repository';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+
+import type { SocialLinkInsert, SocialLinkUpdate } from './repository';
 
 export async function addSocialLink(data: SocialLinkInsert) {
   try {

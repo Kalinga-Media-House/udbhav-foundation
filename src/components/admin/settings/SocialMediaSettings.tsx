@@ -7,13 +7,13 @@ import {
 } from 'lucide-react';
 import React, { useState, useTransition } from 'react';
 
+import { Facebook, Instagram, Youtube, Twitter, Linkedin, Github, GenericWeb } from '@/components/shared/BrandIcons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
   addSocialLink, updateSocialLink, deleteSocialLink, reorderSocialLinks 
 } from '@/features/social-links/actions';
 import type { SocialLinkRow } from '@/features/social-links/repository';
-import { Facebook, Instagram, Youtube, Twitter, Linkedin, Github, GenericWeb } from '@/components/shared/BrandIcons';
 
 interface Props {
   initialLinks: SocialLinkRow[];
@@ -240,7 +240,7 @@ export function SocialMediaSettings({ initialLinks }: Props) {
 
         {links.length === 0 && !isAdding ? (
           <div className="text-center py-8 text-gray-500 text-sm">
-            No social media links configured. Click "Add Social Media" to start.
+            No social media links configured. Click &quot;Add Social Media&quot; to start.
           </div>
         ) : (
           <div className="overflow-x-auto">
