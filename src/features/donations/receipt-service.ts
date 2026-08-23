@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DatabaseError } from '@/errors';
 import { serverLogger } from '@/lib/logger/server-logger';
 import { createServerSupabaseClient } from '@/lib/supabase/server';

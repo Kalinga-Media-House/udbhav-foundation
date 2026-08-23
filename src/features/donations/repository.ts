@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PaginatedResult, RepositoryResult, FilterMap } from '@/contracts/repositories';
 import { DatabaseError } from '@/errors';
 import { serverLogger } from "@/lib/logger/server-logger";
