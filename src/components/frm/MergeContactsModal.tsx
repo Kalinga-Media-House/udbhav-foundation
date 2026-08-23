@@ -1,5 +1,5 @@
-/* eslint-disable no-console */
 'use client';
+/* eslint-disable no-console */
 
 import { AlertTriangle, ArrowRight, GitMerge, CheckCircle2 } from 'lucide-react';
 import { useState } from 'react';

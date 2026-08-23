@@ -1,5 +1,5 @@
-/* eslint-disable no-console */
 'use client';
+/* eslint-disable no-console */
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Link as LinkIcon, MessageCircle } from 'lucide-react';

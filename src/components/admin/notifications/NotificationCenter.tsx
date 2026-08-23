@@ -1,5 +1,5 @@
-/* eslint-disable */
 'use client';
+/* eslint-disable */
 
 import { formatDistanceToNow } from 'date-fns';
 import { Bell, CheckCircle2, AlertCircle, Info, Loader2, RefreshCw } from 'lucide-react';

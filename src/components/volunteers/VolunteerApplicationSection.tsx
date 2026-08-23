@@ -1,5 +1,5 @@
-/* eslint-disable */
 "use client";
+/* eslint-disable */
 
 import {
   CheckCircle2,

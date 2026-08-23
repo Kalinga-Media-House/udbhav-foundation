@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Edit, Trash2, Plus, Search, Eye, EyeOff, Mic } from 'lucide-react';
 import Link from 'next/link';

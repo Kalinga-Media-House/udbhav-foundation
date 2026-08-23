@@ -1,6 +1,6 @@
-/* eslint-disable no-console */
 /* eslint-disable */
 'use client';
+/* eslint-disable no-console */
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ChevronRight, UserPlus, Building, Tags, FileText, ArrowLeft, ArrowRight, Save } from 'lucide-react';

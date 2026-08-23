@@ -1,5 +1,5 @@
-/* eslint-disable no-console */
 "use client";
+/* eslint-disable no-console */
 
 import { AlertCircle, RefreshCcw } from "lucide-react";
 import { useEffect } from "react";

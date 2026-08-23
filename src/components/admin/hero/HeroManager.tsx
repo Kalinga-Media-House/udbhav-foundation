@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trash2, GripVertical, Eye, EyeOff } from 'lucide-react';

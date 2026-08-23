@@ -1,5 +1,5 @@
-/* eslint-disable */
 'use client';
+/* eslint-disable */
 
 import React, { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';

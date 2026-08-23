@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';

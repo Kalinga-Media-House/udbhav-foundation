@@ -1,5 +1,5 @@
-/* eslint-disable */
 'use client';
+/* eslint-disable */
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, ZoomIn, ZoomOut, Maximize } from 'lucide-react';

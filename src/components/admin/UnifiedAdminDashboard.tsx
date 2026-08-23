@@ -1,6 +1,6 @@
-/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
+/* eslint-disable no-console */
 
 import { 
   DndContext, 

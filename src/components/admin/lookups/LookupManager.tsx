@@ -1,6 +1,6 @@
-/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
+/* eslint-disable no-console */
 
 import { Plus, Search, Edit2, Trash2, FolderTree, Tag, Loader2, Save } from 'lucide-react';
 import React, { useState, useEffect } from 'react';

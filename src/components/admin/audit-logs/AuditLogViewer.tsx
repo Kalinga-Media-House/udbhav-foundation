@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { format } from 'date-fns';
 import { Loader2, Download, Filter, RefreshCw, FileText } from 'lucide-react';

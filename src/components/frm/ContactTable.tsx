@@ -1,5 +1,5 @@
-/* eslint-disable */
 'use client';
+/* eslint-disable */
 
 import { ChevronDown, ChevronUp, MoreHorizontal, User } from 'lucide-react';
 import Link from 'next/link';

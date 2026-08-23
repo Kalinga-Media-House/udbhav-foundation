@@ -1,5 +1,5 @@
-/* eslint-disable */
 "use client";
+/* eslint-disable */
 
 import Image, { ImageProps } from "next/image";
 import React, { useState } from "react";

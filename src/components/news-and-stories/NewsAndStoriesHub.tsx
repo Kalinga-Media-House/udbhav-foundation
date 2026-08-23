@@ -1,5 +1,5 @@
-/* eslint-disable */
 'use client';
+/* eslint-disable */
 
 import { format } from 'date-fns';
 import { motion, Variants } from 'framer-motion';
