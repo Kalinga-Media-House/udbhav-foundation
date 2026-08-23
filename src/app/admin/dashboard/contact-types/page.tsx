@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Settings, Plus } from 'lucide-react';
 import { Metadata } from 'next';
 
@@ -66,3 +67,4 @@ export default async function ContactTypesPage() {
     </div>
   );
 }
+

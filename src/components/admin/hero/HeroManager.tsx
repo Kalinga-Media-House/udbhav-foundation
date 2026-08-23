@@ -1,7 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Trash2, GripVertical, Eye, EyeOff } from 'lucide-react';
+import Image from 'next/image';
+import React, { useState } from 'react';
+
 import { 
   adminAddHeroImages, 
   adminDeleteHeroImage, 
@@ -9,8 +12,7 @@ import {
   adminReorderHeroImages 
 } from '@/features/hero/actions';
 import type { HeroImageRow } from '@/features/hero/repository';
-import { Trash2, GripVertical, Eye, EyeOff } from 'lucide-react';
-import Image from 'next/image';
+
 import { ImageUploader, type UploadedImage, type UploadStatus } from '../ImageUploader';
 
 interface HeroManagerProps {

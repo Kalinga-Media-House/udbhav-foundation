@@ -33,7 +33,7 @@ export function PodcastListClient({ initialPodcasts }: { initialPodcasts: any[] 
         else throw new Error(res.error || 'Failed');
       }
       router.refresh();
-    } catch (error) {
+    } catch {
       alert('Failed to change status');
     } finally {
       setIsTogglingStatus(null);
@@ -48,7 +48,7 @@ export function PodcastListClient({ initialPodcasts }: { initialPodcasts: any[] 
       if (res.success) alert('Podcast deleted successfully');
       else throw new Error(res.error || 'Failed');
       router.refresh();
-    } catch (error) {
+    } catch {
       alert('Failed to delete podcast');
     } finally {
       setIsDeleting(null);

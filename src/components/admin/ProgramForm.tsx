@@ -4,11 +4,11 @@ import { useRouter } from 'next/navigation';
 import { useState, useTransition, useEffect } from 'react';
 
 import { ImageUploader } from '@/components/admin/ImageUploader';
+import type { UploadStatus } from '@/components/admin/ImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createProgram, updateProgram } from '@/features/programs/actions';
-import type { UploadStatus } from '@/components/admin/ImageUploader';
 import type { ProgramRow } from '@/features/programs/repository';
 import type { CreateProgramDTO } from '@/features/programs/validators';
 

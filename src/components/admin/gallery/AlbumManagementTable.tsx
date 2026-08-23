@@ -1,9 +1,10 @@
 'use client';
 
-import { useTransition } from 'react';
+import { Trash2, Image as ImageIcon, MapPin, Eye } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Trash2, Image as ImageIcon, MapPin, Eye } from 'lucide-react';
+import { useTransition } from 'react';
+
 import { deleteAlbumCascadeAction } from '@/features/gallery/actions';
 import type { AdminAlbumItem } from '@/features/gallery/repository';
 

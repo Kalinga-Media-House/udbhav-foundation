@@ -81,6 +81,7 @@ export default async function OrganizationDetailPage({
           <div className="flex flex-col md:flex-row md:items-center gap-6">
             <div className="w-24 h-24 md:w-32 md:h-32 rounded-xl bg-zinc-100 dark:bg-zinc-900 border-4 border-white dark:border-zinc-950 shadow-md flex items-center justify-center overflow-hidden">
               {org.logo_media_id ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
                 <img src={org.logo_media_id} alt={org.name} className="w-full h-full object-cover" />
               ) : (
                 <Building2 className="w-12 h-12 text-zinc-300 dark:text-zinc-700" />

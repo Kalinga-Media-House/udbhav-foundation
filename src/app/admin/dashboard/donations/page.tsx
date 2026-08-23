@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Link from 'next/link';
 import React from 'react';
 
@@ -46,3 +47,4 @@ export default async function AdminDonationsPage(props: { searchParams: Promise<
     </div>
   );
 }
+
