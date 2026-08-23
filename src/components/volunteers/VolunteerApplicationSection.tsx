@@ -801,16 +801,16 @@ export function VolunteerApplicationSection() {
                   className="space-y-8"
                 >
                   {/* Step Indicator */}
-                  <div className="flex items-center justify-center gap-1.5 sm:gap-3 mb-8 flex-wrap">
+                  <div className="flex items-center justify-between sm:justify-center sm:gap-3 mb-8 flex-nowrap sm:flex-wrap w-full">
                     {stepIndicators.map((s, i) => (
                       <React.Fragment key={s.num}>
-                        <div className={`flex items-center gap-1.5 text-xs sm:text-sm font-semibold transition-colors ${step === s.num ? 'text-[#12245F]' : step > s.num ? 'text-[#439B25]' : 'text-gray-400'}`}>
-                          <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs ${step === s.num ? 'bg-[#12245F] text-white shadow-sm' : step > s.num ? 'bg-[#EEF8E9] text-[#439B25]' : 'bg-gray-100'}`}>
+                        <div className={`flex items-center gap-1.5 shrink-0 text-xs sm:text-sm font-semibold transition-colors ${step === s.num ? 'text-[#12245F]' : step > s.num ? 'text-[#439B25]' : 'text-gray-400'}`}>
+                          <div className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center shrink-0 text-[10px] sm:text-xs ${step === s.num ? 'bg-[#12245F] text-white shadow-sm' : step > s.num ? 'bg-[#EEF8E9] text-[#439B25]' : 'bg-gray-100'}`}>
                             {step > s.num ? <Check className="w-3.5 h-3.5" /> : s.num}
                           </div>
-                          <span className={`${step === s.num || step > s.num ? 'inline' : 'hidden sm:inline'}`}>{s.label}</span>
+                          <span className={`${step === s.num ? 'inline' : 'hidden sm:inline'} whitespace-nowrap`}>{s.label}</span>
                         </div>
-                        {i < stepIndicators.length - 1 && <div className="w-2 sm:w-4 h-px bg-gray-200 shrink-0" />}
+                        {i < stepIndicators.length - 1 && <div className="flex-1 sm:flex-none mx-1 sm:mx-0 sm:w-4 h-px bg-gray-200 shrink" />}
                       </React.Fragment>
                     ))}
                   </div>
