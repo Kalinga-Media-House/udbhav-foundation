@@ -10,6 +10,7 @@ import {
   FOOTER_EXPLORE_LINKS,
   FOOTER_LEGAL_LINKS,
 } from "@/data/navigation";
+import { systemSettingsRepository } from "@/features/system_settings/repository";
 import { socialLinksRepository } from "@/features/social-links/repository";
 
 const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
@@ -57,6 +58,12 @@ const PLATFORM_NAMES: Record<string, string> = {
 export async function Footer() {
   const currentYear = new Date().getFullYear();
   const activeSocialLinks = await socialLinksRepository.getActiveLinks();
+  const settings = await systemSettingsRepository.getPublicSettings();
+  
+  const contactPhone = settings.contact_phone || '+91 63705 08606';
+  const contactEmail = settings.contact_email || 'admin@udbhavfoundation.in';
+  const foundationName = settings.foundation_name || 'UDBHAV Foundation';
+  const addressPrimary = settings.address_primary || 'Plot No. 1519, Bharat Petroleum, 4269/4967, Besides/Above Bandhan Bank, Soubhagya Nagar, Baramunda, Bhubaneswar, Odisha – 751003';
 
   return (
     <footer
@@ -186,27 +193,27 @@ export async function Footer() {
             <ul className="space-y-3.5 text-sm text-pure-white/85">
               <li>
                 <a
-                  href="tel:+916370508606"
+                  href={`tel:${contactPhone.replace(/\s+/g, '')}`}
                   className="flex items-start gap-3 hover:text-soft-green transition-colors"
                 >
                   <Phone
                     className="h-4 w-4 shrink-0 mt-0.5 text-fresh-green"
                     aria-hidden="true"
                   />
-                  <span>+91 63705 08606</span>
+                  <span>{contactPhone}</span>
                 </a>
               </li>
 
               <li>
                 <a
-                  href="mailto:admin@udbhavfoundation.in"
+                  href={`mailto:${contactEmail}`}
                   className="flex items-start gap-3 hover:text-soft-green transition-colors"
                 >
                   <Mail
                     className="h-4 w-4 shrink-0 mt-0.5 text-fresh-green"
                     aria-hidden="true"
                   />
-                  <span className="break-all sm:break-normal">admin@udbhavfoundation.in</span>
+                  <span className="break-all sm:break-normal">{contactEmail}</span>
                 </a>
               </li>
 
@@ -215,9 +222,8 @@ export async function Footer() {
                   className="h-4 w-4 shrink-0 mt-0.5 text-fresh-green"
                   aria-hidden="true"
                 />
-                <span className="leading-relaxed break-words">
-                  Plot No. 1519, Bharat Petroleum, 4269/4967, Besides/Above Bandhan
-                  Bank, Soubhagya Nagar, Baramunda, Bhubaneswar, Odisha – 751003
+                <span className="leading-relaxed break-words whitespace-pre-wrap">
+                  {addressPrimary}
                 </span>
               </li>
             </ul>
@@ -227,7 +233,7 @@ export async function Footer() {
         {/* F. Footer Legal Bar */}
         <div className="pt-8 grid grid-cols-1 md:grid-cols-3 items-center gap-3.5 md:gap-4 text-xs text-pure-white/70">
           <p className="text-center md:text-left">
-            &copy; {currentYear} UDBHAV Foundation. All rights reserved.
+            &copy; {currentYear} {foundationName}. All rights reserved.
           </p>
 
           <p className="text-center text-pure-white/75">

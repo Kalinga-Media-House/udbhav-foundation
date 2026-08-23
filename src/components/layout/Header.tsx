@@ -12,7 +12,7 @@ import { Container } from '@/components/shared/Container';
 import { createClient } from '@/lib/supabase/client';
 import { useAuth } from '@/providers/auth-provider';
 
-export function Header() {
+export function Header({ contactPhone = '+91 63705 08606', contactEmail = 'admin@udbhavfoundation.in' }: { contactPhone?: string; contactEmail?: string }) {
   const [isHeaderHidden, setIsHeaderHidden] = useState(false);
   const [upperHeight, setUpperHeight] = useState(48); // default fallback height
   const upperSectionRef = useRef<HTMLDivElement>(null);
@@ -188,26 +188,26 @@ export function Header() {
               {/* Right Column: Contact info */}
               <div className="flex w-[62%] min-w-0 shrink-0 flex-col items-end justify-center gap-[3px] text-[8.5px] font-semibold leading-[1.15] max-[359px]:gap-0.5 max-[359px]:text-[7.5px] sm:w-auto sm:flex-row sm:items-center sm:gap-4 sm:text-sm sm:font-medium sm:leading-normal md:gap-6">
                 <a
-                  href="tel:+916370508606"
-                  aria-label="Call UDBHAV Foundation at +91 63705 08606"
+                  href={`tel:${contactPhone.replace(/\s+/g, '')}`}
+                  aria-label={`Call UDBHAV Foundation at ${contactPhone}`}
                   className="text-pure-white/95 hover:text-soft-green inline-flex items-center gap-1 whitespace-nowrap transition-colors sm:gap-1.5"
                 >
                   <Phone
                     className="text-fresh-green h-[11px] w-[11px] shrink-0 max-[359px]:h-[10px] max-[359px]:w-[10px] sm:h-3.5 sm:w-3.5"
                     aria-hidden="true"
                   />
-                  <span>+91 63705 08606</span>
+                  <span>{contactPhone}</span>
                 </a>
                 <a
-                  href="mailto:admin@udbhavfoundation.in"
-                  aria-label="Email UDBHAV Foundation at admin@udbhavfoundation.in"
+                  href={`mailto:${contactEmail}`}
+                  aria-label={`Email UDBHAV Foundation at ${contactEmail}`}
                   className="text-pure-white/95 hover:text-soft-green inline-flex items-center gap-1 whitespace-nowrap transition-colors sm:gap-1.5"
                 >
                   <Mail
                     className="text-fresh-green h-[11px] w-[11px] shrink-0 max-[359px]:h-[10px] max-[359px]:w-[10px] sm:h-3.5 sm:w-3.5"
                     aria-hidden="true"
                   />
-                  <span>admin@udbhavfoundation.in</span>
+                  <span>{contactEmail}</span>
                 </a>
               </div>
             </Container>
