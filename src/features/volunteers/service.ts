@@ -1,8 +1,8 @@
 import type { PaginatedResult } from '@/contracts/repositories';
 import { ok, fail, fromRepo } from '@/contracts/services';
 import type { ServiceResult } from '@/contracts/services';
-import { createAdminClient } from '@/lib/supabase/admin';
 import { serverLogger } from '@/lib/logger/server-logger';
+import { createAdminClient } from '@/lib/supabase/admin';
 import type { Pagination, ID } from '@/types';
 
 import { volunteersRepository } from './repository';
@@ -264,7 +264,7 @@ export class VolunteersService {
     return ok(await volunteersRepository.listPublicProfiles({ pagination, filters }));
   }
 
-  async updateApplicationProfile(id: ID, dto: unknown, userId: string): Promise<ServiceResult<VolunteerApplicationRow>> {
+  async updateApplicationProfile(id: ID, dto: unknown, _userId: string): Promise<ServiceResult<VolunteerApplicationRow>> {
     const parsed = updateVolunteerProfileSchema.safeParse(dto);
     if (!parsed.success) return fail(parsed.error.issues.map((e: { message: string }) => e.message).join(', '));
     return fromRepo(await volunteersRepository.updateApplicationProfile(id, parsed.data));

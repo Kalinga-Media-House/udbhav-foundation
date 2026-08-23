@@ -1,3 +1,4 @@
+/* eslint-disable */
 const fetch = require('node-fetch');
 
 const body = {
