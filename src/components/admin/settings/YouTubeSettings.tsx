@@ -98,6 +98,18 @@ export function YouTubeSettings({ initialData }: YouTubeSettingsProps) {
       </div>
       
       <div className="space-y-5 p-6">
+        {!initialData?.url && (
+          <div className="rounded-md bg-yellow-50 p-4 border border-yellow-200">
+            <div className="flex">
+              <div className="ml-3">
+                <h3 className="text-sm font-medium text-yellow-800">Configuration Required</h3>
+                <div className="mt-2 text-sm text-yellow-700">
+                  <p>YouTube Channel URL is not configured. Enter a valid URL below and set it to Active to display the button on the Podcast page.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
         <div className="space-y-1.5">
           <label className="text-sm font-medium text-gray-700">YouTube Channel URL</label>
           <Input 
