@@ -1,5 +1,5 @@
-import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { ROLES } from '@/constants/roles';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export interface AdministratorRow {
   user_id: string;

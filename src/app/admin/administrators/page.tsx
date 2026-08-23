@@ -1,8 +1,9 @@
+import { AlertTriangle, ShieldAlert } from 'lucide-react';
+import { Metadata } from 'next';
+
+import { AdminListClient } from '@/components/admin/administrators/AdminListClient';
 import { requireAuth, requireSuperAdminAuth } from '@/contracts/actions';
 import { administratorsRepository } from '@/features/administrators/repository';
-import { AdminListClient } from '@/components/admin/administrators/AdminListClient';
-import { ShieldAlert, AlertTriangle } from 'lucide-react';
-import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Administrator Management | Admin Dashboard',

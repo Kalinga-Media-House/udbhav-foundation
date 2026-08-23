@@ -1,10 +1,13 @@
 'use server';
 
-import { createAdminClient } from '@/lib/supabase/admin';
-import { requireAuth, requireSuperAdminAuth, handleAction } from '@/contracts/actions';
-import { administratorsRepository } from './repository';
-import { revalidatePath } from 'next/cache';
 import crypto from 'crypto';
+
+import { revalidatePath } from 'next/cache';
+
+import { requireAuth, requireSuperAdminAuth, handleAction } from '@/contracts/actions';
+import { createAdminClient } from '@/lib/supabase/admin';
+
+import { administratorsRepository } from './repository';
 
 export interface AdminInvitePayload {
   email: string;
@@ -286,7 +289,7 @@ export const resendAdministratorInvitation = async (userId: string, email: strin
     const user = userData.user;
     const isConfirmed = !!user.email_confirmed_at;
 
-    console.log(`[resendInvitation] User ${maskedEmail}: confirmed=${isConfirmed}, redirectTo=${redirectTo}`);
+    console.warn(`[resendInvitation] User ${maskedEmail}: confirmed=${isConfirmed}, redirectTo=${redirectTo}`);
 
     let sendError: string | null = null;
 
@@ -300,7 +303,7 @@ export const resendAdministratorInvitation = async (userId: string, email: strin
         console.error(`[resendInvitation] resetPasswordForEmail failed for ${maskedEmail}:`, error.message);
         sendError = error.message;
       } else {
-        console.log(`[resendInvitation] Password recovery email sent to ${maskedEmail}`);
+        console.warn(`[resendInvitation] Password recovery email sent to ${maskedEmail}`);
       }
     } else {
       // User not yet confirmed — resend the invitation email.
@@ -312,7 +315,7 @@ export const resendAdministratorInvitation = async (userId: string, email: strin
         console.error(`[resendInvitation] inviteUserByEmail failed for ${maskedEmail}:`, error.message);
         sendError = error.message;
       } else {
-        console.log(`[resendInvitation] Invitation email sent to ${maskedEmail}`);
+        console.warn(`[resendInvitation] Invitation email sent to ${maskedEmail}`);
       }
     }
 
