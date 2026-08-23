@@ -174,21 +174,7 @@ const GalleryHeroSection = ({ heroPhotos }: GalleryHeroSectionProps) => {
 
         </div>
 
-        {/* Pagination Dots */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mt-6 sm:mt-10 z-50 max-w-[80vw]">
-          {isMounted && validPhotos.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrentIndex(i)}
-              className={`rounded-full transition-all duration-300 ${
-                i === currentIndex 
-                  ? "w-6 h-2 bg-white ring-1 ring-white/50" 
-                  : "w-2 h-2 bg-white/30 hover:bg-white/60"
-              }`}
-              aria-label={`Go to slide ${i + 1}`}
-            />
-          ))}
-        </div>
+
       </div>
     </section>
   );
