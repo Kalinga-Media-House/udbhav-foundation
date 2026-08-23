@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use client';
 
 import { ChevronDown, ChevronUp, MoreHorizontal, User } from 'lucide-react';

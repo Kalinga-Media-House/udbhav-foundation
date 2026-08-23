@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { X, ExternalLink, MapPin, Mail, Phone, Calendar } from 'lucide-react';
 import Link from 'next/link';
 

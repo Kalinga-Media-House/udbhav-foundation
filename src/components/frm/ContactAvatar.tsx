@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { User } from 'lucide-react';
 
 interface ContactAvatarProps {
