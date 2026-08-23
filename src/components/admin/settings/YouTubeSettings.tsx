@@ -127,7 +127,7 @@ export function YouTubeSettings({ initialData }: YouTubeSettingsProps) {
           <div>
             <p className="text-sm font-medium text-gray-900">Show on Podcast Page</p>
             <p className="text-xs text-gray-500">
-              If active, the "Visit Our YouTube Channel" button will appear on the public podcast page.
+              If active, the &quot;Visit Our YouTube Channel&quot; button will appear on the public podcast page.
             </p>
           </div>
           <label className="relative inline-flex cursor-pointer items-center">

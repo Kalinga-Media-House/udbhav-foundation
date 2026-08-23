@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Plus, Building2, Search } from 'lucide-react';
 import { Metadata } from 'next';
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Tags, Plus } from 'lucide-react';
 import { Metadata } from 'next';
 

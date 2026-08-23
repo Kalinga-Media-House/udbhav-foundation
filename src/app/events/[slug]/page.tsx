@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { format } from 'date-fns';
 import type { Metadata } from 'next';
 import Link from 'next/link';

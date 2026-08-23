@@ -13,7 +13,7 @@ import {
 } from '@/features/hero/actions';
 import type { HeroImageRow } from '@/features/hero/repository';
 
-import { ImageUploader, type UploadedImage, type UploadStatus } from '../ImageUploader';
+import { ImageUploader, type UploadedImage } from '../ImageUploader';
 
 interface HeroManagerProps {
   section: 'home_hero' | 'programmes_hero';
@@ -24,7 +24,7 @@ interface HeroManagerProps {
 export function HeroManager({ section, initialImages, title }: HeroManagerProps) {
   const [images, setImages] = useState<HeroImageRow[]>(initialImages);
   const [error, setError] = useState<string | null>(null);
-  const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle');
+
   const [clearTrigger, setClearTrigger] = useState(0);
 
   const handleUploadComplete = async (result: UploadedImage | UploadedImage[]) => {

@@ -12,8 +12,7 @@ import {
   Image as ImageIcon,
   LayoutTemplate,
   Shield,
-  ShieldCheck,
-  X
+  ShieldCheck
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Mic, Edit3, CheckCircle } from 'lucide-react';
 import React from 'react';
 
