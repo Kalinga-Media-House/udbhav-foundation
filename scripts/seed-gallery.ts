@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -165,3 +166,4 @@ seed().catch((err) => {
   console.error('Unexpected error during gallery seed:', err);
   process.exit(1);
 });
+

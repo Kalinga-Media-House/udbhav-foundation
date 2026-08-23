@@ -1,9 +1,9 @@
+import { format } from 'date-fns';
 import {
   Calendar,
   Clock,
   ArrowLeft,
   ArrowRight,
-  ExternalLink,
   MapPin,
 } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -11,11 +11,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import React from 'react';
-import { format } from 'date-fns';
 
+import { ArticleShareButton } from '@/components/news-and-stories/ArticleShareButton';
 import { Container } from '@/components/shared/Container';
 import { getArticleBySlug } from '@/features/news/actions';
-import { ArticleShareButton } from '@/components/news-and-stories/ArticleShareButton';
 
 export const dynamic = 'force-dynamic';
 

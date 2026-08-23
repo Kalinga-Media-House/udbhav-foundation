@@ -4,9 +4,9 @@ import React from 'react';
 
 import { AdminVolunteersClient } from '@/components/admin/volunteers/AdminVolunteersClient';
 import { requireAuth } from '@/contracts/actions';
-import { listVolunteers, listVolunteerApplications } from '@/features/volunteers';
-import { listPrograms } from '@/features/programs';
 import { listEvents } from '@/features/events';
+import { listPrograms } from '@/features/programs';
+import { listVolunteers, listVolunteerApplications } from '@/features/volunteers';
 
 export const dynamic = 'force-dynamic';
 

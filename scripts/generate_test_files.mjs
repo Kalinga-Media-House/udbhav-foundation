@@ -1,3 +1,4 @@
+/* eslint-disable */
 import fs from 'fs';
 import https from 'https';
 import path from 'path';
@@ -69,3 +70,4 @@ async function generate() {
 }
 
 generate().catch(console.error);
+

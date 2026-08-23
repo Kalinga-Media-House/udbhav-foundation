@@ -3,12 +3,12 @@ import { NextResponse } from "next/server";
 
 import { volunteersService } from "@/features/volunteers";
 import { serverLogger } from "@/lib/logger/server-logger";
+import { getStorageConfig } from "@/lib/storage/config";
+import { deleteFile } from "@/lib/storage/delete";
 import { downloadFileInternal } from "@/lib/storage/download-internal";
+import { sanitizePath } from "@/lib/storage/helpers";
 import { processImage } from "@/lib/storage/image-pipeline";
 import { uploadFile } from "@/lib/storage/upload";
-import { deleteFile } from "@/lib/storage/delete";
-import { getStorageConfig } from "@/lib/storage/config";
-import { sanitizePath } from "@/lib/storage/helpers";
 
 export async function POST(request: Request) {
   let finalStorageKey: string | null = null;
@@ -34,7 +34,6 @@ export async function POST(request: Request) {
         const processed = await processImage(downloadRes.data, originalFilename);
         
         // Generate permanent key
-        const baseName = originalFilename.substring(0, originalFilename.lastIndexOf('.'));
         const finalExtension = processed.format === 'gif' ? '.gif' : `.${processed.format}`;
         const safeFilename = `profile-${Date.now()}${finalExtension}`;
         finalStorageKey = sanitizePath('volunteer-profiles', safeFilename);

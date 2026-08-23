@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
+
 import { listPrograms } from '@/features/programs/actions';
-import { programsRepository } from '@/features/programs/repository';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export async function GET() {
