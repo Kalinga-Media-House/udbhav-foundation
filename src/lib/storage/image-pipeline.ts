@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import sharp from 'sharp';
 
 import { serverLogger } from '@/lib/logger/server-logger';
