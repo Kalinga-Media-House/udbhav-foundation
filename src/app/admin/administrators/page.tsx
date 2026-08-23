@@ -1,7 +1,7 @@
 import { requireAuth, requireSuperAdminAuth } from '@/contracts/actions';
 import { administratorsRepository } from '@/features/administrators/repository';
 import { AdminListClient } from '@/components/admin/administrators/AdminListClient';
-import { ShieldAlert } from 'lucide-react';
+import { ShieldAlert, AlertTriangle } from 'lucide-react';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -11,10 +11,10 @@ export const metadata: Metadata = {
 
 export default async function AdministratorsPage() {
   const session = await requireAuth();
-  
+
   try {
     requireSuperAdminAuth(session);
-  } catch (error) {
+  } catch {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
         <ShieldAlert className="w-16 h-16 text-red-500 mb-4" />
@@ -26,7 +26,29 @@ export default async function AdministratorsPage() {
     );
   }
 
-  const initialAdmins = await administratorsRepository.getAdministrators();
+  let initialAdmins;
+  try {
+    initialAdmins = await administratorsRepository.getAdministrators();
+  } catch (error) {
+    console.error('[AdministratorsPage] Failed to load administrators:', error);
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Administrator Management</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Manage system administrators and their roles.
+          </p>
+        </div>
+        <div className="flex flex-col items-center justify-center min-h-[40vh] text-center px-4">
+          <AlertTriangle className="w-12 h-12 text-amber-500 mb-4" />
+          <h2 className="text-lg font-semibold text-gray-900 mb-2">Unable to Load Administrators</h2>
+          <p className="text-gray-500 max-w-md text-sm">
+            There was a problem loading administrator data. Please try refreshing the page.
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -39,9 +61,9 @@ export default async function AdministratorsPage() {
         </div>
       </div>
 
-      <AdminListClient 
-        initialAdmins={initialAdmins} 
-        currentUserId={session.id} 
+      <AdminListClient
+        initialAdmins={initialAdmins}
+        currentUserId={session.id}
       />
     </div>
   );
