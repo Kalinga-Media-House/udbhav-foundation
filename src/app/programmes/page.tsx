@@ -3,10 +3,9 @@ import type { Metadata } from 'next';
 import { CollectiveImpactSection } from '@/components/index-page/CollectiveImpactSection';
 import { IndexHeroSection } from '@/components/index-page/IndexHeroSection';
 import { ProgrammeDirectorySection } from '@/components/index-page/ProgrammeDirectorySection';
+import { getActiveHeroImages } from '@/features/hero/repository';
 import { listPrograms } from '@/features/programs/actions';
 import type { IndexProgrammeDetail, ProgrammeCategory } from '@/types/index-programme';
-
-import { getActiveHeroImages } from '@/features/hero/repository';
 
 export const metadata: Metadata = {
   title: 'Programmes & Initiatives Index | UDBHAV FOUNDATION',

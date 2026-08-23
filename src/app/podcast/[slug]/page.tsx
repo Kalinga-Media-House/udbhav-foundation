@@ -1,3 +1,4 @@
+import { format } from "date-fns";
 import {
   ArrowLeft,
   Clock,
@@ -11,18 +12,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import React from "react";
-import { format } from "date-fns";
 
+import { PodcastShare } from "@/components/podcast/PodcastShare";
 import { Container } from "@/components/shared/Container";
 import { podcastRepository } from "@/features/podcasts/repository";
 import { extractYouTubeVideoId } from "@/utils/youtube";
-import { PodcastShare } from "@/components/podcast/PodcastShare";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps, parent: ResolvingMetadata): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps, _parent: ResolvingMetadata): Promise<Metadata> {
   const { slug } = await params;
   const result = await podcastRepository.findBySlug(slug);
   

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -156,3 +157,4 @@ We thank our global community of donors, volunteers, and well-wishers for making
 }
 
 seed().catch(console.error);
+

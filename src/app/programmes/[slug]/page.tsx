@@ -4,9 +4,9 @@ import React from "react";
 
 import { ProgrammeDetailView } from "@/components/index-page/ProgrammeDetailView";
 import { listPublicPhotosAction } from "@/features/gallery/actions";
+import type { AdminPhotoItem } from "@/features/gallery/repository";
 import { getProgramBySlug, listPrograms } from "@/features/programs/actions";
 import type { IndexProgrammeDetail, ProgrammeCategory } from "@/types/index-programme";
-import type { AdminPhotoItem } from "@/features/gallery/repository";
 
 export const dynamic = 'force-dynamic';
 

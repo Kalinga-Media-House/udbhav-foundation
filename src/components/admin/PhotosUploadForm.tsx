@@ -31,7 +31,6 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>('idle');
   const [error, setError] = useState<string | null>(null);
   const [submitPending, setSubmitPending] = useState(false);
-  const [statusText, setStatusText] = useState('');
   const [clearTrigger, setClearTrigger] = useState(0);
 
   const [completedUploadCount, setCompletedUploadCount] = useState<number | null>(null);
@@ -81,19 +80,7 @@ export function PhotosUploadForm({ programs, events }: PhotosUploadFormProps) {
       return;
     }
 
-    if (uploadStatus === 'requesting' || uploadStatus === 'uploading') {
-      setStatusText('Uploading images...');
-      return;
-    }
-
-    if (uploadStatus === 'processing') {
-      setStatusText('Optimizing images...');
-      return;
-    }
-
     if (uploadStatus === 'idle' || uploadStatus === 'success') {
-      setStatusText('Saving photos...');
-      
       startTransition(async () => {
         try {
           const payload: UploadPhotosDTO = {

@@ -1,3 +1,4 @@
+/* eslint-disable */
 
 import { createClient } from '@supabase/supabase-js';
 
@@ -75,3 +76,4 @@ async function seed() {
 }
 
 seed().catch(console.error);
+

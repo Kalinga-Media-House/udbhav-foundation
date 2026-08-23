@@ -4,11 +4,11 @@ import { useRouter } from 'next/navigation';
 import { useState, useTransition, useEffect } from 'react';
 
 import { ImageUploader } from '@/components/admin/ImageUploader';
+import type { UploadStatus, UploadedImage } from '@/components/admin/ImageUploader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { updatePhotoAction } from '@/features/gallery/actions';
-import type { UploadStatus, UploadedImage } from '@/components/admin/ImageUploader';
 import type { UpdatePhotoDTO } from '@/features/gallery/validators';
 
 interface PhotoEditFormProps {

@@ -6,6 +6,10 @@ import { OurMomentsGallerySection } from '@/components/home/OurMomentsGallerySec
 import { OurPartnersSection } from '@/components/home/OurPartnersSection';
 import { SupportOurInitiativesSection } from '@/components/home/SupportOurInitiativesSection';
 import { UpcomingEventsSection } from '@/components/home/UpcomingEventsSection';
+import { getRandomPublicPhotosAction } from '@/features/gallery/actions';
+import { getActiveGoverningBodyMembers } from '@/features/governing-body';
+import { getActiveHeroImages } from '@/features/hero/repository';
+import { getActivePartners } from '@/features/partners/repository';
 
 /**
  * UDBHAV Foundation Homepage
@@ -16,11 +20,6 @@ import { UpcomingEventsSection } from '@/components/home/UpcomingEventsSection';
  * 4. Governing Body
  * 5. Support Our Initiatives — Donation Carousel
  */
-import { getActiveHeroImages } from '@/features/hero/repository';
-import { getRandomPublicPhotosAction } from '@/features/gallery/actions';
-import { getActiveGoverningBodyMembers } from '@/features/governing-body';
-import { getActivePartners } from '@/features/partners/repository';
-
 export default async function Home() {
   const heroImages = await getActiveHeroImages('home_hero');
   const randomPhotosResult = await getRandomPublicPhotosAction(15);

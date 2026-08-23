@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { createClient } from '@supabase/supabase-js';
 
 import { OFFICIAL_INDEX_PROGRAMMES } from '../src/data/index-programmes-data';
@@ -88,3 +89,4 @@ seedIndexInitiatives()
     console.error('Seeding script failed:', err);
     process.exit(1);
   });
+
