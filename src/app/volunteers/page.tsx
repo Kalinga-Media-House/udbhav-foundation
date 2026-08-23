@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function VolunteersPage() {
   return (
-    <main className="bg-pure-white min-h-screen text-[#17231D] pt-12">
+    <main className="bg-pure-white min-h-screen text-[#17231D]">
       <PublicVolunteerDirectorySection />
       <HowVolunteeringWorksSection />
       <WhoCanJoinSection />
