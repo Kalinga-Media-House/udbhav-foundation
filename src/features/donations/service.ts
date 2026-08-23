@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { PaginatedResult } from '@/contracts/repositories';
 import { ok, fail, fromRepo } from '@/contracts/services';
 import type { ServiceResult } from '@/contracts/services';
