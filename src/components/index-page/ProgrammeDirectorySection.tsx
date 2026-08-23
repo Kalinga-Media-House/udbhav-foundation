@@ -37,7 +37,7 @@ export function ProgrammeDirectorySection({ programmes }: { programmes: IndexPro
               <Calendar className="h-6 w-6 text-gray-400" />
             </div>
             <h3 className="mb-2 font-heading text-xl font-bold text-[#233A8B]">No Programmes Found</h3>
-            <p className="text-gray-500 font-medium">We couldn't find any programmes at the moment. Please check back later or explore other initiatives.</p>
+            <p className="text-gray-500 font-medium">We couldn&apos;t find any programmes at the moment. Please check back later or explore other initiatives.</p>
           </motion.div>
         </div>
       </section>

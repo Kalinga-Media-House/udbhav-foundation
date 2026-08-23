@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Search, ChevronDown, Clock, MapPin, Play, ArrowRight, Calendar } from 'lucide-react';
-import { getEventLifecycle } from '@/features/news/utils';
 import { format } from 'date-fns';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { Search, ChevronDown, Clock, MapPin, Play, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import React, { useState, useMemo } from 'react';
 
 import { Container } from '@/components/shared/Container';
 import { ArticleWithMedia } from '@/features/news/repository';
+import { getEventLifecycle } from '@/features/news/utils';
 import { PodcastEpisodeItem } from '@/types/news';
 
 type TabType = 'All' | 'News & Stories' | 'Upcoming Events' | 'Past Events';
