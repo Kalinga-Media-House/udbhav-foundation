@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * UDBHAV Foundation Enterprise Analytics — Repository Layer
  * Queries PostgreSQL Materialized Views (`mvw_*`) and executes O(1) read-only
