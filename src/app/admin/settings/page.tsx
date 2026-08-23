@@ -1,4 +1,4 @@
-import { Building, Globe, Link2, DollarSign, Mail, Search, ShieldCheck, PlayCircle } from 'lucide-react';
+import { Building, Link2, DollarSign, Mail, Search, ShieldCheck, PlayCircle } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 
@@ -51,12 +51,6 @@ export default async function AdminSettingsPage({ searchParams }: Props) {
               <Building className="h-4 w-4" /> Foundation
             </Link>
             <Link
-              href="?section=homepage"
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${section === 'homepage' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
-            >
-              <Globe className={`h-4 w-4 ${section === 'homepage' ? 'text-indigo-700' : 'text-gray-400'}`} /> Homepage
-            </Link>
-            <Link
               href="?section=social"
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${section === 'social' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
             >
@@ -100,7 +94,6 @@ export default async function AdminSettingsPage({ searchParams }: Props) {
           {section === 'youtube' && <YouTubeSettings initialData={youtubeSetting} />}
           {section === 'social' && <SocialMediaSettings initialLinks={socialLinks} />}
           {section === 'foundation' && <FoundationSettings />}
-          {section === 'homepage' && <HomepageSettings />}
           {section === 'donation' && <DonationSettings />}
           {section === 'email' && <EmailSettings />}
           {section === 'seo' && <SEOSettings />}
@@ -159,42 +152,6 @@ function FoundationSettings() {
               </Button>
             </div>
           </div>
-        </div>
-      </div>
-      <div className="flex justify-end border-t border-gray-100 bg-gray-50/50 px-6 py-3">
-        <Button>Save Changes</Button>
-      </div>
-    </section>
-  );
-}
-
-function HomepageSettings() {
-  return (
-    <section className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-      <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-        <h2 className="text-lg font-semibold text-gray-900">Homepage Configuration</h2>
-        <p className="text-sm text-gray-500">Manage what appears on the main landing page.</p>
-      </div>
-      <div className="space-y-5 p-6">
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium text-gray-700">Hero Banner Text</label>
-          <Input defaultValue="Empowering Communities for a Better Tomorrow" />
-        </div>
-        <div className="space-y-1.5">
-          <label className="text-sm font-medium text-gray-700">Featured Program UUID</label>
-          <Input placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000" />
-        </div>
-        <div className="mt-2 flex items-center justify-between border-t border-gray-100 pt-4">
-          <div>
-            <p className="text-sm font-medium text-gray-900">Show Statistics Section</p>
-            <p className="text-xs text-gray-500">
-              Display the impact numbers counter on homepage.
-            </p>
-          </div>
-          <label className="relative inline-flex cursor-pointer items-center">
-            <input type="checkbox" defaultChecked className="peer sr-only" />
-            <div className="peer h-6 w-11 rounded-full bg-gray-200 after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-indigo-600 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none"></div>
-          </label>
         </div>
       </div>
       <div className="flex justify-end border-t border-gray-100 bg-gray-50/50 px-6 py-3">
