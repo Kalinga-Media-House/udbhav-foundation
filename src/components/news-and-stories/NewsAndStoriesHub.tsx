@@ -1,7 +1,7 @@
 'use client';
 
 import { format } from 'date-fns';
-import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { Search, ChevronDown, Clock, MapPin, Play, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -446,7 +446,7 @@ export function NewsAndStoriesHub({ articles, podcasts }: NewsAndStoriesHubProps
               viewport={{ once: true }}
               variants={staggerContainer}
             >
-              {upcomingEvents.slice(1).map((event, index) => {
+              {upcomingEvents.slice(1).map((event, _index) => {
                 const evtDate = new Date(event.event_date || event.published_at || event.created_at);
                 const day = evtDate.getDate().toString().padStart(2, '0');
                 const month = evtDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();

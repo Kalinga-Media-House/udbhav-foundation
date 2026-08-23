@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { IWriteRepository, ISearchableRepository, PaginatedResult, RepositoryResult, SortConfig, FilterMap } from '@/contracts/repositories';
 import { DatabaseError } from '@/errors';
 import { serverLogger } from "@/lib/logger/server-logger";
@@ -105,7 +106,7 @@ export class GalleryRepository implements IWriteRepository<AlbumRow, AlbumCreate
       const supabase = await createServerSupabaseClient();
       const year = new Date().getFullYear();
       const prefix = `GAL-${year}-`;
-      const { data, error } = await supabase
+      const { data, error: _error } = await supabase
         .from('gallery_albums')
         .select('album_code')
         .like('album_code', `${prefix}%`)
@@ -355,7 +356,7 @@ export class GalleryRepository implements IWriteRepository<AlbumRow, AlbumCreate
   /**
    * Lists all photos across all albums for the Admin CMS.
    */
-  async listPhotos(pagination: Pagination, filters?: FilterMap): Promise<PaginatedResult<AdminPhotoItem>> {
+  async listPhotos(pagination: Pagination, _filters?: FilterMap): Promise<PaginatedResult<AdminPhotoItem>> {
     const supabase = await createServerSupabaseClient();
     const from = (pagination.page - 1) * pagination.limit;
     
@@ -414,7 +415,7 @@ export class GalleryRepository implements IWriteRepository<AlbumRow, AlbumCreate
   /**
    * Lists all albums for the Admin Album Management CMS.
    */
-  async listAdminAlbums(pagination: Pagination, filters?: FilterMap): Promise<PaginatedResult<AdminAlbumItem>> {
+  async listAdminAlbums(pagination: Pagination, _filters?: FilterMap): Promise<PaginatedResult<AdminAlbumItem>> {
     const supabase = await createServerSupabaseClient();
     const from = (pagination.page - 1) * pagination.limit;
     

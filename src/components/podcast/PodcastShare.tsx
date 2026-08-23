@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Share2, Link as LinkIcon, MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Share2, Link as LinkIcon, MessageCircle } from 'lucide-react';
+import React, { useState } from 'react';
 
 interface PodcastShareProps {
   title: string;

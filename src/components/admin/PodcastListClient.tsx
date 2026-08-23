@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { Edit, Trash2, Plus, Search, Eye, EyeOff, Mic } from 'lucide-react';

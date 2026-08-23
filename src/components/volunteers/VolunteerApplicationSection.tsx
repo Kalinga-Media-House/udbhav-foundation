@@ -7,16 +7,15 @@ import {
   ChevronDown,
   Check,
   X,
-  FileImage,
   Upload,
 } from "lucide-react";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
+import { STORAGE } from "@/constants";
 import { INDIAN_STATES } from "@/constants/indian-states";
 import { requestPublicVolunteerImageUpload } from "@/features/volunteers/public-actions";
-import { STORAGE } from "@/constants";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -1211,7 +1210,7 @@ export function VolunteerApplicationSection() {
                               </div>
                             </div>
                             <span className="text-sm leading-relaxed" style={{ color: "#5E6B63" }}>
-                              I confirm that the information provided is accurate and agree to follow UDBHAV Foundation's volunteer guidelines and code of conduct. *
+                              I confirm that the information provided is accurate and agree to follow UDBHAV Foundation&apos;s volunteer guidelines and code of conduct. *
                             </span>
                           </label>
                           {errors.consent && (
