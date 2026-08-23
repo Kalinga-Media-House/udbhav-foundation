@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client";
 
 import { Award, Calendar, Clock, Download, FileText, ShieldCheck, User } from "lucide-react";

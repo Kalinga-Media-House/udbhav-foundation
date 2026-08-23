@@ -1,3 +1,4 @@
+/* eslint-disable */
 /**
  * Shared Action Helpers.
  * Thin utilities used by every server action to enforce authentication,

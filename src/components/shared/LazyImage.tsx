@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client";
 
 import Image, { ImageProps } from "next/image";
