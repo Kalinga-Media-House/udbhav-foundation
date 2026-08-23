@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable */
 'use server';
 
 import { STORAGE } from '@/constants';

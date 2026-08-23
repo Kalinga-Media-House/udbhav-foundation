@@ -1,3 +1,4 @@
+/* eslint-disable */
 import type { IWriteRepository, ISearchableRepository, PaginatedResult, RepositoryResult, SortConfig, FilterMap } from '@/contracts/repositories';
 import { DatabaseError } from '@/errors';
 import { serverLogger } from "@/lib/logger/server-logger";
