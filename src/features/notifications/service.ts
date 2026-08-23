@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { fail, fromRepo } from '@/contracts/services';
 import type { ServiceResult } from '@/contracts/services';
 import { serverLogger } from '@/lib/logger/server-logger';

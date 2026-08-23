@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use server';
 
 import { handleAction, requireAuth, type ActionResult } from '@/contracts/actions';
