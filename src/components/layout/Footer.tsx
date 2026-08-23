@@ -12,7 +12,7 @@ import {
 } from "@/data/navigation";
 import { socialLinksRepository } from "@/features/social-links/repository";
 
-const ICON_MAP: Record<string, React.FC<any>> = {
+const ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
   facebook: Facebook,
   instagram: Instagram,
   youtube: Youtube,

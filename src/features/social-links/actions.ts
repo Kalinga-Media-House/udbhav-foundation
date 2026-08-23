@@ -25,8 +25,8 @@ export async function addSocialLink(data: SocialLinkInsert) {
 
     revalidatePath('/', 'layout');
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message || 'An error occurred' };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : 'An error occurred' };
   }
 }
 
@@ -51,8 +51,8 @@ export async function updateSocialLink(id: string, data: SocialLinkUpdate) {
 
     revalidatePath('/', 'layout');
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message || 'An error occurred' };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : 'An error occurred' };
   }
 }
 
@@ -77,8 +77,8 @@ export async function deleteSocialLink(id: string) {
 
     revalidatePath('/', 'layout');
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message || 'An error occurred' };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : 'An error occurred' };
   }
 }
 
@@ -102,7 +102,7 @@ export async function reorderSocialLinks(updates: { id: string; display_order: n
 
     revalidatePath('/', 'layout');
     return { success: true };
-  } catch (error: any) {
-    return { success: false, error: error.message || 'An error occurred' };
+  } catch (error: unknown) {
+    return { success: false, error: error instanceof Error ? error.message : 'An error occurred' };
   }
 }
