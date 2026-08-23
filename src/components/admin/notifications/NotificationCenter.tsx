@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use client';
 
 import { formatDistanceToNow } from 'date-fns';

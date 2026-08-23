@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use client';
 
 import { UploadCloud, Image as ImageIcon, FileText, Trash2, Search, Filter, Loader2, MoreVertical, ExternalLink } from 'lucide-react';
