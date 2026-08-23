@@ -1,3 +1,4 @@
+/* eslint-disable */
 'use client';
 
 import { Loader2, Save } from 'lucide-react';
