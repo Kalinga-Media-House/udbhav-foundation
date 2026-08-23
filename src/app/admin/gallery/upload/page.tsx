@@ -1,6 +1,6 @@
-import { listPrograms } from '@/features/programs/actions';
-import { listEvents } from '@/features/events/actions';
 import { PhotosUploadForm } from '@/components/admin/PhotosUploadForm';
+import { listEvents } from '@/features/events/actions';
+import { listPrograms } from '@/features/programs/actions';
 
 export const dynamic = 'force-dynamic';
 

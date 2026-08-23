@@ -1,3 +1,4 @@
+/* eslint-disable */
 import path from 'path';
 
 import { createClient } from '@supabase/supabase-js';
@@ -142,3 +143,4 @@ async function main() {
 }
 
 main();
+

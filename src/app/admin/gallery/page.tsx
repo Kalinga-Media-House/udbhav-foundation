@@ -7,7 +7,6 @@ import {
   Search,
   Upload,
   Edit,
-  Trash2,
   MapPin,
 } from 'lucide-react';
 import { revalidatePath } from 'next/cache';
@@ -17,6 +16,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { listAdminPhotos, removeGalleryItem } from '@/features/gallery/actions';
+
 import { DeleteGalleryPhotoButton } from './DeleteGalleryPhotoButton';
 
 export const dynamic = 'force-dynamic';
