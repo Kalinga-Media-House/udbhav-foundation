@@ -243,7 +243,6 @@ export function HeroManager({ section, initialImages, title }: HeroManagerProps)
               multiple={true} 
               maxFiles={5 - images.length}
               onUploadComplete={handleUploadComplete} 
-              onStatusChange={setUploadStatus} 
               clearSuccessfulTrigger={clearTrigger}
             />
           </div>

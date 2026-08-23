@@ -242,7 +242,6 @@ export class GalleryService {
         program_id: safeAlbumData.program_id,
         event_id: safeAlbumData.event_id,
         is_featured: safeAlbumData.is_featured,
-        display_order: safeAlbumData.display_order,
         album_code,
         slug,
         cover_image_id: media_ids[0], // set first image as cover
@@ -323,10 +322,9 @@ export class GalleryService {
       program_id: parsed.data.program_id,
       event_id: parsed.data.event_id,
       is_featured: parsed.data.is_featured,
-      display_order: parsed.data.display_order,
       updated_by: userId,
       ...(parsed.data.media_id ? { cover_image_id: parsed.data.media_id } : {})
-    } as AlbumUpdate);
+    } as any);
 
     return ok(true);
   }
