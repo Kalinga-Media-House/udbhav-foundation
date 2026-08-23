@@ -7,13 +7,13 @@ import React, { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { ImageUploader, type UploadedImage } from "@/components/admin/ImageUploader";
-import type { GoverningBodyMemberRow } from "@/features/governing-body/repository";
 import {
   addGoverningBodyMember,
   updateGoverningBodyMember,
   deleteGoverningBodyMember,
   toggleGoverningBodyMemberVisibility,
 } from "@/features/governing-body/actions";
+import type { GoverningBodyMemberRow } from "@/features/governing-body/repository";
 
 interface Props {
   initialMembers: GoverningBodyMemberRow[];

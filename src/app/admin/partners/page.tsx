@@ -1,4 +1,5 @@
 import React from 'react';
+
 import PartnersAdmin from '@/components/admin/partners/PartnersAdmin';
 import { getAllPartners } from '@/features/partners/repository';
 

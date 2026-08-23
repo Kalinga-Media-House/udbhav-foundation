@@ -1,6 +1,5 @@
-import { getAllGoverningBodyMembers } from '@/features/governing-body';
-
 import { GoverningBodyAdmin } from '@/components/admin/governing-body/GoverningBodyAdmin';
+import { getAllGoverningBodyMembers } from '@/features/governing-body';
 
 export const dynamic = 'force-dynamic';
 

@@ -7,13 +7,13 @@ import React, { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { ImageUploader, type UploadedImage } from "@/components/admin/ImageUploader";
-import type { PartnerRow } from "@/features/partners/repository";
 import {
   addPartner,
   updatePartnerData,
   deletePartnerData,
   togglePartnerVisibility,
 } from "@/features/partners/actions";
+import type { PartnerRow } from "@/features/partners/repository";
 
 interface Props {
   initialPartners: PartnerRow[];
