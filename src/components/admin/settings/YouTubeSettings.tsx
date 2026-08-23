@@ -1,11 +1,12 @@
 'use client';
 
+import { Loader2, PlayCircle, Trash2 } from 'lucide-react';
 import React, { useState, useTransition } from 'react';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { upsertSiteLink, toggleSiteLink, deleteSiteLink } from '@/features/site-links/actions';
 import type { SiteLinkRow } from '@/features/site-links/repository';
-import { Loader2, PlayCircle, Trash2 } from 'lucide-react';
 
 interface YouTubeSettingsProps {
   initialData: SiteLinkRow | null;

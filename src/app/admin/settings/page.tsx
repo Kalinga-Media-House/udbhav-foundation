@@ -1,11 +1,10 @@
 import { Building, Globe, Link2, DollarSign, Mail, Search, ShieldCheck, PlayCircle } from 'lucide-react';
 import React from 'react';
 
+import { YouTubeSettings } from '@/components/admin/settings/YouTubeSettings';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-
 import { siteLinksRepository } from '@/features/site-links/repository';
-import { YouTubeSettings } from '@/components/admin/settings/YouTubeSettings';
 
 export const dynamic = 'force-dynamic';
 

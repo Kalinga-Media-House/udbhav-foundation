@@ -1,6 +1,6 @@
 import React from 'react';
-import { getAllPartners } from '@/features/partners/repository';
 import PartnersAdmin from '@/components/admin/partners/PartnersAdmin';
+import { getAllPartners } from '@/features/partners/repository';
 
 export const metadata = {
   title: 'Manage Partners - Admin Dashboard',

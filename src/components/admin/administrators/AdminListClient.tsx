@@ -1,21 +1,20 @@
 'use client';
 
-import React, { useState, useTransition } from 'react';
 import { 
-  Search, 
-  ShieldCheck, 
-  Shield, 
-  UserPlus, 
-  CheckCircle2, 
-  XCircle, 
-  Loader2,
   AlertTriangle,
-  Mail
+  CheckCircle2, 
+  Loader2,
+  Mail,
+  Search, 
+  Shield, 
+  ShieldCheck, 
+  UserPlus, 
+  XCircle
 } from 'lucide-react';
+import React, { useState, useTransition } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { AdministratorRow } from '@/features/administrators/repository';
 import { 
   inviteAdministrator, 
   updateAdministratorRole, 
@@ -24,6 +23,7 @@ import {
   resendAdministratorInvitation,
   AdminInvitePayload
 } from '@/features/administrators/actions';
+import { AdministratorRow } from '@/features/administrators/repository';
 
 interface AdminListClientProps {
   initialAdmins: AdministratorRow[];

@@ -2,8 +2,9 @@
 
 import { revalidatePath, revalidateTag } from 'next/cache';
 
-import { createClient } from '@/lib/supabase/server';
 import { deleteFile } from '@/lib/storage/delete';
+import { createClient } from '@/lib/supabase/server';
+
 import type { PartnerUpdate } from './repository';
 
 export type PartnerActionResponse = { success: boolean; error?: string };
