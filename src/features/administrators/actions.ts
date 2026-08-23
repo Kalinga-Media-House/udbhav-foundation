@@ -273,54 +273,76 @@ export const resendAdministratorInvitation = async (userId: string, email: strin
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const redirectTo = `${appUrl}/login/update-password`;
 
+    // Mask email for safe logging
+    const maskedEmail = email.replace(/(.{2})(.*)(@.*)/, '$1***$3');
+
     // 1. Verify the Auth user exists
     const { data: userData, error: userError } = await adminClient.auth.admin.getUserById(userId);
     if (userError || !userData?.user) {
+      console.error(`[resendInvitation] Auth user not found for ${maskedEmail}`, userError?.message);
       throw new Error('Administrator account not found in authentication system.');
     }
 
     const user = userData.user;
     const isConfirmed = !!user.email_confirmed_at;
 
-    // 2. Use the appropriate link type based on user state
-    //    - 'invite' for unconfirmed users (never completed setup)
-    //    - 'recovery' for confirmed users (password reset/access recovery)
-    const linkType = isConfirmed ? 'recovery' : 'invite';
+    console.log(`[resendInvitation] User ${maskedEmail}: confirmed=${isConfirmed}, redirectTo=${redirectTo}`);
 
-    const { error: linkError } = await adminClient.auth.admin.generateLink({
-      type: linkType,
-      email: email,
-      options: {
-        redirectTo,
-      },
-    } as any);
+    let sendError: string | null = null;
 
-    if (linkError) {
-      throw new Error(`Failed to generate access link: ${linkError.message}`);
-    }
-
-    // 3. For unconfirmed users, also re-send the invitation email via inviteUserByEmail
-    //    generateLink with type 'invite' may not send an email automatically in all configs.
-    //    inviteUserByEmail for existing users resends the invitation email.
-    if (!isConfirmed) {
-      await adminClient.auth.admin.inviteUserByEmail(email, {
+    if (isConfirmed) {
+      // User already confirmed — send a password recovery email.
+      // auth.resetPasswordForEmail() actually sends an email (unlike generateLink).
+      const { error } = await adminClient.auth.resetPasswordForEmail(email, {
         redirectTo,
       });
+      if (error) {
+        console.error(`[resendInvitation] resetPasswordForEmail failed for ${maskedEmail}:`, error.message);
+        sendError = error.message;
+      } else {
+        console.log(`[resendInvitation] Password recovery email sent to ${maskedEmail}`);
+      }
+    } else {
+      // User not yet confirmed — resend the invitation email.
+      // inviteUserByEmail() actually sends an email (unlike generateLink).
+      const { error } = await adminClient.auth.admin.inviteUserByEmail(email, {
+        redirectTo,
+      });
+      if (error) {
+        console.error(`[resendInvitation] inviteUserByEmail failed for ${maskedEmail}:`, error.message);
+        sendError = error.message;
+      } else {
+        console.log(`[resendInvitation] Invitation email sent to ${maskedEmail}`);
+      }
     }
 
-    // 4. Audit Log
+    if (sendError) {
+      // Check for rate limiting
+      if (sendError.toLowerCase().includes('rate') || sendError.toLowerCase().includes('limit')) {
+        throw new Error('Email sending is temporarily limited. Please wait a few minutes and try again.');
+      }
+      throw new Error(`Failed to send access email: ${sendError}`);
+    }
+
+    // Audit Log
     await (adminClient.from('activity_logs') as any).insert({
       actor_id: session.id,
       action: 'RESEND_INVITATION',
       category: 'Authorization',
       module: 'administrators',
       severity: 'info',
-      description: `${isConfirmed ? 'Sent password recovery link' : 'Resent invitation'} to ${email}`,
+      description: `${isConfirmed ? 'Sent password recovery email' : 'Resent invitation email'} to ${maskedEmail}`,
       entity_type: 'profile',
       entity_id: userId
     });
 
     revalidatePath('/admin/administrators');
-    return { sent: true, type: isConfirmed ? 'recovery' : 'invite' };
+    return {
+      sent: true,
+      type: isConfirmed ? 'recovery' : 'invite',
+      message: isConfirmed
+        ? 'Password recovery email sent. Please check inbox and spam folder.'
+        : 'Invitation email sent. Please check inbox and spam folder.'
+    };
   });
 };

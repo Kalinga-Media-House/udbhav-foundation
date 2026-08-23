@@ -126,10 +126,11 @@ export function AdminListClient({ initialAdmins, currentUserId }: AdminListClien
     startTransition(async () => {
       const result = await resendAdministratorInvitation(userId, email);
       if (!result.success) {
-        alert(result.error || 'Failed to send access link.');
+        alert(result.error || 'Failed to send access email. Please try again.');
         return;
       }
-      alert('Access link sent successfully! The administrator should check their email.');
+      const msg = (result.data as any)?.message || 'Email sent. Please check inbox and spam folder.';
+      alert(msg);
     });
   };
 
