@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use client';
 
 import { motion, AnimatePresence } from 'framer-motion';

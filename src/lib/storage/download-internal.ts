@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { GetObjectCommand } from '@aws-sdk/client-s3';
 
 import { serverLogger } from '@/lib/logger/server-logger';

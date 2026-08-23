@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { createClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/supabase';
 

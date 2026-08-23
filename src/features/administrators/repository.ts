@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ROLES } from '@/constants/roles';
 import { createServerSupabaseClient } from '@/lib/supabase/server';

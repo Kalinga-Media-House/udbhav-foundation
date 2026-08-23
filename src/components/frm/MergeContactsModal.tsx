@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use client';
 
 import { AlertTriangle, ArrowRight, GitMerge, CheckCircle2 } from 'lucide-react';

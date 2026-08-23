@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use server';
 
 import { revalidatePath, revalidateTag } from 'next/cache';

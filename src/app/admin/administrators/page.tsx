@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { AlertTriangle, ShieldAlert } from 'lucide-react';
 import { Metadata } from 'next';
 

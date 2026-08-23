@@ -1,3 +1,5 @@
+/* eslint-disable no-console */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createServerClient } from '@supabase/ssr';
 import { createClient as createSupabaseJsClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';

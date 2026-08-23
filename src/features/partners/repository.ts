@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { createClient } from '@/lib/supabase/server';
 
 export interface PartnerRow {

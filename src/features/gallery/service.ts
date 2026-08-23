@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable */
 import type { PaginatedResult } from '@/contracts/repositories';
 import { ok, fail, fromRepo } from '@/contracts/services';

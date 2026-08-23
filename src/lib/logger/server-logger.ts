@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { env } from '@/config/env'; // Need to import carefully in actual app.
 
 import { LogLevel, LogPayload, maskSensitiveData } from './logger';

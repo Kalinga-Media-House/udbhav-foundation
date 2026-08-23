@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { createStaticSupabaseClient } from '@/lib/supabase/server';
 import type { Database } from '@/types/database/database.generated';
 
