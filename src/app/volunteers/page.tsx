@@ -5,7 +5,6 @@ import { HowVolunteeringWorksSection } from '@/components/volunteers/HowVoluntee
 import { PublicVolunteerDirectorySection } from '@/components/volunteers/PublicVolunteerDirectorySection';
 import { VolunteerApplicationSection } from '@/components/volunteers/VolunteerApplicationSection';
 import { VolunteerFaqSection } from '@/components/volunteers/VolunteerFaqSection';
-import { WhoCanJoinSection } from '@/components/volunteers/WhoCanJoinSection';
 
 export const metadata: Metadata = {
   title: 'Volunteer With UDBHAV Foundation | Join Our Community',
@@ -18,7 +17,6 @@ export default function VolunteersPage() {
     <main className="bg-pure-white min-h-screen text-[#17231D]">
       <PublicVolunteerDirectorySection />
       <HowVolunteeringWorksSection />
-      <WhoCanJoinSection />
       <VolunteerApplicationSection />
       <VolunteerFaqSection />
     </main>
