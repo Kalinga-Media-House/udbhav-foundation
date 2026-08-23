@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { EventName } from '../events/types';
 import { eventHandlers } from '../handlers';
 

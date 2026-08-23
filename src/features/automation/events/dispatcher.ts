@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { AutomationAuditRepository } from '../audit/repository';
 import { BackgroundJobRepository } from '../queue/repository';
 

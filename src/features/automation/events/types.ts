@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export type EventName = 
   | 'DONATION_COMPLETED'
   | 'VOLUNTEER_APPROVED'
