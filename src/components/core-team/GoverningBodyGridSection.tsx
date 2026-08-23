@@ -285,31 +285,33 @@ export function GoverningBodyGridSection({ members }: GoverningBodyGridSectionPr
   return (
     <section
       aria-labelledby="governing-body-carousel-heading"
-      className="relative w-full overflow-hidden bg-gradient-to-b from-[#FDFCF8] via-pure-white to-warm-white py-10 sm:py-12 md:py-14 border-b border-soft-border/40"
+      className="relative w-full overflow-hidden flex flex-col border-b border-soft-border/40"
     >
-      <Container>
-        {/* Compact Section Header */}
-        <div className="max-w-2xl mx-auto text-center mb-6 sm:mb-8">
-          <RevealCard as="div" index={0}>
-            <span className="eyebrow-label text-impact-green font-heading text-xs sm:text-sm font-bold tracking-widest uppercase block mb-1.5">
-              EXECUTIVE COUNCIL
-            </span>
-            <h2
-              id="governing-body-carousel-heading"
-              className="font-heading text-2xl sm:text-3xl md:text-4xl font-bold text-udbhav-blue-deep tracking-tight mb-2"
-            >
-              Governing Body
-            </h2>
-            <p className="text-sm sm:text-base text-text-secondary leading-relaxed">
-              Meet the dedicated leaders guiding UDBHAV Foundation’s vision,
-              programmes, operations, and community impact.
-            </p>
-          </RevealCard>
-        </div>
-      </Container>
+      {/* Header Area with Deep Blue Background */}
+      <div className="w-full bg-udbhav-blue-deep py-12 sm:py-16 md:py-20">
+        <Container>
+          <div className="max-w-2xl mx-auto text-center px-4">
+            <RevealCard as="div" index={0}>
+              <span className="eyebrow-label text-[#33B36B] font-heading text-xs sm:text-sm font-bold tracking-widest uppercase block mb-2 sm:mb-3">
+                EXECUTIVE COUNCIL
+              </span>
+              <h2
+                id="governing-body-carousel-heading"
+                className="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-pure-white tracking-tight mb-3 sm:mb-4"
+              >
+                Governing Body
+              </h2>
+              <p className="text-[15px] sm:text-base md:text-[17px] text-pure-white/90 leading-relaxed max-w-2xl mx-auto">
+                Meet the dedicated leaders guiding UDBHAV Foundation’s vision,
+                programmes, operations, and community impact.
+              </p>
+            </RevealCard>
+          </div>
+        </Container>
+      </div>
 
       {/* Horizontal Carousel Track Area */}
-      <div className="relative w-full">
+      <div className="relative w-full bg-gradient-to-b from-[#FDFCF8] via-pure-white to-warm-white py-10 sm:py-12 md:py-14">
         {/* Soft Left Fade Edge */}
         <div
           aria-hidden="true"
