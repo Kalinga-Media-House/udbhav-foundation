@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-import { slugValidator } from '@/validators';
 
 /** Zod schema for validating program creation payload. */
 export const createProgramSchema = z.object({

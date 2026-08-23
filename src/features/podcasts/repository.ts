@@ -1,7 +1,7 @@
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { PaginatedResult, RepositoryResult } from '@/contracts/repositories';
 import { DatabaseError } from '@/errors';
 import { serverLogger } from '@/lib/logger/server-logger';
-import { PaginatedResult, RepositoryResult } from '@/contracts/repositories';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import type { Pagination } from '@/types';
 
 export type ID = string;

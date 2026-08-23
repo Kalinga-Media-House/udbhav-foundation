@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { CheckCircle2, ChevronLeft, ChevronRight, Edit2, Plus, Trash2, X } from 'lucide-react';

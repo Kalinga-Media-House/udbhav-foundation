@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { Trash2, Image as ImageIcon, MapPin, Eye } from 'lucide-react';
