@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { Edit3, Eye, ChevronDown, ChevronRight } from 'lucide-react';

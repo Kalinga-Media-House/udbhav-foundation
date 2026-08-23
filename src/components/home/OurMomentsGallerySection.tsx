@@ -161,7 +161,6 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
                 {randomPhotos.map((photo, i) => {
                   const offset = getOffset(i);
                   const absOffset = Math.abs(offset);
-                  const sign = Math.sign(offset);
 
                   // Limit render distance
                   const visibleRange = isMobile ? 2 : 3;

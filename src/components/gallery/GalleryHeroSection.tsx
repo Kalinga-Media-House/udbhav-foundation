@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { AdminPhotoItem } from "@/features/gallery/repository";
+import Image from "next/image";
+import { useEffect, useState, useCallback } from "react";
+
+import type { AdminPhotoItem } from "@/features/gallery/repository";
 
 interface GalleryHeroSectionProps {
   heroPhotos: AdminPhotoItem[];
@@ -84,7 +85,6 @@ const GalleryHeroSection = ({ heroPhotos }: GalleryHeroSectionProps) => {
             {isMounted && validPhotos.map((photo, i) => {
               const offset = getOffset(i);
               const absOffset = Math.abs(offset);
-              const sign = Math.sign(offset);
 
               // Limit render distance for performance and visual cleanup
               const visibleRange = isMobile ? 2 : 3;

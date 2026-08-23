@@ -5,6 +5,7 @@ import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState, useEffect, useCallback } from 'react';
+
 import type { HeroImageRow } from '@/features/hero/repository';
 
 const FADE_UP = {
@@ -25,7 +26,6 @@ const STAGGER = {
 
 
 export function IndexHeroSection({ heroImages }: { heroImages?: HeroImageRow[] }) {
-  const [isMounted, setIsMounted] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHoverPaused, setIsHoverPaused] = useState(false);
   const [isTabHidden, setIsTabHidden] = useState(false);
@@ -35,10 +35,6 @@ export function IndexHeroSection({ heroImages }: { heroImages?: HeroImageRow[] }
     ? heroImages.map(img => img.image_url) 
     : ['/hero/hero-01.png'];
   const totalSlides = images.length;
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;

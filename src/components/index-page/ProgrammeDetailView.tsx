@@ -15,8 +15,8 @@ import Link from "next/link";
 import React, { useState } from "react";
 
 import { GalleryLightbox } from "@/components/gallery/GalleryLightbox";
-import type { IndexProgrammeDetail } from "@/types/index-programme";
 import type { AdminPhotoItem } from "@/features/gallery/repository";
+import type { IndexProgrammeDetail } from "@/types/index-programme";
 
 const PROGRAM_CARD_THEMES = [
   { 
@@ -379,7 +379,7 @@ export function ProgrammeDetailView({
             </h2>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {relatedProgrammes.map((rp, index) => {
+              {relatedProgrammes.map((rp, _index) => {
                 const theme = getThemeForId(rp.id);
                 const progNumber = rp.programmeNumber || '00';
 

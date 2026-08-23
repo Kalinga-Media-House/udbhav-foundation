@@ -12,7 +12,6 @@ import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 
 import { ImageUploader } from "@/components/admin/ImageUploader";
-
 import type { EventRow } from "@/features/events/repository";
 import type { ProgramRow } from "@/features/programs/repository";
 import {
