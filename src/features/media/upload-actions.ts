@@ -1,9 +1,7 @@
 'use server';
 
-import { revalidateTag } from 'next/cache';
-
 import { STORAGE } from '@/constants';
-import { handleAction, requireAuth, CacheTags } from '@/contracts/actions';
+import { handleAction, requireAuth } from '@/contracts/actions';
 import type { ActionResult } from '@/contracts/actions';
 import { deleteFile } from '@/lib/storage/delete';
 import { downloadFileInternal } from '@/lib/storage/download-internal';

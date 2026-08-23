@@ -1,6 +1,5 @@
 import { z } from 'zod';
 
-import { slugValidator } from '@/validators';
 
 /** Zod validation schema for creating a new gallery album. */
 export const createAlbumSchema = z.object({

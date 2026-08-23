@@ -204,7 +204,6 @@ export class GalleryService {
     
     // Find matching album based on priorities
     let matchedAlbumId: string | null = null;
-    let query = supabase.from('gallery_albums').select('id').eq('is_deleted', false);
 
     // Priority 1: Same event
     if (!matchedAlbumId && albumData.event_id) {
@@ -234,11 +233,14 @@ export class GalleryService {
       const randomSuffix = crypto.randomUUID().split('-')[0];
       const slug = `${baseSlug}-${randomSuffix}`;
 
-      const { location, description, ...albumCreateData } = safeAlbumData;
-      
       const createdAlbum = await galleryRepository.create({
-        ...albumCreateData,
-        description,
+        title: safeAlbumData.title,
+        description: safeAlbumData.description,
+        visibility: safeAlbumData.visibility,
+        program_id: safeAlbumData.program_id,
+        event_id: safeAlbumData.event_id,
+        is_featured: safeAlbumData.is_featured,
+        display_order: safeAlbumData.display_order,
         album_code,
         slug,
         cover_image_id: media_ids[0], // set first image as cover
@@ -312,17 +314,17 @@ export class GalleryService {
     }).eq('id', itemId);
 
     // Update parent album
-    const { location: _loc, ...albumUpdateData } = parsed.data;
     await galleryRepository.update(item.album_id, {
-      title: albumUpdateData.title,
-      description: albumUpdateData.description,
-      visibility: albumUpdateData.visibility as any,
-      program_id: albumUpdateData.program_id,
-      event_id: albumUpdateData.event_id,
-      is_featured: albumUpdateData.is_featured,
+      title: parsed.data.title,
+      description: parsed.data.description,
+      visibility: parsed.data.visibility as any,
+      program_id: parsed.data.program_id,
+      event_id: parsed.data.event_id,
+      is_featured: parsed.data.is_featured,
+      display_order: parsed.data.display_order,
       updated_by: userId,
-      ...(albumUpdateData.media_id ? { cover_image_id: albumUpdateData.media_id } : {})
-    });
+      ...(parsed.data.media_id ? { cover_image_id: parsed.data.media_id } : {})
+    } as AlbumUpdate);
 
     return ok(true);
   }
