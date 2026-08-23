@@ -1,8 +1,10 @@
 import { notFound } from 'next/navigation';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { listPrograms } from '@/features/programs/actions';
-import { listEvents } from '@/features/events/actions';
+import React from 'react';
+
 import { PhotoEditForm } from '@/components/admin/PhotoEditForm';
+import { listEvents } from '@/features/events/actions';
+import { listPrograms } from '@/features/programs/actions';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 

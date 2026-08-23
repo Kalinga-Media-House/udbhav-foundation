@@ -1,9 +1,11 @@
-import { Metadata } from 'next';
-import { listAdminAlbumsAction } from '@/features/gallery/actions';
-import { AlbumManagementTable } from '@/components/admin/gallery/AlbumManagementTable';
 import { ShieldAlert, Info } from 'lucide-react';
+import { Metadata } from 'next';
 import Link from 'next/link';
+import React from 'react';
+
+import { AlbumManagementTable } from '@/components/admin/gallery/AlbumManagementTable';
 import { Button } from '@/components/ui/button';
+import { listAdminAlbumsAction } from '@/features/gallery/actions';
 
 export const metadata: Metadata = {
   title: 'Album Management - Udbhav Foundation',
