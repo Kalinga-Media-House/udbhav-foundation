@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 
 import { CoreTeamAdvisoryBoardSection } from '@/components/core-team/CoreTeamAdvisoryBoardSection';
-import { CoreTeamHeroSection } from '@/components/core-team/CoreTeamHeroSection';
 import { GoverningBodyGridSection } from '@/components/core-team/GoverningBodyGridSection';
 import { getActiveGoverningBodyMembers } from '@/features/governing-body';
 
@@ -16,10 +15,7 @@ export default async function CoreTeamPage() {
 
   return (
     <div className="bg-pure-white w-full overflow-hidden">
-      {/* 1. Compact Core Team Hero */}
-      <CoreTeamHeroSection />
-
-      {/* 2. Governing Body Grid */}
+      {/* 1. Governing Body Grid */}
       <GoverningBodyGridSection members={members} />
 
       {/* 3. Advisory Board */}
