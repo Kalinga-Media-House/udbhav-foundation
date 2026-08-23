@@ -1,9 +1,7 @@
 'use server';
 
 import { createAdminClient } from '@/lib/supabase/admin';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { requireAuth, requireSuperAdminAuth, handleAction } from '@/contracts/actions';
-import { ROLES } from '@/constants/roles';
 import { administratorsRepository } from './repository';
 import { revalidatePath } from 'next/cache';
 import crypto from 'crypto';
@@ -25,17 +23,19 @@ export const inviteAdministrator = async (payload: AdminInvitePayload) => {
       throw new Error('Invalid role. Must be "admin" or "super-admin".');
     }
 
-    const adminAuthClient = createAdminClient();
-    const supabase = await createServerSupabaseClient();
+    // Use service-role client for all admin operations (bypasses RLS as intended
+    // for server-side Super Admin actions). This file is 'use server' and
+    // createAdminClient() has a browser-side throw guard.
+    const adminClient = createAdminClient();
 
     let userId: string;
 
     // 1. Try to invite new user; if they already exist, look up their existing identity
-    const { data: authData, error: authError } = await adminAuthClient.auth.admin.inviteUserByEmail(payload.email);
+    const { data: authData, error: authError } = await adminClient.auth.admin.inviteUserByEmail(payload.email);
 
     if (authError) {
       // Check if the user already exists in auth.users
-      const { data: existingUsers, error: listError } = await adminAuthClient.auth.admin.listUsers();
+      const { data: existingUsers, error: listError } = await adminClient.auth.admin.listUsers();
       if (listError) {
         throw new Error(`Failed to check existing users: ${listError.message}`);
       }
@@ -53,7 +53,7 @@ export const inviteAdministrator = async (payload: AdminInvitePayload) => {
     // 2. Ensure profile exists (upsert — preserves existing profile data for existing users)
     const slug = `${payload.firstName.toLowerCase().replace(/[^a-z0-9]/g, '')}-${crypto.randomBytes(4).toString('hex')}`;
 
-    const { error: profileError } = await (supabase.from('profiles') as any).upsert({
+    const { error: profileError } = await (adminClient.from('profiles') as any).upsert({
       id: userId,
       first_name: payload.firstName,
       last_name: payload.lastName || null,
@@ -69,11 +69,11 @@ export const inviteAdministrator = async (payload: AdminInvitePayload) => {
     // 3. Assign role — deactivate any existing roles first, then upsert the new one
     const role = await administratorsRepository.getRoleBySlug(payload.role);
 
-    await (supabase.from('user_roles') as any)
+    await (adminClient.from('user_roles') as any)
       .update({ is_active: false })
       .eq('user_id', userId);
 
-    const { error: roleError } = await (supabase.from('user_roles') as any).upsert({
+    const { error: roleError } = await (adminClient.from('user_roles') as any).upsert({
       user_id: userId,
       role_id: role.id,
       is_active: true,
@@ -85,7 +85,7 @@ export const inviteAdministrator = async (payload: AdminInvitePayload) => {
     }
 
     // 4. Audit Log
-    await (supabase.from('activity_logs') as any).insert({
+    await (adminClient.from('activity_logs') as any).insert({
       actor_id: session.id,
       action: 'INVITE',
       category: 'Authorization',
@@ -115,13 +115,13 @@ export const updateAdministratorRole = async (userId: string, newRoleSlug: 'admi
       throw new Error("You cannot demote yourself.");
     }
 
-    const supabase = await createServerSupabaseClient();
+    const adminClient = createAdminClient();
     const role = await administratorsRepository.getRoleBySlug(newRoleSlug);
 
     // If demoting a super-admin, check if they are the last one
     if (newRoleSlug === 'admin') {
       const superAdminRole = await administratorsRepository.getRoleBySlug('super-admin');
-      const { data: superAdmins } = await (supabase.from('user_roles') as any)
+      const { data: superAdmins } = await (adminClient.from('user_roles') as any)
         .select('user_id')
         .eq('is_active', true)
         .eq('role_id', superAdminRole.id);
@@ -132,12 +132,12 @@ export const updateAdministratorRole = async (userId: string, newRoleSlug: 'admi
     }
 
     // Deactivate old roles
-    await (supabase.from('user_roles') as any)
+    await (adminClient.from('user_roles') as any)
       .update({ is_active: false })
       .eq('user_id', userId);
 
     // Upsert new role
-    const { error: roleError } = await (supabase.from('user_roles') as any).upsert({
+    const { error: roleError } = await (adminClient.from('user_roles') as any).upsert({
       user_id: userId,
       role_id: role.id,
       is_active: true,
@@ -148,7 +148,7 @@ export const updateAdministratorRole = async (userId: string, newRoleSlug: 'admi
       throw new Error(`Role Update Failed: ${roleError.message}`);
     }
 
-    await (supabase.from('activity_logs') as any).insert({
+    await (adminClient.from('activity_logs') as any).insert({
       actor_id: session.id,
       action: 'UPDATE_ROLE',
       category: 'Authorization',
@@ -173,11 +173,11 @@ export const deactivateAdministrator = async (userId: string) => {
       throw new Error("You cannot deactivate yourself.");
     }
 
-    const supabase = await createServerSupabaseClient();
+    const adminClient = createAdminClient();
 
     // Check if they are the last super admin
     const superAdminRole = await administratorsRepository.getRoleBySlug('super-admin');
-    const { data: userRole } = await (supabase.from('user_roles') as any)
+    const { data: userRole } = await (adminClient.from('user_roles') as any)
       .select('role_id')
       .eq('user_id', userId)
       .eq('is_active', true)
@@ -185,7 +185,7 @@ export const deactivateAdministrator = async (userId: string) => {
       .maybeSingle();
 
     if (userRole) {
-      const { data: superAdmins } = await (supabase.from('user_roles') as any)
+      const { data: superAdmins } = await (adminClient.from('user_roles') as any)
         .select('user_id')
         .eq('is_active', true)
         .eq('role_id', superAdminRole.id);
@@ -195,7 +195,7 @@ export const deactivateAdministrator = async (userId: string) => {
       }
     }
 
-    const { error } = await (supabase.from('user_roles') as any)
+    const { error } = await (adminClient.from('user_roles') as any)
       .update({ is_active: false })
       .eq('user_id', userId);
 
@@ -203,7 +203,7 @@ export const deactivateAdministrator = async (userId: string) => {
       throw new Error(`Deactivation Failed: ${error.message}`);
     }
 
-    await (supabase.from('activity_logs') as any).insert({
+    await (adminClient.from('activity_logs') as any).insert({
       actor_id: session.id,
       action: 'DEACTIVATE',
       category: 'Authorization',
@@ -229,10 +229,10 @@ export const reactivateAdministrator = async (userId: string, roleSlug: 'admin' 
       throw new Error('Invalid role. Must be "admin" or "super-admin".');
     }
 
-    const supabase = await createServerSupabaseClient();
+    const adminClient = createAdminClient();
     const role = await administratorsRepository.getRoleBySlug(roleSlug);
 
-    const { error } = await (supabase.from('user_roles') as any)
+    const { error } = await (adminClient.from('user_roles') as any)
       .update({ is_active: true })
       .eq('user_id', userId)
       .eq('role_id', role.id);
@@ -241,7 +241,7 @@ export const reactivateAdministrator = async (userId: string, roleSlug: 'admin' 
       throw new Error(`Reactivation Failed: ${error.message}`);
     }
 
-    await (supabase.from('activity_logs') as any).insert({
+    await (adminClient.from('activity_logs') as any).insert({
       actor_id: session.id,
       action: 'REACTIVATE',
       category: 'Authorization',
