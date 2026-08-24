@@ -117,31 +117,31 @@ export default async function AboutPage() {
               </div>
             </RevealCard>
 
-            <RevealCard as="div" index={1} direction="right" className="order-1 lg:order-2 space-y-8">
+            <div className="order-1 lg:order-2 space-y-8">
               <div>
-                <span className="text-impact-green mb-2 block font-heading text-xs font-bold uppercase tracking-widest sm:text-sm">
+                <RevealCard as="span" index={0} className="text-impact-green mb-2 block font-heading text-xs font-bold uppercase tracking-widest sm:text-sm">
                   WHO ARE WE?
-                </span>
-                <h2 className="text-udbhav-blue-deep font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+                </RevealCard>
+                <RevealCard as="h2" index={1} className="text-udbhav-blue-deep font-heading text-3xl font-bold tracking-tight sm:text-4xl">
                   A Foundation Built on Purpose, Compassion and Action
-                </h2>
+                </RevealCard>
               </div>
 
               <div className="text-text-primary space-y-4 text-base leading-relaxed sm:text-lg">
-                <p>
+                <RevealCard as="p" index={2}>
                   Udbhav Foundation was born from the belief that real change begins when we nurture minds, empower through education, and protect the environment we all share.
-                </p>
-                <p>
+                </RevealCard>
+                <RevealCard as="p" index={3}>
                   We see mental well-being, knowledge, and sustainability as interconnected pillars of a thriving society. By focusing on inclusivity, compassion, and collective action, we aim to bridge gaps and create lasting impact at the grassroots level.
-                </p>
+                </RevealCard>
               </div>
 
-              <div className="bg-udbhav-blue-deep/5 border-l-impact-green mt-8 border-l-4 p-6 rounded-r-xl">
+              <RevealCard as="div" index={4} className="bg-udbhav-blue-deep/5 border-l-impact-green mt-8 border-l-4 p-6 rounded-r-xl transition-transform duration-500 hover:scale-[1.01]">
                 <p className="text-udbhav-blue-deep text-lg font-semibold italic md:text-xl">
                   "Building communities that are aware, resilient and responsible."
                 </p>
-              </div>
-            </RevealCard>
+              </RevealCard>
+            </div>
           </div>
         </Container>
       </section>
@@ -369,16 +369,16 @@ export default async function AboutPage() {
       <section className="bg-gray-50/50 py-20 sm:py-28 md:py-32">
         <Container>
           <div className="mx-auto max-w-4xl">
-            <span className="text-impact-green mb-2 block text-center font-heading text-xs font-bold uppercase tracking-widest sm:text-sm">
+            <RevealCard as="span" index={0} className="text-impact-green mb-2 block text-center font-heading text-xs font-bold uppercase tracking-widest sm:text-sm">
               FROM OUR FOUNDER
-            </span>
-            <h2 className="text-udbhav-blue-deep mb-10 text-center font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+            </RevealCard>
+            <RevealCard as="h2" index={1} className="text-udbhav-blue-deep mb-10 text-center font-heading text-3xl font-bold tracking-tight sm:text-4xl">
               A Vision That Continues to Grow
-            </h2>
+            </RevealCard>
 
-            <RevealCard as="div" index={0} direction="up" className="bg-pure-white overflow-hidden rounded-3xl shadow-lg ring-1 ring-black/5 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 group">
+            <div className="bg-pure-white overflow-hidden rounded-3xl shadow-lg ring-1 ring-black/5 group transition-all duration-500 hover:shadow-xl hover:-translate-y-1">
               <div className="grid grid-cols-1 md:grid-cols-5">
-                <div className="bg-udbhav-blue-deep/5 relative min-h-[400px] md:col-span-2 overflow-hidden">
+                <RevealCard as="div" index={0} direction="left" className="bg-udbhav-blue-deep/5 relative min-h-[400px] md:col-span-2 overflow-hidden">
                   {founderImage ? (
                     <Image
                       src={founderImage}
@@ -392,24 +392,24 @@ export default async function AboutPage() {
                       <User className="h-24 w-24 text-gray-300" />
                     </div>
                   )}
-                </div>
-                <div className="flex flex-col justify-center p-8 md:col-span-3 md:p-12 lg:p-16">
-                  <h3 className="text-udbhav-blue-deep font-heading text-2xl font-bold md:text-3xl">
+                </RevealCard>
+                <div className="flex flex-col justify-center p-8 md:col-span-3 md:p-12 lg:p-16 overflow-hidden">
+                  <RevealCard as="h3" index={1} direction="right" className="text-udbhav-blue-deep font-heading text-2xl font-bold md:text-3xl">
                     Jaysuraj Pattanayak
-                  </h3>
-                  <p className="text-impact-green mt-2 text-sm font-bold uppercase tracking-widest">
+                  </RevealCard>
+                  <RevealCard as="p" index={2} direction="right" className="text-impact-green mt-2 text-sm font-bold uppercase tracking-widest">
                     Founder, Udbhav Foundation
-                  </p>
+                  </RevealCard>
 
-                  <div className="mt-8 relative">
+                  <RevealCard as="div" index={3} direction="right" className="mt-8 relative">
                     <div className="absolute -top-6 -left-4 text-6xl text-udbhav-blue-deep/5 font-serif">"</div>
                     <p className="text-text-primary text-lg font-medium leading-relaxed md:text-xl italic relative z-10">
                       Real change begins when we nurture minds, empower through education, and protect the environment we all share.
                     </p>
-                  </div>
+                  </RevealCard>
                 </div>
               </div>
-            </RevealCard>
+            </div>
           </div>
         </Container>
       </section>
