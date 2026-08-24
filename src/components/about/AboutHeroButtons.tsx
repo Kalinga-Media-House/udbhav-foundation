@@ -73,44 +73,68 @@ export function AboutHeroButtons() {
     switch (color) {
       case 'green':
         return {
-          bg: isActive ? 'bg-[#f0fdf4]' : 'bg-white',
-          border: isActive ? 'border-[#4ade80]' : 'border-white/40',
-          hoverBorder: 'hover:border-[#4ade80]',
-          accent: 'bg-[#4ade80]',
-          icon: 'text-[#166534]',
-          iconBg: 'bg-[#dcfce7]',
-          glow: isActive ? 'shadow-[0_0_15px_rgba(74,222,128,0.3)]' : '',
+          baseBg: isActive ? 'bg-emerald-500/20 border-emerald-400/40' : 'bg-white/10 border-white/20',
+          hoverBg: 'hover:bg-emerald-500/20 hover:border-emerald-400/50',
+          accent: 'bg-emerald-400',
+          title: isActive ? 'text-emerald-100' : 'text-white',
+          desc: isActive ? 'text-emerald-50/80' : 'text-white/70',
+          number: isActive ? 'text-emerald-300' : 'text-white/40',
+          hoverNumber: 'group-hover:text-emerald-300',
+          icon: isActive ? 'text-emerald-200' : 'text-white/80',
+          hoverIcon: 'group-hover:text-emerald-200',
+          iconBg: isActive ? 'bg-emerald-500/30' : 'bg-white/10',
+          hoverIconBg: 'group-hover:bg-emerald-500/30',
+          glow: isActive ? 'shadow-[0_0_20px_rgba(52,211,153,0.3)]' : '',
+          hoverGlow: 'hover:shadow-[0_0_25px_rgba(52,211,153,0.4)]',
         };
       case 'cyan':
         return {
-          bg: isActive ? 'bg-[#ecfeff]' : 'bg-white',
-          border: isActive ? 'border-[#22d3ee]' : 'border-white/40',
-          hoverBorder: 'hover:border-[#22d3ee]',
-          accent: 'bg-[#22d3ee]',
-          icon: 'text-[#164e63]',
-          iconBg: 'bg-[#cffafe]',
-          glow: isActive ? 'shadow-[0_0_15px_rgba(34,211,238,0.3)]' : '',
+          baseBg: isActive ? 'bg-cyan-500/20 border-cyan-400/40' : 'bg-white/10 border-white/20',
+          hoverBg: 'hover:bg-cyan-500/20 hover:border-cyan-400/50',
+          accent: 'bg-cyan-400',
+          title: isActive ? 'text-cyan-100' : 'text-white',
+          desc: isActive ? 'text-cyan-50/80' : 'text-white/70',
+          number: isActive ? 'text-cyan-300' : 'text-white/40',
+          hoverNumber: 'group-hover:text-cyan-300',
+          icon: isActive ? 'text-cyan-200' : 'text-white/80',
+          hoverIcon: 'group-hover:text-cyan-200',
+          iconBg: isActive ? 'bg-cyan-500/30' : 'bg-white/10',
+          hoverIconBg: 'group-hover:bg-cyan-500/30',
+          glow: isActive ? 'shadow-[0_0_20px_rgba(34,211,238,0.3)]' : '',
+          hoverGlow: 'hover:shadow-[0_0_25px_rgba(34,211,238,0.4)]',
         };
       case 'amber':
         return {
-          bg: isActive ? 'bg-[#fffbeb]' : 'bg-white',
-          border: isActive ? 'border-[#fbbf24]' : 'border-white/40',
-          hoverBorder: 'hover:border-[#fbbf24]',
-          accent: 'bg-[#fbbf24]',
-          icon: 'text-[#78350f]',
-          iconBg: 'bg-[#fef3c7]',
-          glow: isActive ? 'shadow-[0_0_15px_rgba(251,191,36,0.3)]' : '',
+          baseBg: isActive ? 'bg-amber-500/20 border-amber-400/40' : 'bg-white/10 border-white/20',
+          hoverBg: 'hover:bg-amber-500/20 hover:border-amber-400/50',
+          accent: 'bg-amber-400',
+          title: isActive ? 'text-amber-100' : 'text-white',
+          desc: isActive ? 'text-amber-50/80' : 'text-white/70',
+          number: isActive ? 'text-amber-300' : 'text-white/40',
+          hoverNumber: 'group-hover:text-amber-300',
+          icon: isActive ? 'text-amber-200' : 'text-white/80',
+          hoverIcon: 'group-hover:text-amber-200',
+          iconBg: isActive ? 'bg-amber-500/30' : 'bg-white/10',
+          hoverIconBg: 'group-hover:bg-amber-500/30',
+          glow: isActive ? 'shadow-[0_0_20px_rgba(251,191,36,0.3)]' : '',
+          hoverGlow: 'hover:shadow-[0_0_25px_rgba(251,191,36,0.4)]',
         };
       case 'coral':
       default:
         return {
-          bg: isActive ? 'bg-[#fdf2f8]' : 'bg-white',
-          border: isActive ? 'border-[#f472b6]' : 'border-white/40',
-          hoverBorder: 'hover:border-[#f472b6]',
-          accent: 'bg-[#f472b6]',
-          icon: 'text-[#831843]',
-          iconBg: 'bg-[#fce7f3]',
-          glow: isActive ? 'shadow-[0_0_15px_rgba(244,114,182,0.3)]' : '',
+          baseBg: isActive ? 'bg-pink-500/20 border-pink-400/40' : 'bg-white/10 border-white/20',
+          hoverBg: 'hover:bg-pink-500/20 hover:border-pink-400/50',
+          accent: 'bg-pink-400',
+          title: isActive ? 'text-pink-100' : 'text-white',
+          desc: isActive ? 'text-pink-50/80' : 'text-white/70',
+          number: isActive ? 'text-pink-300' : 'text-white/40',
+          hoverNumber: 'group-hover:text-pink-300',
+          icon: isActive ? 'text-pink-200' : 'text-white/80',
+          hoverIcon: 'group-hover:text-pink-200',
+          iconBg: isActive ? 'bg-pink-500/30' : 'bg-white/10',
+          hoverIconBg: 'group-hover:bg-pink-500/30',
+          glow: isActive ? 'shadow-[0_0_20px_rgba(244,114,182,0.3)]' : '',
+          hoverGlow: 'hover:shadow-[0_0_25px_rgba(244,114,182,0.4)]',
         };
     }
   };
@@ -138,36 +162,34 @@ export function AboutHeroButtons() {
               onClick={(e) => handleClick(e, id)}
               className={`
                 group relative flex flex-col justify-between overflow-hidden rounded-3xl p-6 text-left
-                transition-all duration-400 ease-[cubic-bezier(0.22,1,0.36,1)]
-                border-2 shadow-sm hover:-translate-y-2 hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-udbhav-blue-deep
-                ${colors.bg} ${colors.border} ${colors.hoverBorder} ${colors.glow}
+                backdrop-blur-md border border-solid shadow-sm
+                transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
+                motion-safe:hover:-translate-y-1.5 motion-safe:hover:scale-[1.02]
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-white/50
+                ${colors.baseBg} ${colors.hoverBg} ${colors.glow} ${colors.hoverGlow}
               `}
               aria-current={isActive ? 'true' : undefined}
             >
-              <div className="flex items-center justify-between mb-8">
-                <span className={`font-serif text-lg font-bold text-gray-400 transition-colors group-hover:text-gray-900 ${isActive ? 'text-gray-900' : ''}`}>
+              <div className="flex items-center justify-between mb-8 relative z-10">
+                <span className={`font-serif text-lg font-bold transition-colors duration-300 ${colors.number} ${colors.hoverNumber}`}>
                   {number}
                 </span>
-                <div className={`p-2 rounded-full transition-transform duration-300 group-hover:scale-110 ${colors.iconBg}`}>
-                  <Icon className={`w-5 h-5 ${colors.icon}`} />
+                <div className={`p-2.5 rounded-full transition-all duration-500 group-hover:scale-110 motion-safe:group-hover:rotate-3 ${colors.iconBg} ${colors.hoverIconBg}`}>
+                  <Icon className={`w-6 h-6 transition-colors duration-300 ${colors.icon} ${colors.hoverIcon}`} />
                 </div>
               </div>
 
               <div className="relative z-10">
-                <h3 className="font-heading text-lg font-bold text-udbhav-blue-deep tracking-tight mb-1">
+                <h3 className={`font-heading text-lg font-bold tracking-tight mb-1 transition-colors duration-300 ${colors.title}`}>
                   {title}
                 </h3>
-                <p className="text-sm font-medium text-gray-500 transition-colors group-hover:text-gray-700">
+                <p className={`text-sm font-medium transition-colors duration-300 ${colors.desc}`}>
                   {description}
                 </p>
               </div>
 
-              <div className="absolute bottom-0 left-0 w-full h-1 bg-gray-100">
-                <div className={`h-full w-0 transition-all duration-500 ease-out group-hover:w-full ${colors.accent} ${isActive ? 'w-full' : ''}`}></div>
-              </div>
-
-              <div className={`absolute bottom-6 right-6 transition-all duration-300 transform translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 ${isActive ? 'translate-x-0 opacity-100' : ''}`}>
-                <ArrowRight className={`w-5 h-5 ${colors.icon}`} />
+              <div className={`absolute bottom-6 right-6 transition-all duration-500 transform translate-x-4 motion-reduce:translate-x-0 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 ${isActive ? 'translate-x-0 opacity-100' : ''}`}>
+                <ArrowRight className={`w-5 h-5 ${colors.icon} ${colors.hoverIcon}`} />
               </div>
             </a>
           </div>
