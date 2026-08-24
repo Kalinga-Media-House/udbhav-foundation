@@ -6,7 +6,6 @@ import { Users, Target, History, Globe, ArrowRight } from 'lucide-react';
 const TOPICS = [
   {
     id: 'who-we-are',
-    number: '01',
     title: 'WHO ARE WE?',
     description: 'Explore our identity',
     Icon: Users,
@@ -14,7 +13,6 @@ const TOPICS = [
   },
   {
     id: 'what-we-do',
-    number: '02',
     title: 'WHAT WE DO?',
     description: 'Our areas of work',
     Icon: Target,
@@ -22,7 +20,6 @@ const TOPICS = [
   },
   {
     id: 'when-did-we-start',
-    number: '03',
     title: 'WHEN DID WE START?',
     description: 'Our journey',
     Icon: History,
@@ -30,7 +27,6 @@ const TOPICS = [
   },
   {
     id: 'why-our-work-matters',
-    number: '04',
     title: 'WHY OUR WORK MATTERS?',
     description: 'Our purpose & impact',
     Icon: Globe,
@@ -78,8 +74,6 @@ export function AboutHeroButtons() {
           accent: 'bg-emerald-400',
           title: isActive ? 'text-emerald-100' : 'text-white',
           desc: isActive ? 'text-emerald-50/80' : 'text-white/70',
-          number: isActive ? 'text-emerald-300' : 'text-white/40',
-          hoverNumber: 'group-hover:text-emerald-300',
           icon: isActive ? 'text-emerald-200' : 'text-white/80',
           hoverIcon: 'group-hover:text-emerald-200',
           iconBg: isActive ? 'bg-emerald-500/30' : 'bg-white/10',
@@ -94,8 +88,6 @@ export function AboutHeroButtons() {
           accent: 'bg-cyan-400',
           title: isActive ? 'text-cyan-100' : 'text-white',
           desc: isActive ? 'text-cyan-50/80' : 'text-white/70',
-          number: isActive ? 'text-cyan-300' : 'text-white/40',
-          hoverNumber: 'group-hover:text-cyan-300',
           icon: isActive ? 'text-cyan-200' : 'text-white/80',
           hoverIcon: 'group-hover:text-cyan-200',
           iconBg: isActive ? 'bg-cyan-500/30' : 'bg-white/10',
@@ -110,8 +102,6 @@ export function AboutHeroButtons() {
           accent: 'bg-amber-400',
           title: isActive ? 'text-amber-100' : 'text-white',
           desc: isActive ? 'text-amber-50/80' : 'text-white/70',
-          number: isActive ? 'text-amber-300' : 'text-white/40',
-          hoverNumber: 'group-hover:text-amber-300',
           icon: isActive ? 'text-amber-200' : 'text-white/80',
           hoverIcon: 'group-hover:text-amber-200',
           iconBg: isActive ? 'bg-amber-500/30' : 'bg-white/10',
@@ -127,8 +117,6 @@ export function AboutHeroButtons() {
           accent: 'bg-pink-400',
           title: isActive ? 'text-pink-100' : 'text-white',
           desc: isActive ? 'text-pink-50/80' : 'text-white/70',
-          number: isActive ? 'text-pink-300' : 'text-white/40',
-          hoverNumber: 'group-hover:text-pink-300',
           icon: isActive ? 'text-pink-200' : 'text-white/80',
           hoverIcon: 'group-hover:text-pink-200',
           iconBg: isActive ? 'bg-pink-500/30' : 'bg-white/10',
@@ -140,10 +128,10 @@ export function AboutHeroButtons() {
   };
 
   return (
-    <div className="relative mx-auto mt-12 grid w-full max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 lg:gap-8 px-4">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3/4 h-3/4 border-2 border-dashed border-white/10 rounded-[40px] pointer-events-none hidden md:block"></div>
+    <div className="relative mx-auto mt-8 sm:mt-10 grid w-full max-w-[760px] grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:gap-5 px-4">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] border-2 border-dashed border-white/10 rounded-[40px] pointer-events-none hidden md:block"></div>
 
-      {TOPICS.map(({ id, number, title, description, Icon, color }, index) => {
+      {TOPICS.map(({ id, title, description, Icon, color }, index) => {
         const isActive = activeId === id;
         const colors = getColorClasses(color, isActive);
 
@@ -161,7 +149,7 @@ export function AboutHeroButtons() {
               href={`#${id}`}
               onClick={(e) => handleClick(e, id)}
               className={`
-                group relative flex flex-col justify-between overflow-hidden rounded-3xl p-6 text-left
+                group relative flex flex-col justify-between overflow-hidden rounded-2xl p-4 sm:p-5 text-left h-[105px] sm:h-[120px]
                 backdrop-blur-md border border-solid shadow-sm
                 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]
                 motion-safe:hover:-translate-y-1.5 motion-safe:hover:scale-[1.02]
@@ -170,26 +158,23 @@ export function AboutHeroButtons() {
               `}
               aria-current={isActive ? 'true' : undefined}
             >
-              <div className="flex items-center justify-between mb-8 relative z-10">
-                <span className={`font-serif text-lg font-bold transition-colors duration-300 ${colors.number} ${colors.hoverNumber}`}>
-                  {number}
-                </span>
-                <div className={`p-2.5 rounded-full transition-all duration-500 group-hover:scale-110 motion-safe:group-hover:rotate-3 ${colors.iconBg} ${colors.hoverIconBg}`}>
-                  <Icon className={`w-6 h-6 transition-colors duration-300 ${colors.icon} ${colors.hoverIcon}`} />
+              <div className="flex justify-end relative z-10">
+                <div className={`p-2 rounded-full transition-all duration-500 group-hover:scale-110 motion-safe:group-hover:rotate-3 ${colors.iconBg} ${colors.hoverIconBg}`}>
+                  <Icon className={`w-5 h-5 transition-colors duration-300 ${colors.icon} ${colors.hoverIcon}`} />
                 </div>
               </div>
 
-              <div className="relative z-10">
-                <h3 className={`font-heading text-lg font-bold tracking-tight mb-1 transition-colors duration-300 ${colors.title}`}>
+              <div className="relative z-10 mt-auto pr-8">
+                <h3 className={`font-heading text-base sm:text-lg font-bold tracking-tight mb-0.5 transition-colors duration-300 ${colors.title}`}>
                   {title}
                 </h3>
-                <p className={`text-sm font-medium transition-colors duration-300 ${colors.desc}`}>
+                <p className={`text-xs sm:text-sm font-medium transition-colors duration-300 line-clamp-1 ${colors.desc}`}>
                   {description}
                 </p>
               </div>
 
-              <div className={`absolute bottom-6 right-6 transition-all duration-500 transform translate-x-4 motion-reduce:translate-x-0 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 ${isActive ? 'translate-x-0 opacity-100' : ''}`}>
-                <ArrowRight className={`w-5 h-5 ${colors.icon} ${colors.hoverIcon}`} />
+              <div className={`absolute bottom-4 right-4 sm:bottom-5 sm:right-5 transition-all duration-500 transform translate-x-4 motion-reduce:translate-x-0 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 ${isActive ? 'translate-x-0 opacity-100' : ''}`}>
+                <ArrowRight className={`w-4 h-4 sm:w-5 sm:h-5 ${colors.icon} ${colors.hoverIcon}`} />
               </div>
             </a>
           </div>

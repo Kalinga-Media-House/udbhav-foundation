@@ -75,7 +75,7 @@ export default async function AboutPage() {
       />
       {/* 1. ABOUT HERO */}
       <HeroParallax
-        className="py-20 sm:py-28 md:py-36 bg-[#171f69]"
+        className="py-16 sm:py-24 md:py-32 bg-[#171f69]"
         bgImage={aboutHeroBgImage || undefined}
       >
         <Container className="relative z-10">
