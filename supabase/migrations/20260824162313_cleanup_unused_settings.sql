@@ -1,7 +1,7 @@
 -- Migration: cleanup_unused_settings.sql
 -- Description: Removes completely unused placeholder settings from the system_settings table.
 
-DELETE FROM public.system_settings 
+DELETE FROM public.system_settings
 WHERE key_name IN (
   'google_analytics_id',
   'donations_enabled',
