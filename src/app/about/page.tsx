@@ -6,6 +6,7 @@ import { ChevronRight, ArrowRight, User } from 'lucide-react';
 import { Container } from '@/components/shared/Container';
 import { RevealCard } from '@/components/shared/RevealCard';
 import { getActiveGoverningBodyMembers } from '@/features/governing-body/repository';
+import { systemSettingsRepository } from '@/features/system_settings/repository';
 
 export const metadata: Metadata = {
   title: 'About Us — UDBHAV Foundation',
@@ -17,6 +18,28 @@ export default async function AboutPage() {
   const members = await getActiveGoverningBodyMembers();
   const founder = members.find((m) => m.full_name.toLowerCase().includes('jaysuraj'));
   const founderImage = founder?.photo_url || null;
+
+  const publicSettings = await systemSettingsRepository.getPublicSettings();
+
+  function getSettingUrl(value: any, fallback: string) {
+    if (typeof value === 'string') return value;
+    if (value && typeof value === 'object' && value.url) return value.url;
+    return fallback;
+  }
+  
+  function getSettingAlt(value: any, fallback: string) {
+    if (value && typeof value === 'object' && value.altText) return value.altText;
+    return fallback;
+  }
+
+  const whoWeAreImg = getSettingUrl(publicSettings.about_who_we_are_image, '/hero/hero-02.png');
+  const whoWeAreAlt = getSettingAlt(publicSettings.about_who_we_are_image, 'Community members interacting with volunteers');
+  const whatWeDoImg = getSettingUrl(publicSettings.about_what_we_do_image, '/hero/hero-05.png');
+  const whatWeDoAlt = getSettingAlt(publicSettings.about_what_we_do_image, 'UDBHAV Foundation focus area action');
+  const whenWeStartedImg = getSettingUrl(publicSettings.about_when_we_started_image, '/hero/hero-08.png');
+  const whenWeStartedAlt = getSettingAlt(publicSettings.about_when_we_started_image, 'UDBHAV early foundation community activity');
+  const whyWorkMattersImg = getSettingUrl(publicSettings.about_why_work_matters_image, '/hero/hero-07.png');
+  const whyWorkMattersAlt = getSettingAlt(publicSettings.about_why_work_matters_image, 'Volunteer and community connection');
 
   return (
     <div className="bg-pure-white w-full overflow-hidden">
@@ -84,8 +107,8 @@ export default async function AboutPage() {
             <RevealCard as="div" index={0} className="order-2 lg:order-1">
               <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5">
                 <Image
-                  src="/hero/hero-02.png"
-                  alt="UDBHAV Foundation community volunteers working together"
+                  src={whoWeAreImg}
+                  alt={whoWeAreAlt}
                   fill
                   className="object-cover transition-transform duration-700 hover:scale-105"
                   sizes="(max-width: 1024px) 100vw, 50vw"
@@ -136,8 +159,8 @@ export default async function AboutPage() {
 
           <div className="mb-12 md:mb-16 relative aspect-[21/9] w-full overflow-hidden rounded-2xl shadow-md hidden md:block">
             <Image
-              src="/hero/hero-05.png"
-              alt="UDBHAV Foundation education and mentorship initiatives"
+              src={whatWeDoImg}
+              alt={whatWeDoAlt}
               fill
               className="object-cover object-center"
               sizes="100vw"
@@ -218,8 +241,8 @@ export default async function AboutPage() {
             <RevealCard as="div" index={1}>
               <div className="relative aspect-square w-full max-w-[500px] mx-auto overflow-hidden rounded-full shadow-lg ring-4 ring-white">
                 <Image
-                  src="/hero/hero-08.png"
-                  alt="UDBHAV community working together since 2020"
+                  src={whenWeStartedImg}
+                  alt={whenWeStartedAlt}
                   fill
                   className="object-cover transition-transform duration-700 hover:scale-105"
                   sizes="(max-width: 1024px) 100vw, 50vw"
@@ -237,8 +260,8 @@ export default async function AboutPage() {
             <RevealCard as="div" index={0} className="lg:col-span-7">
               <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5">
                 <Image
-                  src="/hero/hero-07.png"
-                  alt="UDBHAV volunteers helping and mentoring the community"
+                  src={whyWorkMattersImg}
+                  alt={whyWorkMattersAlt}
                   fill
                   className="object-cover transition-transform duration-700 hover:scale-105"
                   sizes="(max-width: 1024px) 100vw, 60vw"

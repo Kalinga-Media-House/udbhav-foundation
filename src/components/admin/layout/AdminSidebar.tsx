@@ -37,6 +37,7 @@ const navItems = [
       { title: "Podcast", href: "/admin/podcast" },
       { title: "Programs", href: "/admin/programs" },
       { title: "Partners", href: "/admin/partners" },
+      { title: "About Page", href: "/admin/about-page" },
     ],
   },
   {
