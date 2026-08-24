@@ -128,22 +128,7 @@ export function SecuritySettings() {
           )}
         </div>
 
-        {/* 2FA */}
-        <div className="space-y-3 pt-4 border-t border-gray-100">
-          <div className="flex items-center gap-2 mb-2">
-            <ShieldCheck className="w-5 h-5 text-gray-400" />
-            <h3 className="text-sm font-medium text-gray-900">Two-Factor Authentication (2FA)</h3>
-          </div>
-          <div className="pl-7">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-amber-50 border border-amber-100 text-sm text-amber-700">
-              <CheckCircle2 className="w-4 h-4" />
-              <span>Coming Soon</span>
-            </div>
-            <p className="mt-2 text-xs text-gray-500 max-w-sm">
-              Additional security for your account via authenticator apps will be available in a future update.
-            </p>
-          </div>
-        </div>
+
 
         {/* Sessions */}
         <div className="space-y-3 pt-4 border-t border-gray-100">

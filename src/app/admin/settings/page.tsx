@@ -1,4 +1,4 @@
-import { ShieldCheck, PlayCircle, Info, Building, Link2, DollarSign, Mail, Search } from 'lucide-react';
+import { ShieldCheck, PlayCircle, Info, Building, Link2, Search } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 
@@ -6,7 +6,6 @@ import { DynamicSettingsForm } from '@/components/admin/settings/DynamicSettings
 import { SecuritySettings } from '@/components/admin/settings/SecuritySettings';
 import { SocialMediaSettings } from '@/components/admin/settings/SocialMediaSettings';
 import { YouTubeSettings } from '@/components/admin/settings/YouTubeSettings';
-import { Button } from '@/components/ui/button';
 import { siteLinksRepository } from '@/features/site-links/repository';
 import { socialLinksRepository } from '@/features/social-links/repository';
 import { systemSettingsRepository } from '@/features/system_settings/repository';
@@ -63,18 +62,6 @@ export default async function AdminSettingsPage({ searchParams }: Props) {
               <Link2 className={`h-4 w-4 ${section === 'social' ? 'text-indigo-700' : 'text-gray-400'}`} /> Social Links
             </Link>
             <Link
-              href="?section=donation"
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${section === 'donation' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
-            >
-              <DollarSign className={`h-4 w-4 ${section === 'donation' ? 'text-indigo-700' : 'text-gray-400'}`} /> Donation
-            </Link>
-            <Link
-              href="?section=email"
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${section === 'email' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
-            >
-              <Mail className={`h-4 w-4 ${section === 'email' ? 'text-indigo-700' : 'text-gray-400'}`} /> Email
-            </Link>
-            <Link
               href="?section=seo"
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${section === 'seo' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
             >
@@ -109,34 +96,6 @@ export default async function AdminSettingsPage({ searchParams }: Props) {
                 s.key_name !== 'default_timezone'
               )} 
             />
-          )}
-          {section === 'donation' && (
-            <section className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-              <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-                <h2 className="text-lg font-semibold text-gray-900">Donation Settings</h2>
-              </div>
-              <div className="p-8 text-center flex flex-col items-center justify-center">
-                <DollarSign className="w-12 h-12 text-indigo-200 mb-4" />
-                <h3 className="text-xl font-medium text-gray-900 mb-2">Donation System — Coming Soon</h3>
-                <p className="text-gray-500 max-w-sm">
-                  Payment gateway integration and automatic 80G receipt generation are currently under development.
-                </p>
-              </div>
-            </section>
-          )}
-          {section === 'email' && (
-            <section className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-              <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-                <h2 className="text-lg font-semibold text-gray-900">Email Settings</h2>
-              </div>
-              <div className="p-8 text-center flex flex-col items-center justify-center">
-                <Mail className="w-12 h-12 text-indigo-200 mb-4" />
-                <h3 className="text-xl font-medium text-gray-900 mb-2">Email Service Not Configured</h3>
-                <p className="text-gray-500 max-w-sm">
-                  There is currently no active SMTP or transactional email provider integration available to configure.
-                </p>
-              </div>
-            </section>
           )}
           {section === 'seo' && (
             <>
