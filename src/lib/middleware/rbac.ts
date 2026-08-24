@@ -11,6 +11,10 @@ export const checkRoleAccess = (pathname: string, userRole?: string): boolean =>
   if (userRole === ROLES.SUPER_ADMIN) return true;
 
   // Explicit route restrictions can be defined here
+  if (pathname.startsWith('/admin/integrations')) {
+    return userRole === ROLES.SUPER_ADMIN;
+  }
+
   if (pathname.startsWith('/admin/settings')) {
     return userRole === ROLES.ADMIN;
   }

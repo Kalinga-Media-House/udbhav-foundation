@@ -5,8 +5,10 @@ import { Inter } from 'next/font/google';
 
 import { Footer } from '@/components/layout/Footer';
 import { Header } from '@/components/layout/Header';
+import { GoogleAnalyticsTracking } from '@/components/analytics/GoogleAnalyticsTracking';
 import { APPLICATION } from '@/constants/application';
 import { METADATA } from '@/constants/metadata';
+import { googleIntegrationsRepository } from '@/features/google-integrations/repository';
 import { systemSettingsRepository } from '@/features/system_settings/repository';
 import { socialLinksRepository } from '@/features/social-links/repository';
 import { RootProviders } from '@/providers';
@@ -79,6 +81,21 @@ export default async function RootLayout({
   const activeSocialLinks = await socialLinksRepository.getActiveLinks();
   const socialUrls = activeSocialLinks.map(link => link.url);
 
+  // Fetch GA Measurement ID from connected Google Analytics integration
+  let gaMeasurementId: string | null = null;
+  try {
+    const gaResult = await googleIntegrationsRepository.getByService('analytics');
+    if (gaResult.data?.status === 'connected' && gaResult.data.meta_data) {
+      const meta = gaResult.data.meta_data as Record<string, unknown>;
+      const mid = meta.ga_measurement_id as string | undefined;
+      if (mid && mid.startsWith('G-')) {
+        gaMeasurementId = mid;
+      }
+    }
+  } catch {
+    // GA tracking is non-critical — silently continue without it
+  }
+
   let knowsAbout;
   try {
     if (settings.seo_search_topics) {
@@ -128,6 +145,7 @@ export default async function RootLayout({
           </div>
           <Footer />
         </RootProviders>
+        <GoogleAnalyticsTracking measurementId={gaMeasurementId} />
         <Analytics />
         <SpeedInsights />
       </body>

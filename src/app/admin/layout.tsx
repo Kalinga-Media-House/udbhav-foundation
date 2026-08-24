@@ -54,7 +54,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="flex h-screen w-full flex-col overflow-hidden bg-gray-50 font-sans text-gray-900 md:flex-row">
       <GlobalSearch />
-      <AdminSidebar />
+      <AdminSidebar userRole={roleSlug} />
       <div className="flex w-full flex-1 flex-col overflow-x-hidden overflow-y-auto">
         <main className="h-full w-full p-4 md:p-8">{children}</main>
       </div>

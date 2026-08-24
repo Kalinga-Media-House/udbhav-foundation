@@ -12,7 +12,8 @@ import {
   Image as ImageIcon,
   LayoutTemplate,
   Shield,
-  ShieldCheck
+  ShieldCheck,
+  Plug
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -23,7 +24,15 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const navItems = [
+interface NavItem {
+  title: string;
+  href?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  icon: React.ComponentType<any>;
+  children?: { title: string; href: string }[];
+}
+
+const baseNavItems: NavItem[] = [
   {
     title: "Dashboard",
     href: "/admin/dashboard",
@@ -72,7 +81,24 @@ const navItems = [
   },
 ];
 
-export function AdminSidebar() {
+const superAdminNavItems: NavItem[] = [
+  {
+    title: "Integrations",
+    icon: Plug,
+    children: [
+      { title: "Google", href: "/admin/integrations/google" },
+    ],
+  },
+];
+
+interface AdminSidebarProps {
+  userRole?: string;
+}
+
+export function AdminSidebar({ userRole }: AdminSidebarProps) {
+  const navItems = userRole === 'super-admin'
+    ? [...baseNavItems, ...superAdminNavItems]
+    : baseNavItems;
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({});
