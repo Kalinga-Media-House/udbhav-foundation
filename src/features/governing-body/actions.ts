@@ -21,6 +21,7 @@ interface MemberInput {
 function revalidateGoverningBodyPaths() {
   revalidatePath('/core-team');
   revalidatePath('/');
+  revalidatePath('/about');
   revalidatePath('/admin/governing-body');
 }
 

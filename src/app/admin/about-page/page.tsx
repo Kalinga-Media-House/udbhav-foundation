@@ -2,6 +2,7 @@ import { ShieldAlert } from 'lucide-react';
 import React from 'react';
 
 import { Container } from '@/components/shared/Container';
+import { ROLES } from '@/constants/roles';
 import { requireAuth } from '@/contracts/actions';
 import { systemSettingsRepository } from '@/features/system_settings/repository';
 import { getActiveGoverningBodyMembers } from '@/features/governing-body/repository';
@@ -10,7 +11,7 @@ import AdminAboutPageClient from './AdminAboutPageClient';
 export default async function AdminAboutPage() {
   const session = await requireAuth();
   
-  if (!session || (session.role !== 'Admin' && session.role !== 'Super Admin')) {
+  if (!session || (session.role !== ROLES.ADMIN && session.role !== ROLES.SUPER_ADMIN)) {
     return (
       <Container className="py-12">
         <div className="flex flex-col items-center justify-center text-center p-8 bg-red-50 text-red-900 rounded-xl">
