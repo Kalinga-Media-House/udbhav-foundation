@@ -44,29 +44,34 @@ export function AboutHeroButtons() {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-row flex-wrap justify-center gap-3 sm:gap-4 md:gap-5 animate-hero-buttons">
-      {TOPICS.map(({ label, id }) => {
+    <div className="mx-auto flex w-full max-w-4xl flex-row flex-wrap justify-center gap-3 sm:gap-4 md:gap-5">
+      {TOPICS.map(({ label, id }, index) => {
         const isActive = activeId === id;
         return (
-          <a
+          <div
             key={id}
-            href={`#${id}`}
-            onClick={(e) => handleClick(e, id)}
-            className={`
-              relative flex items-center justify-center rounded-full px-5 py-2.5 sm:px-6 sm:py-3 
-              font-heading text-xs sm:text-sm md:text-base font-semibold tracking-wide 
-              transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]
-              border shadow-sm hover:-translate-y-1 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
-              ${
-                isActive
-                  ? 'bg-impact-green text-udbhav-blue-deep border-impact-green shadow-sm ring-2 ring-impact-green/20'
-                  : 'bg-pure-white text-udbhav-blue-deep border-gray-100 hover:border-impact-green/60 hover:text-udbhav-blue-deep'
-              }
-            `}
-            aria-current={isActive ? 'true' : undefined}
+            className="animate-hero-buttons"
+            style={{ animationDelay: `${300 + index * 100}ms`, animationFillMode: 'both' }}
           >
-            {label}
-          </a>
+            <a
+              href={`#${id}`}
+              onClick={(e) => handleClick(e, id)}
+              className={`
+                group relative flex items-center justify-center rounded-full px-5 py-2.5 sm:px-6 sm:py-3
+                font-heading text-xs sm:text-sm md:text-base font-semibold tracking-wide
+                transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]
+                border shadow-sm hover:-translate-y-1 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+                ${
+                  isActive
+                    ? 'bg-impact-green text-udbhav-blue-deep border-impact-green shadow-sm ring-2 ring-impact-green/20'
+                    : 'bg-pure-white text-udbhav-blue-deep border-gray-100 hover:border-impact-green/60 hover:text-udbhav-blue-deep'
+                }
+              `}
+              aria-current={isActive ? 'true' : undefined}
+            >
+              {label}
+            </a>
+          </div>
         );
       })}
     </div>

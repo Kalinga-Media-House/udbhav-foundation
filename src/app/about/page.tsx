@@ -28,7 +28,7 @@ export default async function AboutPage() {
     if (value && typeof value === 'object' && value.url) return value.url;
     return fallback;
   }
-  
+
   function getSettingAlt(value: any, fallback: string) {
     if (value && typeof value === 'object' && value.altText) return value.altText;
     return fallback;
@@ -71,45 +71,57 @@ export default async function AboutPage() {
       {/* 1. ABOUT HERO */}
       <section
         aria-labelledby="about-hero-heading"
-        className="border-soft-border/40 relative w-full overflow-hidden border-b py-20 sm:py-24 md:py-32"
+        className="border-soft-border/40 relative w-full overflow-hidden border-b py-20 sm:py-28 md:py-36"
         style={{
           background: 'linear-gradient(135deg, #171f69 0%, #202a7a 50%, #123f72 100%)',
         }}
       >
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute -top-24 right-1/4 h-80 w-80 rounded-full bg-white/[0.08] blur-3xl"
+          className="pointer-events-none absolute -top-32 right-1/4 h-[500px] w-[500px] rounded-full bg-white/[0.04] blur-[100px] mix-blend-overlay animate-pulse duration-10000"
         />
         <div
           aria-hidden="true"
-          className="bg-impact-green/[0.12] pointer-events-none absolute -bottom-24 left-1/4 h-80 w-80 rounded-full blur-3xl"
+          className="bg-impact-green/[0.08] pointer-events-none absolute -bottom-32 left-1/4 h-[500px] w-[500px] rounded-full blur-[100px] mix-blend-overlay animate-pulse duration-10000 delay-1000"
         />
 
         <Container className="relative z-10">
           <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
+            <RevealCard as="div" index={0} className="mb-6 sm:mb-10">
+              <span className="eyebrow-label block font-heading text-xs font-bold uppercase tracking-[0.2em] text-[#86EFAC] sm:text-sm">
+                ABOUT UDBHAV FOUNDATION
+              </span>
+            </RevealCard>
+
             <h1 id="about-hero-heading" className="sr-only">About UDBHAV Foundation</h1>
-            <AboutHeroButtons />
+
+            <RevealCard as="div" index={1} direction="none" className="w-full">
+              <AboutHeroButtons />
+            </RevealCard>
           </div>
         </Container>
       </section>
 
       {/* 2. WHO ARE WE? */}
-      <section id="who-we-are" className="via-pure-white to-warm-white relative border-b border-gray-100 bg-gradient-to-b from-[#FDFCF8] py-16 sm:py-20 md:py-24">
-        <Container>
-          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
-            <RevealCard as="div" index={0} className="order-2 lg:order-1">
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5">
+      <section id="who-we-are" className="via-pure-white to-warm-white relative overflow-hidden bg-gradient-to-b from-[#FDFCF8] py-20 sm:py-24 md:py-32">
+        {/* Subtle background decoration */}
+        <div className="bg-impact-green/5 pointer-events-none absolute -left-20 top-20 h-64 w-64 rounded-full blur-[80px]" />
+
+        <Container className="relative z-10">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-20">
+            <RevealCard as="div" index={0} direction="left" className="order-2 lg:order-1">
+              <div className="group relative aspect-[4/3] w-full overflow-hidden rounded-3xl shadow-xl ring-1 ring-black/5 transition-all duration-500 hover:shadow-2xl">
                 <Image
                   src={whoWeAreImg}
                   alt={whoWeAreAlt}
                   fill
-                  className="object-cover transition-transform duration-700 hover:scale-105"
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
               </div>
             </RevealCard>
 
-            <RevealCard as="div" index={1} className="order-1 lg:order-2 space-y-6">
+            <RevealCard as="div" index={1} direction="right" className="order-1 lg:order-2 space-y-8">
               <div>
                 <span className="text-impact-green mb-2 block font-heading text-xs font-bold uppercase tracking-widest sm:text-sm">
                   WHO ARE WE?
@@ -139,26 +151,26 @@ export default async function AboutPage() {
       </section>
 
       {/* 3. WHAT WE DO? */}
-      <section id="what-we-do" className="bg-pure-white py-16 sm:py-20 md:py-24 border-b border-gray-100">
+      <section id="what-we-do" className="bg-gray-50/50 py-20 sm:py-28 md:py-32 relative border-b border-gray-100">
         <Container>
-          <div className="mb-12 md:mb-16">
-            <span className="text-impact-green mb-2 block font-heading text-xs font-bold uppercase tracking-widest sm:text-sm text-center">
+          <RevealCard as="div" index={0} className="mb-16 md:mb-24 max-w-2xl mx-auto text-center">
+            <span className="text-impact-green mb-3 block font-heading text-xs font-bold uppercase tracking-[0.2em] sm:text-sm">
               WHAT WE DO?
             </span>
-            <h2 className="text-udbhav-blue-deep font-heading text-3xl font-bold tracking-tight sm:text-4xl text-center">
+            <h2 className="text-udbhav-blue-deep font-heading text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
               Turning Ideas Into Meaningful Action
             </h2>
-          </div>
+          </RevealCard>
 
-          <div className="mb-12 md:mb-16 relative aspect-[21/9] w-full overflow-hidden rounded-2xl shadow-md hidden md:block">
+          <RevealCard as="div" index={1} direction="none" className="mb-16 md:mb-24 relative aspect-[21/9] w-full overflow-hidden rounded-3xl shadow-lg hidden md:block">
             <Image
               src={whatWeDoImg}
               alt={whatWeDoAlt}
               fill
-              className="object-cover object-center"
+              className="object-cover object-center transition-transform duration-1000 hover:scale-105"
               sizes="100vw"
             />
-          </div>
+          </RevealCard>
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {[
@@ -187,13 +199,15 @@ export default async function AboutPage() {
                 description: 'Creating opportunities for young people to participate, learn, contribute and create positive change.',
               },
             ].map((area, idx) => (
-              <RevealCard as="div" index={idx} key={area.title}>
-                <div className="border-soft-border/50 hover:border-impact-green/40 bg-pure-white group h-full rounded-xl border p-6 sm:p-8 transition-all hover:shadow-sm">
-                  <div className="bg-impact-green mb-5 h-1 w-12 rounded-full transition-all group-hover:w-16"></div>
-                  <h3 className="text-udbhav-blue-deep mb-3 font-heading text-lg font-bold">
+              <RevealCard as="div" index={idx + 2} key={area.title}>
+                <div className="group h-full bg-pure-white rounded-2xl border border-soft-border/50 p-8 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:border-impact-green/30">
+                  <div className="bg-impact-green/20 mb-6 h-12 w-12 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:bg-impact-green group-hover:scale-110">
+                    <div className="bg-impact-green h-2 w-2 rounded-full transition-all duration-300 group-hover:bg-white"></div>
+                  </div>
+                  <h3 className="text-udbhav-blue-deep mb-3 font-heading text-xl font-bold">
                     {area.title}
                   </h3>
-                  <p className="text-text-primary text-sm leading-relaxed sm:text-base">
+                  <p className="text-text-primary/80 text-sm leading-relaxed sm:text-base">
                     {area.description}
                   </p>
                 </div>
@@ -204,41 +218,53 @@ export default async function AboutPage() {
       </section>
 
       {/* 4. WHEN DID WE START? */}
-      <section id="when-did-we-start" className="bg-udbhav-blue-deep/5 py-16 sm:py-20 md:py-24 border-b border-gray-100">
-        <Container>
-          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
-            <RevealCard as="div" index={0} className="space-y-6">
-              <div>
-                <span className="text-impact-green mb-2 block font-heading text-xs font-bold uppercase tracking-widest sm:text-sm">
-                  WHEN DID WE START?
-                </span>
-                <h2 className="text-udbhav-blue-deep font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-                  Our Journey Began in 2020
-                </h2>
-              </div>
+      <section id="when-did-we-start" className="bg-pure-white py-20 sm:py-28 md:py-32 relative border-b border-gray-100 overflow-hidden">
+        {/* Soft curvy background decoration */}
+        <div className="bg-udbhav-blue-deep/5 pointer-events-none absolute -right-40 bottom-0 h-96 w-96 rounded-full blur-[100px]" />
 
-              <div className="mt-8 mb-6">
-                <div className="bg-udbhav-blue-deep text-pure-white inline-flex flex-col items-start rounded-xl px-8 py-6 shadow-md">
+        <Container className="relative z-10">
+          <RevealCard as="div" index={0} className="mb-16 md:mb-24 text-center max-w-2xl mx-auto">
+            <span className="text-impact-green mb-3 block font-heading text-xs font-bold uppercase tracking-[0.2em] sm:text-sm">
+              WHEN DID WE START?
+            </span>
+            <h2 className="text-udbhav-blue-deep font-heading text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+              Our Journey Began in 2020
+            </h2>
+          </RevealCard>
+
+          <div className="mx-auto max-w-4xl relative">
+            {/* Timeline vertical line */}
+            <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-0.5 bg-gray-200 transform md:-translate-x-1/2 rounded-full hidden sm:block"></div>
+
+            {/* Timeline Milestone 1 */}
+            <RevealCard as="div" index={1} direction="none" className="relative flex flex-col md:flex-row items-center justify-between w-full mb-16">
+              {/* Timeline dot */}
+              <div className="absolute left-8 md:left-1/2 w-5 h-5 bg-impact-green border-4 border-white rounded-full transform -translate-x-1/2 shadow z-10 hidden sm:block"></div>
+
+              <div className="w-full md:w-5/12 pl-16 sm:pl-20 md:pl-0 md:pr-16 text-left md:text-right mb-6 md:mb-0">
+                <div className="bg-udbhav-blue-deep text-pure-white inline-flex flex-col items-start md:items-end rounded-2xl px-8 py-6 shadow-xl transform transition-transform hover:-translate-y-2">
                   <span className="font-heading text-5xl font-black md:text-6xl tracking-tight">2020</span>
-                  <span className="text-impact-green mt-1 text-sm font-bold uppercase tracking-widest">Established</span>
+                  <span className="text-impact-green mt-2 text-sm font-bold uppercase tracking-widest">Established</span>
                 </div>
               </div>
 
-              <div className="text-text-primary text-base leading-relaxed sm:text-lg">
-                <p>
-                  UDBHAV Foundation began with a simple but profound belief: meaningful change begins by nurturing minds, empowering through education and protecting the environment we all share.
-                </p>
+              <div className="w-full md:w-5/12 pl-16 sm:pl-20 md:pl-16 text-left">
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                  <p className="text-text-primary text-base leading-relaxed sm:text-lg">
+                    UDBHAV Foundation began with a simple but profound belief: meaningful change begins by nurturing minds, empowering through education and protecting the environment we all share.
+                  </p>
+                </div>
               </div>
             </RevealCard>
 
-            <RevealCard as="div" index={1}>
-              <div className="relative aspect-square w-full max-w-[500px] mx-auto overflow-hidden rounded-full shadow-lg ring-4 ring-white">
+            <RevealCard as="div" index={2} direction="up" className="mt-12 md:mt-24">
+              <div className="relative aspect-[21/9] w-full max-w-4xl mx-auto overflow-hidden rounded-3xl shadow-xl ring-1 ring-black/5 group">
                 <Image
                   src={whenWeStartedImg}
                   alt={whenWeStartedAlt}
                   fill
-                  className="object-cover transition-transform duration-700 hover:scale-105"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
+                  sizes="(max-width: 1024px) 100vw, 80vw"
                 />
               </div>
             </RevealCard>
@@ -247,43 +273,95 @@ export default async function AboutPage() {
       </section>
 
       {/* 5. WHY OUR WORK MATTERS? */}
-      <section id="why-our-work-matters" className="bg-pure-white py-16 sm:py-20 md:py-24 border-b border-gray-100">
-        <Container>
-          <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-16 items-center">
-            <RevealCard as="div" index={0} className="lg:col-span-7">
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl shadow-lg ring-1 ring-black/5">
-                <Image
-                  src={whyWorkMattersImg}
-                  alt={whyWorkMattersAlt}
-                  fill
-                  className="object-cover transition-transform duration-700 hover:scale-105"
-                  sizes="(max-width: 1024px) 100vw, 60vw"
-                />
+      <section id="why-our-work-matters" className="bg-gray-50/50 py-20 sm:py-28 md:py-32 relative border-b border-gray-100 overflow-hidden">
+        {/* Abstract shape */}
+        <div className="bg-impact-green/5 pointer-events-none absolute left-0 top-1/2 h-[500px] w-[500px] -translate-y-1/2 -translate-x-1/2 rounded-full blur-[100px]" />
+
+        <Container className="relative z-10">
+          <div className="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-24 items-center">
+
+            <div className="space-y-12">
+              <RevealCard as="div" index={0} direction="left">
+                <span className="text-impact-green mb-3 block font-heading text-xs font-bold uppercase tracking-[0.2em] sm:text-sm">
+                  WHY OUR WORK MATTERS?
+                </span>
+                <h2 className="text-udbhav-blue-deep font-heading text-4xl font-bold tracking-tight sm:text-5xl leading-tight">
+                  Because Real Change Begins With People
+                </h2>
+              </RevealCard>
+
+              <RevealCard as="div" index={1} direction="left" className="border-l-4 border-impact-green pl-8 py-2">
+                <p className="text-udbhav-blue-deep text-xl font-medium sm:text-2xl leading-relaxed italic">
+                  "We are not just working for change — we are building a movement of purpose, compassion and action."
+                </p>
+              </RevealCard>
+            </div>
+
+            <div className="space-y-8">
+              <RevealCard as="div" index={2} direction="up">
+                <div className="bg-pure-white p-8 rounded-2xl shadow-md border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                  <h3 className="text-udbhav-blue-deep mb-3 font-heading text-xl font-bold">Interconnected Goals</h3>
+                  <p className="text-text-primary/80 text-base leading-relaxed sm:text-lg">
+                    UDBHAV's work matters because education, mental well-being, sustainability and inclusion cannot be treated as separate goals. They are interconnected.
+                  </p>
+                </div>
+              </RevealCard>
+
+              <RevealCard as="div" index={3} direction="up">
+                <div className="bg-pure-white p-8 rounded-2xl shadow-md border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                  <h3 className="text-udbhav-blue-deep mb-3 font-heading text-xl font-bold">Resilient Communities</h3>
+                  <p className="text-text-primary/80 text-base leading-relaxed sm:text-lg">
+                    When people have knowledge, opportunity, dignity and a healthy environment, communities become more aware, resilient and responsible.
+                  </p>
+                </div>
+              </RevealCard>
+
+              <RevealCard as="div" index={4} direction="up" className="mt-8">
+                <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl shadow-lg group">
+                  <Image
+                    src={whyWorkMattersImg}
+                    alt={whyWorkMattersAlt}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                  />
+                </div>
+              </RevealCard>
+            </div>
+          </div>
+        </Container>
+      </section>
+
+      {/* 6. VISION & MISSION */}
+      <section className="bg-pure-white py-20 sm:py-28 md:py-32 relative border-b border-gray-100 overflow-hidden">
+        <Container className="relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+            <RevealCard as="div" index={0} direction="left" className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-udbhav-blue-deep to-udbhav-blue-deep/90 p-10 sm:p-12 shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-impact-green/10 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2 transition-transform duration-700 group-hover:scale-150" />
+              <div className="relative z-10">
+                <div className="bg-impact-green/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-8 border border-impact-green/30">
+                  <div className="w-8 h-1 bg-impact-green rounded-full" />
+                </div>
+                <h3 className="text-pure-white mb-6 font-heading text-3xl font-bold tracking-tight">
+                  OUR VISION
+                </h3>
+                <p className="text-pure-white/90 text-lg sm:text-xl leading-relaxed font-light">
+                  We see mental well-being, knowledge, and sustainability as interconnected pillars of a thriving society. Building communities that are aware, resilient and responsible.
+                </p>
               </div>
             </RevealCard>
 
-            <RevealCard as="div" index={1} className="lg:col-span-5 space-y-6">
-              <div>
-                <span className="text-impact-green mb-2 block font-heading text-xs font-bold uppercase tracking-widest sm:text-sm">
-                  WHY OUR WORK MATTERS?
-                </span>
-                <h2 className="text-udbhav-blue-deep font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-                  Because Real Change Begins With People
-                </h2>
-              </div>
-
-              <div className="text-text-primary space-y-4 text-base leading-relaxed sm:text-lg">
-                <p>
-                  UDBHAV's work matters because education, mental well-being, sustainability and inclusion cannot be treated as separate goals. They are interconnected.
-                </p>
-                <p>
-                  When people have knowledge, opportunity, dignity and a healthy environment, communities become more aware, resilient and responsible.
-                </p>
-              </div>
-
-              <div className="mt-8 border-l-4 border-impact-green pl-6 py-2">
-                <p className="text-udbhav-blue-deep text-lg font-bold sm:text-xl">
-                  "We are not just working for change — we are building a movement of purpose, compassion and action."
+            <RevealCard as="div" index={1} direction="right" className="group relative overflow-hidden rounded-3xl bg-gradient-to-br from-impact-green to-[#3b7d19] p-10 sm:p-12 shadow-xl transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2 transition-transform duration-700 group-hover:scale-150" />
+              <div className="relative z-10">
+                <div className="bg-white/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-8 border border-white/30">
+                  <div className="w-8 h-1 bg-white rounded-full" />
+                </div>
+                <h3 className="text-pure-white mb-6 font-heading text-3xl font-bold tracking-tight">
+                  OUR MISSION
+                </h3>
+                <p className="text-pure-white/90 text-lg sm:text-xl leading-relaxed font-light">
+                  By focusing on inclusivity, compassion, and collective action, we aim to bridge gaps and create lasting impact at the grassroots level.
                 </p>
               </div>
             </RevealCard>
@@ -291,8 +369,8 @@ export default async function AboutPage() {
         </Container>
       </section>
 
-      {/* 6. FOUNDER MESSAGE */}
-      <section className="bg-gray-50 py-16 sm:py-20 md:py-24">
+      {/* 7. FOUNDER MESSAGE */}
+      <section className="bg-gray-50/50 py-20 sm:py-28 md:py-32">
         <Container>
           <div className="mx-auto max-w-4xl">
             <span className="text-impact-green mb-2 block text-center font-heading text-xs font-bold uppercase tracking-widest sm:text-sm">
@@ -302,15 +380,15 @@ export default async function AboutPage() {
               A Vision That Continues to Grow
             </h2>
 
-            <RevealCard as="div" index={0} className="bg-pure-white overflow-hidden rounded-2xl shadow-sm ring-1 ring-black/5">
+            <RevealCard as="div" index={0} direction="up" className="bg-pure-white overflow-hidden rounded-3xl shadow-lg ring-1 ring-black/5 transition-all duration-500 hover:shadow-xl hover:-translate-y-1 group">
               <div className="grid grid-cols-1 md:grid-cols-5">
-                <div className="bg-udbhav-blue-deep/10 relative min-h-[350px] md:col-span-2">
+                <div className="bg-udbhav-blue-deep/5 relative min-h-[400px] md:col-span-2 overflow-hidden">
                   {founderImage ? (
                     <Image
                       src={founderImage}
                       alt="Jaysuraj Pattanayak, Founder of Udbhav Foundation"
                       fill
-                      className="object-cover object-center"
+                      className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
                       sizes="(max-width: 768px) 100vw, 40vw"
                     />
                   ) : (
@@ -319,17 +397,18 @@ export default async function AboutPage() {
                     </div>
                   )}
                 </div>
-                <div className="flex flex-col justify-center p-8 md:col-span-3 md:p-10 lg:p-12">
-                  <h3 className="text-udbhav-blue-deep font-heading text-2xl font-bold">
+                <div className="flex flex-col justify-center p-8 md:col-span-3 md:p-12 lg:p-16">
+                  <h3 className="text-udbhav-blue-deep font-heading text-2xl font-bold md:text-3xl">
                     Jaysuraj Pattanayak
                   </h3>
-                  <p className="text-impact-green mt-1 text-sm font-bold uppercase tracking-wider">
+                  <p className="text-impact-green mt-2 text-sm font-bold uppercase tracking-widest">
                     Founder, Udbhav Foundation
                   </p>
 
-                  <div className="mt-8">
-                    <p className="text-text-primary text-lg font-medium leading-relaxed md:text-xl italic">
-                      "Real change begins when we nurture minds, empower through education, and protect the environment we all share."
+                  <div className="mt-8 relative">
+                    <div className="absolute -top-6 -left-4 text-6xl text-udbhav-blue-deep/5 font-serif">"</div>
+                    <p className="text-text-primary text-lg font-medium leading-relaxed md:text-xl italic relative z-10">
+                      Real change begins when we nurture minds, empower through education, and protect the environment we all share.
                     </p>
                   </div>
                 </div>
@@ -339,31 +418,35 @@ export default async function AboutPage() {
         </Container>
       </section>
 
-      {/* 10. CALL TO ACTION */}
-      <section className="bg-pure-white py-16 sm:py-20 md:py-24">
+      {/* 8. CALL TO ACTION */}
+      <section className="bg-pure-white py-20 sm:py-28 md:py-32">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-udbhav-blue-deep font-heading text-3xl font-bold sm:text-4xl">
-              Be Part of the Change
-            </h2>
-            <p className="text-text-primary mx-auto mt-6 text-base leading-relaxed sm:text-lg">
-              Whether through volunteering, learning, supporting an initiative or simply taking action in your community, every meaningful contribution can become part of a larger movement.
-            </p>
-            <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            <RevealCard as="div" index={0} direction="up">
+              <h2 className="text-udbhav-blue-deep font-heading text-3xl font-bold sm:text-4xl md:text-5xl tracking-tight">
+                Be Part of the Change
+              </h2>
+            </RevealCard>
+            <RevealCard as="div" index={1} direction="up">
+              <p className="text-text-primary/80 mx-auto mt-6 text-base leading-relaxed sm:text-lg md:text-xl">
+                Whether through volunteering, learning, supporting an initiative or simply taking action in your community, every meaningful contribution can become part of a larger movement.
+              </p>
+            </RevealCard>
+            <RevealCard as="div" index={2} direction="up" className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
               <Link
                 href="/volunteers"
-                className="bg-impact-green hover:bg-env-green inline-flex w-full items-center justify-center gap-2 rounded-lg px-8 py-3.5 text-sm font-semibold text-white shadow-sm transition-colors sm:w-auto"
+                className="bg-impact-green hover:bg-env-green group inline-flex w-full items-center justify-center gap-2 rounded-full px-8 py-4 text-sm md:text-base font-semibold text-white shadow-md transition-all hover:-translate-y-1 hover:shadow-lg sm:w-auto"
               >
                 Join as a Volunteer
-                <ArrowRight className="h-4 w-4" />
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
               <Link
                 href="/donate"
-                className="text-udbhav-blue-deep hover:bg-udbhav-blue-deep hover:text-pure-white inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 border-udbhav-blue-deep px-8 py-3.5 text-sm font-semibold transition-colors sm:w-auto"
+                className="text-udbhav-blue-deep hover:bg-udbhav-blue-deep hover:text-pure-white inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-udbhav-blue-deep px-8 py-4 text-sm md:text-base font-semibold transition-all hover:-translate-y-1 hover:shadow-md sm:w-auto"
               >
                 Support Our Mission
               </Link>
-            </div>
+            </RevealCard>
           </div>
         </Container>
       </section>
