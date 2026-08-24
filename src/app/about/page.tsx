@@ -41,6 +41,11 @@ export default async function AboutPage() {
   const whenWeStartedImg = getSettingUrl(publicSettings.about_when_we_started_image, '/hero/hero-08.png');
   const whenWeStartedAlt = getSettingAlt(publicSettings.about_when_we_started_image, 'UDBHAV early foundation community activity');
   const whyWorkMattersImg = getSettingUrl(publicSettings.about_why_work_matters_image, '/hero/hero-07.png');
+
+  let aboutHeroBgImage = getSettingUrl(publicSettings.about_hero_background_image, '');
+  if (aboutHeroBgImage.startsWith('"') && aboutHeroBgImage.endsWith('"')) {
+    aboutHeroBgImage = aboutHeroBgImage.substring(1, aboutHeroBgImage.length - 1);
+  }
   const whyWorkMattersAlt = getSettingAlt(publicSettings.about_why_work_matters_image, 'Volunteer and community connection');
 
   const jsonLd = {
@@ -70,12 +75,10 @@ export default async function AboutPage() {
       />
       {/* 1. ABOUT HERO */}
       <HeroParallax
-        className="py-20 sm:py-28 md:py-36"
-        style={{
-          background: 'linear-gradient(135deg, #171f69 0%, #202a7a 50%, #123f72 100%)',
-        }}
+        className="py-20 sm:py-28 md:py-36 bg-[#171f69]"
+        bgImage={aboutHeroBgImage || undefined}
       >
-        <Container>
+        <Container className="relative z-10">
           <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
 
             <RevealCard as="div" index={0} className="mb-6">
@@ -97,7 +100,7 @@ export default async function AboutPage() {
             </RevealCard>
 
             <RevealCard as="div" index={2}>
-              <p className="mt-6 text-lg text-white/80 sm:text-xl md:text-2xl max-w-2xl mx-auto font-light leading-relaxed">
+              <p className="mt-6 text-lg text-white/80 sm:text-xl md:text-2xl max-w-2xl mx-auto font-light leading-relaxed drop-shadow-sm">
                 Explore our story, work, journey and purpose.
               </p>
             </RevealCard>

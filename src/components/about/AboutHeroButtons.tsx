@@ -190,7 +190,9 @@ export function AboutHeroButtons() {
   );
 }
 
-export function HeroParallax({ children, className, style }: { children: React.ReactNode, className?: string, style?: React.CSSProperties }) {
+import Image from 'next/image';
+
+export function HeroParallax({ children, className, style, bgImage }: { children: React.ReactNode, className?: string, style?: React.CSSProperties, bgImage?: string }) {
   const [scrollY, setScrollY] = useState(0);
   const [reducedMotion, setReducedMotion] = useState(false);
 
@@ -224,21 +226,42 @@ export function HeroParallax({ children, className, style }: { children: React.R
       className={`relative w-full overflow-hidden border-b border-soft-border/40 ${className}`}
       style={style}
     >
+      {/* Background Layer */}
+      {bgImage ? (
+        <div className="absolute inset-0 z-0">
+          <Image
+            src={bgImage}
+            alt="About UDBHAV Foundation"
+            fill
+            className="object-cover"
+            priority
+          />
+          {/* Subtle dark/brand gradient overlay to maintain readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#123f72]/90 via-[#202a7a]/70 to-[#171f69]/80 mix-blend-multiply" />
+          <div className="absolute inset-0 bg-black/30" />
+        </div>
+      ) : (
+        <div
+          className="absolute inset-0 z-0"
+          style={{ background: 'linear-gradient(135deg, #171f69 0%, #202a7a 50%, #123f72 100%)' }}
+        />
+      )}
+
       {/* Animated Blobs */}
       <div
-        className="pointer-events-none absolute -top-32 left-0 h-[400px] w-[400px] rounded-full bg-teal-500/10 blur-[100px] mix-blend-overlay"
+        className="pointer-events-none absolute -top-32 left-0 h-[400px] w-[400px] rounded-full bg-teal-500/10 blur-[100px] mix-blend-overlay z-0"
         style={{ transform: reducedMotion ? 'none' : `translate(${scrollY * 0.1}px, ${scrollY * 0.2}px)` }}
       />
       <div
-        className="pointer-events-none absolute top-1/4 right-0 h-[500px] w-[500px] rounded-full bg-violet-600/10 blur-[120px] mix-blend-overlay"
+        className="pointer-events-none absolute top-1/4 right-0 h-[500px] w-[500px] rounded-full bg-violet-600/10 blur-[120px] mix-blend-overlay z-0"
         style={{ transform: reducedMotion ? 'none' : `translate(${-scrollY * 0.15}px, ${scrollY * 0.1}px)` }}
       />
       <div
-        className="pointer-events-none absolute -bottom-32 left-1/4 h-[400px] w-[400px] rounded-full bg-impact-green/10 blur-[100px] mix-blend-overlay"
+        className="pointer-events-none absolute -bottom-32 left-1/4 h-[400px] w-[400px] rounded-full bg-impact-green/10 blur-[100px] mix-blend-overlay z-0"
         style={{ transform: reducedMotion ? 'none' : `translate(${scrollY * 0.05}px, ${-scrollY * 0.1}px)` }}
       />
       <div
-        className="pointer-events-none absolute bottom-0 right-1/4 h-[300px] w-[300px] rounded-full bg-amber-500/10 blur-[90px] mix-blend-overlay"
+        className="pointer-events-none absolute bottom-0 right-1/4 h-[300px] w-[300px] rounded-full bg-amber-500/10 blur-[90px] mix-blend-overlay z-0"
         style={{ transform: reducedMotion ? 'none' : `translate(${-scrollY * 0.1}px, ${-scrollY * 0.2}px)` }}
       />
 

@@ -56,6 +56,8 @@ export function FoundationSeoSettings({ settings: initialSettings }: Props) {
     og_title: getVal('og_title'),
     og_desc: getVal('og_desc'),
     og_image: getVal('og_image'),
+
+    about_hero_background_image: getVal('about_hero_background_image'),
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -69,7 +71,7 @@ export function FoundationSeoSettings({ settings: initialSettings }: Props) {
 
         // Helper to format string for JSONB storage correctly
         const formatString = (val: string) => `"${val}"`;
-        
+
         updates.push(updateSettingByKey('foundation_name', formatString(formData.foundation_name)));
         updates.push(updateSettingByKey('foundation_tagline', formatString(formData.foundation_tagline)));
         updates.push(updateSettingByKey('contact_email', formatString(formData.contact_email)));
@@ -78,19 +80,21 @@ export function FoundationSeoSettings({ settings: initialSettings }: Props) {
         updates.push(updateSettingByKey('address_primary', formatString(formData.address_primary)));
         updates.push(updateSettingByKey('logo_primary', formatString(formData.logo_primary)));
         updates.push(updateSettingByKey('favicon', formatString(formData.favicon)));
-        
+
         updates.push(updateSettingByKey('seo_default_title', formatString(formData.seo_default_title)));
         updates.push(updateSettingByKey('seo_default_desc', formatString(formData.seo_default_desc)));
-        
+
         const topicsArray = formData.seo_search_topics.split(',').map((s: string) => s.trim()).filter(Boolean);
         updates.push(updateSettingByKey('seo_search_topics', topicsArray));
-        
+
         updates.push(updateSettingByKey('og_title', formatString(formData.og_title)));
         updates.push(updateSettingByKey('og_desc', formatString(formData.og_desc)));
         updates.push(updateSettingByKey('og_image', formatString(formData.og_image)));
 
+        updates.push(updateSettingByKey('about_hero_background_image', formatString(formData.about_hero_background_image)));
+
         await Promise.all(updates);
-        
+
         toast.success('Settings saved successfully');
       } catch (err: any) {
         toast.error(err.message || 'Failed to save settings');
@@ -135,12 +139,12 @@ export function FoundationSeoSettings({ settings: initialSettings }: Props) {
                   <img src={formData.logo_primary} alt="Logo" className="h-12 w-auto object-contain bg-gray-50 rounded" />
                 </div>
               )}
-              <ImageUploader 
+              <ImageUploader
                 onUploadComplete={(result: any) => {
                   const url = Array.isArray(result) ? result[0]?.url : result?.url;
                   if (url) setFormData(prev => ({ ...prev, logo_primary: url }));
-                }} 
-                folder="settings" 
+                }}
+                folder="settings"
               />
             </div>
             <div className="space-y-2">
@@ -150,12 +154,12 @@ export function FoundationSeoSettings({ settings: initialSettings }: Props) {
                   <img src={formData.favicon} alt="Favicon" className="h-8 w-8 object-contain bg-gray-50 rounded" />
                 </div>
               )}
-              <ImageUploader 
+              <ImageUploader
                 onUploadComplete={(result: any) => {
                   const url = Array.isArray(result) ? result[0]?.url : result?.url;
                   if (url) setFormData(prev => ({ ...prev, favicon: url }));
-                }} 
-                folder="settings" 
+                }}
+                folder="settings"
               />
             </div>
           </div>
@@ -218,14 +222,52 @@ export function FoundationSeoSettings({ settings: initialSettings }: Props) {
                   <img src={formData.og_image} alt="OG Image" className="h-32 w-auto object-cover bg-gray-50 rounded" />
                 </div>
               )}
-              <ImageUploader 
+              <ImageUploader
                 onUploadComplete={(result: any) => {
                   const url = Array.isArray(result) ? result[0]?.url : result?.url;
                   if (url) setFormData(prev => ({ ...prev, og_image: url }));
-                }} 
-                folder="settings" 
+                }}
+                folder="settings"
               />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* About Page Hero */}
+      <section className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
+        <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+          <h2 className="text-lg font-semibold text-gray-900">About Page Hero</h2>
+          <p className="text-sm text-gray-500 mt-1">Manage the background image displayed in the About page Hero section. Replace it whenever you want to update the appearance of the page.</p>
+        </div>
+        <div className="p-6 space-y-6">
+          <div className="space-y-2">
+            <Label>About Hero Background Image</Label>
+            <p className="text-xs text-gray-500 mb-2">Recommended size: 1920 × 900 px or larger.</p>
+            {formData.about_hero_background_image && (
+              <div className="mb-4">
+                <img src={formData.about_hero_background_image} alt="About Hero Background" className="h-48 w-full max-w-2xl object-cover bg-gray-50 rounded-lg shadow-sm" />
+              </div>
+            )}
+            <div className="max-w-2xl">
+              <ImageUploader
+                onUploadComplete={(result: any) => {
+                  const url = Array.isArray(result) ? result[0]?.url : result?.url;
+                  if (url) setFormData(prev => ({ ...prev, about_hero_background_image: url }));
+                }}
+                folder="settings"
+              />
+            </div>
+            {formData.about_hero_background_image && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={() => setFormData(prev => ({ ...prev, about_hero_background_image: '' }))}
+              >
+                Remove Image
+              </Button>
+            )}
           </div>
         </div>
       </section>
