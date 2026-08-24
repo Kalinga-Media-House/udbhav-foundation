@@ -104,7 +104,7 @@ export function FoundationSeoSettings({ settings: initialSettings }: Props) {
       <section className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
         <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
           <h2 className="text-lg font-semibold text-gray-900">Foundation Identity</h2>
-          <p className="text-sm text-gray-500 mt-1">Official branding and contact information.</p>
+          <p className="text-sm text-gray-500 mt-1">These details are used across the public website, contact information, branding and organization metadata. Update them here whenever the Foundation&apos;s official information changes.</p>
         </div>
         <div className="p-6 space-y-6">
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -172,19 +172,22 @@ export function FoundationSeoSettings({ settings: initialSettings }: Props) {
           <div className="space-y-2">
             <Label>SEO Site Title</Label>
             <Input name="seo_default_title" value={formData.seo_default_title} onChange={handleChange} />
+            <p className="text-xs text-gray-500">Used as the default search-engine title for the website.</p>
           </div>
           <div className="space-y-2">
             <Label>Meta Description</Label>
             <Textarea name="seo_default_desc" value={formData.seo_default_desc} onChange={handleChange} rows={3} />
+            <p className="text-xs text-gray-500">Used as the default description shown to search engines and when pages are shared.</p>
           </div>
           <div className="space-y-2">
             <Label>Search Topics (Comma separated)</Label>
             <Textarea name="seo_search_topics" value={formData.seo_search_topics} onChange={handleChange} rows={3} />
-            <p className="text-xs text-gray-500">Used for structured data to help search engines understand your foundation.</p>
+            <p className="text-xs text-gray-500">Describe the Foundation&apos;s main areas of work. Keep topics natural and relevant.</p>
           </div>
           <div className="space-y-2">
             <Label>Site URL</Label>
             <Input name="website_url" value={formData.website_url} onChange={handleChange} />
+            <p className="text-xs text-gray-500">Use the official public website URL.</p>
           </div>
         </div>
       </section>
@@ -208,7 +211,8 @@ export function FoundationSeoSettings({ settings: initialSettings }: Props) {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Social Sharing Image (1200 x 630)</Label>
+              <Label>Social Sharing Image</Label>
+              <p className="text-xs text-gray-500 mb-1">Recommended size: 1200 × 630 px.</p>
               {formData.og_image && (
                 <div className="mb-2">
                   <img src={formData.og_image} alt="OG Image" className="h-32 w-auto object-cover bg-gray-50 rounded" />
