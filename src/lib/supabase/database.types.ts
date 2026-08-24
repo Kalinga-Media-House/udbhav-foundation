@@ -2112,6 +2112,7 @@ export type Database = {
           id: string
           is_deleted: boolean
           is_featured: boolean
+          location: string
           metadata: Json | null
           news_id: string | null
           primary_taxonomy_id: string | null
@@ -2142,6 +2143,7 @@ export type Database = {
           id?: string
           is_deleted?: boolean
           is_featured?: boolean
+          location?: string
           metadata?: Json | null
           news_id?: string | null
           primary_taxonomy_id?: string | null
@@ -2172,6 +2174,7 @@ export type Database = {
           id?: string
           is_deleted?: boolean
           is_featured?: boolean
+          location?: string
           metadata?: Json | null
           news_id?: string | null
           primary_taxonomy_id?: string | null
@@ -2393,6 +2396,84 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      governing_body_members: {
+        Row: {
+          bio: string | null
+          created_at: string
+          created_by: string | null
+          designation: string
+          display_order: number
+          full_name: string
+          id: string
+          is_active: boolean
+          photo_url: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string
+          created_by?: string | null
+          designation: string
+          display_order?: number
+          full_name: string
+          id?: string
+          is_active?: boolean
+          photo_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string
+          created_by?: string | null
+          designation?: string
+          display_order?: number
+          full_name?: string
+          id?: string
+          is_active?: boolean
+          photo_url?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      hero_images: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          image_url: string
+          is_active: boolean
+          section: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          image_url: string
+          is_active?: boolean
+          section: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          image_url?: string
+          is_active?: boolean
+          section?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       index_initiative_gallery: {
         Row: {
@@ -2840,82 +2921,6 @@ export type Database = {
         }
         Relationships: []
       }
-
-      site_links: {
-        Row: {
-          id: string
-          slug: string
-          label: string
-          url: string
-          is_active: boolean
-          created_at: string
-          updated_at: string
-          created_by: string | null
-          updated_by: string | null
-        }
-        Insert: {
-          id?: string
-          slug: string
-          label: string
-          url: string
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-          created_by?: string | null
-          updated_by?: string | null
-        }
-        Update: {
-          id?: string
-          slug?: string
-          label?: string
-          url?: string
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-          created_by?: string | null
-          updated_by?: string | null
-        }
-        Relationships: []
-      }
-      partners: {
-        Row: {
-          id: string
-          name: string
-          logo_url: string | null
-          website_url: string | null
-          display_order: number
-          is_active: boolean
-          created_at: string
-          updated_at: string
-          created_by: string | null
-          updated_by: string | null
-        }
-        Insert: {
-          id?: string
-          name: string
-          logo_url?: string | null
-          website_url?: string | null
-          display_order?: number
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-          created_by?: string | null
-          updated_by?: string | null
-        }
-        Update: {
-          id?: string
-          name?: string
-          logo_url?: string | null
-          website_url?: string | null
-          display_order?: number
-          is_active?: boolean
-          created_at?: string
-          updated_at?: string
-          created_by?: string | null
-          updated_by?: string | null
-        }
-        Relationships: []
-      }
       news_articles: {
         Row: {
           allow_comments: boolean
@@ -2932,7 +2937,12 @@ export type Database = {
           deleted_at: string | null
           deleted_by: string | null
           editor_id: string | null
+          event_address: string | null
+          event_date: string | null
+          event_end_time: string | null
           event_id: string | null
+          event_location: string | null
+          event_start_time: string | null
           excerpt: string | null
           expires_at: string | null
           gallery_id: string | null
@@ -2945,6 +2955,7 @@ export type Database = {
           program_id: string | null
           published_at: string | null
           reading_time: number | null
+          registration_url: string | null
           reviewer_id: string | null
           scheduled_at: string | null
           search_vector: unknown
@@ -2974,7 +2985,12 @@ export type Database = {
           deleted_at?: string | null
           deleted_by?: string | null
           editor_id?: string | null
+          event_address?: string | null
+          event_date?: string | null
+          event_end_time?: string | null
           event_id?: string | null
+          event_location?: string | null
+          event_start_time?: string | null
           excerpt?: string | null
           expires_at?: string | null
           gallery_id?: string | null
@@ -2987,6 +3003,7 @@ export type Database = {
           program_id?: string | null
           published_at?: string | null
           reading_time?: number | null
+          registration_url?: string | null
           reviewer_id?: string | null
           scheduled_at?: string | null
           search_vector?: unknown
@@ -3016,7 +3033,12 @@ export type Database = {
           deleted_at?: string | null
           deleted_by?: string | null
           editor_id?: string | null
+          event_address?: string | null
+          event_date?: string | null
+          event_end_time?: string | null
           event_id?: string | null
+          event_location?: string | null
+          event_start_time?: string | null
           excerpt?: string | null
           expires_at?: string | null
           gallery_id?: string | null
@@ -3029,6 +3051,7 @@ export type Database = {
           program_id?: string | null
           published_at?: string | null
           reading_time?: number | null
+          registration_url?: string | null
           reviewer_id?: string | null
           scheduled_at?: string | null
           search_vector?: unknown
@@ -3467,6 +3490,45 @@ export type Database = {
           },
         ]
       }
+      partners: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          display_order: number
+          id: string
+          is_active: boolean
+          logo_url: string | null
+          name: string
+          updated_at: string
+          updated_by: string | null
+          website_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name: string
+          updated_at?: string
+          updated_by?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          display_order?: number
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name?: string
+          updated_at?: string
+          updated_by?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       payment_webhooks: {
         Row: {
           created_at: string
@@ -3556,6 +3618,98 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: []
+      }
+      podcast_episodes: {
+        Row: {
+          audio_url: string | null
+          created_at: string
+          created_by: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          description: string | null
+          duration: string | null
+          episode_number: string | null
+          excerpt: string | null
+          guest_name: string | null
+          guest_profile_photo_url: string | null
+          guest_role: string | null
+          id: string
+          is_deleted: boolean
+          is_featured: boolean
+          release_date: string | null
+          slug: string
+          status: Database["public"]["Enums"]["article_status"]
+          thumbnail_id: string | null
+          title: string
+          topics: string[] | null
+          updated_at: string
+          updated_by: string | null
+          visibility: Database["public"]["Enums"]["program_visibility"]
+          youtube_url: string | null
+        }
+        Insert: {
+          audio_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          description?: string | null
+          duration?: string | null
+          episode_number?: string | null
+          excerpt?: string | null
+          guest_name?: string | null
+          guest_profile_photo_url?: string | null
+          guest_role?: string | null
+          id?: string
+          is_deleted?: boolean
+          is_featured?: boolean
+          release_date?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["article_status"]
+          thumbnail_id?: string | null
+          title: string
+          topics?: string[] | null
+          updated_at?: string
+          updated_by?: string | null
+          visibility?: Database["public"]["Enums"]["program_visibility"]
+          youtube_url?: string | null
+        }
+        Update: {
+          audio_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          description?: string | null
+          duration?: string | null
+          episode_number?: string | null
+          excerpt?: string | null
+          guest_name?: string | null
+          guest_profile_photo_url?: string | null
+          guest_role?: string | null
+          id?: string
+          is_deleted?: boolean
+          is_featured?: boolean
+          release_date?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["article_status"]
+          thumbnail_id?: string | null
+          title?: string
+          topics?: string[] | null
+          updated_at?: string
+          updated_by?: string | null
+          visibility?: Database["public"]["Enums"]["program_visibility"]
+          youtube_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "podcast_episodes_thumbnail_id_fkey"
+            columns: ["thumbnail_id"]
+            isOneToOne: false
+            referencedRelation: "media_files"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -4345,6 +4499,66 @@ export type Database = {
         }
         Relationships: []
       }
+      site_links: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string
+          slug: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          slug: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          slug?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      site_social_links: {
+        Row: {
+          created_at: string
+          display_order: number
+          id: string
+          is_visible: boolean
+          platform: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_visible?: boolean
+          platform: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_visible?: boolean
+          platform?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       system_settings: {
         Row: {
           category: Database["public"]["Enums"]["setting_category"]
@@ -4695,6 +4909,84 @@ export type Database = {
           },
         ]
       }
+      volunteer_applications: {
+        Row: {
+          age: number | null
+          availability: string
+          blood_group: string | null
+          city_district: string
+          consent: boolean
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          is_publicly_visible: boolean
+          mobile_number: string
+          motivation: string
+          notes: string | null
+          occupation: string
+          preferred_areas: Json
+          profile_picture_url: string | null
+          public_bio: string | null
+          reviewed_at: string | null
+          skills: string | null
+          state: string
+          status: string
+          updated_at: string
+          volunteer_role: string | null
+        }
+        Insert: {
+          age?: number | null
+          availability: string
+          blood_group?: string | null
+          city_district: string
+          consent?: boolean
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          is_publicly_visible?: boolean
+          mobile_number: string
+          motivation: string
+          notes?: string | null
+          occupation: string
+          preferred_areas?: Json
+          profile_picture_url?: string | null
+          public_bio?: string | null
+          reviewed_at?: string | null
+          skills?: string | null
+          state: string
+          status?: string
+          updated_at?: string
+          volunteer_role?: string | null
+        }
+        Update: {
+          age?: number | null
+          availability?: string
+          blood_group?: string | null
+          city_district?: string
+          consent?: boolean
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          is_publicly_visible?: boolean
+          mobile_number?: string
+          motivation?: string
+          notes?: string | null
+          occupation?: string
+          preferred_areas?: Json
+          profile_picture_url?: string | null
+          public_bio?: string | null
+          reviewed_at?: string | null
+          skills?: string | null
+          state?: string
+          status?: string
+          updated_at?: string
+          volunteer_role?: string | null
+        }
+        Relationships: []
+      }
       volunteer_availability: {
         Row: {
           available_weekdays: number[] | null
@@ -5007,6 +5299,7 @@ export type Database = {
       }
       volunteers: {
         Row: {
+          application_id: string | null
           background_verification_date: string | null
           biography: string | null
           blood_group: string | null
@@ -5020,12 +5313,13 @@ export type Database = {
           experience_years: number | null
           id: string
           is_deleted: boolean
+          is_publicly_visible: boolean
           languages: string[] | null
           metadata: Json | null
           onboarding_date: string | null
           photo_id: string | null
           preferred_locations: string[] | null
-          profile_id: string
+          profile_id: string | null
           skills_summary: string | null
           status: Database["public"]["Enums"]["volunteer_status"]
           updated_at: string
@@ -5034,6 +5328,7 @@ export type Database = {
           volunteer_code: string
         }
         Insert: {
+          application_id?: string | null
           background_verification_date?: string | null
           biography?: string | null
           blood_group?: string | null
@@ -5047,12 +5342,13 @@ export type Database = {
           experience_years?: number | null
           id?: string
           is_deleted?: boolean
+          is_publicly_visible?: boolean
           languages?: string[] | null
           metadata?: Json | null
           onboarding_date?: string | null
           photo_id?: string | null
           preferred_locations?: string[] | null
-          profile_id: string
+          profile_id?: string | null
           skills_summary?: string | null
           status?: Database["public"]["Enums"]["volunteer_status"]
           updated_at?: string
@@ -5061,6 +5357,7 @@ export type Database = {
           volunteer_code: string
         }
         Update: {
+          application_id?: string | null
           background_verification_date?: string | null
           biography?: string | null
           blood_group?: string | null
@@ -5074,12 +5371,13 @@ export type Database = {
           experience_years?: number | null
           id?: string
           is_deleted?: boolean
+          is_publicly_visible?: boolean
           languages?: string[] | null
           metadata?: Json | null
           onboarding_date?: string | null
           photo_id?: string | null
           preferred_locations?: string[] | null
-          profile_id?: string
+          profile_id?: string | null
           skills_summary?: string | null
           status?: Database["public"]["Enums"]["volunteer_status"]
           updated_at?: string
@@ -5088,6 +5386,13 @@ export type Database = {
           volunteer_code?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "volunteers_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "volunteer_applications"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "volunteers_photo_id_fkey"
             columns: ["photo_id"]
@@ -5658,6 +5963,7 @@ export type Database = {
         | "Campaign"
         | "Report"
         | "General"
+        | "Event"
       attendance_status: "present" | "absent" | "late" | "excused"
       availability_shift:
         | "Morning"
@@ -6165,6 +6471,7 @@ export const Constants = {
         "Campaign",
         "Report",
         "General",
+        "Event",
       ],
       attendance_status: ["present", "absent", "late", "excused"],
       availability_shift: [

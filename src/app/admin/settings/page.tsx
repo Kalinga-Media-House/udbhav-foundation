@@ -2,7 +2,7 @@ import { ShieldCheck, PlayCircle, Info, Building, Link2, Search } from 'lucide-r
 import Link from 'next/link';
 import React from 'react';
 
-import { DynamicSettingsForm } from '@/components/admin/settings/DynamicSettingsForm';
+import { FoundationSeoSettings } from '@/components/admin/settings/FoundationSeoSettings';
 import { SecuritySettings } from '@/components/admin/settings/SecuritySettings';
 import { SocialMediaSettings } from '@/components/admin/settings/SocialMediaSettings';
 import { YouTubeSettings } from '@/components/admin/settings/YouTubeSettings';
@@ -53,19 +53,13 @@ export default async function AdminSettingsPage({ searchParams }: Props) {
               href="?section=foundation"
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${section === 'foundation' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
             >
-              <Building className="h-4 w-4" /> Foundation
+              <Building className="h-4 w-4" /> Foundation & SEO
             </Link>
             <Link
               href="?section=social"
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${section === 'social' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
             >
               <Link2 className={`h-4 w-4 ${section === 'social' ? 'text-indigo-700' : 'text-gray-400'}`} /> Social Links
-            </Link>
-            <Link
-              href="?section=seo"
-              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${section === 'seo' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
-            >
-              <Search className={`h-4 w-4 ${section === 'seo' ? 'text-indigo-700' : 'text-gray-400'}`} /> SEO
             </Link>
             <Link
               href="?section=security"
@@ -87,39 +81,7 @@ export default async function AdminSettingsPage({ searchParams }: Props) {
           {section === 'youtube' && <YouTubeSettings initialData={youtubeSetting} />}
           {section === 'social' && <SocialMediaSettings initialLinks={socialLinks} />}
           {section === 'foundation' && (
-            <DynamicSettingsForm 
-              title="Foundation Details" 
-              description="Basic organization information displayed publicly."
-              settings={settings.filter(s => 
-                (s.category === 'General' || s.category === 'Contact') && 
-                s.key_name !== 'default_language' && 
-                s.key_name !== 'default_timezone'
-              )} 
-            />
-          )}
-          {section === 'seo' && (
-            <>
-              <DynamicSettingsForm 
-                title="SEO Preferences" 
-                settings={settings.filter(s => s.category === 'SEO')} 
-              />
-              <section className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm">
-                <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-                  <h2 className="text-lg font-semibold text-gray-900">Analytics</h2>
-                </div>
-                <div className="p-6">
-                  <div className="flex gap-4 items-start rounded-md bg-blue-50 p-4 border border-blue-100">
-                    <Info className="w-5 h-5 text-blue-600 mt-0.5 shrink-0" />
-                    <div>
-                      <h3 className="text-sm font-medium text-blue-900">Vercel Analytics is Active</h3>
-                      <p className="mt-1 text-sm text-blue-700">
-                        This project is currently using Vercel Analytics for privacy-friendly web vitals and visitor tracking. Google Analytics integration is disabled.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </section>
-            </>
+            <FoundationSeoSettings settings={settings} />
           )}
           {section === 'security' && <SecuritySettings />}
         </div>

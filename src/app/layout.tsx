@@ -8,6 +8,7 @@ import { Header } from '@/components/layout/Header';
 import { APPLICATION } from '@/constants/application';
 import { METADATA } from '@/constants/metadata';
 import { systemSettingsRepository } from '@/features/system_settings/repository';
+import { socialLinksRepository } from '@/features/social-links/repository';
 import { RootProviders } from '@/providers';
 import './globals.css';
 
@@ -25,9 +26,14 @@ export const viewport: Viewport = {
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await systemSettingsRepository.getPublicSettings();
-  
+
   const siteTitle = settings.seo_default_title || METADATA.DEFAULT_TITLE;
   const siteDesc = settings.seo_default_desc || METADATA.DEFAULT_DESCRIPTION;
+  const ogTitle = settings.og_title || siteTitle;
+  const ogDesc = settings.og_desc || siteDesc;
+  const ogImage = settings.og_image || '/images/default-og.jpg'; // or standard
+  const canonicalUrl = settings.website_url || METADATA.BASE_URL;
+  const foundationName = settings.foundation_name || APPLICATION.BRAND_NAME;
 
   return {
     title: {
@@ -35,24 +41,29 @@ export async function generateMetadata(): Promise<Metadata> {
       template: METADATA.TITLE_TEMPLATE,
     },
     description: siteDesc,
-    applicationName: APPLICATION.BRAND_NAME,
+    applicationName: foundationName,
     openGraph: {
       type: 'website',
       locale: 'en_IN',
-      url: METADATA.BASE_URL,
-      siteName: APPLICATION.BRAND_NAME,
-      title: siteTitle,
-      description: siteDesc,
+      url: canonicalUrl,
+      siteName: foundationName,
+      title: ogTitle,
+      description: ogDesc,
+      images: ogImage ? [{ url: ogImage }] : undefined,
     },
     twitter: {
       card: 'summary_large_image',
-      title: siteTitle,
-      description: siteDesc,
+      title: ogTitle,
+      description: ogDesc,
+      images: ogImage ? [ogImage] : undefined,
     },
     icons: {
-      icon: '/icon.svg',
+      icon: settings.favicon || '/icon.svg',
     },
-    metadataBase: new URL(METADATA.BASE_URL),
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    metadataBase: new URL(canonicalUrl),
   };
 }
 
@@ -64,9 +75,41 @@ export default async function RootLayout({
   const settings = await systemSettingsRepository.getPublicSettings();
   const contactPhone = settings.contact_phone || '+91 63705 08606';
   const contactEmail = settings.contact_email || 'admin@udbhavfoundation.in';
-  
+
+  const activeSocialLinks = await socialLinksRepository.getActiveLinks();
+  const socialUrls = activeSocialLinks.map(link => link.url);
+
+  let knowsAbout;
+  try {
+    if (settings.seo_search_topics) {
+      knowsAbout = typeof settings.seo_search_topics === 'string' ? JSON.parse(settings.seo_search_topics) : settings.seo_search_topics;
+    }
+  } catch (e) {
+    // fallback
+  }
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'NGO',
+    name: settings.foundation_name || APPLICATION.BRAND_NAME,
+    alternateName: settings.foundation_tagline || undefined,
+    url: settings.website_url || METADATA.BASE_URL,
+    logo: settings.logo_primary || `${METADATA.BASE_URL}/icon.svg`,
+    email: contactEmail,
+    telephone: contactPhone,
+    address: settings.address_primary || undefined,
+    sameAs: socialUrls.length > 0 ? socialUrls : undefined,
+    knowsAbout: knowsAbout,
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className={`${inter.variable} min-h-screen bg-background font-sans antialiased`}>
         <a
           href="#main-content"

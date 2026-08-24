@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use server';
 
-import { revalidateTag } from 'next/cache';
+import { revalidateTag, revalidatePath } from 'next/cache';
 
 import { handleAction, requireAuth, requirePermission } from '@/contracts/actions';
 import type { ActionResult } from '@/contracts/actions';
@@ -36,6 +36,7 @@ export async function updateSettingByKey(key_name: string, value: any): Promise<
     const result = await systemSettingsService.updateSettingByKey(key_name, value, session.id);
     if (!result.success) throw new Error(result.error ?? 'Failed to update setting');
     revalidateTag('system_settings');
+    revalidatePath('/', 'layout');
     return result.data!;
   });
 }
