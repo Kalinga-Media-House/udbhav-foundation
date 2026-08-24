@@ -7,7 +7,7 @@ import { podcastRepository } from '@/features/podcasts/repository';
 import { siteLinksRepository } from '@/features/site-links/repository';
 
 export const metadata: Metadata = {
-  title: 'Podcast | UDBHAV FOUNDATION',
+  title: 'Podcast',
   description: 'Listen to conversations, experiences and inspiring stories from the UDBHAV community.',
 };
 
@@ -24,5 +24,10 @@ export default async function PodcastPage() {
 
   const podcasts = result.data || [];
 
-  return <PodcastHub initialPodcasts={podcasts as any[]} youtubeUrl={youtubeSetting?.url} />;
+  return (
+    <>
+      <h1 className="sr-only">UDBHAV Foundation Podcast</h1>
+      <PodcastHub initialPodcasts={podcasts as any[]} youtubeUrl={youtubeSetting?.url} />
+    </>
+  );
 }

@@ -4,12 +4,13 @@ import Link from 'next/link';
 import { ChevronRight, ArrowRight, User } from 'lucide-react';
 
 import { Container } from '@/components/shared/Container';
+import { METADATA } from '@/constants/metadata';
 import { RevealCard } from '@/components/shared/RevealCard';
 import { getActiveGoverningBodyMembers } from '@/features/governing-body/repository';
 import { systemSettingsRepository } from '@/features/system_settings/repository';
 
 export const metadata: Metadata = {
-  title: 'About Us — UDBHAV Foundation',
+  title: 'About Us',
   description:
     'A community-rooted foundation working through education, inclusion, environmental responsibility, mental well-being and collective action.',
 };
@@ -41,8 +42,31 @@ export default async function AboutPage() {
   const whyWorkMattersImg = getSettingUrl(publicSettings.about_why_work_matters_image, '/hero/hero-07.png');
   const whyWorkMattersAlt = getSettingAlt(publicSettings.about_why_work_matters_image, 'Volunteer and community connection');
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: METADATA.BASE_URL,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'About Us',
+        item: `${METADATA.BASE_URL}/about`,
+      },
+    ],
+  };
+
   return (
     <div className="bg-pure-white w-full overflow-hidden">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* 1. ABOUT HERO */}
       <section
         aria-labelledby="about-hero-heading"

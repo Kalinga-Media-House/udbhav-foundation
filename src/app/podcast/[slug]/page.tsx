@@ -83,8 +83,27 @@ export default async function PodcastEpisodePage({ params }: PageProps) {
   const formattedDate = podcast.release_date ? format(new Date(podcast.release_date), "MMMM d, yyyy") : "";
   const shareDesc = podcast.excerpt || podcast.description || "Check out this podcast episode.";
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'PodcastEpisode',
+    name: podcast.title,
+    description: podcast.excerpt || podcast.description,
+    url: `https://udbhavfoundation.in/podcast/${slug}`,
+    datePublished: podcast.release_date,
+    timeRequired: podcast.duration,
+    partOfSeries: {
+      '@type': 'PodcastSeries',
+      name: 'UDBHAV Podcast',
+      url: 'https://udbhavfoundation.in/podcast'
+    }
+  };
+
   return (
     <div className="bg-[#F8FAF7] min-h-screen pb-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* 1. Header Area with Back button */}
       <div className="bg-[#20256F] pt-8 pb-32">
         <Container>

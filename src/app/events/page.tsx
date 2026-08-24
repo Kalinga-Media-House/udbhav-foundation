@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { listEvents } from '@/features/events/actions';
 
 export const metadata: Metadata = {
-  title: 'Events & Workshops | UDBHAV FOUNDATION',
-  description: 'Join UDBHAV Foundation events, workshops, and community programs.',
+  title: 'Events & Workshops',
+  description: 'Join UDBHAV Foundation events, workshops and community programmes.',
 };
 
 export const dynamic = 'force-dynamic';

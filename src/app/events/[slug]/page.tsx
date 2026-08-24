@@ -20,6 +20,8 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   };
 }
 
+import { METADATA } from '@/constants/metadata';
+
 export default async function EventDetailPage(props: { params: Promise<{ slug: string }> }) {
   const params = await props.params;
   const result = await getEventBySlug(params.slug);
@@ -31,8 +33,40 @@ export default async function EventDetailPage(props: { params: Promise<{ slug: s
   const evt = result.data;
   const meta = (evt.metadata as Record<string, any>) || {};
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: evt.title,
+    description: evt.description || evt.subtitle || 'UDBHAV Foundation Event',
+    startDate: evt.start_time,
+    endDate: evt.end_time || evt.start_time,
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    eventStatus: 'https://schema.org/EventScheduled',
+    location: {
+      '@type': 'Place',
+      name: evt.venue_name || 'UDBHAV Foundation',
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: evt.address_line1 || '',
+        addressLocality: evt.city || '',
+        addressRegion: evt.state || '',
+        postalCode: evt.postal_code || '',
+        addressCountry: evt.country || 'IN',
+      }
+    },
+    organizer: {
+      '@type': 'Organization',
+      name: 'UDBHAV Foundation',
+      url: METADATA.BASE_URL,
+    }
+  };
+
   return (
     <main className="min-h-screen bg-[#FCFCF8] pt-24 pb-16 px-4 md:px-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <article className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         {/* Cover Image Placeholder */}
         <div className="h-64 md:h-96 bg-gray-100 w-full relative">

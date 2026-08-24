@@ -14,6 +14,7 @@ import React from 'react';
 
 import { ArticleShareButton } from '@/components/news-and-stories/ArticleShareButton';
 import { Container } from '@/components/shared/Container';
+import { METADATA } from '@/constants/metadata';
 import { getArticleBySlug } from '@/features/news/actions';
 
 export const dynamic = 'force-dynamic';
@@ -33,7 +34,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   }
 
-  const siteUrl = 'https://udbhavfoundation.org';
+  const siteUrl = METADATA.BASE_URL;
   const seoTitle = ((article.metadata || {}) as Record<string, unknown>).seo_title as string || `${article.title} | UDBHAV FOUNDATION`;
   const seoDesc = ((article.metadata || {}) as Record<string, unknown>).seo_description as string || article.summary || article.subtitle || 'Read this story on UDBHAV FOUNDATION.';
   
@@ -103,7 +104,7 @@ export default async function NewsArticlePage({ params }: PageProps) {
     publisher: {
       '@type': 'Organization',
       name: 'UDBHAV Foundation',
-      url: 'https://udbhavfoundation.org',
+      url: METADATA.BASE_URL,
     },
     ...(isEvent && article.event_date ? {
       startDate: `${article.event_date}T${article.event_start_time || '00:00:00'}`,

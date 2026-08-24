@@ -5,13 +5,29 @@ import { DonationForm } from "@/components/donations/DonationForm";
 import { Container } from "@/components/shared/Container";
 
 export const metadata: Metadata = {
-  title: "Donate | UDBHAV Foundation",
-  description: "Make a contribution to support our mission.",
+  title: "Support UDBHAV Foundation",
+  description: "Support UDBHAV Foundation's work for education, environmental responsibility, mental well-being and inclusive community development.",
 };
 
+import { METADATA } from '@/constants/metadata';
+
 export default function DonatePage() {
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'DonateAction',
+    recipient: {
+      '@type': 'NGO',
+      name: 'UDBHAV Foundation',
+      url: METADATA.BASE_URL,
+    }
+  };
+
   return (
     <main className="min-h-screen bg-gray-50/50">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-gradient-to-br from-[#172B6B] via-[#101F55] to-[#12245F] text-white pt-20 pb-40 lg:pt-28 lg:pb-48">
         <div className="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none">

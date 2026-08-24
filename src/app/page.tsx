@@ -1,5 +1,13 @@
+import type { Metadata } from 'next';
 import React from 'react';
 
+export const metadata: Metadata = {
+  title: { absolute: 'UDBHAV Foundation | Growing Together for an Inclusive Future' },
+  description: 'UDBHAV Foundation works to build inclusive and resilient communities through education, mental well-being, environmental responsibility and collective action.',
+  alternates: {
+    canonical: '/',
+  },
+};
 import { GoverningBodySection } from '@/components/home/GoverningBodySection';
 import { HeroCarousel } from '@/components/home/HeroCarousel';
 import { OurMomentsGallerySection } from '@/components/home/OurMomentsGallerySection';

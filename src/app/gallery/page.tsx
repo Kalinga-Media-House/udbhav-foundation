@@ -2,23 +2,24 @@ import type { Metadata } from "next";
 
 import { GalleryHeroSection } from "@/components/gallery/GalleryHeroSection";
 import { PhotoGridSection } from "@/components/gallery/PhotoGridSection";
+import { METADATA } from "@/constants/metadata";
 import { listPublicPhotosAction, getPublicGalleryFiltersAction, getRandomPublicPhotosAction } from "@/features/gallery/actions";
 import type { PublicGallerySort } from "@/features/gallery/repository";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Impact Gallery | UDBHAV Foundation",
+  title: "Gallery",
   description:
-    "Explore authentic visual moments and photographic records from UDBHAV Foundation's programmes and community initiatives across Odisha.",
+    "Explore moments from UDBHAV Foundation programmes, community initiatives, events and volunteer activities.",
   alternates: {
-    canonical: "https://udbhavfoundation.org/gallery",
+    canonical: `${METADATA.BASE_URL}/gallery`,
   },
   openGraph: {
-    title: "Impact Gallery | UDBHAV Foundation",
+    title: "Gallery",
     description:
-      "Explore authentic visual moments and photographic records from UDBHAV Foundation's programmes and community initiatives across Odisha.",
-    url: "https://udbhavfoundation.org/gallery",
+      "Explore moments from UDBHAV Foundation programmes, community initiatives, events and volunteer activities.",
+    url: `${METADATA.BASE_URL}/gallery`,
     siteName: "UDBHAV Foundation",
     locale: "en_IN",
     type: "website",
@@ -52,6 +53,7 @@ export default async function GalleryPage({ searchParams }: { searchParams: Sear
 
   return (
     <>
+      <h1 className="sr-only">Impact Gallery of UDBHAV Foundation</h1>
       <GalleryHeroSection heroPhotos={heroPhotos} />
       <PhotoGridSection 
         initialPhotos={photosData.data} 

@@ -6,13 +6,11 @@ import { IndexHeroSection } from '@/components/index/IndexHeroSection';
 import { listIndexInitiatives } from '@/features/index/actions';
 
 export const metadata: Metadata = {
-  title: 'Programs & Initiatives Archive | UDBHAV FOUNDATION',
-  description:
-    'Explore UDBHAV Foundation’s documented historical archive of community action initiatives advancing education, health, inclusion, environmental responsibility, and social empowerment.',
+  title: 'Community Impact & Initiatives',
+  description: 'Explore UDBHAV Foundation community action initiatives advancing education, inclusion, environmental responsibility and social empowerment.',
   openGraph: {
-    title: 'Programs & Initiatives Archive | UDBHAV FOUNDATION',
-    description:
-      'Explore UDBHAV Foundation’s documented historical archive of community action initiatives advancing education, health, inclusion, environmental responsibility, and social empowerment.',
+    title: 'Community Impact & Initiatives',
+    description: 'Explore UDBHAV Foundation community action initiatives advancing education, inclusion, environmental responsibility and social empowerment.',
     url: 'https://udbhavfoundation.org/index',
     type: 'website',
     images: ['/hero/hero-01.png'],

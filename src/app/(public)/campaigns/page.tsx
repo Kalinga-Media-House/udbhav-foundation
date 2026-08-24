@@ -5,8 +5,8 @@ import { CampaignCard } from "@/components/donations/CampaignCard";
 import { Container } from "@/components/shared/Container";
 
 export const metadata: Metadata = {
-  title: "Campaigns | UDBHAV Foundation",
-  description: "Explore our active campaigns and make a difference today.",
+  title: "Campaigns",
+  description: "Explore active UDBHAV Foundation campaigns and make a difference.",
 };
 
 const CAMPAIGNS = [

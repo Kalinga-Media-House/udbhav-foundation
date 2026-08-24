@@ -9,9 +9,8 @@ import { listPrograms } from '@/features/programs/actions';
 import type { IndexProgrammeDetail, ProgrammeCategory } from '@/types/index-programme';
 
 export const metadata: Metadata = {
-  title: 'Programmes & Initiatives Index | UDBHAV FOUNDATION',
-  description:
-    'Explore UDBHAV Foundation’s 11 official community action programmes advancing education, environmental responsibility, health, inclusion, awareness, and community empowerment across Odisha.',
+  title: 'Programmes & Initiatives',
+  description: 'Explore UDBHAV Foundation programmes supporting education, youth development, environmental responsibility, community empowerment and collective action.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -73,6 +72,7 @@ export default async function IndexPage() {
 
   return (
     <main className="min-h-screen bg-white selection:bg-[#172B6B] selection:text-white">
+      <h1 className="sr-only">Programmes & Initiatives of UDBHAV Foundation</h1>
       <IndexHeroSection heroImages={heroImages} />
       <ProgrammeDirectorySection programmes={mappedProgrammes} />
       <CollectiveImpactSection />

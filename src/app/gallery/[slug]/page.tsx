@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 
 import { AlbumDetailClient } from '@/components/gallery/AlbumDetailClient';
+import { METADATA } from '@/constants/metadata';
 import { getAlbumBySlug, listAlbumItems } from '@/features/gallery/actions';
 import type { GalleryPhoto } from '@/types/gallery';
 
@@ -22,12 +23,12 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
     title: `${album.title} | Impact Gallery | UDBHAV Foundation`,
     description: album.description || `Explore photos from ${album.title} at UDBHAV Foundation.`,
     alternates: {
-      canonical: `https://udbhavfoundation.org/gallery/${album.slug}`,
+      canonical: `${METADATA.BASE_URL}/gallery/${album.slug}`,
     },
     openGraph: {
       title: `${album.title} | Impact Gallery | UDBHAV Foundation`,
       description: album.description || `Explore photos from ${album.title} at UDBHAV Foundation.`,
-      url: `https://udbhavfoundation.org/gallery/${album.slug}`,
+      url: `${METADATA.BASE_URL}/gallery/${album.slug}`,
       siteName: 'UDBHAV Foundation',
       locale: 'en_IN',
       type: 'article',

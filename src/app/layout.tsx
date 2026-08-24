@@ -88,19 +88,23 @@ export default async function RootLayout({
     // fallback
   }
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'NGO',
-    name: settings.foundation_name || APPLICATION.BRAND_NAME,
-    alternateName: settings.foundation_tagline || undefined,
-    url: settings.website_url || METADATA.BASE_URL,
-    logo: settings.logo_primary || `${METADATA.BASE_URL}/icon.svg`,
-    email: contactEmail,
-    telephone: contactPhone,
-    address: settings.address_primary || undefined,
-    sameAs: socialUrls.length > 0 ? socialUrls : undefined,
-    knowsAbout: knowsAbout,
-  };
+  const jsonLd = Object.fromEntries(
+    Object.entries({
+      '@context': 'https://schema.org',
+      '@type': 'NGO',
+      name: settings.foundation_name || APPLICATION.BRAND_NAME,
+      alternateName: settings.foundation_tagline || undefined,
+      description: settings.seo_default_desc || APPLICATION.DESCRIPTION,
+      url: settings.website_url || METADATA.BASE_URL,
+      logo: settings.logo_primary || `${METADATA.BASE_URL}/icon.svg`,
+      email: contactEmail,
+      telephone: contactPhone,
+      address: settings.address_primary || undefined,
+      foundingDate: '2020',
+      sameAs: socialUrls.length > 0 ? socialUrls : undefined,
+      knowsAbout: knowsAbout,
+    }).filter(([, v]) => v !== undefined && v !== null)
+  );
 
   return (
     <html lang="en" suppressHydrationWarning>

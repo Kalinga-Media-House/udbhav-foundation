@@ -9,14 +9,11 @@ import { listPublicPodcasts } from '@/features/podcasts/actions';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title:
-    'News, Stories & UDBHAV Podcast | UDBHAV FOUNDATION — Stories That Inspire. Actions That Create Change.',
-  description:
-    'Stay connected with UDBHAV FOUNDATION through upcoming community events, daily grassroots programme updates across 11 Index Programmes, inspiring transformation stories, and our official UDBHAV Podcast.',
+  title: 'News & Stories',
+  description: 'Read the latest UDBHAV Foundation news, community stories, events and updates from our initiatives and programmes.',
   openGraph: {
-    title: 'News, Stories & UDBHAV Podcast | UDBHAV FOUNDATION',
-    description:
-      'Explore stories of hope, grassroots action across Odisha, community impact updates, and conversations with young changemakers on the UDBHAV Podcast.',
+    title: 'News & Stories',
+    description: 'Read the latest UDBHAV Foundation news, community stories, events and updates from our initiatives and programmes.',
     type: 'website',
   },
 };
@@ -53,6 +50,7 @@ export default async function NewsAndStoriesPage() {
 
   return (
     <main className="min-h-screen bg-pure-white flex flex-col">
+      <h1 className="sr-only">News, Stories & UDBHAV Podcast</h1>
       <NewsAndStoriesHub articles={articles} podcasts={podcasts} />
     </main>
   );

@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: "Volunteer Dashboard | UDBHAV Foundation",
   description:
     "Personal volunteer portal to track hours, assignments, and certificates.",
+  robots: { index: false, follow: false },
 };
 
 export default async function VolunteerDashboardPage() {

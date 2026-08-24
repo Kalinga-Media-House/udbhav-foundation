@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import React from "react";
 
 import { ProgrammeDetailView } from "@/components/index-page/ProgrammeDetailView";
+import { METADATA } from "@/constants/metadata";
 import { listPublicPhotosAction } from "@/features/gallery/actions";
 import type { AdminPhotoItem } from "@/features/gallery/repository";
 import { getProgramBySlug, listPrograms } from "@/features/programs/actions";
@@ -46,10 +47,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title,
       description,
       images: [coverImage],
-      url: `https://udbhavfoundation.org/programmes/${slug}`,
+      url: `${METADATA.BASE_URL}/programmes/${slug}`,
     },
     alternates: {
-      canonical: `https://udbhavfoundation.org/programmes/${slug}`,
+      canonical: `${METADATA.BASE_URL}/programmes/${slug}`,
     },
   };
 }
@@ -172,11 +173,42 @@ export default async function ProgrammeDetailPage({ params }: PageProps) {
     // Ignore error for related programs
   }
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Home',
+        item: METADATA.BASE_URL,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Programmes & Initiatives',
+        item: `${METADATA.BASE_URL}/programmes`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: programme.title,
+        item: `${METADATA.BASE_URL}/programmes/${programme.slug}`,
+      },
+    ],
+  };
+
   return (
-    <ProgrammeDetailView
-      programme={programme}
-      photos={photos}
-      relatedProgrammes={relatedProgrammes}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <ProgrammeDetailView
+        programme={programme}
+        photos={photos}
+        relatedProgrammes={relatedProgrammes}
+      />
+    </>
   );
 }

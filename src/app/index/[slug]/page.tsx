@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import React from 'react';
 
+import { METADATA } from '@/constants/metadata';
+
 import { InitiativeDetailClient } from '@/components/index/InitiativeDetailClient';
 import {
   getIndexInitiativeBySlug,
@@ -32,7 +34,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         openGraph: {
           title,
           description,
-          url: `https://udbhavfoundation.org/index/${slug}`,
+          url: `${METADATA.BASE_URL}/index/${slug}`,
           type: 'article',
           images: [{ url: coverUrl }],
         },
@@ -43,7 +45,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           images: [coverUrl],
         },
         alternates: {
-          canonical: `https://udbhavfoundation.org/index/${slug}`,
+          canonical: `${METADATA.BASE_URL}/index/${slug}`,
         },
       };
     }
@@ -89,19 +91,19 @@ export default async function InitiativeDetailPage({ params }: PageProps) {
     author: {
       '@type': 'Organization',
       name: 'UDBHAV Foundation',
-      url: 'https://udbhavfoundation.org',
+      url: METADATA.BASE_URL,
     },
     publisher: {
       '@type': 'Organization',
       name: 'UDBHAV Foundation',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://udbhavfoundation.org/logo.png',
+        url: `${METADATA.BASE_URL}/icon.svg`,
       },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://udbhavfoundation.org/index/${initiative.slug}`,
+      '@id': `${METADATA.BASE_URL}/index/${initiative.slug}`,
     },
   };
 
@@ -113,19 +115,19 @@ export default async function InitiativeDetailPage({ params }: PageProps) {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://udbhavfoundation.org',
+        item: METADATA.BASE_URL,
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Programs & Initiatives',
-        item: 'https://udbhavfoundation.org/index',
+        item: `${METADATA.BASE_URL}/index`,
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: initiative.title,
-        item: `https://udbhavfoundation.org/index/${initiative.slug}`,
+        item: `${METADATA.BASE_URL}/index/${initiative.slug}`,
       },
     ],
   };

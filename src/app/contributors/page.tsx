@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { SectionPlaceholder } from "@/components/shared/SectionPlaceholder";
 
 export const metadata: Metadata = {
-  title: "Contributors & Supporters",
+  title: 'Contributors & Supporters',
   description:
     "Honoring the community partners, volunteers, and supporters advancing UDBHAV Foundation's impact.",
 };
