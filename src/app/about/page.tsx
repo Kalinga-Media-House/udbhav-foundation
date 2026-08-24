@@ -81,25 +81,13 @@ export default async function AboutPage() {
         <Container className="relative z-10">
           <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
 
-            <RevealCard as="div" index={0} className="mb-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-md shadow-sm">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#86EFAC] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#86EFAC]"></span>
-                </span>
-                <span className="font-heading text-xs font-bold uppercase tracking-[0.2em] text-white sm:text-sm">
-                  ABOUT UDBHAV FOUNDATION
-                </span>
-              </div>
-            </RevealCard>
-
-            <RevealCard as="div" index={1}>
-              <h1 id="about-hero-heading" className="mt-4 font-heading text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
+            <RevealCard as="div" index={0}>
+              <h1 id="about-hero-heading" className="font-heading text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
                 Discover UDBHAV Foundation
               </h1>
             </RevealCard>
 
-            <RevealCard as="div" index={2}>
+            <RevealCard as="div" index={1}>
               <p className="mt-6 text-lg text-white/80 sm:text-xl md:text-2xl max-w-2xl mx-auto font-light leading-relaxed drop-shadow-sm">
                 Explore our story, work, journey and purpose.
               </p>
