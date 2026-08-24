@@ -13,13 +13,6 @@ export const serverEnvSchema = z.object({
   R2_SECRET_ACCESS_KEY: z.string().min(1, 'Cloudflare R2 Secret Access Key is required.'),
   R2_BUCKET_NAME: z.string().min(1, 'Cloudflare R2 Bucket Name is required.'),
   SENTRY_DSN: z.string().optional(),
-
-  // Google Integrations (optional — integrations page shows status when missing)
-  GOOGLE_CLIENT_ID: z.string().optional(),
-  GOOGLE_CLIENT_SECRET: z.string().optional(),
-  GOOGLE_REDIRECT_URI: z.string().url().optional(),
-  INTEGRATION_SECRET_KEY: z.string().min(16).optional(),
-  GOOGLE_ADS_DEVELOPER_TOKEN: z.string().optional(),
 });
 
 /**
