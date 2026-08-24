@@ -110,23 +110,23 @@ export function FoundationSeoSettings({ settings: initialSettings }: Props) {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <div className="space-y-2">
               <Label>Foundation Name</Label>
-              <Input name="foundation_name" value={formData.foundation_name} onChange={handleChange} />
+              <Input name="foundation_name" value={formData.foundation_name} onChange={handleChange} placeholder="UDBHAV Foundation" />
             </div>
             <div className="space-y-2">
               <Label>Tagline</Label>
-              <Input name="foundation_tagline" value={formData.foundation_tagline} onChange={handleChange} />
+              <Input name="foundation_tagline" value={formData.foundation_tagline} onChange={handleChange} placeholder="Growing Together for an Inclusive Future" />
             </div>
             <div className="space-y-2">
               <Label>Email</Label>
-              <Input name="contact_email" value={formData.contact_email} onChange={handleChange} />
+              <Input name="contact_email" value={formData.contact_email} onChange={handleChange} placeholder="admin@udbhavfoundation.in" />
             </div>
             <div className="space-y-2">
               <Label>Phone</Label>
-              <Input name="contact_phone" value={formData.contact_phone} onChange={handleChange} />
+              <Input name="contact_phone" value={formData.contact_phone} onChange={handleChange} placeholder="+91 63705 08606" />
             </div>
             <div className="space-y-2 md:col-span-2">
               <Label>Address</Label>
-              <Input name="address_primary" value={formData.address_primary} onChange={handleChange} />
+              <Input name="address_primary" value={formData.address_primary} onChange={handleChange} placeholder="Plot No. 1519, Bharat Petroleum, 4269/4967, Besides/Above Bandhan Bank, Soubhagya Nagar, Baramunda, Bhubaneswar, Odisha – 751003" />
             </div>
             <div className="space-y-2">
               <Label>Logo</Label>
@@ -171,22 +171,22 @@ export function FoundationSeoSettings({ settings: initialSettings }: Props) {
         <div className="p-6 space-y-6">
           <div className="space-y-2">
             <Label>SEO Site Title</Label>
-            <Input name="seo_default_title" value={formData.seo_default_title} onChange={handleChange} />
+            <Input name="seo_default_title" value={formData.seo_default_title} onChange={handleChange} placeholder="UDBHAV Foundation | Growing Together for an Inclusive Future" />
             <p className="text-xs text-gray-500">Used as the default search-engine title for the website.</p>
           </div>
           <div className="space-y-2">
             <Label>Meta Description</Label>
-            <Textarea name="seo_default_desc" value={formData.seo_default_desc} onChange={handleChange} rows={3} />
+            <Textarea name="seo_default_desc" value={formData.seo_default_desc} onChange={handleChange} rows={3} placeholder="UDBHAV Foundation is a nonprofit organization working to empower communities through education, inclusion, environmental responsibility and collective action." />
             <p className="text-xs text-gray-500">Used as the default description shown to search engines and when pages are shared.</p>
           </div>
           <div className="space-y-2">
             <Label>Search Topics (Comma separated)</Label>
-            <Textarea name="seo_search_topics" value={formData.seo_search_topics} onChange={handleChange} rows={3} />
+            <Textarea name="seo_search_topics" value={formData.seo_search_topics} onChange={handleChange} rows={3} placeholder="UDBHAV Foundation, nonprofit organization Odisha, community development Odisha, education, environmental responsibility, inclusion, youth empowerment, volunteering Odisha, social impact Odisha" />
             <p className="text-xs text-gray-500">Describe the Foundation&apos;s main areas of work. Keep topics natural and relevant.</p>
           </div>
           <div className="space-y-2">
             <Label>Site URL</Label>
-            <Input name="website_url" value={formData.website_url} onChange={handleChange} />
+            <Input name="website_url" value={formData.website_url} onChange={handleChange} placeholder="https://udbhavfoundation.in" />
             <p className="text-xs text-gray-500">Use the official public website URL.</p>
           </div>
         </div>
@@ -203,11 +203,11 @@ export function FoundationSeoSettings({ settings: initialSettings }: Props) {
             <div className="space-y-6">
               <div className="space-y-2">
                 <Label>Open Graph Title</Label>
-                <Input name="og_title" value={formData.og_title} onChange={handleChange} />
+                <Input name="og_title" value={formData.og_title} onChange={handleChange} placeholder="UDBHAV Foundation | Growing Together for an Inclusive Future" />
               </div>
               <div className="space-y-2">
                 <Label>Open Graph Description</Label>
-                <Textarea name="og_desc" value={formData.og_desc} onChange={handleChange} rows={4} />
+                <Textarea name="og_desc" value={formData.og_desc} onChange={handleChange} rows={4} placeholder="UDBHAV Foundation works to empower communities through education, inclusion, environmental responsibility and collective action for a more inclusive and sustainable future." />
               </div>
             </div>
             <div className="space-y-2">

@@ -2,7 +2,7 @@
 import type { RepositoryResult } from '@/contracts/repositories';
 import { DatabaseError } from '@/errors';
 import { serverLogger } from '@/lib/logger/server-logger';
-import { createServerSupabaseClient, createStaticSupabaseClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 
 export type SystemSettingRow = {
   id: string;
@@ -27,7 +27,7 @@ export type SystemSettingRow = {
 export class SystemSettingsRepository {
   async listSettings(): Promise<RepositoryResult<SystemSettingRow[]>> {
     try {
-      const supabase = await createServerSupabaseClient();
+      const supabase = createAdminClient();
       const { data, error } = await supabase.from('system_settings').select('*').eq('is_deleted', false).order('category');
       if (error) throw new DatabaseError(error.message);
       return { data, error: null };
@@ -39,7 +39,7 @@ export class SystemSettingsRepository {
 
   async getSettingByKey(key_name: string): Promise<RepositoryResult<SystemSettingRow>> {
     try {
-      const supabase = await createServerSupabaseClient();
+      const supabase = createAdminClient();
       const { data, error } = await supabase.from('system_settings').select('*').eq('key_name', key_name).eq('is_deleted', false).single();
       if (error) throw new DatabaseError(error.message);
       return { data, error: null };
@@ -51,7 +51,7 @@ export class SystemSettingsRepository {
 
   async updateSettingByKey(key_name: string, value: any, userId: string): Promise<RepositoryResult<SystemSettingRow>> {
     try {
-      const supabase = await createServerSupabaseClient();
+      const supabase = createAdminClient();
       const { data, error } = await supabase
         .from('system_settings')
         .update({ value, updated_by: userId } as never)
@@ -70,7 +70,7 @@ export class SystemSettingsRepository {
 
   async getPublicSettings(): Promise<Record<string, any>> {
     try {
-      const supabase = createStaticSupabaseClient();
+      const supabase = createAdminClient();
       // Use direct select for better type safety and simpler debugging
       const { data, error } = await supabase
         .from('system_settings')
