@@ -8,7 +8,7 @@ import { METADATA } from '@/constants/metadata';
 import { RevealCard } from '@/components/shared/RevealCard';
 import { getActiveGoverningBodyMembers } from '@/features/governing-body/repository';
 import { systemSettingsRepository } from '@/features/system_settings/repository';
-import { AboutHeroButtons } from '@/components/about/AboutHeroButtons';
+import { AboutHeroButtons, HeroParallax } from '@/components/about/AboutHeroButtons';
 
 export const metadata: Metadata = {
   title: 'About Us',
@@ -69,38 +69,43 @@ export default async function AboutPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       {/* 1. ABOUT HERO */}
-      <section
-        aria-labelledby="about-hero-heading"
-        className="border-soft-border/40 relative w-full overflow-hidden border-b py-20 sm:py-28 md:py-36"
+      <HeroParallax
+        className="py-20 sm:py-28 md:py-36"
         style={{
           background: 'linear-gradient(135deg, #171f69 0%, #202a7a 50%, #123f72 100%)',
         }}
       >
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-32 right-1/4 h-[500px] w-[500px] rounded-full bg-white/[0.04] blur-[100px] mix-blend-overlay animate-pulse duration-10000"
-        />
-        <div
-          aria-hidden="true"
-          className="bg-impact-green/[0.08] pointer-events-none absolute -bottom-32 left-1/4 h-[500px] w-[500px] rounded-full blur-[100px] mix-blend-overlay animate-pulse duration-10000 delay-1000"
-        />
-
-        <Container className="relative z-10">
+        <Container>
           <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
-            <RevealCard as="div" index={0} className="mb-6 sm:mb-10">
-              <span className="eyebrow-label block font-heading text-xs font-bold uppercase tracking-[0.2em] text-[#86EFAC] sm:text-sm">
-                ABOUT UDBHAV FOUNDATION
-              </span>
+
+            <RevealCard as="div" index={0} className="mb-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-md shadow-sm">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#86EFAC] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#86EFAC]"></span>
+                </span>
+                <span className="font-heading text-xs font-bold uppercase tracking-[0.2em] text-white sm:text-sm">
+                  ABOUT UDBHAV FOUNDATION
+                </span>
+              </div>
             </RevealCard>
 
-            <h1 id="about-hero-heading" className="sr-only">About UDBHAV Foundation</h1>
-
-            <RevealCard as="div" index={1} direction="none" className="w-full">
-              <AboutHeroButtons />
+            <RevealCard as="div" index={1}>
+              <h1 id="about-hero-heading" className="mt-4 font-heading text-4xl font-bold tracking-tight text-white sm:text-5xl md:text-6xl lg:text-7xl">
+                Discover UDBHAV Foundation
+              </h1>
             </RevealCard>
+
+            <RevealCard as="div" index={2}>
+              <p className="mt-6 text-lg text-white/80 sm:text-xl md:text-2xl max-w-2xl mx-auto font-light leading-relaxed">
+                Explore our story, work, journey and purpose.
+              </p>
+            </RevealCard>
+
+            <AboutHeroButtons />
           </div>
         </Container>
-      </section>
+      </HeroParallax>
 
       {/* 2. WHO ARE WE? */}
       <section id="who-we-are" className="via-pure-white to-warm-white relative overflow-hidden bg-gradient-to-b from-[#FDFCF8] py-20 sm:py-24 md:py-32">
