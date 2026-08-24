@@ -5,7 +5,7 @@ import { Metadata } from 'next';
 import { contactsService } from '@/features/contacts/service';
 
 export const metadata: Metadata = {
-  title: 'Interactions | UDBHAV Foundation',
+  title: 'Interactions',
   description: 'Global view of contact interactions.',
 };
 

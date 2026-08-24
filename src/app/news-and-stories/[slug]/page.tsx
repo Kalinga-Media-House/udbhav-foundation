@@ -30,12 +30,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!article) {
     return {
-      title: 'Article Not Found | UDBHAV FOUNDATION',
+      title: 'Article Not Found',
     };
   }
 
   const siteUrl = METADATA.BASE_URL;
-  const seoTitle = ((article.metadata || {}) as Record<string, unknown>).seo_title as string || `${article.title} | UDBHAV FOUNDATION`;
+  const seoTitle = ((article.metadata || {}) as Record<string, unknown>).seo_title as string || `${article.title}`;
   const seoDesc = ((article.metadata || {}) as Record<string, unknown>).seo_description as string || article.summary || article.subtitle || 'Read this story on UDBHAV FOUNDATION.';
   
   const rawCanonical = ((article.metadata || {}) as Record<string, unknown>).canonical_url as string;

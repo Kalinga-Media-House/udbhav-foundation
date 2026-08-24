@@ -14,19 +14,19 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
 
   if (!result.success || !result.data) {
     return {
-      title: 'Album Not Found | UDBHAV Foundation',
+      title: 'Album Not Found',
     };
   }
 
   const album = result.data;
   return {
-    title: `${album.title} | Impact Gallery | UDBHAV Foundation`,
+    title: `${album.title} | Impact Gallery`,
     description: album.description || `Explore photos from ${album.title} at UDBHAV Foundation.`,
     alternates: {
       canonical: `${METADATA.BASE_URL}/gallery/${album.slug}`,
     },
     openGraph: {
-      title: `${album.title} | Impact Gallery | UDBHAV Foundation`,
+      title: `${album.title} | Impact Gallery`,
       description: album.description || `Explore photos from ${album.title} at UDBHAV Foundation.`,
       url: `${METADATA.BASE_URL}/gallery/${album.slug}`,
       siteName: 'UDBHAV Foundation',

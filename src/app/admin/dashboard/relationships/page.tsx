@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { contactsService } from '@/features/contacts/service';
 
 export const metadata: Metadata = {
-  title: 'Relationships | UDBHAV Foundation',
+  title: 'Relationships',
   description: 'Manage all contacts, volunteers, donors, and partners.',
 };
 

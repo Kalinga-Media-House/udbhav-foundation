@@ -4,7 +4,7 @@ import React from 'react';
 import { UnifiedAdminDashboard } from '@/components/admin/UnifiedAdminDashboard';
 
 export const metadata: Metadata = {
-  title: 'Admin Dashboard | UDBHAV Foundation',
+  title: 'Admin Dashboard',
   description: 'Enterprise administrative portal',
 };
 

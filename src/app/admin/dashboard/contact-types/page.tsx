@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { contactsService } from '@/features/contacts/service';
 
 export const metadata: Metadata = {
-  title: 'Contact Types | UDBHAV Foundation',
+  title: 'Contact Types',
   description: 'Manage types of contacts.',
 };
 

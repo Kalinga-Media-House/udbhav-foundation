@@ -6,7 +6,7 @@ import { AnalyticsDashboard } from '@/components/admin/analytics/AnalyticsDashbo
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Enterprise Analytics & BI | UDBHAV Foundation',
+  title: 'Enterprise Analytics & BI',
   description:
     'Real-time organizational KPIs aggregated via PostgreSQL materialized views with time-series filtering.',
 };

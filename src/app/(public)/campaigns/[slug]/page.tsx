@@ -42,7 +42,7 @@ export async function generateMetadata(props: { params: Params }): Promise<Metad
   if (!campaign) return { title: "Campaign Not Found" };
   
   return {
-    title: `${campaign.title} | UDBHAV Foundation`,
+    title: `${campaign.title}`,
     description: campaign.description.substring(0, 160),
   };
 }

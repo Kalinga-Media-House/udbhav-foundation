@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { contactsService } from '@/features/contacts/service';
 
 export const metadata: Metadata = {
-  title: 'Organization Details | UDBHAV Foundation',
+  title: 'Organization Details',
   description: 'View organization details and linked contacts.',
 };
 

@@ -28,12 +28,12 @@ export async function generateMetadata({ params }: PageProps, _parent: Resolving
   
   if (result.error || !result.data) {
     return {
-      title: "Podcast Episode Not Found | UDBHAV FOUNDATION",
+      title: "Podcast Episode Not Found",
     };
   }
 
   const podcast = result.data;
-  const title = `${podcast.title} | UDBHAV Foundation`;
+  const title = `${podcast.title}`;
   const description = podcast.excerpt || podcast.description || "Listen to this podcast episode on UDBHAV Foundation.";
   
   // Try to use podcast thumbnail, otherwise fallback to parent generic og image (or nothing)

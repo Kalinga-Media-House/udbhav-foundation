@@ -6,7 +6,7 @@ import { AdminLoginForm } from "@/components/auth/AdminLoginForm";
 import { BrandLogo } from "@/components/shared/BrandLogo";
 
 export const metadata: Metadata = {
-  title: "Admin Portal Sign In | UDBHAV FOUNDATION",
+  title: "Admin Portal Sign In",
   description: "Secure login portal for authorized UDBHAV Foundation administrators.",
   robots: { index: false, follow: false },
 };

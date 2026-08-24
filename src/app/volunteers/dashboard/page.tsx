@@ -7,7 +7,7 @@ import { requireAuth } from "@/contracts/actions";
 import { getVolunteerDashboardData } from "@/features/volunteers";
 
 export const metadata: Metadata = {
-  title: "Volunteer Dashboard | UDBHAV Foundation",
+  title: "Volunteer Dashboard",
   description:
     "Personal volunteer portal to track hours, assignments, and certificates.",
   robots: { index: false, follow: false },

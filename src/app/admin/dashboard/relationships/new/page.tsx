@@ -6,7 +6,7 @@ import { ContactWizard } from '@/components/frm/ContactWizard';
 import { Button } from '@/components/ui/button';
 
 export const metadata: Metadata = {
-  title: 'Create Contact | UDBHAV Foundation',
+  title: 'Create Contact',
   description: 'Add a new relationship record to the FRM system.',
 };
 

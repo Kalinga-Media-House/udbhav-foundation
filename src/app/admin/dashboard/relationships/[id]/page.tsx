@@ -20,7 +20,7 @@ import {
 import { contactsService } from '@/features/contacts/service';
 
 export const metadata: Metadata = {
-  title: 'Contact Profile | UDBHAV Foundation',
+  title: 'Contact Profile',
   description: 'View and manage a foundation relationship.',
 };
 

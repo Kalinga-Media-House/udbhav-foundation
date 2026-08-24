@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { contactsService } from '@/features/contacts/service';
 
 export const metadata: Metadata = {
-  title: 'Organizations | UDBHAV Foundation',
+  title: 'Organizations',
   description: 'Manage partner organizations, sponsors, and vendors.',
 };
 

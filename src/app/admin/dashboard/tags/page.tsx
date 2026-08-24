@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { contactsService } from '@/features/contacts/service';
 
 export const metadata: Metadata = {
-  title: 'Tags | UDBHAV Foundation',
+  title: 'Tags',
   description: 'Manage relationship tags.',
 };
 

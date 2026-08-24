@@ -12,10 +12,10 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   const params = await props.params;
   const result = await getEventBySlug(params.slug);
   if (!result.success || !result.data) {
-    return { title: 'Event Not Found | UDBHAV FOUNDATION' };
+    return { title: 'Event Not Found' };
   }
   return {
-    title: `${result.data.title} | UDBHAV FOUNDATION`,
+    title: `${result.data.title}`,
     description: result.data.subtitle || result.data.description?.substring(0, 160) || 'UDBHAV Foundation Event',
   };
 }

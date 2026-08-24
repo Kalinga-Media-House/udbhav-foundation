@@ -19,7 +19,7 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
 
-  let title = "Programme Not Found | UDBHAV FOUNDATION";
+  let title = "Programme Not Found";
   let description = "Explore UDBHAV Foundation community action programmes.";
   let coverImage = "/hero/hero-01.png";
 
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     if (res.success && res.data) {
       const programmeRow = res.data;
       const meta = (programmeRow.metadata || {}) as Record<string, unknown>;
-      title = `${(programmeRow.sort_order ?? 0).toString().padStart(2, '0')}: ${programmeRow.title} | UDBHAV FOUNDATION`;
+      title = `${(programmeRow.sort_order ?? 0).toString().padStart(2, '0')}: ${programmeRow.title}`;
       description = programmeRow.short_description || "Explore UDBHAV Foundation community action programmes.";
       const r2Url = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || 'https://media.udbhavfoundation.in';
       const resolvedCover = programmeRow.cover_image?.r2_object_key 

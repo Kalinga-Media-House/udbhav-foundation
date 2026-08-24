@@ -7,7 +7,7 @@ import { ReportsDashboard } from '@/components/admin/reports/ReportsDashboard';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Reports & Analytics | UDBHAV Foundation',
+  title: 'Reports & Analytics',
   description: 'Enterprise BI analytics dashboard and offline CSV/PDF report snapshot generator.',
 };
 

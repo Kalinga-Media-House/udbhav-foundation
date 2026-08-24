@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const res = await getIndexInitiativeBySlug(slug);
     if (res.success && res.data) {
       const item = res.data;
-      const title = `${item.title} | Programs & Initiatives Archive | UDBHAV FOUNDATION`;
+      const title = `${item.title} | Programs & Initiatives Archive`;
       const description = item.seo_description || item.short_summary;
       const coverUrl = item.cover_image_url || '/hero/hero-01.png';
 
@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return {
-    title: 'Initiative Not Found | UDBHAV FOUNDATION',
+    title: 'Initiative Not Found',
     description: 'Explore UDBHAV Foundation community action initiatives.',
   };
 }

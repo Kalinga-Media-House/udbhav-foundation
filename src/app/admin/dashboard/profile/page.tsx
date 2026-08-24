@@ -1,7 +1,7 @@
 import { AdminProfile } from '@/components/admin/profile/AdminProfile';
 
 export const metadata = {
-  title: 'Admin Profile Settings | Udbhav Foundation',
+  title: 'Admin Profile Settings',
 };
 
 export default function ProfilePage() {
