@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState } from "react";
 export interface RevealCardProps extends React.HTMLAttributes<HTMLDivElement> {
   index?: number;
   maxStagger?: number;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   className?: string;
   as?: React.ElementType;
   direction?: "up" | "down" | "left" | "right" | "none";
