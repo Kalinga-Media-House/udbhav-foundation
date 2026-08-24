@@ -99,7 +99,7 @@ export default async function AboutPage() {
       </HeroParallax>
 
       {/* 2. WHO ARE WE? */}
-      <section id="who-we-are" className="via-pure-white to-warm-white relative overflow-hidden bg-gradient-to-b from-[#FDFCF8] py-20 sm:py-24 md:py-32">
+      <section id="who-we-are" className="via-pure-white to-warm-white relative overflow-hidden bg-gradient-to-b from-[#FDFCF8] pt-20 sm:pt-24 md:pt-32 pb-12 sm:pb-16 md:pb-20">
         {/* Subtle background decoration */}
         <div className="bg-impact-green/5 pointer-events-none absolute -left-20 top-20 h-64 w-64 rounded-full blur-[80px]" />
 
@@ -147,65 +147,114 @@ export default async function AboutPage() {
       </section>
 
       {/* 3. WHAT WE DO? */}
-      <section id="what-we-do" className="bg-gray-50/50 py-20 sm:py-28 md:py-32 relative border-b border-gray-100">
-        <Container>
-          <RevealCard as="div" index={0} className="mb-16 md:mb-24 max-w-2xl mx-auto text-center">
-            <span className="text-impact-green mb-3 block font-heading text-xs font-bold uppercase tracking-[0.2em] sm:text-sm">
-              WHAT WE DO?
-            </span>
-            <h2 className="text-udbhav-blue-deep font-heading text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
-              Turning Ideas Into Meaningful Action
-            </h2>
-          </RevealCard>
+      <section id="what-we-do" className="bg-gradient-to-br from-[#18256F] to-[#243B82] pt-12 sm:pt-16 md:pt-20 pb-20 sm:pb-28 md:pb-32 relative overflow-hidden">
+        {/* Subtle glow decoration */}
+        <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#3157A5]/30 rounded-full blur-[120px] pointer-events-none" />
 
-          <RevealCard as="div" index={1} direction="none" className="mb-16 md:mb-24 relative aspect-[21/9] w-full overflow-hidden rounded-3xl shadow-lg hidden md:block">
+        <Container className="relative z-10">
+          <div className="mb-16 md:mb-24 max-w-2xl mx-auto text-center">
+            <RevealCard as="span" index={0} className="text-emerald-400 mb-3 block font-heading text-xs font-bold uppercase tracking-[0.2em] sm:text-sm">
+              WHAT WE DO?
+            </RevealCard>
+            <RevealCard as="h2" index={1} className="text-white font-heading text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+              Turning Ideas Into Meaningful Action
+            </RevealCard>
+          </div>
+
+          <RevealCard as="div" index={2} direction="up" className="mb-16 md:mb-24 relative aspect-[21/9] w-full overflow-hidden rounded-3xl shadow-xl hidden md:block group motion-safe:animate-[whatWeDoImageScale_1s_ease-out_forwards]">
             <Image
               src={whatWeDoImg}
               alt={whatWeDoAlt}
               fill
-              className="object-cover object-center transition-transform duration-1000 hover:scale-105"
+              className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.02]"
               sizes="100vw"
             />
           </RevealCard>
 
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
             {[
               {
                 title: 'Education & Learning',
                 description: 'Supporting learning, knowledge and opportunities that help individuals and communities grow.',
+                progress: 88,
+                hoverBg: 'group-hover:bg-emerald-600/90',
+                hoverBorder: 'group-hover:border-emerald-400/50',
+                hoverGlow: 'hover:shadow-[0_0_25px_rgba(52,211,153,0.3)]',
+                progressBar: 'bg-emerald-400',
+                progressTrack: 'bg-emerald-400/20',
               },
               {
                 title: 'Mental Well-being',
                 description: 'Recognising mental well-being as an essential part of a healthy and thriving society.',
+                progress: 78,
+                hoverBg: 'group-hover:bg-cyan-600/90',
+                hoverBorder: 'group-hover:border-cyan-400/50',
+                hoverGlow: 'hover:shadow-[0_0_25px_rgba(34,211,238,0.3)]',
+                progressBar: 'bg-cyan-400',
+                progressTrack: 'bg-cyan-400/20',
               },
               {
                 title: 'Environmental Responsibility',
                 description: 'Encouraging people and communities to protect the environment and act sustainably.',
+                progress: 92,
+                hoverBg: 'group-hover:bg-amber-600/90',
+                hoverBorder: 'group-hover:border-amber-400/50',
+                hoverGlow: 'hover:shadow-[0_0_25px_rgba(251,191,36,0.3)]',
+                progressBar: 'bg-amber-400',
+                progressTrack: 'bg-amber-400/20',
               },
               {
                 title: 'Inclusion & Empowerment',
                 description: 'Promoting inclusivity, dignity, participation and equal opportunity.',
+                progress: 84,
+                hoverBg: 'group-hover:bg-violet-600/90',
+                hoverBorder: 'group-hover:border-violet-400/50',
+                hoverGlow: 'hover:shadow-[0_0_25px_rgba(139,92,246,0.3)]',
+                progressBar: 'bg-violet-400',
+                progressTrack: 'bg-violet-400/20',
               },
               {
                 title: 'Community Action',
                 description: 'Bringing people together around meaningful initiatives and collective action.',
+                progress: 75,
+                hoverBg: 'group-hover:bg-pink-600/90',
+                hoverBorder: 'group-hover:border-pink-400/50',
+                hoverGlow: 'hover:shadow-[0_0_25px_rgba(236,72,153,0.3)]',
+                progressBar: 'bg-pink-400',
+                progressTrack: 'bg-pink-400/20',
               },
               {
                 title: 'Youth & Social Development',
                 description: 'Creating opportunities for young people to participate, learn, contribute and create positive change.',
+                progress: 86,
+                hoverBg: 'group-hover:bg-orange-600/90',
+                hoverBorder: 'group-hover:border-orange-400/50',
+                hoverGlow: 'hover:shadow-[0_0_25px_rgba(249,115,22,0.3)]',
+                progressBar: 'bg-orange-400',
+                progressTrack: 'bg-orange-400/20',
               },
             ].map((area, idx) => (
-              <RevealCard as="div" index={idx + 2} key={area.title}>
-                <div className="group h-full bg-pure-white rounded-2xl border border-soft-border/50 p-8 shadow-sm transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:border-impact-green/30">
-                  <div className="bg-impact-green/20 mb-6 h-12 w-12 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:bg-impact-green group-hover:scale-110">
-                    <div className="bg-impact-green h-2 w-2 rounded-full transition-all duration-300 group-hover:bg-white"></div>
+              <RevealCard as="div" index={idx + 3} key={area.title}>
+                <div className={`group relative flex flex-col justify-between h-[135px] sm:h-[150px] lg:h-[165px] bg-white/5 backdrop-blur-md rounded-2xl border border-white/10 p-5 lg:p-6 shadow-sm transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] motion-safe:hover:-translate-y-1.5 motion-safe:hover:scale-[1.015] ${area.hoverBg} ${area.hoverBorder} ${area.hoverGlow}`}>
+
+                  <div>
+                    <h3 className="text-white mb-1.5 font-heading text-base sm:text-lg lg:text-xl font-bold tracking-tight">
+                      {area.title}
+                    </h3>
+                    <p className="text-white/70 text-xs sm:text-sm leading-relaxed line-clamp-2 transition-colors duration-700 group-hover:text-white/90">
+                      {area.description}
+                    </p>
                   </div>
-                  <h3 className="text-udbhav-blue-deep mb-3 font-heading text-xl font-bold">
-                    {area.title}
-                  </h3>
-                  <p className="text-text-primary/80 text-sm leading-relaxed sm:text-base">
-                    {area.description}
-                  </p>
+
+                  <div className="mt-4 flex flex-col gap-1.5">
+                    <div className={`h-1.5 w-full rounded-full overflow-hidden transition-colors duration-700 ${area.progressTrack} group-hover:bg-black/20`}>
+                      <div
+                        className={`h-full rounded-full transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)] ${area.progressBar} group-hover:!w-full group-hover:bg-white`}
+                        style={{ width: `${area.progress}%` }}
+                      />
+                    </div>
+                  </div>
+
                 </div>
               </RevealCard>
             ))}
