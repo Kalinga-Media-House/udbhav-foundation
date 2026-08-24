@@ -8,6 +8,7 @@ import { METADATA } from '@/constants/metadata';
 import { RevealCard } from '@/components/shared/RevealCard';
 import { getActiveGoverningBodyMembers } from '@/features/governing-body/repository';
 import { systemSettingsRepository } from '@/features/system_settings/repository';
+import { AboutHeroButtons } from '@/components/about/AboutHeroButtons';
 
 export const metadata: Metadata = {
   title: 'About Us',
@@ -70,7 +71,7 @@ export default async function AboutPage() {
       {/* 1. ABOUT HERO */}
       <section
         aria-labelledby="about-hero-heading"
-        className="border-soft-border/40 relative w-full overflow-hidden border-b py-12 sm:py-16 md:py-20"
+        className="border-soft-border/40 relative w-full overflow-hidden border-b py-20 sm:py-24 md:py-32"
         style={{
           background: 'linear-gradient(135deg, #171f69 0%, #202a7a 50%, #123f72 100%)',
         }}
@@ -86,46 +87,14 @@ export default async function AboutPage() {
 
         <Container className="relative z-10">
           <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
-            {/* Subtle Breadcrumb */}
-            <nav aria-label="Breadcrumb" className="mb-4 sm:mb-6">
-              <ol className="text-pure-white/80 inline-flex items-center gap-1.5 text-xs font-medium sm:text-sm">
-                <li>
-                  <Link
-                    href="/"
-                    className="hover:text-pure-white underline-offset-4 transition-colors hover:underline"
-                  >
-                    Home
-                  </Link>
-                </li>
-                <li aria-hidden="true" className="text-pure-white/50">
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </li>
-                <li className="font-semibold text-[#86EFAC]" aria-current="page">
-                  About Us
-                </li>
-              </ol>
-            </nav>
-
-            <span className="eyebrow-label mb-3 block font-heading text-xs font-bold uppercase tracking-widest text-[#86EFAC] sm:mb-4 sm:text-sm">
-              ABOUT UDBHAV FOUNDATION
-            </span>
-
-            <h1
-              id="about-hero-heading"
-              className="text-pure-white mb-4 font-heading text-3xl font-bold leading-tight tracking-tight sm:mb-6 sm:text-4xl md:text-5xl lg:text-[54px]"
-            >
-              Growing Together for an Inclusive Future
-            </h1>
-
-            <p className="text-pure-white/90 mx-auto max-w-3xl text-base leading-relaxed sm:text-lg md:text-xl">
-              A community-rooted foundation working through education, inclusion, environmental responsibility, mental well-being and collective action.
-            </p>
+            <h1 id="about-hero-heading" className="sr-only">About UDBHAV Foundation</h1>
+            <AboutHeroButtons />
           </div>
         </Container>
       </section>
 
       {/* 2. WHO ARE WE? */}
-      <section className="via-pure-white to-warm-white relative border-b border-gray-100 bg-gradient-to-b from-[#FDFCF8] py-16 sm:py-20 md:py-24">
+      <section id="who-we-are" className="via-pure-white to-warm-white relative border-b border-gray-100 bg-gradient-to-b from-[#FDFCF8] py-16 sm:py-20 md:py-24">
         <Container>
           <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
             <RevealCard as="div" index={0} className="order-2 lg:order-1">
@@ -170,7 +139,7 @@ export default async function AboutPage() {
       </section>
 
       {/* 3. WHAT WE DO? */}
-      <section className="bg-pure-white py-16 sm:py-20 md:py-24 border-b border-gray-100">
+      <section id="what-we-do" className="bg-pure-white py-16 sm:py-20 md:py-24 border-b border-gray-100">
         <Container>
           <div className="mb-12 md:mb-16">
             <span className="text-impact-green mb-2 block font-heading text-xs font-bold uppercase tracking-widest sm:text-sm text-center">
@@ -235,7 +204,7 @@ export default async function AboutPage() {
       </section>
 
       {/* 4. WHEN DID WE START? */}
-      <section className="bg-udbhav-blue-deep/5 py-16 sm:py-20 md:py-24 border-b border-gray-100">
+      <section id="when-did-we-start" className="bg-udbhav-blue-deep/5 py-16 sm:py-20 md:py-24 border-b border-gray-100">
         <Container>
           <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
             <RevealCard as="div" index={0} className="space-y-6">
@@ -278,7 +247,7 @@ export default async function AboutPage() {
       </section>
 
       {/* 5. WHY OUR WORK MATTERS? */}
-      <section className="bg-pure-white py-16 sm:py-20 md:py-24 border-b border-gray-100">
+      <section id="why-our-work-matters" className="bg-pure-white py-16 sm:py-20 md:py-24 border-b border-gray-100">
         <Container>
           <div className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-16 items-center">
             <RevealCard as="div" index={0} className="lg:col-span-7">
