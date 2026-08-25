@@ -110,21 +110,11 @@ export function ScrollTimelineProgress({ className, lineClassName, nodeClassName
 
   return (
     <div ref={containerRef} className={`absolute z-0 ${className}`}>
-      {/* Background dotted track */}
-      <div className="absolute inset-0 w-0 border-l-2 border-dashed border-gray-200" />
-      
       {/* Progress track */}
       <div 
         ref={progressRef}
-        className={`absolute top-0 left-[-1px] w-[2px] bg-gradient-to-b from-impact-green to-cyan-400 origin-top shadow-[0_0_10px_rgba(52,211,153,0.5)] transition-transform duration-75 ease-linear ${lineClassName || ""}`}
+        className={`absolute top-0 left-[-1px] w-[2px] bg-udbhav-blue-deep origin-top transition-transform duration-75 ease-linear ${lineClassName || ""}`}
         style={{ height: "100%", transform: "scaleY(0)" }}
-      />
-      
-      {/* Travelling glow node */}
-      <div 
-        ref={nodeRef}
-        className={`absolute left-[-5px] top-[-6px] w-3 h-3 rounded-full bg-cyan-300 shadow-[0_0_15px_3px_rgba(34,211,238,0.8)] z-10 transition-transform duration-75 ease-linear ${nodeClassName || ""}`}
-        style={{ transform: "translateY(0)" }}
       />
     </div>
   );

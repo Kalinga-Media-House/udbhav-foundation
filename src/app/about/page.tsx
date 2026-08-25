@@ -285,7 +285,7 @@ export default async function AboutPage() {
             {/* Timeline Milestone 1 & 2 Combined */}
             <div className="relative flex flex-col md:flex-row md:items-center justify-between w-full mb-8 md:mb-12 z-10 pl-[64px] md:pl-0 gap-6 md:gap-0">
               {/* Timeline node */}
-              <div data-timeline-node="inactive" className="absolute left-[32px] md:left-1/2 top-6 md:top-1/2 w-4 h-4 bg-white border-2 border-white rounded-full transform -translate-x-1/2 md:-translate-y-1/2 shadow-[0_0_12px_rgba(52,211,153,0.4)] transition-all duration-500 z-20 data-[timeline-node=active]:border-impact-green data-[timeline-node=active]:shadow-[0_0_20px_rgba(52,211,153,0.9)] data-[timeline-node=active]:scale-125" />
+              <div data-timeline-node="inactive" className="absolute left-[32px] md:left-1/2 top-6 md:top-1/2 w-4 h-4 bg-white border-2 border-gray-300 rounded-full transform -translate-x-1/2 md:-translate-y-1/2 transition-all duration-500 z-20 data-[timeline-node=active]:border-udbhav-blue-deep data-[timeline-node=active]:bg-udbhav-blue-deep data-[timeline-node=active]:scale-125" />
 
               <div className="w-full md:w-5/12 md:pr-10 lg:pr-14 text-left md:text-right">
                 <RevealCard as="div" index={2} direction="left">
@@ -312,7 +312,7 @@ export default async function AboutPage() {
             {/* Timeline Milestone 3 (Image) */}
             <div className="relative z-10 pl-[48px] md:pl-0 md:px-0">
               {/* Timeline node */}
-              <div data-timeline-node="inactive" className="absolute left-[32px] md:left-1/2 top-1/2 w-4 h-4 bg-white border-2 border-white rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-[0_0_12px_rgba(52,211,153,0.4)] transition-all duration-500 z-20 data-[timeline-node=active]:border-impact-green data-[timeline-node=active]:shadow-[0_0_20px_rgba(52,211,153,0.9)] data-[timeline-node=active]:scale-125" />
+              <div data-timeline-node="inactive" className="absolute left-[32px] md:left-1/2 top-1/2 w-4 h-4 bg-white border-2 border-gray-300 rounded-full transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500 z-20 data-[timeline-node=active]:border-udbhav-blue-deep data-[timeline-node=active]:bg-udbhav-blue-deep data-[timeline-node=active]:scale-125" />
 
               <RevealCard as="div" index={4} direction="up" className="w-full">
                 <div className="relative aspect-[21/9] w-full mx-auto overflow-hidden rounded-3xl shadow-xl ring-1 ring-black/5 group">
@@ -363,15 +363,13 @@ export default async function AboutPage() {
               {/* Dotted connecting line */}
               <ScrollTimelineProgress
                 className="left-[24px] md:left-[32px] top-0 bottom-0"
-                lineClassName="bg-gradient-to-b from-cyan-400 to-impact-green shadow-[0_0_10px_rgba(34,211,238,0.5)]"
-                nodeClassName="bg-impact-green shadow-[0_0_15px_3px_rgba(52,211,153,0.8)]"
               />
 
               <div className="space-y-8 md:space-y-10 relative z-10 pl-[56px] md:pl-[72px]">
 
                 {/* Node 1 */}
                 <div className="relative">
-                  <div data-timeline-node="inactive" className="absolute -left-[32px] md:-left-[40px] top-6 w-4 h-4 bg-white border-2 border-white rounded-full transform -translate-x-1/2 shadow-[0_0_12px_rgba(34,211,238,0.4)] transition-all duration-500 z-20 data-[timeline-node=active]:border-cyan-400 data-[timeline-node=active]:shadow-[0_0_20px_rgba(34,211,238,0.9)] data-[timeline-node=active]:scale-125" />
+                  <div data-timeline-node="inactive" className="absolute -left-[32px] md:-left-[40px] top-6 w-4 h-4 bg-white border-2 border-gray-300 rounded-full transform -translate-x-1/2 transition-all duration-500 z-20 data-[timeline-node=active]:border-udbhav-blue-deep data-[timeline-node=active]:bg-udbhav-blue-deep data-[timeline-node=active]:scale-125" />
                   <RevealCard as="div" index={3} direction="right">
                     <div className="bg-pure-white p-6 rounded-2xl shadow-md border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(34,211,238,0.2)] relative overflow-hidden group">
                       <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-400 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -385,7 +383,7 @@ export default async function AboutPage() {
 
                 {/* Node 2 */}
                 <div className="relative">
-                  <div data-timeline-node="inactive" className="absolute -left-[32px] md:-left-[40px] top-6 w-4 h-4 bg-white border-2 border-white rounded-full transform -translate-x-1/2 shadow-[0_0_12px_rgba(52,211,153,0.4)] transition-all duration-500 z-20 data-[timeline-node=active]:border-emerald-400 data-[timeline-node=active]:shadow-[0_0_20px_rgba(52,211,153,0.9)] data-[timeline-node=active]:scale-125" />
+                  <div data-timeline-node="inactive" className="absolute -left-[32px] md:-left-[40px] top-6 w-4 h-4 bg-white border-2 border-gray-300 rounded-full transform -translate-x-1/2 transition-all duration-500 z-20 data-[timeline-node=active]:border-udbhav-blue-deep data-[timeline-node=active]:bg-udbhav-blue-deep data-[timeline-node=active]:scale-125" />
                   <RevealCard as="div" index={4} direction="right">
                     <div className="bg-pure-white p-6 rounded-2xl shadow-md border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(52,211,153,0.2)] relative overflow-hidden group">
                       <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-400 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -399,7 +397,7 @@ export default async function AboutPage() {
 
                 {/* Node 3 (Image) */}
                 <div className="relative">
-                  <div data-timeline-node="inactive" className="absolute -left-[32px] md:-left-[40px] top-1/2 w-5 h-5 bg-white border-2 border-white rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-[0_0_15px_rgba(52,211,153,0.4)] transition-all duration-500 z-20 data-[timeline-node=active]:border-impact-green data-[timeline-node=active]:shadow-[0_0_20px_rgba(52,211,153,0.9)] data-[timeline-node=active]:scale-125" />
+                  <div data-timeline-node="inactive" className="absolute -left-[32px] md:-left-[40px] top-1/2 w-5 h-5 bg-white border-2 border-gray-300 rounded-full transform -translate-x-1/2 -translate-y-1/2 transition-all duration-500 z-20 data-[timeline-node=active]:border-udbhav-blue-deep data-[timeline-node=active]:bg-udbhav-blue-deep data-[timeline-node=active]:scale-125" />
                   <RevealCard as="div" index={5} direction="up">
                     <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl shadow-xl ring-1 ring-black/5 group hover:shadow-[0_0_25px_rgba(52,211,153,0.3)] transition-all duration-500">
                       <Image
