@@ -33,7 +33,7 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
     const validPhotos = galleryPhotos.filter(p => p.media?.cdn_url);
     if (validPhotos.length > 0) {
       const shuffled = [...validPhotos].sort(() => 0.5 - Math.random());
-      setRandomPhotos(shuffled.slice(0, 15));
+      setRandomPhotos(shuffled.slice(0, 5));
     }
 
     if (typeof window !== "undefined") {
@@ -58,7 +58,7 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
     if (isHovered || total === 0) return;
     const timer = setInterval(() => {
       handleNext();
-    }, 3800);
+    }, 2000);
     return () => clearInterval(timer);
   }, [isHovered, handleNext, total]);
 
@@ -197,7 +197,7 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
                         filter: `blur(${blur}px)`,
                       }}
                       transition={{
-                        duration: 0.9,
+                        duration: 0.6,
                         ease: [0.22, 1, 0.36, 1], // cinematic cubic-bezier
                       }}
                       onClick={() => {
@@ -228,38 +228,6 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
                 })}
               </AnimatePresence>
 
-              {/* Navigation Arrows */}
-              <button 
-                onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-                className="absolute left-1 sm:left-4 md:left-6 z-50 p-2 sm:p-3 rounded-full bg-white/90 hover:bg-white text-udbhav-blue-deep border border-slate-200/60 backdrop-blur-md transition-all shadow-[0_4px_14px_rgba(15,23,42,0.08)] hover:shadow-[0_6px_20px_rgba(15,23,42,0.12)] hover:scale-105 group"
-                aria-label="Previous photo"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 sm:w-6 sm:h-6 group-hover:-translate-x-0.5 transition-transform"><path d="m15 18-6-6 6-6"/></svg>
-              </button>
-              
-              <button 
-                onClick={(e) => { e.stopPropagation(); handleNext(); }}
-                className="absolute right-1 sm:right-4 md:right-6 z-50 p-2 sm:p-3 rounded-full bg-white/90 hover:bg-white text-udbhav-blue-deep border border-slate-200/60 backdrop-blur-md transition-all shadow-[0_4px_14px_rgba(15,23,42,0.08)] hover:shadow-[0_6px_20px_rgba(15,23,42,0.12)] hover:scale-105 group"
-                aria-label="Next photo"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-0.5 transition-transform"><path d="m9 18 6-6-6-6"/></svg>
-              </button>
-            </div>
-
-            {/* Pagination Dots */}
-            <div className="flex flex-wrap items-center justify-center gap-2 mt-6 sm:mt-10 z-50 max-w-[80vw] mx-auto">
-              {randomPhotos.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setCurrentIndex(i)}
-                  className={`rounded-full transition-all duration-300 ${
-                    i === currentIndex 
-                      ? "w-6 h-2 bg-impact-green" 
-                      : "w-2 h-2 bg-slate-300 hover:bg-slate-400"
-                  }`}
-                  aria-label={`Go to slide ${i + 1}`}
-                />
-              ))}
             </div>
           </div>
         </RevealCard>

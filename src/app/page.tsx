@@ -33,7 +33,7 @@ import { getActivePartners } from '@/features/partners/repository';
  */
 export default async function Home() {
   const heroImages = await getActiveHeroImages('home_hero');
-  const randomPhotosResult = await getRandomPublicPhotosAction(15);
+  const randomPhotosResult = await getRandomPublicPhotosAction(5);
   const galleryPhotos = randomPhotosResult.success && randomPhotosResult.data ? randomPhotosResult.data : [];
   const governingBodyMembers = await getActiveGoverningBodyMembers();
   const partners = await getActivePartners();
