@@ -176,7 +176,7 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
                       key={photo.id}
                       className={`absolute rounded-[18px] md:rounded-[22px] overflow-hidden cursor-pointer ${
                         isActive 
-                          ? 'ring-1 ring-slate-200 shadow-[0_20px_50px_rgba(15,23,42,0.15)] bg-white' 
+                          ? 'ring-1 ring-slate-200' 
                           : 'ring-1 ring-slate-200/40 bg-transparent'
                       }`}
                       style={{
