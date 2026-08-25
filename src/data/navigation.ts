@@ -42,4 +42,5 @@ export const FOOTER_EXPLORE_LINKS: NavItem[] = [
 export const FOOTER_LEGAL_LINKS: NavItem[] = [
   { label: "Privacy Policy", href: "/privacy-policy", group: "legal" },
   { label: "Terms of Use", href: "/terms-of-use", group: "legal" },
+  { label: "Donation & Payment Policy", href: "/donation-payment-policy", group: "legal" },
 ];
