@@ -31,7 +31,7 @@ function HeroGalleryMarquee({ prefersReducedMotion }: { prefersReducedMotion: bo
 
   if (!isMounted || images.length === 0) {
     // Spacer while loading to prevent layout shift
-    return <div className="w-full h-[clamp(82px,24vw,105px)] sm:h-[82px] md:h-[95px] lg:h-[110px] opacity-0" aria-hidden="true" />;
+    return <div className="w-full h-[68px] min-[360px]:h-[74px] sm:h-[82px] md:h-[95px] lg:h-[110px] mb-4 sm:mb-5 lg:mb-6 opacity-0" aria-hidden="true" />;
   }
 
   // Duplicate the array so we can scroll continuously
@@ -39,7 +39,7 @@ function HeroGalleryMarquee({ prefersReducedMotion }: { prefersReducedMotion: bo
 
   return (
     <div
-      className="w-full overflow-hidden relative flex flex-col items-center"
+      className="w-full mb-4 sm:mb-5 lg:mb-6 overflow-hidden relative flex flex-col items-center"
       style={{
         maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
         WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
@@ -52,7 +52,7 @@ function HeroGalleryMarquee({ prefersReducedMotion }: { prefersReducedMotion: bo
         {marqueeImages.map((src, idx) => (
           <div
             key={idx}
-            className="relative w-[clamp(145px,42vw,180px)] h-[clamp(82px,24vw,105px)] sm:w-[140px] sm:h-[82px] md:w-[160px] md:h-[95px] lg:w-[190px] lg:h-[110px] flex-shrink-0 mx-1.5 sm:mx-2 md:mx-2.5 rounded-[12px] sm:rounded-xl overflow-hidden border border-white/15 shadow-[0_4px_12px_rgba(0,0,0,0.3)] bg-white/10"
+            className="relative w-[115px] h-[68px] min-[360px]:w-[125px] min-[360px]:h-[74px] sm:w-[140px] sm:h-[82px] md:w-[160px] md:h-[95px] lg:w-[190px] lg:h-[110px] flex-shrink-0 mx-1.5 sm:mx-2 md:mx-2.5 rounded-lg sm:rounded-xl overflow-hidden border border-white/15 shadow-[0_4px_12px_rgba(0,0,0,0.3)] bg-white/10"
           >
             <Image
               src={src}
@@ -465,80 +465,70 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
       </div>
 
       {/* Main Content (Vertically centered in available space) */}
-      <div className="flex-1 flex flex-col w-full relative z-20 h-full pt-4 sm:pt-6 lg:pt-10 pb-0">
-        <style dangerouslySetInnerHTML={{ __html: `
-          @keyframes heroMarquee {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-50%, 0, 0); }
-          }
-          .animate-hero-marquee {
-            animation: heroMarquee 45s linear infinite;
-          }
-          @keyframes heroGlassEntrance {
-            0% {
-              opacity: 0;
-              transform: translateY(12px);
+      <div className="flex-1 flex flex-col w-full relative z-20">
+        <Container className="flex-1 flex flex-col items-center py-4 sm:py-6 lg:py-10">
+          <style dangerouslySetInnerHTML={{ __html: `
+            @keyframes heroMarquee {
+              0% { transform: translate3d(0, 0, 0); }
+              100% { transform: translate3d(-50%, 0, 0); }
             }
-            100% {
-              opacity: 1;
-              transform: translateY(0);
+            .animate-hero-marquee {
+              animation: heroMarquee 45s linear infinite;
             }
-          }
-          .animate-glass-btn {
-            opacity: 0;
-            animation: heroGlassEntrance 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-          }
-          @media (prefers-reduced-motion: reduce) {
+            @keyframes heroGlassEntrance {
+              0% {
+                opacity: 0;
+                transform: translateY(12px);
+              }
+              100% {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
             .animate-glass-btn {
-              animation: none !important;
-              opacity: 1 !important;
-              transform: none !important;
+              opacity: 0;
+              animation: heroGlassEntrance 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
             }
-          }
-        `}} />
+            @media (prefers-reduced-motion: reduce) {
+              .animate-glass-btn {
+                animation: none !important;
+                opacity: 1 !important;
+                transform: none !important;
+              }
+            }
+          `}} />
 
-        {/* order-1: Top spacing (Mobile & Desktop) */}
-        <div className="order-1 flex-1 w-full" aria-hidden="true"></div>
+          <div className="flex-1 flex flex-col items-center justify-between sm:justify-center text-center w-full">
+            <div className="flex-1 sm:flex-none flex flex-col items-center justify-center w-full mb-0 sm:mb-8 md:mb-10 lg:mb-12">
+              {/* Animated Title */}
+              {isMounted ? <TypewriterTitle prefersReducedMotion={prefersReducedMotion} /> : (
+                <h1 className="font-heading text-[clamp(1.4rem,7vw,2.8rem)] sm:text-[clamp(2rem,6vw,3.5rem)] lg:text-[clamp(2.2rem,5vw,4rem)] font-extrabold text-white px-2 h-[40px] sm:h-[48px] md:h-[60px] lg:h-[72px] flex items-center justify-center drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] whitespace-nowrap">
+                  UDBHAV FOUNDATION
+                </h1>
+              )}
 
-        {/* order-2: Title & Tagline */}
-        <Container className="order-2 flex flex-col items-center justify-center w-full text-center">
-          {/* Animated Title */}
-          {isMounted ? <TypewriterTitle prefersReducedMotion={prefersReducedMotion} /> : (
-            <h1 className="font-heading text-[clamp(1.4rem,7vw,2.8rem)] sm:text-[clamp(2rem,6vw,3.5rem)] lg:text-[clamp(2.2rem,5vw,4rem)] font-extrabold text-white px-2 h-[40px] sm:h-[48px] md:h-[60px] lg:h-[72px] flex items-center justify-center drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] whitespace-nowrap">
-              UDBHAV FOUNDATION
-            </h1>
-          )}
+              {/* Tagline */}
+              <p className="mt-1 sm:mt-2 md:mt-3 text-[clamp(0.9rem,3.8vw,1.1rem)] sm:text-[clamp(1rem,2vw,1.25rem)] text-white/95 font-medium max-w-lg mx-auto px-4 drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] leading-snug">
+                Empowering communities through education, inclusion and action.
+              </p>
+            </div>
 
-          {/* Tagline */}
-          <p className="mt-1 sm:mt-2 md:mt-3 text-[clamp(0.9rem,3.8vw,1.1rem)] sm:text-[clamp(1rem,2vw,1.25rem)] text-white/95 font-medium max-w-lg mx-auto px-4 drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] leading-snug">
-            Empowering communities through education, inclusion and action.
-          </p>
+            {/* Dynamic Colored Glass Navigation Grid */}
+            <div className="w-full mt-auto sm:mt-0 mb-3 sm:mb-0">
+              <DynamicNavGrid prefersReducedMotion={prefersReducedMotion} />
+            </div>
+          </div>
         </Container>
+      </div>
 
-        {/* order-3: Gap Title to Buttons */}
-        <div className="order-3 w-full h-[clamp(12px,3vh,24px)] sm:h-[32px] md:h-[40px] lg:h-[48px]" aria-hidden="true"></div>
+      {/* Gallery Marquee and Minimal Plain Text Statistics Strip at the Absolute Bottom */}
+      <div
+        className="animate-glass-btn relative z-20 w-full px-0 sm:px-[2%] lg:px-[4%] pt-0 pb-3 flex flex-col items-center"
+        style={{ animationDelay: "0.5s" }}
+      >
+        <HeroGalleryMarquee prefersReducedMotion={prefersReducedMotion} />
 
-        {/* order-4: Buttons */}
-        <Container className="order-4 w-full text-center">
-          <DynamicNavGrid prefersReducedMotion={prefersReducedMotion} />
-        </Container>
-
-        {/* order-5: Gap Buttons to Gallery on Mobile */}
-        <div className="order-5 w-full h-[clamp(8px,2vh,14px)] sm:hidden" aria-hidden="true"></div>
-
-        {/* order-6: Flexible Space on Desktop (between Buttons and Gallery) */}
-        <div className="order-6 hidden sm:block w-full flex-1" aria-hidden="true"></div>
-
-        {/* order-7: Gallery */}
-        <div className="order-7 w-full animate-glass-btn px-0 sm:px-[2%] lg:px-[4%]" style={{ animationDelay: "0.5s" }}>
-          <HeroGalleryMarquee prefersReducedMotion={prefersReducedMotion} />
-        </div>
-
-        {/* order-8: Flexible Space on Mobile (between Gallery and Stats) */}
-        <div className="order-8 block sm:hidden w-full flex-1" aria-hidden="true"></div>
-
-        {/* order-9: Statistics */}
-        <div className="order-9 w-full px-3 sm:px-[5%] lg:px-[8%] pb-3 mt-4 sm:mt-0 animate-glass-btn" style={{ animationDelay: "0.5s" }}>
+        <div className="w-full px-3 sm:px-[3%] lg:px-[4%]">
           <div className="w-full grid grid-cols-4 divide-x divide-white/20">
             {isMounted ? (
               <>
