@@ -22,16 +22,16 @@ function HeroGalleryMarquee({ prefersReducedMotion }: { prefersReducedMotion: bo
 
   useEffect(() => {
     setIsMounted(true);
-    // Shuffle all photos and pick 12
+    // Shuffle all photos and pick 10
     const shuffled = [...ALL_GALLERY_PHOTOS].sort(() => 0.5 - Math.random());
     // Get unique images
-    const selected = shuffled.slice(0, 12);
+    const selected = shuffled.slice(0, 10);
     setImages(selected.map(p => p.imageUrl));
   }, []);
 
   if (!isMounted || images.length === 0) {
     // Spacer while loading to prevent layout shift
-    return <div className="w-full h-[60px] sm:h-[75px] md:h-[90px] lg:h-[105px] mb-4 sm:mb-5 lg:mb-6 opacity-0" aria-hidden="true" />;
+    return <div className="w-full h-[68px] min-[360px]:h-[74px] sm:h-[82px] md:h-[95px] lg:h-[110px] mb-4 sm:mb-5 lg:mb-6 opacity-0" aria-hidden="true" />;
   }
 
   // Duplicate the array so we can scroll continuously
@@ -52,7 +52,7 @@ function HeroGalleryMarquee({ prefersReducedMotion }: { prefersReducedMotion: bo
         {marqueeImages.map((src, idx) => (
           <div
             key={idx}
-            className="relative w-[100px] h-[60px] min-[360px]:w-[120px] min-[360px]:h-[70px] sm:w-[135px] sm:h-[80px] md:w-[160px] md:h-[95px] lg:w-[190px] lg:h-[110px] flex-shrink-0 mx-1.5 sm:mx-2 md:mx-2.5 rounded-lg sm:rounded-xl overflow-hidden border border-white/15 shadow-[0_4px_12px_rgba(0,0,0,0.3)] bg-white/10"
+            className="relative w-[115px] h-[68px] min-[360px]:w-[125px] min-[360px]:h-[74px] sm:w-[140px] sm:h-[82px] md:w-[160px] md:h-[95px] lg:w-[190px] lg:h-[110px] flex-shrink-0 mx-1.5 sm:mx-2 md:mx-2.5 rounded-lg sm:rounded-xl overflow-hidden border border-white/15 shadow-[0_4px_12px_rgba(0,0,0,0.3)] bg-white/10"
           >
             <Image
               src={src}
@@ -157,7 +157,7 @@ function TypewriterTitle({ prefersReducedMotion }: { prefersReducedMotion: boole
   }, [prefersReducedMotion]);
 
   return (
-    <h1 className="font-heading text-[clamp(1.7rem,8vw,2.8rem)] sm:text-[clamp(2rem,6vw,3.5rem)] lg:text-[clamp(2.2rem,5vw,4rem)] font-extrabold text-white mb-6 sm:mb-8 md:mb-10 lg:mb-12 px-2 h-[40px] sm:h-[48px] md:h-[60px] lg:h-[72px] flex items-center justify-center drop-shadow-md">
+    <h1 className="font-heading text-[clamp(1.4rem,7vw,2.8rem)] sm:text-[clamp(2rem,6vw,3.5rem)] lg:text-[clamp(2.2rem,5vw,4rem)] font-extrabold text-white mb-0 sm:mb-8 md:mb-10 lg:mb-12 px-2 h-[40px] sm:h-[48px] md:h-[60px] lg:h-[72px] flex items-center justify-center drop-shadow-md whitespace-nowrap">
       <span>{typedText}</span>
       <span
         className="inline-block w-[3px] sm:w-[4px] md:w-[5px] h-[36px] sm:h-[46px] md:h-[56px] lg:h-[66px] bg-white ml-1 sm:ml-2"
@@ -325,7 +325,7 @@ function DynamicNavGrid({ prefersReducedMotion }: { prefersReducedMotion: boolea
   }, [prefersReducedMotion, isMounted]);
 
   return (
-    <div className="w-full max-w-3xl mx-auto grid grid-cols-3 gap-x-1.5 sm:gap-x-3 md:gap-x-4 gap-y-2 sm:gap-y-2.5 md:gap-y-3 px-2 sm:px-0 translate-y-4 sm:translate-y-8 lg:translate-y-12">
+    <div className="w-full max-w-3xl mx-auto grid grid-cols-3 gap-x-1.5 sm:gap-x-3 md:gap-x-4 gap-y-2 sm:gap-y-2.5 md:gap-y-3 px-2 sm:px-0 translate-y-0 sm:translate-y-8 lg:translate-y-12">
       {BUTTONS_INFO.map((item, idx) => (
         <DynamicGlassButton
           key={item.title}
@@ -465,8 +465,8 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
       </div>
 
       {/* Main Content (Vertically centered in available space) */}
-      <div className="flex-1 flex flex-col justify-center w-full relative z-20">
-        <Container className="flex flex-col items-center justify-center py-4 sm:py-6 lg:py-10">
+      <div className="flex-1 flex flex-col w-full relative z-20">
+        <Container className="flex-1 flex flex-col items-center py-4 sm:py-6 lg:py-10">
           <style dangerouslySetInnerHTML={{ __html: `
             @keyframes heroMarquee {
               0% { transform: translate3d(0, 0, 0); }
@@ -498,16 +498,20 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
             }
           `}} />
 
-          <div className="flex flex-col items-center justify-center text-center w-full">
-            {/* Animated Title */}
-            {isMounted ? <TypewriterTitle prefersReducedMotion={prefersReducedMotion} /> : (
-              <h1 className="font-heading text-[clamp(1.7rem,8vw,2.8rem)] sm:text-[clamp(2rem,6vw,3.5rem)] lg:text-[clamp(2.2rem,5vw,4rem)] font-extrabold text-white mb-6 sm:mb-8 md:mb-10 lg:mb-12 px-2 h-[40px] sm:h-[48px] md:h-[60px] lg:h-[72px] flex items-center justify-center drop-shadow-md">
-                UDBHAV FOUNDATION
-              </h1>
-            )}
+          <div className="flex-1 flex flex-col items-center justify-between sm:justify-center text-center w-full">
+            <div className="flex-1 sm:flex-none flex items-center justify-center w-full">
+              {/* Animated Title */}
+              {isMounted ? <TypewriterTitle prefersReducedMotion={prefersReducedMotion} /> : (
+                <h1 className="font-heading text-[clamp(1.4rem,7vw,2.8rem)] sm:text-[clamp(2rem,6vw,3.5rem)] lg:text-[clamp(2.2rem,5vw,4rem)] font-extrabold text-white mb-0 sm:mb-8 md:mb-10 lg:mb-12 px-2 h-[40px] sm:h-[48px] md:h-[60px] lg:h-[72px] flex items-center justify-center drop-shadow-md whitespace-nowrap">
+                  UDBHAV FOUNDATION
+                </h1>
+              )}
+            </div>
 
             {/* Dynamic Colored Glass Navigation Grid */}
-            <DynamicNavGrid prefersReducedMotion={prefersReducedMotion} />
+            <div className="w-full mt-auto sm:mt-0 mb-3 sm:mb-0">
+              <DynamicNavGrid prefersReducedMotion={prefersReducedMotion} />
+            </div>
           </div>
         </Container>
       </div>
