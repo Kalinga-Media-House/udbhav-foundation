@@ -12,7 +12,8 @@ import {
   Image as ImageIcon,
   LayoutTemplate,
   Shield,
-  ShieldCheck
+  ShieldCheck,
+  UserCheck
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -54,6 +55,11 @@ const navItems = [
     title: "Governing Body",
     href: "/admin/governing-body",
     icon: Shield,
+  },
+  {
+    title: "Advisory Board",
+    href: "/admin/advisory-board",
+    icon: UserCheck,
   },
   {
     title: "Users & Volunteers",

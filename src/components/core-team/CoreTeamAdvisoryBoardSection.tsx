@@ -4,12 +4,15 @@ import { User, ChevronDown } from "lucide-react";
 import Image from "next/image";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 
-import {
-  ADVISORY_BOARD_MEMBERS,
-  type AdvisoryBoardMember,
-} from "@/components/home/AdvisoryBoardSection";
 import { Container } from "@/components/shared/Container";
 import { RevealCard } from "@/components/shared/RevealCard";
+
+interface AdvisoryBoardMember {
+  id: string;
+  full_name: string;
+  designation: string;
+  photo_url?: string | null;
+}
 
 function AdvisorHorizontalCard({
   member,
@@ -22,10 +25,10 @@ function AdvisorHorizontalCard({
     <div className="group relative flex items-center gap-3.5 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl bg-gradient-to-br from-pure-white via-[#FDFCF8] to-soft-green/20 border border-impact-green/20 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5">
       {/* Small Circular Profile Photo / Placeholder */}
       <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full overflow-hidden border border-impact-green/30 bg-soft-green/50 flex items-center justify-center shrink-0">
-        {member.image && !imgErr ? (
+        {member.photo_url && !imgErr ? (
           <Image
-            src={member.image}
-            alt={member.name}
+            src={member.photo_url}
+            alt={member.full_name}
             fill
             sizes="48px"
             className="object-cover object-center"
@@ -39,7 +42,7 @@ function AdvisorHorizontalCard({
       {/* Name & Designation */}
       <div className="min-w-0 flex-1">
         <h3 className="font-heading font-bold text-sm sm:text-[15px] text-udbhav-blue-deep truncate group-hover:text-impact-green transition-colors">
-          {member.name}
+          {member.full_name}
         </h3>
         <p className="text-xs text-impact-green font-medium line-clamp-2 leading-snug">
           {member.designation}
@@ -49,7 +52,7 @@ function AdvisorHorizontalCard({
   );
 }
 
-export function CoreTeamAdvisoryBoardSection() {
+export function CoreTeamAdvisoryBoardSection({ members }: { members: AdvisoryBoardMember[] }) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const exactScrollTopRef = useRef<number>(0);
   const animationFrameRef = useRef<number | null>(null);
@@ -148,7 +151,7 @@ export function CoreTeamAdvisoryBoardSection() {
 
         {/* DESKTOP/TABLET GRID (>=768px): 2 cols tablet/laptop, 3 cols large desktop */}
         <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-          {ADVISORY_BOARD_MEMBERS.map((member, index) => (
+          {members.map((member, index) => (
             <RevealCard
               key={`desktop-${member.id}`}
               as="div"
@@ -176,7 +179,7 @@ export function CoreTeamAdvisoryBoardSection() {
               onWheel={handleManualInteraction}
               className="max-h-[420px] overflow-y-auto space-y-3 pr-1 py-1 scrollbar-thin scrollbar-thumb-impact-green/30"
             >
-              {ADVISORY_BOARD_MEMBERS.map((member) => (
+              {members.map((member) => (
                 <AdvisorHorizontalCard
                   key={`mobile-${member.id}`}
                   member={member}

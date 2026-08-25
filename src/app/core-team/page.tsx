@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 
 import { CoreTeamAdvisoryBoardSection } from '@/components/core-team/CoreTeamAdvisoryBoardSection';
 import { GoverningBodyGridSection } from '@/components/core-team/GoverningBodyGridSection';
+import { getActiveAdvisoryBoardMembers } from '@/features/advisory-board';
 import { getActiveGoverningBodyMembers } from '@/features/governing-body';
 
 export const metadata: Metadata = {
@@ -10,8 +11,11 @@ export const metadata: Metadata = {
     'Meet the dedicated leadership, Governing Body, Advisory Board, and community organizers guiding UDBHAV Foundation across Odisha.',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default async function CoreTeamPage() {
   const members = await getActiveGoverningBodyMembers();
+  const advisoryMembers = await getActiveAdvisoryBoardMembers();
 
   return (
     <div className="bg-pure-white w-full overflow-hidden">
@@ -19,8 +23,8 @@ export default async function CoreTeamPage() {
       {/* 1. Governing Body Grid */}
       <GoverningBodyGridSection members={members} />
 
-      {/* 3. Advisory Board */}
-      <CoreTeamAdvisoryBoardSection />
+      {/* 2. Advisory Board */}
+      <CoreTeamAdvisoryBoardSection members={advisoryMembers} />
     </div>
   );
 }
