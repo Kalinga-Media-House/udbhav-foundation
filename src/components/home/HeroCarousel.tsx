@@ -157,7 +157,7 @@ function TypewriterTitle({ prefersReducedMotion }: { prefersReducedMotion: boole
   }, [prefersReducedMotion]);
 
   return (
-    <h1 className="font-heading text-[clamp(1.4rem,7vw,2.8rem)] sm:text-[clamp(2rem,6vw,3.5rem)] lg:text-[clamp(2.2rem,5vw,4rem)] font-extrabold text-white mb-0 sm:mb-8 md:mb-10 lg:mb-12 px-2 h-[40px] sm:h-[48px] md:h-[60px] lg:h-[72px] flex items-center justify-center drop-shadow-md whitespace-nowrap">
+    <h1 className="font-heading text-[clamp(1.4rem,7vw,2.8rem)] sm:text-[clamp(2rem,6vw,3.5rem)] lg:text-[clamp(2.2rem,5vw,4rem)] font-extrabold text-white px-2 h-[40px] sm:h-[48px] md:h-[60px] lg:h-[72px] flex items-center justify-center drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] whitespace-nowrap">
       <span>{typedText}</span>
       <span
         className="inline-block w-[3px] sm:w-[4px] md:w-[5px] h-[36px] sm:h-[46px] md:h-[56px] lg:h-[66px] bg-white ml-1 sm:ml-2"
@@ -499,13 +499,18 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
           `}} />
 
           <div className="flex-1 flex flex-col items-center justify-between sm:justify-center text-center w-full">
-            <div className="flex-1 sm:flex-none flex items-center justify-center w-full">
+            <div className="flex-1 sm:flex-none flex flex-col items-center justify-center w-full mb-0 sm:mb-8 md:mb-10 lg:mb-12">
               {/* Animated Title */}
               {isMounted ? <TypewriterTitle prefersReducedMotion={prefersReducedMotion} /> : (
-                <h1 className="font-heading text-[clamp(1.4rem,7vw,2.8rem)] sm:text-[clamp(2rem,6vw,3.5rem)] lg:text-[clamp(2.2rem,5vw,4rem)] font-extrabold text-white mb-0 sm:mb-8 md:mb-10 lg:mb-12 px-2 h-[40px] sm:h-[48px] md:h-[60px] lg:h-[72px] flex items-center justify-center drop-shadow-md whitespace-nowrap">
+                <h1 className="font-heading text-[clamp(1.4rem,7vw,2.8rem)] sm:text-[clamp(2rem,6vw,3.5rem)] lg:text-[clamp(2.2rem,5vw,4rem)] font-extrabold text-white px-2 h-[40px] sm:h-[48px] md:h-[60px] lg:h-[72px] flex items-center justify-center drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] whitespace-nowrap">
                   UDBHAV FOUNDATION
                 </h1>
               )}
+
+              {/* Tagline */}
+              <p className="mt-1 sm:mt-2 md:mt-3 text-[clamp(0.9rem,3.8vw,1.1rem)] sm:text-[clamp(1rem,2vw,1.25rem)] text-white/95 font-medium max-w-lg mx-auto px-4 drop-shadow-[0_2px_6px_rgba(0,0,0,0.6)] leading-snug">
+                Empowering communities through education, inclusion and action.
+              </p>
             </div>
 
             {/* Dynamic Colored Glass Navigation Grid */}
