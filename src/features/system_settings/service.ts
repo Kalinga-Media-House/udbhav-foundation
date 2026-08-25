@@ -11,7 +11,7 @@ export class SystemSettingsService {
     return fromRepo(await systemSettingsRepository.listSettings());
   }
 
-  async getSettingByKey(key_name: string): Promise<ServiceResult<SystemSettingRow>> {
+  async getSettingByKey(key_name: string): Promise<ServiceResult<SystemSettingRow | null>> {
     return fromRepo(await systemSettingsRepository.getSettingByKey(key_name));
   }
 

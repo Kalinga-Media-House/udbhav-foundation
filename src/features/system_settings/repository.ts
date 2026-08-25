@@ -37,10 +37,10 @@ export class SystemSettingsRepository {
     }
   }
 
-  async getSettingByKey(key_name: string): Promise<RepositoryResult<SystemSettingRow>> {
+  async getSettingByKey(key_name: string): Promise<RepositoryResult<SystemSettingRow | null>> {
     try {
       const supabase = createAdminClient();
-      const { data, error } = await supabase.from('system_settings').select('*').eq('key_name', key_name).eq('is_deleted', false).single();
+      const { data, error } = await supabase.from('system_settings').select('*').eq('key_name', key_name).eq('is_deleted', false).maybeSingle();
       if (error) throw new DatabaseError(error.message);
       return { data, error: null };
     } catch (error) {
@@ -52,15 +52,41 @@ export class SystemSettingsRepository {
   async updateSettingByKey(key_name: string, value: any, userId: string): Promise<RepositoryResult<SystemSettingRow>> {
     try {
       const supabase = createAdminClient();
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('system_settings')
         .update({ value, updated_by: userId } as never)
         .eq('key_name', key_name)
         .eq('is_editable', true)
         .eq('is_deleted', false)
         .select()
-        .single();
+        .maybeSingle();
+
       if (error) throw new DatabaseError(error.message);
+
+      if (!data) {
+        // Fallback: If no row was updated, upsert it.
+        const insertRes = await supabase
+          .from('system_settings')
+          .upsert({
+            key_name,
+            display_name: key_name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+            value,
+            default_value: '',
+            category: 'System',
+            data_type: 'string',
+            visibility: 'public',
+            is_editable: true,
+            is_deleted: false,
+            created_by: userId,
+            updated_by: userId
+          } as never, { onConflict: 'key_name' })
+          .select()
+          .maybeSingle();
+
+        if (insertRes.error) throw new DatabaseError(insertRes.error.message);
+        data = insertRes.data;
+      }
+      
       return { data, error: null };
     } catch (error) {
       serverLogger.error('SystemSettingsRepository.updateSettingByKey failed', error as Error);

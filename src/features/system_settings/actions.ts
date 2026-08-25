@@ -19,13 +19,13 @@ export async function listSettings(): Promise<ActionResult<SystemSettingRow[]>> 
   });
 }
 
-export async function getSettingByKey(key_name: string): Promise<ActionResult<SystemSettingRow>> {
+export async function getSettingByKey(key_name: string): Promise<ActionResult<SystemSettingRow | null>> {
   return handleAction('getSettingByKey', async () => {
     const session = await requireAuth();
     requirePermission(session, 'settings.read');
     const result = await systemSettingsService.getSettingByKey(key_name);
     if (!result.success) throw new Error(result.error ?? 'Failed to get setting');
-    return result.data!;
+    return result.data;
   });
 }
 
