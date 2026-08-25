@@ -151,10 +151,6 @@ export function OurMomentsGallerySection({ galleryPhotos = [] }: OurMomentsGalle
             {/* Carousel Track */}
             <div 
               className="relative w-full h-[220px] sm:h-[300px] md:h-[360px] flex items-center justify-center perspective-[1200px]"
-              style={{
-                WebkitMaskImage: "linear-gradient(to right, transparent, black 15%, black 85%, transparent)",
-                maskImage: "linear-gradient(to right, transparent, black 15%, black 85%, transparent)"
-              }}
             >
               
               <AnimatePresence initial={false}>
