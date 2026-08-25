@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Compass, Users, Calendar, Mic, Image as ImageIcon, Heart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState, useEffect, useCallback } from "react";
@@ -60,11 +60,11 @@ export function HeroCarousel({
     return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   });
 
-  const images = heroImages && heroImages.length > 0 
-    ? heroImages.map(img => img.image_url) 
+  const images = heroImages && heroImages.length > 0
+    ? heroImages.map(img => img.image_url)
     : [HERO_SLIDES[0].image];
   const totalSlides = images.length;
-  
+
   // Static text from the first slide as per requirements
   const staticContent = HERO_SLIDES[0];
 
@@ -189,45 +189,133 @@ export function HeroCarousel({
 
       {/* Main Static Text Content */}
       <Container className="relative z-20 py-12 sm:py-16 lg:py-24 my-auto">
-        <div
-          className="max-w-[740px] text-left flex flex-col items-start"
-        >
-          {/* Eyebrow Label */}
-          <span
-            style={{
-              color: "#FFFFFF",
-              opacity: 1,
-              textShadow: "0 1px 6px rgba(0, 0, 0, 0.6)",
-            }}
-            className="animate-hero-eyebrow eyebrow-label text-white font-heading text-xs sm:text-sm font-bold tracking-widest uppercase mb-3 sm:mb-4 block"
-          >
-            {staticContent.eyebrow}
-          </span>
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes heroTitleFloat {
+            0%, 100% {
+              transform: translateY(0);
+              opacity: 0.9;
+              text-shadow: 0 4px 20px rgba(255,255,255,0.3);
+              letter-spacing: normal;
+            }
+            50% {
+              transform: translateY(-8px);
+              opacity: 1;
+              text-shadow: 0 4px 30px rgba(255,255,255,0.7);
+              letter-spacing: 0.05em;
+            }
+          }
+          @keyframes heroTitleEntrance {
+            0% {
+              opacity: 0;
+              transform: translateY(20px);
+              letter-spacing: -0.05em;
+            }
+            100% {
+              opacity: 0.9;
+              transform: translateY(0);
+              letter-spacing: normal;
+            }
+          }
+          @keyframes heroGlassEntrance {
+            0% {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            100% {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+          .animate-hero-title {
+            animation: heroTitleEntrance 1s ease-out forwards, heroTitleFloat 6s ease-in-out 1s infinite;
+          }
+          .animate-glass-btn {
+            opacity: 0;
+            animation: heroGlassEntrance 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .animate-hero-title {
+              animation: none !important;
+              opacity: 1 !important;
+              transform: none !important;
+              letter-spacing: normal !important;
+              text-shadow: none !important;
+            }
+            .animate-glass-btn {
+              animation: none !important;
+              opacity: 1 !important;
+              transform: none !important;
+            }
+          }
+        `}} />
 
-          {/* Main Heading */}
-          <h1 className="animate-hero-heading font-heading text-[32px] max-[359px]:text-[28px] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-pure-white leading-[1.12]">
-            {staticContent.heading}
+        <div className="flex flex-col items-center justify-center text-center w-full">
+          {/* Animated Title */}
+          <h1 className="animate-hero-title font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-10 sm:mb-14 md:mb-20">
+            UDBHAV FOUNDATION
           </h1>
 
-          {/* Description */}
-          <p className="animate-hero-description text-base sm:text-lg lg:text-xl text-pure-white/90 leading-relaxed max-w-2xl mt-4 sm:mt-6">
-            {staticContent.description}
-          </p>
-
-          {/* Action Buttons */}
-          <div className="animate-hero-buttons flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mt-6 sm:mt-8 w-full sm:w-auto">
-            <Link
-              href={staticContent.primaryAction.href}
-              className="inline-flex items-center justify-center min-h-[46px] px-6 py-3 rounded-xl bg-impact-green hover:bg-env-green text-pure-white font-semibold text-sm sm:text-base shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 focus-visible:outline-2 focus-visible:outline-pure-white"
-            >
-              {staticContent.primaryAction.label}
-            </Link>
-            <Link
-              href={staticContent.secondaryAction.href}
-              className="inline-flex items-center justify-center min-h-[46px] px-6 py-3 rounded-xl bg-pure-white/10 hover:bg-pure-white hover:text-udbhav-blue-deep border border-pure-white/60 text-pure-white font-semibold text-sm sm:text-base backdrop-blur-xs shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] transition-all duration-200 focus-visible:outline-2 focus-visible:outline-pure-white"
-            >
-              {staticContent.secondaryAction.label}
-            </Link>
+          {/* Glass Navigation Grid */}
+          <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
+            {[
+              {
+                title: "EXPLORE OUR WORK",
+                href: "/about",
+                icon: Compass,
+                hoverColor: "hover:bg-emerald-500/25 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(52,211,153,0.35)]",
+                delay: "0.2s",
+              },
+              {
+                title: "JOIN AS A VOLUNTEER",
+                href: "/volunteers",
+                icon: Users,
+                hoverColor: "hover:bg-cyan-500/25 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.35)]",
+                delay: "0.3s",
+              },
+              {
+                title: "UPCOMING EVENTS",
+                href: "/events",
+                icon: Calendar,
+                hoverColor: "hover:bg-amber-500/25 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(251,191,36,0.35)]",
+                delay: "0.4s",
+              },
+              {
+                title: "PODCAST",
+                href: "/podcast",
+                icon: Mic,
+                hoverColor: "hover:bg-violet-500/25 hover:border-violet-400 hover:shadow-[0_0_20px_rgba(139,92,246,0.35)]",
+                delay: "0.5s",
+              },
+              {
+                title: "GALLERY",
+                href: "/gallery",
+                icon: ImageIcon,
+                hoverColor: "hover:bg-pink-500/25 hover:border-pink-400 hover:shadow-[0_0_20px_rgba(236,72,153,0.35)]",
+                delay: "0.6s",
+              },
+              {
+                title: "CONTRIBUTE",
+                href: "/donate",
+                icon: Heart,
+                hoverColor: "hover:bg-orange-500/25 hover:border-orange-400 hover:shadow-[0_0_20px_rgba(249,115,22,0.35)]",
+                delay: "0.7s",
+              },
+            ].map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.title}
+                  href={item.href}
+                  style={{ animationDelay: item.delay }}
+                  className={`animate-glass-btn group flex items-center justify-center gap-2.5 sm:gap-3 w-full h-[70px] sm:h-[80px] md:h-[90px] rounded-2xl bg-white/5 backdrop-blur-md border border-white/20 text-white shadow-sm transition-all duration-300 ${item.hoverColor} hover:-translate-y-1 hover:scale-[1.02] focus-visible:outline-2 focus-visible:outline-white`}
+                >
+                  <Icon className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:scale-110" />
+                  <span className="font-heading text-[13px] sm:text-sm md:text-base font-bold tracking-widest uppercase">
+                    {item.title}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </div>
       </Container>
