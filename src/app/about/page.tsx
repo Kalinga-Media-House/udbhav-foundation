@@ -468,48 +468,88 @@ export default async function AboutPage() {
       </section>
 
       {/* 7. FOUNDER MESSAGE */}
-      <section className="bg-gray-50/50 py-20 sm:py-28 md:py-32">
-        <Container>
-          <div className="mx-auto max-w-4xl">
-            <RevealCard as="span" index={0} className="text-impact-green mb-2 block text-center font-heading text-xs font-bold uppercase tracking-widest sm:text-sm">
-              FROM OUR FOUNDER
-            </RevealCard>
-            <RevealCard as="h2" index={1} className="text-udbhav-blue-deep mb-10 text-center font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+      <section className="bg-gray-50/50 py-20 sm:py-28 md:py-32 relative overflow-hidden">
+        {/* Decorative Background */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-[600px] bg-gradient-to-r from-impact-green/5 to-cyan-400/5 rounded-full blur-[100px] pointer-events-none" />
+
+        <Container className="relative z-10">
+          <div className="mx-auto max-w-5xl">
+            <RevealCard as="h2" index={0} className="text-udbhav-blue-deep mb-16 md:mb-24 text-center font-heading text-3xl font-bold tracking-tight sm:text-4xl">
               A Vision That Continues to Grow
             </RevealCard>
 
-            <div className="bg-pure-white overflow-hidden rounded-3xl shadow-lg ring-1 ring-black/5 group transition-all duration-500 hover:shadow-xl hover:-translate-y-1">
-              <div className="grid grid-cols-1 md:grid-cols-5">
-                <RevealCard as="div" index={0} direction="left" className="bg-udbhav-blue-deep/5 relative min-h-[400px] md:col-span-2 overflow-hidden">
-                  {founderImage ? (
-                    <Image
-                      src={founderImage}
-                      alt="Jaysuraj Pattanayak, Founder of Udbhav Foundation"
-                      fill
-                      className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
-                      sizes="(max-width: 768px) 100vw, 40vw"
-                    />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-gray-100">
-                      <User className="h-24 w-24 text-gray-300" />
-                    </div>
-                  )}
-                </RevealCard>
-                <div className="flex flex-col justify-center p-8 md:col-span-3 md:p-12 lg:p-16 overflow-hidden">
-                  <RevealCard as="h3" index={1} direction="right" className="text-udbhav-blue-deep font-heading text-2xl font-bold md:text-3xl">
-                    Jaysuraj Pattanayak
-                  </RevealCard>
-                  <RevealCard as="p" index={2} direction="right" className="text-impact-green mt-2 text-sm font-bold uppercase tracking-widest">
-                    Founder, Udbhav Foundation
-                  </RevealCard>
+            <div className="flex flex-col md:flex-row items-center md:items-stretch gap-8 md:gap-12 lg:gap-16">
 
-                  <RevealCard as="div" index={3} direction="right" className="mt-8 relative">
-                    <div className="absolute -top-6 -left-4 text-6xl text-udbhav-blue-deep/5 font-serif">"</div>
-                    <p className="text-text-primary text-lg font-medium leading-relaxed md:text-xl italic relative z-10">
-                      Real change begins when we nurture minds, empower through education, and protect the environment we all share.
-                    </p>
+              {/* MOBILE HEADER (Visible only on mobile, above image) */}
+              <div className="w-full md:hidden text-center mb-2">
+                <RevealCard as="span" index={1} className="text-impact-green font-heading text-xs font-bold uppercase tracking-[0.2em]">
+                  FROM OUR FOUNDER
+                </RevealCard>
+              </div>
+
+              {/* LEFT — FOUNDER IMAGE */}
+              <div className="w-full md:w-[45%] lg:w-[42%] relative flex-shrink-0">
+                <div className="relative w-full h-[280px] sm:h-[320px] md:h-full md:min-h-[450px] lg:min-h-[500px] group">
+                  <RevealCard as="div" index={2} direction="up" className="absolute inset-0 w-full h-full">
+                    {/* Glow behind image */}
+                    <div className="absolute inset-0 bg-impact-green/20 rounded-[2rem] blur-2xl transform transition-all duration-700 opacity-60 md:group-hover:scale-105" />
+
+                    {/* Image Container */}
+                    <div className="absolute inset-0 rounded-[2rem] overflow-hidden shadow-lg border border-white/50 bg-[#F4F1EA] z-10 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] md:group-hover:-translate-y-2 md:group-hover:shadow-2xl">
+                      {founderImage ? (
+                        <Image
+                          src={founderImage}
+                          alt="Jaysuraj Pattanayak, Founder of Udbhav Foundation"
+                          fill
+                          className="object-cover object-[center_15%] md:object-[center_20%] transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] md:group-hover:scale-[1.02]"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gray-100">
+                          <User className="h-24 w-24 text-gray-300" />
+                        </div>
+                      )}
+                    </div>
                   </RevealCard>
                 </div>
+              </div>
+
+              {/* RIGHT — FOUNDER INFORMATION */}
+              <div className="w-full md:w-[55%] lg:w-[58%] flex flex-col justify-center py-2 md:py-8 text-center md:text-left">
+                {/* DESKTOP HEADER */}
+                <div className="hidden md:block mb-4">
+                  <RevealCard as="span" index={3} direction="up" className="text-impact-green font-heading text-xs font-bold uppercase tracking-[0.2em]">
+                    FROM OUR FOUNDER
+                  </RevealCard>
+                </div>
+
+                <div className="mb-2">
+                  <RevealCard as="h3" index={4} direction="up" className="text-udbhav-blue-deep font-heading text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight">
+                    Jaysuraj Pattanayak
+                  </RevealCard>
+                </div>
+
+                <div className="mb-10 md:mb-12">
+                  <RevealCard as="p" index={5} direction="up" className="text-impact-green text-sm sm:text-base font-bold uppercase tracking-widest">
+                    Founder, Udbhav Foundation
+                  </RevealCard>
+                </div>
+
+                <RevealCard as="div" index={6} direction="up" className="relative inline-block text-left md:pl-8 mx-auto md:mx-0 max-w-lg md:max-w-none">
+                  {/* Decorative connector line (Desktop only) */}
+                  <div className="hidden md:block absolute left-0 top-1 bottom-1 w-[3px] bg-gradient-to-b from-impact-green to-cyan-400 rounded-full opacity-80" />
+                  {/* Glowing point (Desktop only) */}
+                  <div className="hidden md:block absolute left-[-2.5px] top-1 w-2 h-2 bg-white border border-impact-green rounded-full shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
+
+                  {/* Decorative connector line (Mobile) - Centered short line above quote */}
+                  <div className="md:hidden w-12 h-1 bg-gradient-to-r from-impact-green to-cyan-400 rounded-full opacity-80 mx-auto mb-6" />
+
+                  <p className="text-udbhav-blue-deep/80 text-xl sm:text-2xl font-light leading-relaxed italic font-serif">
+                    <span className="text-3xl text-impact-green/40 mr-1 font-serif leading-none">"</span>
+                    Real change begins when we nurture minds, empower through education, and protect the environment we all share.
+                    <span className="text-3xl text-impact-green/40 ml-1 font-serif leading-none">"</span>
+                  </p>
+                </RevealCard>
               </div>
             </div>
           </div>
