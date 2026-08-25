@@ -208,10 +208,10 @@ function DynamicGlassButton({ title, href, colorRgb, delay, prefersReducedMotion
     ? 'none'
     : 'background-color 700ms ease, border-color 700ms ease, box-shadow 700ms ease, transform 300ms ease';
 
-  // Opacities for normal, hover, and active states
-  const bgAlpha = isActive ? 0.35 : isHovered ? 0.25 : 0.12;
-  const borderAlpha = isActive ? 0.6 : isHovered ? 0.5 : 0.2;
-  const glowAlpha = isActive ? 0.4 : isHovered ? 0.3 : 0.05;
+  // Increased opacities for stronger, visible colored glass
+  const bgAlpha = isActive ? 0.60 : isHovered ? 0.50 : 0.40;
+  const borderAlpha = isActive ? 0.80 : isHovered ? 0.70 : 0.45;
+  const glowAlpha = isActive ? 0.40 : isHovered ? 0.30 : 0.18;
 
   return (
     <Link
@@ -219,11 +219,11 @@ function DynamicGlassButton({ title, href, colorRgb, delay, prefersReducedMotion
       style={{
         animationDelay: delay,
         backgroundColor: `rgba(${colorRgb}, ${bgAlpha})`,
-        backgroundImage: `linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%)`,
+        backgroundImage: `linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%)`,
         borderColor: `rgba(${colorRgb}, ${borderAlpha})`,
         boxShadow: isHovered || isActive
-          ? `0 0 20px rgba(${colorRgb}, ${glowAlpha})`
-          : `0 4px 12px rgba(0, 0, 0, 0.1)`,
+          ? `0 12px 30px rgba(${colorRgb}, ${glowAlpha + 0.1}), inset 0 1px 0 rgba(255,255,255,0.25)`
+          : `0 8px 24px rgba(${colorRgb}, ${glowAlpha}), inset 0 1px 0 rgba(255,255,255,0.15)`,
         transform: prefersReducedMotion ? 'none' : isActive ? 'scale(0.98)' : isHovered ? 'translateY(-2px) scale(1.015)' : 'none',
         transition: transitionStr
       }}
