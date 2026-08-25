@@ -264,13 +264,13 @@ export default async function AboutPage() {
       </section>
 
       {/* 4. WHEN DID WE START? */}
-      <section id="when-did-we-start" className="bg-pure-white pt-16 sm:pt-20 md:pt-24 pb-12 sm:pb-16 relative overflow-hidden">
+      <section id="when-did-we-start" className="bg-pure-white pt-16 sm:pt-20 md:pt-24 pb-8 md:pb-12 relative overflow-hidden">
         {/* Soft curvy background decoration */}
         <div className="bg-udbhav-blue-deep/5 pointer-events-none absolute -right-40 bottom-0 h-96 w-96 rounded-full blur-[100px]" />
 
         <Container className="relative z-10">
-          <div className="mb-10 md:mb-14 text-center max-w-2xl mx-auto">
-            <RevealCard as="span" index={0} direction="up" className="text-impact-green mb-3 block font-heading text-xs font-bold uppercase tracking-[0.2em] sm:text-sm">
+          <div className="mb-8 md:mb-12 text-center max-w-2xl mx-auto">
+            <RevealCard as="span" index={0} direction="up" className="text-impact-green mb-2 block font-heading text-xs font-bold uppercase tracking-[0.2em] sm:text-sm">
               WHEN DID WE START?
             </RevealCard>
             <RevealCard as="h2" index={1} direction="up" className="text-udbhav-blue-deep font-heading text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
@@ -283,9 +283,9 @@ export default async function AboutPage() {
             <ScrollTimelineProgress className="left-[32px] md:left-1/2 top-0 bottom-0 md:-translate-x-1/2" />
 
             {/* Timeline Milestone 1 & 2 Combined */}
-            <div className="relative flex flex-col md:flex-row md:items-center justify-between w-full mb-10 md:mb-14 z-10 pl-[64px] md:pl-0 gap-6 md:gap-0">
+            <div className="relative flex flex-col md:flex-row md:items-center justify-between w-full mb-8 md:mb-12 z-10 pl-[64px] md:pl-0 gap-6 md:gap-0">
               {/* Timeline node */}
-              <div data-timeline-node="inactive" className="absolute left-[32px] md:left-1/2 top-8 md:top-1/2 w-4 h-4 bg-white border-2 border-white rounded-full transform -translate-x-1/2 md:-translate-y-1/2 shadow-[0_0_12px_rgba(52,211,153,0.4)] transition-all duration-500 z-20 data-[timeline-node=active]:border-impact-green data-[timeline-node=active]:shadow-[0_0_20px_rgba(52,211,153,0.9)] data-[timeline-node=active]:scale-125" />
+              <div data-timeline-node="inactive" className="absolute left-[32px] md:left-1/2 top-6 md:top-1/2 w-4 h-4 bg-white border-2 border-white rounded-full transform -translate-x-1/2 md:-translate-y-1/2 shadow-[0_0_12px_rgba(52,211,153,0.4)] transition-all duration-500 z-20 data-[timeline-node=active]:border-impact-green data-[timeline-node=active]:shadow-[0_0_20px_rgba(52,211,153,0.9)] data-[timeline-node=active]:scale-125" />
 
               <div className="w-full md:w-5/12 md:pr-10 lg:pr-14 text-left md:text-right">
                 <RevealCard as="div" index={2} direction="left">
@@ -298,10 +298,10 @@ export default async function AboutPage() {
 
               <div className="w-full md:w-5/12 md:pl-10 lg:pl-14 text-left">
                 <RevealCard as="div" index={3} direction="right">
-                  <div className="bg-white p-6 md:p-8 rounded-2xl shadow-md border border-gray-100 relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+                  <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 relative overflow-hidden group hover:shadow-lg transition-all duration-300">
                     <div className="absolute left-0 top-0 bottom-0 w-1 bg-impact-green transition-all duration-500 group-hover:w-1.5" />
-                    <span className="text-xs font-bold text-gray-400 tracking-wider uppercase mb-3 block">The Beginning</span>
-                    <p className="text-text-primary text-base leading-relaxed sm:text-lg">
+                    <span className="text-xs font-bold text-gray-400 tracking-wider uppercase mb-2 block">The Beginning</span>
+                    <p className="text-text-primary text-sm sm:text-base leading-relaxed">
                       UDBHAV Foundation began with a simple but profound belief: meaningful change begins by nurturing minds, empowering through education and protecting the environment we all share.
                     </p>
                   </div>
@@ -332,34 +332,34 @@ export default async function AboutPage() {
       </section>
 
       {/* 5. WHY OUR WORK MATTERS? */}
-      <section id="why-our-work-matters" className="bg-pure-white pt-12 md:pt-16 pb-20 sm:pb-28 md:pb-32 relative overflow-hidden">
+      <section id="why-our-work-matters" className="bg-pure-white pt-8 md:pt-12 pb-16 sm:pb-20 md:pb-24 relative overflow-hidden">
         {/* Abstract shape */}
         <div className="bg-impact-green/5 pointer-events-none absolute left-0 top-1/2 h-[500px] w-[500px] -translate-y-1/2 -translate-x-1/2 rounded-full blur-[100px]" />
 
         <Container className="relative z-10">
-          <div className="flex flex-col lg:flex-row gap-16 lg:gap-24 items-start">
+          <div className="flex flex-col lg:flex-row gap-10 lg:gap-16 items-start">
 
             {/* LEFT SIDE */}
-            <div className="lg:w-5/12 space-y-12 lg:sticky lg:top-32">
+            <div className="lg:w-5/12 space-y-8 lg:sticky lg:top-24">
               <div>
-                <RevealCard as="span" index={0} direction="up" className="text-impact-green mb-3 block font-heading text-xs font-bold uppercase tracking-[0.2em] sm:text-sm">
+                <RevealCard as="span" index={0} direction="up" className="text-impact-green mb-2 block font-heading text-xs font-bold uppercase tracking-[0.2em] sm:text-sm">
                   WHY OUR WORK MATTERS?
                 </RevealCard>
-                <RevealCard as="h2" index={1} direction="up" className="text-udbhav-blue-deep font-heading text-4xl font-bold tracking-tight sm:text-5xl leading-tight">
+                <RevealCard as="h2" index={1} direction="up" className="text-udbhav-blue-deep font-heading text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl leading-tight">
                   Because Real Change Begins With People
                 </RevealCard>
               </div>
 
               <RevealCard as="div" index={2} direction="up" className="relative group">
                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-impact-green transition-all duration-700 h-0 group-[.opacity-100]:h-full" />
-                <p className="text-udbhav-blue-deep text-xl font-medium sm:text-2xl leading-relaxed italic pl-8 py-2">
+                <p className="text-udbhav-blue-deep text-lg font-medium sm:text-xl leading-relaxed italic pl-6 py-1">
                   "We are not just working for change, we are building a movement of purpose, compassion and action."
                 </p>
               </RevealCard>
             </div>
 
             {/* RIGHT SIDE */}
-            <div className="lg:w-7/12 relative">
+            <div className="lg:w-7/12 relative mt-8 lg:mt-0">
               {/* Dotted connecting line */}
               <ScrollTimelineProgress
                 className="left-[24px] md:left-[32px] top-0 bottom-0"
@@ -367,16 +367,16 @@ export default async function AboutPage() {
                 nodeClassName="bg-impact-green shadow-[0_0_15px_3px_rgba(52,211,153,0.8)]"
               />
 
-              <div className="space-y-12 md:space-y-16 relative z-10 pl-[56px] md:pl-[72px]">
+              <div className="space-y-8 md:space-y-10 relative z-10 pl-[56px] md:pl-[72px]">
 
                 {/* Node 1 */}
                 <div className="relative">
-                  <div data-timeline-node="inactive" className="absolute -left-[32px] md:-left-[40px] top-8 w-4 h-4 bg-white border-2 border-white rounded-full transform -translate-x-1/2 shadow-[0_0_12px_rgba(34,211,238,0.4)] transition-all duration-500 z-20 data-[timeline-node=active]:border-cyan-400 data-[timeline-node=active]:shadow-[0_0_20px_rgba(34,211,238,0.9)] data-[timeline-node=active]:scale-125" />
+                  <div data-timeline-node="inactive" className="absolute -left-[32px] md:-left-[40px] top-6 w-4 h-4 bg-white border-2 border-white rounded-full transform -translate-x-1/2 shadow-[0_0_12px_rgba(34,211,238,0.4)] transition-all duration-500 z-20 data-[timeline-node=active]:border-cyan-400 data-[timeline-node=active]:shadow-[0_0_20px_rgba(34,211,238,0.9)] data-[timeline-node=active]:scale-125" />
                   <RevealCard as="div" index={3} direction="right">
-                    <div className="bg-pure-white p-6 md:p-8 rounded-2xl shadow-md border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(34,211,238,0.2)] relative overflow-hidden group">
+                    <div className="bg-pure-white p-6 rounded-2xl shadow-md border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(34,211,238,0.2)] relative overflow-hidden group">
                       <div className="absolute left-0 top-0 bottom-0 w-1 bg-cyan-400 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                      <h3 className="text-udbhav-blue-deep mb-3 font-heading text-xl font-bold">Interconnected Goals</h3>
-                      <p className="text-text-primary/80 text-base leading-relaxed sm:text-lg">
+                      <h3 className="text-udbhav-blue-deep mb-2 font-heading text-lg sm:text-xl font-bold">Interconnected Goals</h3>
+                      <p className="text-text-primary/80 text-sm sm:text-base leading-relaxed">
                         UDBHAV's work matters because education, mental well-being, sustainability and inclusion cannot be treated as separate goals. They are interconnected.
                       </p>
                     </div>
@@ -385,12 +385,12 @@ export default async function AboutPage() {
 
                 {/* Node 2 */}
                 <div className="relative">
-                  <div data-timeline-node="inactive" className="absolute -left-[32px] md:-left-[40px] top-8 w-4 h-4 bg-white border-2 border-white rounded-full transform -translate-x-1/2 shadow-[0_0_12px_rgba(52,211,153,0.4)] transition-all duration-500 z-20 data-[timeline-node=active]:border-emerald-400 data-[timeline-node=active]:shadow-[0_0_20px_rgba(52,211,153,0.9)] data-[timeline-node=active]:scale-125" />
+                  <div data-timeline-node="inactive" className="absolute -left-[32px] md:-left-[40px] top-6 w-4 h-4 bg-white border-2 border-white rounded-full transform -translate-x-1/2 shadow-[0_0_12px_rgba(52,211,153,0.4)] transition-all duration-500 z-20 data-[timeline-node=active]:border-emerald-400 data-[timeline-node=active]:shadow-[0_0_20px_rgba(52,211,153,0.9)] data-[timeline-node=active]:scale-125" />
                   <RevealCard as="div" index={4} direction="right">
-                    <div className="bg-pure-white p-6 md:p-8 rounded-2xl shadow-md border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(52,211,153,0.2)] relative overflow-hidden group">
+                    <div className="bg-pure-white p-6 rounded-2xl shadow-md border border-gray-100 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(52,211,153,0.2)] relative overflow-hidden group">
                       <div className="absolute left-0 top-0 bottom-0 w-1 bg-emerald-400 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                      <h3 className="text-udbhav-blue-deep mb-3 font-heading text-xl font-bold">Resilient Communities</h3>
-                      <p className="text-text-primary/80 text-base leading-relaxed sm:text-lg">
+                      <h3 className="text-udbhav-blue-deep mb-2 font-heading text-lg sm:text-xl font-bold">Resilient Communities</h3>
+                      <p className="text-text-primary/80 text-sm sm:text-base leading-relaxed">
                         When people have knowledge, opportunity, dignity and a healthy environment, communities become more aware, resilient and responsible.
                       </p>
                     </div>
@@ -398,7 +398,7 @@ export default async function AboutPage() {
                 </div>
 
                 {/* Node 3 (Image) */}
-                <div className="relative mt-8 md:mt-12">
+                <div className="relative">
                   <div data-timeline-node="inactive" className="absolute -left-[32px] md:-left-[40px] top-1/2 w-5 h-5 bg-white border-2 border-white rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-[0_0_15px_rgba(52,211,153,0.4)] transition-all duration-500 z-20 data-[timeline-node=active]:border-impact-green data-[timeline-node=active]:shadow-[0_0_20px_rgba(52,211,153,0.9)] data-[timeline-node=active]:scale-125" />
                   <RevealCard as="div" index={5} direction="up">
                     <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl shadow-xl ring-1 ring-black/5 group hover:shadow-[0_0_25px_rgba(52,211,153,0.3)] transition-all duration-500">
