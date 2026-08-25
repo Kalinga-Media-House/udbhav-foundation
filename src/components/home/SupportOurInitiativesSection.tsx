@@ -138,39 +138,16 @@ function generateFundraisingValues(id: string) {
 }
 
 /**
- * Builds a shuffled color assignment for `count` cards from THEMES.
- * Uses Fisher-Yates shuffle and avoids giving adjacent cards the same color.
+ * Deterministically selects a theme colour for a program based on its UUID.
+ * Same program ID → same colour, always. No randomness involved.
  */
-function shuffleThemes(count: number) {
-  if (count === 0) return [];
-
-  // Pick `count` themes, cycling through THEMES if needed
-  const pool = Array.from({ length: count }, (_, i) => THEMES[i % THEMES.length]);
-
-  // Fisher-Yates shuffle
-  for (let i = pool.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [pool[i], pool[j]] = [pool[j], pool[i]];
+function getProgramTheme(programId: string) {
+  let hash = 0;
+  for (let i = 0; i < programId.length; i++) {
+    hash = (hash << 5) - hash + programId.charCodeAt(i);
+    hash |= 0;
   }
-
-  // Fix adjacent duplicates: swap with the nearest non-duplicate later element
-  for (let i = 1; i < pool.length; i++) {
-    if (pool[i].gradient === pool[i - 1].gradient) {
-      // Find the closest later element that differs
-      let swapIdx = -1;
-      for (let j = i + 1; j < pool.length; j++) {
-        if (pool[j].gradient !== pool[i - 1].gradient && (i + 1 >= pool.length || pool[j].gradient !== pool[i + 1]?.gradient)) {
-          swapIdx = j;
-          break;
-        }
-      }
-      if (swapIdx !== -1) {
-        [pool[i], pool[swapIdx]] = [pool[swapIdx], pool[i]];
-      }
-    }
-  }
-
-  return pool;
+  return THEMES[Math.abs(hash) % THEMES.length];
 }
 
 export async function SupportOurInitiativesSection() {
@@ -185,9 +162,6 @@ export async function SupportOurInitiativesSection() {
       (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     );
 
-    // Shuffle colors so each page load gives a fresh palette order
-    const shuffledThemes = shuffleThemes(canonicalPrograms.length);
-
     initiatives = canonicalPrograms.map((p, index) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const meta = (p.metadata || {}) as any;
@@ -197,7 +171,7 @@ export async function SupportOurInitiativesSection() {
         : (meta.coverImageUrl as string) || '/hero/hero-01.png';
 
       const category = (meta.category as ProgrammeCategory) || 'Community Support';
-      const theme = shuffledThemes[index];
+      const theme = getProgramTheme(p.id);
       const iconName = CATEGORY_ICON_MAP[category] || "Heart";
 
       const fundValues = generateFundraisingValues(p.id);
