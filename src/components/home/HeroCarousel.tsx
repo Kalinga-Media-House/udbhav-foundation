@@ -102,7 +102,7 @@ function TypewriterTitle({ prefersReducedMotion }: { prefersReducedMotion: boole
   }, [prefersReducedMotion]);
 
   return (
-    <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 sm:mb-12 md:mb-16 px-2 h-[48px] sm:h-[60px] md:h-[72px] lg:h-[84px] flex items-center justify-center">
+    <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 sm:mb-12 md:mb-16 px-2 h-[48px] sm:h-[60px] md:h-[72px] lg:h-[84px] flex items-center justify-center drop-shadow-md">
       <span>{typedText}</span>
       <span
         className="inline-block w-[3px] sm:w-[4px] md:w-[5px] h-[36px] sm:h-[46px] md:h-[56px] lg:h-[66px] bg-white ml-1 sm:ml-2"
@@ -161,11 +161,11 @@ function AnimatedStatistic({ target, label, suffix = "+", prefersReducedMotion }
   }, [target, prefersReducedMotion]);
 
   return (
-    <div className={`flex flex-col items-center justify-center transition-all duration-500 w-full ${isFinished ? 'opacity-100 -translate-y-0.5' : 'opacity-90 translate-y-0'}`}>
-      <div className={`font-heading text-[18px] sm:text-2xl md:text-3xl font-extrabold text-white leading-none transition-all duration-500 ${isFinished ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]' : 'drop-shadow-none'}`}>
+    <div className={`flex flex-col items-center justify-center transition-all duration-500 w-full px-1 ${isFinished ? 'opacity-100' : 'opacity-90'}`}>
+      <div className="font-heading text-[16px] min-[360px]:text-[18px] sm:text-[21px] md:text-[24px] lg:text-[30px] font-bold text-white leading-none tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">
         {value}{suffix}
       </div>
-      <div className="mt-1 sm:mt-1.5 text-[9px] sm:text-[10px] md:text-[12px] font-medium text-white/80 uppercase tracking-widest text-center max-w-[70px] sm:max-w-none leading-tight sm:leading-normal">
+      <div className="mt-0.5 sm:mt-1 text-[7px] min-[360px]:text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium sm:font-semibold text-white/90 uppercase text-center leading-[1.1] tracking-[0.04em] lg:tracking-[0.08em] drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] max-w-[85px] sm:max-w-none">
         {label}
       </div>
     </div>
@@ -270,7 +270,7 @@ function DynamicNavGrid({ prefersReducedMotion }: { prefersReducedMotion: boolea
   }, [prefersReducedMotion, isMounted]);
 
   return (
-    <div className="w-full max-w-3xl mx-auto grid grid-cols-3 gap-1.5 sm:gap-3 md:gap-4 px-2 sm:px-0 mb-8 sm:mb-14">
+    <div className="w-full max-w-3xl mx-auto grid grid-cols-3 gap-1.5 sm:gap-3 md:gap-4 px-2 sm:px-0">
       {BUTTONS_INFO.map((item, idx) => (
         <DynamicGlassButton
           key={item.title}
@@ -341,7 +341,7 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
   }, [activeIndex, autoPlayInterval, isTabHidden, prefersReducedMotion, goToNextSlide, totalSlides]);
 
   return (
-    <section className="relative w-full h-[100dvh] min-h-[600px] bg-[#0A1628] overflow-hidden flex flex-col justify-center">
+    <section className="relative w-full h-[100dvh] min-h-[600px] bg-[#0A1628] overflow-hidden flex flex-col">
       {/* Background Images Carousel */}
       <div className="absolute inset-0 z-0">
         {images.map((imgSrc, index) => {
@@ -376,7 +376,7 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
               {/* Subtle Bottom Gradient for Indicator & Control Readability */}
               <div
                 aria-hidden="true"
-                className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#0A1628]/85 via-[#0A1628]/35 to-transparent"
+                className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#0A1628]/95 via-[#0A1628]/45 to-transparent"
               />
             </div>
           );
@@ -391,78 +391,82 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
         )}
       </div>
 
-      {/* Main Content */}
-      <Container className="relative z-20 py-8 sm:py-12 lg:py-20 my-auto flex flex-col">
-        <style dangerouslySetInnerHTML={{ __html: `
-          @keyframes heroGlassEntrance {
-            0% {
-              opacity: 0;
-              transform: translateY(12px);
+      {/* Main Content (Vertically centered in available space) */}
+      <div className="flex-1 flex flex-col justify-center w-full relative z-20">
+        <Container className="flex flex-col items-center justify-center py-8 sm:py-12 lg:py-20">
+          <style dangerouslySetInnerHTML={{ __html: `
+            @keyframes heroGlassEntrance {
+              0% {
+                opacity: 0;
+                transform: translateY(12px);
+              }
+              100% {
+                opacity: 1;
+                transform: translateY(0);
+              }
             }
-            100% {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-          .animate-glass-btn {
-            opacity: 0;
-            animation: heroGlassEntrance 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-          }
-          @media (prefers-reduced-motion: reduce) {
             .animate-glass-btn {
-              animation: none !important;
-              opacity: 1 !important;
-              transform: none !important;
+              opacity: 0;
+              animation: heroGlassEntrance 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
             }
-          }
-        `}} />
+            @media (prefers-reduced-motion: reduce) {
+              .animate-glass-btn {
+                animation: none !important;
+                opacity: 1 !important;
+                transform: none !important;
+              }
+            }
+          `}} />
 
-        <div className="flex flex-col items-center justify-center text-center w-full mt-auto mb-auto">
-          {/* Animated Title */}
-          {isMounted ? <TypewriterTitle prefersReducedMotion={prefersReducedMotion} /> : (
-            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 sm:mb-12 md:mb-16 px-2 h-[48px] sm:h-[60px] md:h-[72px] lg:h-[84px] flex items-center justify-center">
-              UDBHAV FOUNDATION
-            </h1>
-          )}
-
-          {/* Dynamic Colored Glass Navigation Grid */}
-          <DynamicNavGrid prefersReducedMotion={prefersReducedMotion} />
-
-          {/* Unified Glass Statistics Strip */}
-          <div
-            className="animate-glass-btn w-full max-w-[1000px] mx-auto grid grid-cols-4 divide-x divide-white/10 bg-white/5 backdrop-blur-md border border-white/20 rounded-[12px] sm:rounded-2xl shadow-sm py-3 sm:py-5 px-1 sm:px-2"
-            style={{ animationDelay: "0.5s" }}
-          >
-            {isMounted ? (
-              <>
-                <AnimatedStatistic target={50} label="Communities Reached" prefersReducedMotion={prefersReducedMotion} />
-                <AnimatedStatistic target={1000} label="Lives Impacted" prefersReducedMotion={prefersReducedMotion} />
-                <AnimatedStatistic target={100} label="Volunteers" prefersReducedMotion={prefersReducedMotion} />
-                <AnimatedStatistic target={25} label="Initiatives" prefersReducedMotion={prefersReducedMotion} />
-              </>
-            ) : (
-              <>
-                <div className="flex flex-col items-center justify-center w-full opacity-100">
-                  <div className="font-heading text-[18px] sm:text-2xl md:text-3xl font-extrabold text-white leading-none">50+</div>
-                  <div className="mt-1 sm:mt-1.5 text-[9px] sm:text-[10px] md:text-[12px] font-medium text-white/80 uppercase tracking-widest text-center max-w-[70px] sm:max-w-none leading-tight sm:leading-normal">Communities Reached</div>
-                </div>
-                <div className="flex flex-col items-center justify-center w-full opacity-100">
-                  <div className="font-heading text-[18px] sm:text-2xl md:text-3xl font-extrabold text-white leading-none">1000+</div>
-                  <div className="mt-1 sm:mt-1.5 text-[9px] sm:text-[10px] md:text-[12px] font-medium text-white/80 uppercase tracking-widest text-center max-w-[70px] sm:max-w-none leading-tight sm:leading-normal">Lives Impacted</div>
-                </div>
-                <div className="flex flex-col items-center justify-center w-full opacity-100">
-                  <div className="font-heading text-[18px] sm:text-2xl md:text-3xl font-extrabold text-white leading-none">100+</div>
-                  <div className="mt-1 sm:mt-1.5 text-[9px] sm:text-[10px] md:text-[12px] font-medium text-white/80 uppercase tracking-widest text-center max-w-[70px] sm:max-w-none leading-tight sm:leading-normal">Volunteers</div>
-                </div>
-                <div className="flex flex-col items-center justify-center w-full opacity-100">
-                  <div className="font-heading text-[18px] sm:text-2xl md:text-3xl font-extrabold text-white leading-none">25+</div>
-                  <div className="mt-1 sm:mt-1.5 text-[9px] sm:text-[10px] md:text-[12px] font-medium text-white/80 uppercase tracking-widest text-center max-w-[70px] sm:max-w-none leading-tight sm:leading-normal">Initiatives</div>
-                </div>
-              </>
+          <div className="flex flex-col items-center justify-center text-center w-full">
+            {/* Animated Title */}
+            {isMounted ? <TypewriterTitle prefersReducedMotion={prefersReducedMotion} /> : (
+              <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 sm:mb-12 md:mb-16 px-2 h-[48px] sm:h-[60px] md:h-[72px] lg:h-[84px] flex items-center justify-center drop-shadow-md">
+                UDBHAV FOUNDATION
+              </h1>
             )}
+
+            {/* Dynamic Colored Glass Navigation Grid */}
+            <DynamicNavGrid prefersReducedMotion={prefersReducedMotion} />
           </div>
+        </Container>
+      </div>
+
+      {/* Minimal Plain Text Statistics Strip at the Absolute Bottom */}
+      <div
+        className="animate-glass-btn relative z-20 w-full px-3 sm:px-[5%] lg:px-[8%] pt-2.5 pb-3"
+        style={{ animationDelay: "0.5s" }}
+      >
+        <div className="w-full grid grid-cols-4 divide-x divide-white/20">
+          {isMounted ? (
+            <>
+              <AnimatedStatistic target={50} label="Communities Reached" prefersReducedMotion={prefersReducedMotion} />
+              <AnimatedStatistic target={1000} label="Lives Impacted" prefersReducedMotion={prefersReducedMotion} />
+              <AnimatedStatistic target={100} label="Volunteers" prefersReducedMotion={prefersReducedMotion} />
+              <AnimatedStatistic target={25} label="Initiatives" prefersReducedMotion={prefersReducedMotion} />
+            </>
+          ) : (
+            <>
+              <div className="flex flex-col items-center justify-center w-full px-1 opacity-100">
+                <div className="font-heading text-[16px] min-[360px]:text-[18px] sm:text-[21px] md:text-[24px] lg:text-[30px] font-bold text-white leading-none tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">50+</div>
+                <div className="mt-0.5 sm:mt-1 text-[7px] min-[360px]:text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium sm:font-semibold text-white/90 uppercase text-center leading-[1.1] tracking-[0.04em] lg:tracking-[0.08em] drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] max-w-[85px] sm:max-w-none">Communities Reached</div>
+              </div>
+              <div className="flex flex-col items-center justify-center w-full px-1 opacity-100">
+                <div className="font-heading text-[16px] min-[360px]:text-[18px] sm:text-[21px] md:text-[24px] lg:text-[30px] font-bold text-white leading-none tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">1000+</div>
+                <div className="mt-0.5 sm:mt-1 text-[7px] min-[360px]:text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium sm:font-semibold text-white/90 uppercase text-center leading-[1.1] tracking-[0.04em] lg:tracking-[0.08em] drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] max-w-[85px] sm:max-w-none">Lives Impacted</div>
+              </div>
+              <div className="flex flex-col items-center justify-center w-full px-1 opacity-100">
+                <div className="font-heading text-[16px] min-[360px]:text-[18px] sm:text-[21px] md:text-[24px] lg:text-[30px] font-bold text-white leading-none tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">100+</div>
+                <div className="mt-0.5 sm:mt-1 text-[7px] min-[360px]:text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium sm:font-semibold text-white/90 uppercase text-center leading-[1.1] tracking-[0.04em] lg:tracking-[0.08em] drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] max-w-[85px] sm:max-w-none">Volunteers</div>
+              </div>
+              <div className="flex flex-col items-center justify-center w-full px-1 opacity-100">
+                <div className="font-heading text-[16px] min-[360px]:text-[18px] sm:text-[21px] md:text-[24px] lg:text-[30px] font-bold text-white leading-none tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">25+</div>
+                <div className="mt-0.5 sm:mt-1 text-[7px] min-[360px]:text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium sm:font-semibold text-white/90 uppercase text-center leading-[1.1] tracking-[0.04em] lg:tracking-[0.08em] drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] max-w-[85px] sm:max-w-none">Initiatives</div>
+              </div>
+            </>
+          )}
         </div>
-      </Container>
+      </div>
 
       {/* Left/Right Navigation Controls */}
       {totalSlides > 1 && (
