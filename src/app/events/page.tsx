@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 import { listEvents } from '@/features/events/actions';
-
+import { EventCard } from '@/components/events/EventCard';
 export const metadata: Metadata = {
   title: 'Events & Workshops',
   description: 'Join UDBHAV Foundation events, workshops and community programmes.',
@@ -38,37 +38,7 @@ export default async function EventsIndexPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {activeEvents.map(evt => (
-              <Link key={evt.id} href={`/events/${evt.slug}`} className="group block">
-                <article className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow h-full flex flex-col">
-                  {/* Image Placeholder or R2 URL */}
-                  <div className="h-48 bg-gray-100 relative">
-                    {/* In a real scenario, map cover_image_id to CDN url via service. Using placeholder for now */}
-                    <div className="absolute inset-0 bg-[#172B6B]/10 group-hover:bg-[#172B6B]/0 transition-colors" />
-                    {evt.status === 'Registration Open' && (
-                      <div className="absolute top-4 right-4 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                        Registration Open
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-6 flex-grow flex flex-col">
-                    <div className="text-sm font-semibold text-[#8B1A1A] mb-2">
-                      {evt.start_time ? format(new Date(evt.start_time), 'MMMM d, yyyy') : 'TBA'}
-                    </div>
-                    <h2 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-[#172B6B] transition-colors line-clamp-2">
-                      {evt.title}
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                      {evt.subtitle || evt.description || ''}
-                    </p>
-                    <div className="mt-auto pt-4 border-t border-gray-50 text-sm font-medium text-[#172B6B] flex items-center">
-                      View Details
-                      <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </div>
-                  </div>
-                </article>
-              </Link>
+              <EventCard key={evt.id} event={evt} />
             ))}
           </div>
         )}
