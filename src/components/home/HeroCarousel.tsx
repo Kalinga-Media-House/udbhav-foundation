@@ -102,7 +102,7 @@ function TypewriterTitle({ prefersReducedMotion }: { prefersReducedMotion: boole
   }, [prefersReducedMotion]);
 
   return (
-    <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 sm:mb-14 md:mb-20 px-2 h-[48px] sm:h-[60px] md:h-[72px] lg:h-[84px] flex items-center justify-center">
+    <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 sm:mb-12 md:mb-16 px-2 h-[48px] sm:h-[60px] md:h-[72px] lg:h-[84px] flex items-center justify-center">
       <span>{typedText}</span>
       <span
         className="inline-block w-[3px] sm:w-[4px] md:w-[5px] h-[36px] sm:h-[46px] md:h-[56px] lg:h-[66px] bg-white ml-1 sm:ml-2"
@@ -112,6 +112,63 @@ function TypewriterTitle({ prefersReducedMotion }: { prefersReducedMotion: boole
       {/* Screen reader only text so it announces properly */}
       <span className="sr-only">{targetText}</span>
     </h1>
+  );
+}
+
+function AnimatedStatistic({ target, label, suffix = "+", prefersReducedMotion }: { target: number, label: string, suffix?: string, prefersReducedMotion: boolean }) {
+  const [value, setValue] = useState(prefersReducedMotion ? target : 0);
+  const [isFinished, setIsFinished] = useState(prefersReducedMotion);
+
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setValue(target);
+      setIsFinished(true);
+      return;
+    }
+
+    let animationFrame: number;
+    let startTime: number;
+    const DURATION = 2000;
+    const PAUSE = 2000;
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+
+      if (elapsed < DURATION) {
+        const progress = elapsed / DURATION;
+        // Ease out cubic
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        setValue(Math.floor(easeOut * target));
+        setIsFinished(false);
+        animationFrame = requestAnimationFrame(animate);
+      } else if (elapsed < DURATION + PAUSE) {
+        setValue(target);
+        setIsFinished(true);
+        animationFrame = requestAnimationFrame(animate);
+      } else {
+        // Loop back
+        startTime = timestamp;
+        setValue(0);
+        setIsFinished(false);
+        animationFrame = requestAnimationFrame(animate);
+      }
+    };
+
+    animationFrame = requestAnimationFrame(animate);
+
+    return () => cancelAnimationFrame(animationFrame);
+  }, [target, prefersReducedMotion]);
+
+  return (
+    <div className={`flex flex-col items-center justify-center transition-all duration-500 w-full ${isFinished ? 'opacity-100 -translate-y-0.5' : 'opacity-90 translate-y-0'}`}>
+      <div className={`font-heading text-[18px] sm:text-2xl md:text-3xl font-extrabold text-white leading-none transition-all duration-500 ${isFinished ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]' : 'drop-shadow-none'}`}>
+        {value}{suffix}
+      </div>
+      <div className="mt-1 sm:mt-1.5 text-[9px] sm:text-[10px] md:text-[12px] font-medium text-white/80 uppercase tracking-widest text-center max-w-[70px] sm:max-w-none leading-tight sm:leading-normal">
+        {label}
+      </div>
+    </div>
   );
 }
 
@@ -221,8 +278,8 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
         )}
       </div>
 
-      {/* Main Static Text Content */}
-      <Container className="relative z-20 py-10 sm:py-16 lg:py-24 my-auto">
+      {/* Main Content */}
+      <Container className="relative z-20 py-8 sm:py-12 lg:py-20 my-auto flex flex-col">
         <style dangerouslySetInnerHTML={{ __html: `
           @keyframes heroGlassEntrance {
             0% {
@@ -247,16 +304,16 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
           }
         `}} />
 
-        <div className="flex flex-col items-center justify-center text-center w-full">
+        <div className="flex flex-col items-center justify-center text-center w-full mt-auto mb-auto">
           {/* Animated Title */}
           {isMounted ? <TypewriterTitle prefersReducedMotion={prefersReducedMotion} /> : (
-            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 sm:mb-14 md:mb-20 px-2 h-[48px] sm:h-[60px] md:h-[72px] lg:h-[84px] flex items-center justify-center">
+            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 sm:mb-12 md:mb-16 px-2 h-[48px] sm:h-[60px] md:h-[72px] lg:h-[84px] flex items-center justify-center">
               UDBHAV FOUNDATION
             </h1>
           )}
 
           {/* Glass Navigation Grid */}
-          <div className="w-full max-w-3xl mx-auto grid grid-cols-3 gap-1.5 sm:gap-3 md:gap-4 px-2 sm:px-0">
+          <div className="w-full max-w-3xl mx-auto grid grid-cols-3 gap-1.5 sm:gap-3 md:gap-4 px-2 sm:px-0 mb-8 sm:mb-14">
             {[
               {
                 title: "EXPLORE OUR WORK",
@@ -308,6 +365,40 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
                 </Link>
               );
             })}
+          </div>
+
+          {/* Unified Glass Statistics Strip */}
+          <div
+            className="animate-glass-btn w-full max-w-[1000px] mx-auto grid grid-cols-4 divide-x divide-white/10 bg-white/5 backdrop-blur-md border border-white/20 rounded-[12px] sm:rounded-2xl shadow-sm py-3 sm:py-5 px-1 sm:px-2"
+            style={{ animationDelay: "0.5s" }}
+          >
+            {isMounted ? (
+              <>
+                <AnimatedStatistic target={50} label="Communities Reached" prefersReducedMotion={prefersReducedMotion} />
+                <AnimatedStatistic target={1000} label="Lives Impacted" prefersReducedMotion={prefersReducedMotion} />
+                <AnimatedStatistic target={100} label="Volunteers" prefersReducedMotion={prefersReducedMotion} />
+                <AnimatedStatistic target={25} label="Initiatives" prefersReducedMotion={prefersReducedMotion} />
+              </>
+            ) : (
+              <>
+                <div className="flex flex-col items-center justify-center w-full opacity-100">
+                  <div className="font-heading text-[18px] sm:text-2xl md:text-3xl font-extrabold text-white leading-none">50+</div>
+                  <div className="mt-1 sm:mt-1.5 text-[9px] sm:text-[10px] md:text-[12px] font-medium text-white/80 uppercase tracking-widest text-center max-w-[70px] sm:max-w-none leading-tight sm:leading-normal">Communities Reached</div>
+                </div>
+                <div className="flex flex-col items-center justify-center w-full opacity-100">
+                  <div className="font-heading text-[18px] sm:text-2xl md:text-3xl font-extrabold text-white leading-none">1000+</div>
+                  <div className="mt-1 sm:mt-1.5 text-[9px] sm:text-[10px] md:text-[12px] font-medium text-white/80 uppercase tracking-widest text-center max-w-[70px] sm:max-w-none leading-tight sm:leading-normal">Lives Impacted</div>
+                </div>
+                <div className="flex flex-col items-center justify-center w-full opacity-100">
+                  <div className="font-heading text-[18px] sm:text-2xl md:text-3xl font-extrabold text-white leading-none">100+</div>
+                  <div className="mt-1 sm:mt-1.5 text-[9px] sm:text-[10px] md:text-[12px] font-medium text-white/80 uppercase tracking-widest text-center max-w-[70px] sm:max-w-none leading-tight sm:leading-normal">Volunteers</div>
+                </div>
+                <div className="flex flex-col items-center justify-center w-full opacity-100">
+                  <div className="font-heading text-[18px] sm:text-2xl md:text-3xl font-extrabold text-white leading-none">25+</div>
+                  <div className="mt-1 sm:mt-1.5 text-[9px] sm:text-[10px] md:text-[12px] font-medium text-white/80 uppercase tracking-widest text-center max-w-[70px] sm:max-w-none leading-tight sm:leading-normal">Initiatives</div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </Container>
