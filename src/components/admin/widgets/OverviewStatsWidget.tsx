@@ -3,39 +3,49 @@
 import { Users, Banknote, Calendar, CheckCircle2 } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 
-export function OverviewStatsWidget() {
-  const [data, setData] = useState<{
-    donations: string;
-    volunteers: string;
-    events: string;
-    programs: string;
-  }>({
-    donations: '₹0',
-    volunteers: '0',
-    events: '0',
-    programs: '0'
-  });
+import { getAdminKPIsAction } from '@/features/dashboard/actions';
+import type { AdminDashboardKPIs } from '@/features/dashboard/admin.repository';
+import { toast } from 'sonner';
 
+export function OverviewStatsWidget() {
+  const [data, setData] = useState<AdminDashboardKPIs | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    // In a real implementation this would fetch from a Server Action
-    // For now we simulate loading stats
-    setTimeout(() => {
-      setData({
-        donations: '₹14,50,000',
-        volunteers: '1,240',
-        events: '12 Active',
-        programs: '8 Active'
-      });
-      setLoading(false);
-    }, 1000);
+    const fetchKPIs = async () => {
+      try {
+        const result = await getAdminKPIsAction();
+        if (result.success && result.data) {
+          setData(result.data);
+          setError(false);
+        } else {
+          setError(true);
+          toast.error('Failed to load KPIs');
+        }
+      } catch (e) {
+        console.error(e);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchKPIs();
   }, []);
 
   if (loading) {
     return (
       <div className="p-6 h-40 flex items-center justify-center">
         <div className="animate-spin h-6 w-6 border-2 border-indigo-600 border-t-transparent rounded-full" />
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className="p-6 h-40 flex items-center justify-center text-red-500 text-sm">
+        Unable to load dashboard statistics.
       </div>
     );
   }
@@ -51,7 +61,7 @@ export function OverviewStatsWidget() {
           </div>
           <div>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">Total Donations</p>
-            <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{data.donations}</p>
+            <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">₹{data.totalDonations.toLocaleString('en-IN')}</p>
           </div>
         </div>
 
@@ -61,7 +71,7 @@ export function OverviewStatsWidget() {
           </div>
           <div>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">Volunteers</p>
-            <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{data.volunteers}</p>
+            <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{data.volunteers.toLocaleString('en-IN')}</p>
           </div>
         </div>
 
@@ -71,7 +81,7 @@ export function OverviewStatsWidget() {
           </div>
           <div>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">Events</p>
-            <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{data.events}</p>
+            <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{data.events} Active</p>
           </div>
         </div>
 
@@ -81,7 +91,7 @@ export function OverviewStatsWidget() {
           </div>
           <div>
             <p className="text-sm text-zinc-500 dark:text-zinc-400">Programs</p>
-            <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{data.programs}</p>
+            <p className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{data.programs} Active</p>
           </div>
         </div>
 
