@@ -188,7 +188,7 @@ export function HeroCarousel({
       </div>
 
       {/* Main Static Text Content */}
-      <Container className="relative z-20 py-12 sm:py-16 lg:py-24 my-auto">
+      <Container className="relative z-20 py-10 sm:py-16 lg:py-24 my-auto">
         <style dangerouslySetInnerHTML={{ __html: `
           @keyframes heroTitleFloat {
             0%, 100% {
@@ -219,19 +219,19 @@ export function HeroCarousel({
           @keyframes heroGlassEntrance {
             0% {
               opacity: 0;
-              transform: translateY(20px);
+              transform: translateY(16px) scale(0.98);
             }
             100% {
               opacity: 1;
-              transform: translateY(0);
+              transform: translateY(0) scale(1);
             }
           }
           .animate-hero-title {
-            animation: heroTitleEntrance 1s ease-out forwards, heroTitleFloat 6s ease-in-out 1s infinite;
+            animation: heroTitleEntrance 0.8s ease-out forwards, heroTitleFloat 6s ease-in-out 1s infinite;
           }
           .animate-glass-btn {
             opacity: 0;
-            animation: heroGlassEntrance 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+            animation: heroGlassEntrance 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
           }
           @media (prefers-reduced-motion: reduce) {
             .animate-hero-title {
@@ -251,54 +251,54 @@ export function HeroCarousel({
 
         <div className="flex flex-col items-center justify-center text-center w-full">
           {/* Animated Title */}
-          <h1 className="animate-hero-title font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-10 sm:mb-14 md:mb-20">
+          <h1 className="animate-hero-title font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 sm:mb-14 md:mb-20 px-2">
             UDBHAV FOUNDATION
           </h1>
 
           {/* Glass Navigation Grid */}
-          <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
+          <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-4 md:gap-5 px-2 sm:px-0">
             {[
               {
                 title: "EXPLORE OUR WORK",
                 href: "/about",
                 icon: Compass,
-                hoverColor: "hover:bg-emerald-500/25 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(52,211,153,0.35)]",
-                delay: "0.2s",
+                activeColor: "hover:bg-emerald-500/25 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(52,211,153,0.35)] active:bg-emerald-500/30 active:border-emerald-400 active:shadow-[0_0_20px_rgba(52,211,153,0.4)]",
+                delay: "0.1s",
               },
               {
                 title: "JOIN AS A VOLUNTEER",
                 href: "/volunteers",
                 icon: Users,
-                hoverColor: "hover:bg-cyan-500/25 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.35)]",
-                delay: "0.3s",
+                activeColor: "hover:bg-cyan-500/25 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.35)] active:bg-cyan-500/30 active:border-cyan-400 active:shadow-[0_0_20px_rgba(34,211,238,0.4)]",
+                delay: "0.18s",
               },
               {
                 title: "UPCOMING EVENTS",
                 href: "/events",
                 icon: Calendar,
-                hoverColor: "hover:bg-amber-500/25 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(251,191,36,0.35)]",
-                delay: "0.4s",
+                activeColor: "hover:bg-amber-500/25 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(251,191,36,0.35)] active:bg-amber-500/30 active:border-amber-400 active:shadow-[0_0_20px_rgba(251,191,36,0.4)]",
+                delay: "0.26s",
               },
               {
                 title: "PODCAST",
                 href: "/podcast",
                 icon: Mic,
-                hoverColor: "hover:bg-violet-500/25 hover:border-violet-400 hover:shadow-[0_0_20px_rgba(139,92,246,0.35)]",
-                delay: "0.5s",
+                activeColor: "hover:bg-violet-500/25 hover:border-violet-400 hover:shadow-[0_0_20px_rgba(139,92,246,0.35)] active:bg-violet-500/30 active:border-violet-400 active:shadow-[0_0_20px_rgba(139,92,246,0.4)]",
+                delay: "0.34s",
               },
               {
                 title: "GALLERY",
                 href: "/gallery",
                 icon: ImageIcon,
-                hoverColor: "hover:bg-pink-500/25 hover:border-pink-400 hover:shadow-[0_0_20px_rgba(236,72,153,0.35)]",
-                delay: "0.6s",
+                activeColor: "hover:bg-pink-500/25 hover:border-pink-400 hover:shadow-[0_0_20px_rgba(236,72,153,0.35)] active:bg-pink-500/30 active:border-pink-400 active:shadow-[0_0_20px_rgba(236,72,153,0.4)]",
+                delay: "0.42s",
               },
               {
                 title: "CONTRIBUTE",
                 href: "/donate",
                 icon: Heart,
-                hoverColor: "hover:bg-orange-500/25 hover:border-orange-400 hover:shadow-[0_0_20px_rgba(249,115,22,0.35)]",
-                delay: "0.7s",
+                activeColor: "hover:bg-orange-500/25 hover:border-orange-400 hover:shadow-[0_0_20px_rgba(249,115,22,0.35)] active:bg-orange-500/30 active:border-orange-400 active:shadow-[0_0_20px_rgba(249,115,22,0.4)]",
+                delay: "0.5s",
               },
             ].map((item) => {
               const Icon = item.icon;
@@ -307,10 +307,10 @@ export function HeroCarousel({
                   key={item.title}
                   href={item.href}
                   style={{ animationDelay: item.delay }}
-                  className={`animate-glass-btn group flex items-center justify-center gap-2.5 sm:gap-3 w-full h-[70px] sm:h-[80px] md:h-[90px] rounded-2xl bg-white/5 backdrop-blur-md border border-white/20 text-white shadow-sm transition-all duration-300 ${item.hoverColor} hover:-translate-y-1 hover:scale-[1.02] focus-visible:outline-2 focus-visible:outline-white`}
+                  className={`animate-glass-btn group flex items-center justify-center gap-2.5 sm:gap-3 w-full h-[56px] sm:h-[80px] md:h-[90px] rounded-[14px] sm:rounded-2xl bg-white/5 backdrop-blur-md border border-white/20 text-white shadow-sm transition-all duration-300 ${item.activeColor} sm:hover:-translate-y-1 sm:hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-white`}
                 >
-                  <Icon className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:scale-110" />
-                  <span className="font-heading text-[13px] sm:text-sm md:text-base font-bold tracking-widest uppercase">
+                  <Icon className="w-[18px] h-[18px] sm:w-6 sm:h-6 transition-transform duration-300 sm:group-hover:scale-110 group-active:scale-110" />
+                  <span className="font-heading text-[12px] sm:text-sm md:text-base font-bold tracking-widest uppercase mt-[2px]">
                     {item.title}
                   </span>
                 </Link>
