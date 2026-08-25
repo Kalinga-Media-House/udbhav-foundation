@@ -113,19 +113,19 @@ function generateFundraisingValues(id: string) {
   let hash = 0;
   for (let i = 0; i < id.length; i++) {
     hash = (hash << 5) - hash + id.charCodeAt(i);
-    hash |= 0; 
+    hash |= 0;
   }
-  
-  const goalBase = (Math.abs(hash) % 4) + 2; // 2 to 5 
+
+  const goalBase = (Math.abs(hash) % 4) + 2; // 2 to 5
   const goalAmount = goalBase * 100000;
-  
+
   const raisedBase = Math.abs(hash * 31) % 100;
   const raisedPct = Math.max(20, Math.min(100, raisedBase));
   const raisedAmount = Math.round((goalAmount * raisedPct) / 100 / 1000) * 1000;
-  
+
   const availableAmount = goalAmount - raisedAmount;
   const percentage = Math.round((raisedAmount / goalAmount) * 100);
-  
+
   return {
     goalAmount,
     raisedAmount,
@@ -137,28 +137,67 @@ function generateFundraisingValues(id: string) {
   };
 }
 
+/**
+ * Builds a shuffled color assignment for `count` cards from THEMES.
+ * Uses Fisher-Yates shuffle and avoids giving adjacent cards the same color.
+ */
+function shuffleThemes(count: number) {
+  if (count === 0) return [];
+
+  // Pick `count` themes, cycling through THEMES if needed
+  const pool = Array.from({ length: count }, (_, i) => THEMES[i % THEMES.length]);
+
+  // Fisher-Yates shuffle
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+
+  // Fix adjacent duplicates: swap with the nearest non-duplicate later element
+  for (let i = 1; i < pool.length; i++) {
+    if (pool[i].gradient === pool[i - 1].gradient) {
+      // Find the closest later element that differs
+      let swapIdx = -1;
+      for (let j = i + 1; j < pool.length; j++) {
+        if (pool[j].gradient !== pool[i - 1].gradient && (i + 1 >= pool.length || pool[j].gradient !== pool[i + 1]?.gradient)) {
+          swapIdx = j;
+          break;
+        }
+      }
+      if (swapIdx !== -1) {
+        [pool[i], pool[swapIdx]] = [pool[swapIdx], pool[i]];
+      }
+    }
+  }
+
+  return pool;
+}
+
 export async function SupportOurInitiativesSection() {
   const result = await listPrograms({ page: 1, limit: 100 }, { visibility: 'public', status: 'active' });
-  
+
   let initiatives: InitiativeItem[] = [];
 
   if (result.success && result.data) {
     const activePrograms = result.data.data;
-    
+
     const canonicalPrograms = [...activePrograms].sort(
       (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     );
+
+    // Shuffle colors so each page load gives a fresh palette order
+    const shuffledThemes = shuffleThemes(canonicalPrograms.length);
 
     initiatives = canonicalPrograms.map((p, index) => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const meta = (p.metadata || {}) as any;
       const r2Url = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || 'https://media.udbhavfoundation.in';
-      const resolvedCover = p.cover_image?.r2_object_key 
+      const resolvedCover = p.cover_image?.r2_object_key
         ? `${r2Url}/${p.cover_image.r2_object_key}`
         : (meta.coverImageUrl as string) || '/hero/hero-01.png';
 
       const category = (meta.category as ProgrammeCategory) || 'Community Support';
-      const theme = THEMES[index % THEMES.length];
+      const theme = shuffledThemes[index];
       const iconName = CATEGORY_ICON_MAP[category] || "Heart";
 
       const fundValues = generateFundraisingValues(p.id);
