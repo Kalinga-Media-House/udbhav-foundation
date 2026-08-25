@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Compass, Users, Calendar, Mic, Image as ImageIcon, Heart } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState, useEffect, useCallback } from "react";
@@ -39,34 +39,97 @@ function getCinematicTransform(index: number, isActive: boolean, reducedMotion: 
     case 0:
       return "scale(1.065) translate3d(-1.2%, -0.8%, 0)";
     case 1:
-      return "scale(1.02) translate3d(0, -0.6%, 0)";
+      return "scale(1.02) translate3d(0, 0, 0)";
     case 2:
-      return "scale(1.065) translate3d(-1%, 0, 0)";
+      return "scale(1.065) translate3d(1.2%, 0, 0)";
     case 3:
     default:
-      return "scale(1.02) translate3d(-1.2%, -0.6%, 0)";
+      return "scale(1.02) translate3d(0, 0.8%, 0)";
   }
 }
 
-export function HeroCarousel({
-  heroImages,
-  autoPlayInterval = 5000,
-}: HeroCarouselProps) {
+function TypewriterTitle({ prefersReducedMotion }: { prefersReducedMotion: boolean }) {
+  const targetText = "UDBHAV FOUNDATION";
+  const [typedText, setTypedText] = useState("");
+  const [isCursorVisible, setIsCursorVisible] = useState(true);
+
+  useEffect(() => {
+    if (prefersReducedMotion) {
+      setTypedText(targetText);
+      setIsCursorVisible(false);
+      return;
+    }
+
+    let isCancelled = false;
+
+    // blinking cursor
+    const cursorInterval = setInterval(() => {
+      setIsCursorVisible(v => !v);
+    }, 500);
+
+    const typeLoop = async () => {
+      while (!isCancelled) {
+        // Pause before starting
+        await new Promise(r => setTimeout(r, 500));
+        if (isCancelled) return;
+
+        // Type forward
+        for (let i = 0; i <= targetText.length; i++) {
+          if (isCancelled) return;
+          setTypedText(targetText.substring(0, i));
+          await new Promise(r => setTimeout(r, 80 + Math.random() * 40));
+        }
+
+        // Pause at the end
+        if (isCancelled) return;
+        await new Promise(r => setTimeout(r, 1500 + Math.random() * 500));
+
+        // Erase
+        for (let i = targetText.length; i >= 0; i--) {
+          if (isCancelled) return;
+          setTypedText(targetText.substring(0, i));
+          await new Promise(r => setTimeout(r, 40 + Math.random() * 30));
+        }
+      }
+    };
+
+    typeLoop();
+
+    return () => {
+      isCancelled = true;
+      clearInterval(cursorInterval);
+    };
+  }, [prefersReducedMotion]);
+
+  return (
+    <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 sm:mb-14 md:mb-20 px-2 h-[48px] sm:h-[60px] md:h-[72px] lg:h-[84px] flex items-center justify-center">
+      <span>{typedText}</span>
+      <span
+        className="inline-block w-[3px] sm:w-[4px] md:w-[5px] h-[36px] sm:h-[46px] md:h-[56px] lg:h-[66px] bg-white ml-1 sm:ml-2"
+        style={{ opacity: isCursorVisible ? 1 : 0, transition: 'opacity 0.1s' }}
+        aria-hidden="true"
+      />
+      {/* Screen reader only text so it announces properly */}
+      <span className="sr-only">{targetText}</span>
+    </h1>
+  );
+}
+
+export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isHoverPaused, setIsHoverPaused] = useState(false);
   const [isTabHidden, setIsTabHidden] = useState(false);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  });
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    setPrefersReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  }, []);
 
   const images = heroImages && heroImages.length > 0
     ? heroImages.map(img => img.image_url)
     : [HERO_SLIDES[0].image];
   const totalSlides = images.length;
-
-  // Static text from the first slide as per requirements
-  const staticContent = HERO_SLIDES[0];
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -101,72 +164,43 @@ export function HeroCarousel({
     setActiveIndex(index);
   }, []);
 
-  // Stable single automatic slide transition timer (pauses on hover/focus or hidden tab)
   useEffect(() => {
-    if (isHoverPaused || isTabHidden || totalSlides <= 1) return;
-
-    const interval = window.setInterval(() => {
-      setActiveIndex((currentSlide) => (currentSlide + 1) % totalSlides);
-    }, autoPlayInterval);
-
-    return () => {
-      window.clearInterval(interval);
-    };
-  }, [isHoverPaused, isTabHidden, totalSlides, autoPlayInterval]);
+    if (isTabHidden || prefersReducedMotion || totalSlides <= 1) return;
+    const timer = setInterval(goToNextSlide, autoPlayInterval);
+    return () => clearInterval(timer);
+  }, [activeIndex, autoPlayInterval, isTabHidden, prefersReducedMotion, goToNextSlide, totalSlides]);
 
   return (
-    <section
-      aria-label="UDBHAV Foundation featured initiatives"
-      aria-roledescription="carousel"
-      onMouseEnter={() => setIsHoverPaused(true)}
-      onMouseLeave={() => setIsHoverPaused(false)}
-      onFocusCapture={() => setIsHoverPaused(true)}
-      onBlurCapture={() => setIsHoverPaused(false)}
-      className="relative w-full overflow-hidden min-h-[calc(100dvh-121px)] sm:min-h-[calc(100dvh-114px)] flex flex-col justify-center bg-udbhav-blue-deep"
-    >
-      {/* Background Images and Cinematic Overlay Layers for Each Slide */}
+    <section className="relative w-full h-[100dvh] min-h-[600px] bg-[#0A1628] overflow-hidden flex flex-col justify-center">
+      {/* Background Images Carousel */}
       <div className="absolute inset-0 z-0">
-        {images.map((imageUrl, index) => {
+        {images.map((imgSrc, index) => {
           const isActive = index === activeIndex;
-          const transformStyle = getCinematicTransform(index, isActive, prefersReducedMotion);
+          const cinematicStyle = getCinematicTransform(index, isActive, prefersReducedMotion);
 
           return (
             <div
-              key={index}
-              aria-hidden={!isActive}
+              key={`${imgSrc}-${index}`}
+              className="absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out"
               style={{
-                transition: "opacity 1000ms cubic-bezier(0.22, 1, 0.36, 1)",
-                willChange: isActive ? "opacity" : "auto",
+                opacity: isActive ? 1 : 0,
+                zIndex: isActive ? 1 : 0
               }}
-              className={`absolute inset-0 ${
-                isActive ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
-              }`}
+              aria-hidden={!isActive}
             >
-              {/* Background Image with Cinematic Ken Burns Motion */}
               <Image
-                src={imageUrl}
-                alt="UDBHAV Foundation"
+                src={imgSrc}
+                alt=""
                 fill
                 priority={index === 0}
-                sizes="100vw"
-                style={{
-                  objectPosition: "center center",
-                  transform: transformStyle,
-                  transition:
-                    "transform 6000ms cubic-bezier(0.25, 1, 0.5, 1), filter 1000ms ease",
-                  filter:
-                    isActive && !prefersReducedMotion
-                      ? "brightness(1) contrast(1.02)"
-                      : "brightness(0.96) contrast(1)",
-                  willChange: isActive ? "transform" : "auto",
-                }}
-                className="object-cover"
+                className="object-cover transition-transform duration-[8000ms] ease-out will-change-transform"
+                style={{ transform: cinematicStyle }}
               />
 
-              {/* Multi-layer Accessible Dark Gradient Overlay */}
+              {/* Dynamic Overlay adjusted for legibility */}
               <div
                 aria-hidden="true"
-                className="absolute inset-0 bg-gradient-to-r from-[#0A1628]/92 via-[#0A1628]/78 to-[#0A1628]/60 lg:from-[#0A1628]/85 lg:via-[#0A1628]/50 lg:to-[#0A1628]/25"
+                className="absolute inset-0 bg-[#0A1628]/60 transition-opacity duration-1000"
               />
 
               {/* Subtle Bottom Gradient for Indicator & Control Readability */}
@@ -190,57 +224,21 @@ export function HeroCarousel({
       {/* Main Static Text Content */}
       <Container className="relative z-20 py-10 sm:py-16 lg:py-24 my-auto">
         <style dangerouslySetInnerHTML={{ __html: `
-          @keyframes heroTitleFloat {
-            0%, 100% {
-              transform: translateY(0);
-              opacity: 0.9;
-              text-shadow: 0 4px 20px rgba(255,255,255,0.3);
-              letter-spacing: normal;
-            }
-            50% {
-              transform: translateY(-8px);
-              opacity: 1;
-              text-shadow: 0 4px 30px rgba(255,255,255,0.7);
-              letter-spacing: 0.05em;
-            }
-          }
-          @keyframes heroTitleEntrance {
-            0% {
-              opacity: 0;
-              transform: translateY(20px);
-              letter-spacing: -0.05em;
-            }
-            100% {
-              opacity: 0.9;
-              transform: translateY(0);
-              letter-spacing: normal;
-            }
-          }
           @keyframes heroGlassEntrance {
             0% {
               opacity: 0;
-              transform: translateY(16px) scale(0.98);
+              transform: translateY(12px);
             }
             100% {
               opacity: 1;
-              transform: translateY(0) scale(1);
+              transform: translateY(0);
             }
-          }
-          .animate-hero-title {
-            animation: heroTitleEntrance 0.8s ease-out forwards, heroTitleFloat 6s ease-in-out 1s infinite;
           }
           .animate-glass-btn {
             opacity: 0;
             animation: heroGlassEntrance 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
           }
           @media (prefers-reduced-motion: reduce) {
-            .animate-hero-title {
-              animation: none !important;
-              opacity: 1 !important;
-              transform: none !important;
-              letter-spacing: normal !important;
-              text-shadow: none !important;
-            }
             .animate-glass-btn {
               animation: none !important;
               opacity: 1 !important;
@@ -251,66 +249,60 @@ export function HeroCarousel({
 
         <div className="flex flex-col items-center justify-center text-center w-full">
           {/* Animated Title */}
-          <h1 className="animate-hero-title font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 sm:mb-14 md:mb-20 px-2">
-            UDBHAV FOUNDATION
-          </h1>
+          {isMounted ? <TypewriterTitle prefersReducedMotion={prefersReducedMotion} /> : (
+            <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 sm:mb-14 md:mb-20 px-2 h-[48px] sm:h-[60px] md:h-[72px] lg:h-[84px] flex items-center justify-center">
+              UDBHAV FOUNDATION
+            </h1>
+          )}
 
           {/* Glass Navigation Grid */}
-          <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-2.5 sm:gap-4 md:gap-5 px-2 sm:px-0">
+          <div className="w-full max-w-3xl mx-auto grid grid-cols-3 gap-1.5 sm:gap-3 md:gap-4 px-2 sm:px-0">
             {[
               {
                 title: "EXPLORE OUR WORK",
                 href: "/about",
-                icon: Compass,
                 activeColor: "hover:bg-emerald-500/25 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(52,211,153,0.35)] active:bg-emerald-500/30 active:border-emerald-400 active:shadow-[0_0_20px_rgba(52,211,153,0.4)]",
                 delay: "0.1s",
               },
               {
                 title: "JOIN AS A VOLUNTEER",
                 href: "/volunteers",
-                icon: Users,
                 activeColor: "hover:bg-cyan-500/25 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.35)] active:bg-cyan-500/30 active:border-cyan-400 active:shadow-[0_0_20px_rgba(34,211,238,0.4)]",
-                delay: "0.18s",
+                delay: "0.15s",
               },
               {
                 title: "UPCOMING EVENTS",
                 href: "/events",
-                icon: Calendar,
                 activeColor: "hover:bg-amber-500/25 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(251,191,36,0.35)] active:bg-amber-500/30 active:border-amber-400 active:shadow-[0_0_20px_rgba(251,191,36,0.4)]",
-                delay: "0.26s",
+                delay: "0.2s",
               },
               {
                 title: "PODCAST",
                 href: "/podcast",
-                icon: Mic,
                 activeColor: "hover:bg-violet-500/25 hover:border-violet-400 hover:shadow-[0_0_20px_rgba(139,92,246,0.35)] active:bg-violet-500/30 active:border-violet-400 active:shadow-[0_0_20px_rgba(139,92,246,0.4)]",
-                delay: "0.34s",
+                delay: "0.25s",
               },
               {
                 title: "GALLERY",
                 href: "/gallery",
-                icon: ImageIcon,
                 activeColor: "hover:bg-pink-500/25 hover:border-pink-400 hover:shadow-[0_0_20px_rgba(236,72,153,0.35)] active:bg-pink-500/30 active:border-pink-400 active:shadow-[0_0_20px_rgba(236,72,153,0.4)]",
-                delay: "0.42s",
+                delay: "0.3s",
               },
               {
                 title: "CONTRIBUTE",
                 href: "/donate",
-                icon: Heart,
                 activeColor: "hover:bg-orange-500/25 hover:border-orange-400 hover:shadow-[0_0_20px_rgba(249,115,22,0.35)] active:bg-orange-500/30 active:border-orange-400 active:shadow-[0_0_20px_rgba(249,115,22,0.4)]",
-                delay: "0.5s",
+                delay: "0.35s",
               },
             ].map((item) => {
-              const Icon = item.icon;
               return (
                 <Link
                   key={item.title}
                   href={item.href}
                   style={{ animationDelay: item.delay }}
-                  className={`animate-glass-btn group flex items-center justify-center gap-2.5 sm:gap-3 w-full h-[56px] sm:h-[80px] md:h-[90px] rounded-[14px] sm:rounded-2xl bg-white/5 backdrop-blur-md border border-white/20 text-white shadow-sm transition-all duration-300 ${item.activeColor} sm:hover:-translate-y-1 sm:hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-white`}
+                  className={`animate-glass-btn group flex items-center justify-center w-full h-[48px] sm:h-[56px] md:h-[62px] rounded-[10px] sm:rounded-xl md:rounded-2xl bg-white/5 backdrop-blur-md border border-white/20 text-white shadow-sm transition-all duration-300 ${item.activeColor} sm:hover:-translate-y-1 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-white`}
                 >
-                  <Icon className="w-[18px] h-[18px] sm:w-6 sm:h-6 transition-transform duration-300 sm:group-hover:scale-110 group-active:scale-110" />
-                  <span className="font-heading text-[12px] sm:text-sm md:text-base font-bold tracking-widest uppercase mt-[2px]">
+                  <span className="font-heading text-[9px] sm:text-[11px] md:text-[13px] lg:text-[14px] font-bold tracking-widest uppercase text-center px-1 sm:px-2 leading-tight">
                     {item.title}
                   </span>
                 </Link>
