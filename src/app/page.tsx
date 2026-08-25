@@ -15,6 +15,7 @@ import { GoverningBodySection } from '@/components/home/GoverningBodySection';
 import { HeroCarousel } from '@/components/home/HeroCarousel';
 import { OurMomentsGallerySection } from '@/components/home/OurMomentsGallerySection';
 import { OurPartnersSection } from '@/components/home/OurPartnersSection';
+import { ProgrammesSection } from '@/components/home/ProgrammesSection';
 import { SupportOurInitiativesSection } from '@/components/home/SupportOurInitiativesSection';
 import { getRandomPublicPhotosAction } from '@/features/gallery/actions';
 import { getActiveGoverningBodyMembers } from '@/features/governing-body';
@@ -26,8 +27,9 @@ import { getActivePartners } from '@/features/partners/repository';
  * Composed cleanly with modular sections in exact sequence:
  * 1. Hero Carousel
  * 2. Our Moments — Infinite Auto-Scrolling Gallery
- * 3. Governing Body
- * 4. Support Our Initiatives — Donation Carousel
+ * 3. Our Programmes
+ * 4. Governing Body
+ * 5. Support Our Initiatives — Donation Carousel
  */
 export default async function Home() {
   const heroImages = await getActiveHeroImages('home_hero');
@@ -40,6 +42,7 @@ export default async function Home() {
     <main className="bg-warm-white text-text-primary flex flex-1 flex-col">
       <HeroCarousel heroImages={heroImages} />
       <OurMomentsGallerySection galleryPhotos={galleryPhotos} />
+      <ProgrammesSection />
       <GoverningBodySection members={governingBodyMembers} />
       <SupportOurInitiativesSection />
       <OurPartnersSection partners={partners} />
