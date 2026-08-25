@@ -172,6 +172,119 @@ function AnimatedStatistic({ target, label, suffix = "+", prefersReducedMotion }
   );
 }
 
+// Color palette for the buttons
+const BASE_COLORS = [
+  "79, 174, 47",   // Green
+  "49, 85, 200",   // Blue
+  "21, 155, 181",  // Cyan
+  "118, 84, 198",  // Purple
+  "232, 137, 50",  // Orange
+  "214, 92, 114"   // Rose
+];
+
+const BUTTONS_INFO = [
+  { title: "EXPLORE OUR WORK", href: "/about", delay: "0.1s" },
+  { title: "JOIN AS A VOLUNTEER", href: "/volunteers", delay: "0.15s" },
+  { title: "UPCOMING EVENTS", href: "/events", delay: "0.2s" },
+  { title: "PODCAST", href: "/podcast", delay: "0.25s" },
+  { title: "GALLERY", href: "/gallery", delay: "0.3s" },
+  { title: "CONTRIBUTE", href: "/donate", delay: "0.35s" }
+];
+
+function shuffle<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function DynamicGlassButton({ title, href, colorRgb, delay, prefersReducedMotion }: { title: string, href: string, colorRgb: string, delay: string, prefersReducedMotion: boolean }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+
+  const transitionStr = prefersReducedMotion
+    ? 'none'
+    : 'background-color 700ms ease, border-color 700ms ease, box-shadow 700ms ease, transform 300ms ease';
+
+  // Opacities for normal, hover, and active states
+  const bgAlpha = isActive ? 0.35 : isHovered ? 0.25 : 0.12;
+  const borderAlpha = isActive ? 0.6 : isHovered ? 0.5 : 0.2;
+  const glowAlpha = isActive ? 0.4 : isHovered ? 0.3 : 0.05;
+
+  return (
+    <Link
+      href={href}
+      style={{
+        animationDelay: delay,
+        backgroundColor: `rgba(${colorRgb}, ${bgAlpha})`,
+        backgroundImage: `linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 100%)`,
+        borderColor: `rgba(${colorRgb}, ${borderAlpha})`,
+        boxShadow: isHovered || isActive
+          ? `0 0 20px rgba(${colorRgb}, ${glowAlpha})`
+          : `0 4px 12px rgba(0, 0, 0, 0.1)`,
+        transform: prefersReducedMotion ? 'none' : isActive ? 'scale(0.98)' : isHovered ? 'translateY(-2px) scale(1.015)' : 'none',
+        transition: transitionStr
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => { setIsHovered(false); setIsActive(false); }}
+      onMouseDown={() => setIsActive(true)}
+      onMouseUp={() => setIsActive(false)}
+      onTouchStart={() => setIsActive(true)}
+      onTouchEnd={() => setIsActive(false)}
+      className="animate-glass-btn group flex items-center justify-center w-full h-[48px] sm:h-[56px] md:h-[62px] rounded-[10px] sm:rounded-xl md:rounded-2xl backdrop-blur-md border text-white focus-visible:outline-2 focus-visible:outline-white select-none"
+    >
+      <span className="font-heading text-[9px] sm:text-[11px] md:text-[13px] lg:text-[14px] font-bold tracking-widest uppercase text-center px-1 sm:px-2 leading-tight">
+        {title}
+      </span>
+    </Link>
+  );
+}
+
+function DynamicNavGrid({ prefersReducedMotion }: { prefersReducedMotion: boolean }) {
+  const [colorAssignment, setColorAssignment] = useState<string[]>(BASE_COLORS);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    // Initial random shuffle on load so it differs per refresh
+    setColorAssignment(shuffle([...BASE_COLORS]));
+  }, []);
+
+  useEffect(() => {
+    if (prefersReducedMotion || !isMounted) return;
+
+    const interval = setInterval(() => {
+      setColorAssignment(prev => {
+        const nextColors = shuffle([...BASE_COLORS]);
+        // Ensure not completely identical arrangement (swap two if necessary)
+        if (nextColors.every((c, i) => c === prev[i])) {
+          [nextColors[0], nextColors[1]] = [nextColors[1], nextColors[0]];
+        }
+        return nextColors;
+      });
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, [prefersReducedMotion, isMounted]);
+
+  return (
+    <div className="w-full max-w-3xl mx-auto grid grid-cols-3 gap-1.5 sm:gap-3 md:gap-4 px-2 sm:px-0 mb-8 sm:mb-14">
+      {BUTTONS_INFO.map((item, idx) => (
+        <DynamicGlassButton
+          key={item.title}
+          title={item.title}
+          href={item.href}
+          delay={item.delay}
+          colorRgb={colorAssignment[idx]}
+          prefersReducedMotion={prefersReducedMotion}
+        />
+      ))}
+    </div>
+  );
+}
+
 export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarouselProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isTabHidden, setIsTabHidden] = useState(false);
@@ -312,60 +425,8 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
             </h1>
           )}
 
-          {/* Glass Navigation Grid */}
-          <div className="w-full max-w-3xl mx-auto grid grid-cols-3 gap-1.5 sm:gap-3 md:gap-4 px-2 sm:px-0 mb-8 sm:mb-14">
-            {[
-              {
-                title: "EXPLORE OUR WORK",
-                href: "/about",
-                activeColor: "hover:bg-emerald-500/25 hover:border-emerald-400 hover:shadow-[0_0_20px_rgba(52,211,153,0.35)] active:bg-emerald-500/30 active:border-emerald-400 active:shadow-[0_0_20px_rgba(52,211,153,0.4)]",
-                delay: "0.1s",
-              },
-              {
-                title: "JOIN AS A VOLUNTEER",
-                href: "/volunteers",
-                activeColor: "hover:bg-cyan-500/25 hover:border-cyan-400 hover:shadow-[0_0_20px_rgba(34,211,238,0.35)] active:bg-cyan-500/30 active:border-cyan-400 active:shadow-[0_0_20px_rgba(34,211,238,0.4)]",
-                delay: "0.15s",
-              },
-              {
-                title: "UPCOMING EVENTS",
-                href: "/events",
-                activeColor: "hover:bg-amber-500/25 hover:border-amber-400 hover:shadow-[0_0_20px_rgba(251,191,36,0.35)] active:bg-amber-500/30 active:border-amber-400 active:shadow-[0_0_20px_rgba(251,191,36,0.4)]",
-                delay: "0.2s",
-              },
-              {
-                title: "PODCAST",
-                href: "/podcast",
-                activeColor: "hover:bg-violet-500/25 hover:border-violet-400 hover:shadow-[0_0_20px_rgba(139,92,246,0.35)] active:bg-violet-500/30 active:border-violet-400 active:shadow-[0_0_20px_rgba(139,92,246,0.4)]",
-                delay: "0.25s",
-              },
-              {
-                title: "GALLERY",
-                href: "/gallery",
-                activeColor: "hover:bg-pink-500/25 hover:border-pink-400 hover:shadow-[0_0_20px_rgba(236,72,153,0.35)] active:bg-pink-500/30 active:border-pink-400 active:shadow-[0_0_20px_rgba(236,72,153,0.4)]",
-                delay: "0.3s",
-              },
-              {
-                title: "CONTRIBUTE",
-                href: "/donate",
-                activeColor: "hover:bg-orange-500/25 hover:border-orange-400 hover:shadow-[0_0_20px_rgba(249,115,22,0.35)] active:bg-orange-500/30 active:border-orange-400 active:shadow-[0_0_20px_rgba(249,115,22,0.4)]",
-                delay: "0.35s",
-              },
-            ].map((item) => {
-              return (
-                <Link
-                  key={item.title}
-                  href={item.href}
-                  style={{ animationDelay: item.delay }}
-                  className={`animate-glass-btn group flex items-center justify-center w-full h-[48px] sm:h-[56px] md:h-[62px] rounded-[10px] sm:rounded-xl md:rounded-2xl bg-white/5 backdrop-blur-md border border-white/20 text-white shadow-sm transition-all duration-300 ${item.activeColor} sm:hover:-translate-y-1 active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-white`}
-                >
-                  <span className="font-heading text-[9px] sm:text-[11px] md:text-[13px] lg:text-[14px] font-bold tracking-widest uppercase text-center px-1 sm:px-2 leading-tight">
-                    {item.title}
-                  </span>
-                </Link>
-              );
-            })}
-          </div>
+          {/* Dynamic Colored Glass Navigation Grid */}
+          <DynamicNavGrid prefersReducedMotion={prefersReducedMotion} />
 
           {/* Unified Glass Statistics Strip */}
           <div
