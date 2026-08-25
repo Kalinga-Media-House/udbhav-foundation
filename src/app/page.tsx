@@ -11,14 +11,12 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
-import { GoverningBodySection } from '@/components/home/GoverningBodySection';
 import { HeroCarousel } from '@/components/home/HeroCarousel';
 import { OurMomentsGallerySection } from '@/components/home/OurMomentsGallerySection';
 import { OurPartnersSection } from '@/components/home/OurPartnersSection';
 import { ProgrammesSection } from '@/components/home/ProgrammesSection';
 import { SupportOurInitiativesSection } from '@/components/home/SupportOurInitiativesSection';
 import { getRandomPublicPhotosAction } from '@/features/gallery/actions';
-import { getActiveGoverningBodyMembers } from '@/features/governing-body';
 import { getActiveHeroImages } from '@/features/hero/repository';
 import { getActivePartners } from '@/features/partners/repository';
 
@@ -28,14 +26,13 @@ import { getActivePartners } from '@/features/partners/repository';
  * 1. Hero Carousel
  * 2. Our Moments — Infinite Auto-Scrolling Gallery
  * 3. Our Programmes
- * 4. Governing Body
- * 5. Support Our Initiatives — Donation Carousel
+ * 4. Support Our Initiatives — Donation Carousel
+ * 5. Our Partners
  */
 export default async function Home() {
   const heroImages = await getActiveHeroImages('home_hero');
   const randomPhotosResult = await getRandomPublicPhotosAction(5);
   const galleryPhotos = randomPhotosResult.success && randomPhotosResult.data ? randomPhotosResult.data : [];
-  const governingBodyMembers = await getActiveGoverningBodyMembers();
   const partners = await getActivePartners();
 
   return (
@@ -43,7 +40,6 @@ export default async function Home() {
       <HeroCarousel heroImages={heroImages} />
       <OurMomentsGallerySection galleryPhotos={galleryPhotos} />
       <ProgrammesSection />
-      <GoverningBodySection members={governingBodyMembers} />
       <SupportOurInitiativesSection />
       <OurPartnersSection partners={partners} />
     </main>
