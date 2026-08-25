@@ -102,7 +102,7 @@ function TypewriterTitle({ prefersReducedMotion }: { prefersReducedMotion: boole
   }, [prefersReducedMotion]);
 
   return (
-    <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 sm:mb-12 md:mb-16 px-2 h-[48px] sm:h-[60px] md:h-[72px] lg:h-[84px] flex items-center justify-center drop-shadow-md">
+    <h1 className="font-heading text-[clamp(1.7rem,8vw,2.8rem)] sm:text-[clamp(2rem,6vw,3.5rem)] lg:text-[clamp(2.2rem,5vw,4rem)] font-extrabold text-white mb-6 sm:mb-8 md:mb-10 lg:mb-12 px-2 h-[40px] sm:h-[48px] md:h-[60px] lg:h-[72px] flex items-center justify-center drop-shadow-md">
       <span>{typedText}</span>
       <span
         className="inline-block w-[3px] sm:w-[4px] md:w-[5px] h-[36px] sm:h-[46px] md:h-[56px] lg:h-[66px] bg-white ml-1 sm:ml-2"
@@ -233,9 +233,9 @@ function DynamicGlassButton({ title, href, colorRgb, delay, prefersReducedMotion
       onMouseUp={() => setIsActive(false)}
       onTouchStart={() => setIsActive(true)}
       onTouchEnd={() => setIsActive(false)}
-      className="animate-glass-btn group flex items-center justify-center w-full h-[48px] sm:h-[56px] md:h-[62px] rounded-[10px] sm:rounded-xl md:rounded-2xl backdrop-blur-md border text-white focus-visible:outline-2 focus-visible:outline-white select-none"
+      className="animate-glass-btn group flex items-center justify-center w-full h-[38px] sm:h-[48px] md:h-[54px] lg:h-[60px] rounded-[10px] sm:rounded-xl md:rounded-2xl backdrop-blur-md border text-white focus-visible:outline-2 focus-visible:outline-white select-none"
     >
-      <span className="font-heading text-[9px] sm:text-[11px] md:text-[13px] lg:text-[14px] font-bold tracking-widest uppercase text-center px-1 sm:px-2 leading-tight">
+      <span className="font-heading text-[9px] sm:text-[11px] md:text-[12px] lg:text-[13px] font-bold tracking-widest uppercase text-center px-1 sm:px-2 leading-tight">
         {title}
       </span>
     </Link>
@@ -290,6 +290,7 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
   const [isTabHidden, setIsTabHidden] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [headerHeight, setHeaderHeight] = useState(0);
 
   useEffect(() => {
     setIsMounted(true);
@@ -313,12 +314,23 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
       setIsTabHidden(document.hidden);
     };
 
+    const measureHeader = () => {
+      const headerEl = document.querySelector('header');
+      if (headerEl) {
+        setHeaderHeight(headerEl.offsetHeight);
+      }
+    };
+
+    measureHeader();
+
     mediaQuery.addEventListener("change", handleMotionChange);
     document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("resize", measureHeader);
 
     return () => {
       mediaQuery.removeEventListener("change", handleMotionChange);
       document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("resize", measureHeader);
     };
   }, []);
 
@@ -341,7 +353,13 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
   }, [activeIndex, autoPlayInterval, isTabHidden, prefersReducedMotion, goToNextSlide, totalSlides]);
 
   return (
-    <section className="relative w-full h-[100dvh] min-h-[600px] bg-[#0A1628] overflow-hidden flex flex-col">
+    <section
+      className="relative w-full h-[100vh] bg-[#0A1628] overflow-hidden flex flex-col box-border"
+      style={{
+        height: headerHeight > 0 ? `calc(100svh - ${headerHeight}px)` : '100svh',
+        minHeight: '0'
+      }}
+    >
       {/* Background Images Carousel */}
       <div className="absolute inset-0 z-0">
         {images.map((imgSrc, index) => {
@@ -393,7 +411,7 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
 
       {/* Main Content (Vertically centered in available space) */}
       <div className="flex-1 flex flex-col justify-center w-full relative z-20">
-        <Container className="flex flex-col items-center justify-center py-8 sm:py-12 lg:py-20">
+        <Container className="flex flex-col items-center justify-center py-4 sm:py-6 lg:py-10">
           <style dangerouslySetInnerHTML={{ __html: `
             @keyframes heroGlassEntrance {
               0% {
