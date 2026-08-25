@@ -270,7 +270,7 @@ function DynamicNavGrid({ prefersReducedMotion }: { prefersReducedMotion: boolea
   }, [prefersReducedMotion, isMounted]);
 
   return (
-    <div className="w-full max-w-3xl mx-auto grid grid-cols-3 gap-1.5 sm:gap-3 md:gap-4 px-2 sm:px-0">
+    <div className="w-full max-w-3xl mx-auto grid grid-cols-3 gap-x-1.5 sm:gap-x-3 md:gap-x-4 gap-y-2 sm:gap-y-2.5 md:gap-y-3 px-2 sm:px-0 translate-y-4 sm:translate-y-8 lg:translate-y-12">
       {BUTTONS_INFO.map((item, idx) => (
         <DynamicGlassButton
           key={item.title}
