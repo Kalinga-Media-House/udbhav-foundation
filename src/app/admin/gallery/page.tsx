@@ -53,6 +53,11 @@ export default async function AdminGalleryPage(props: {
               Album Management
             </Button>
           </Link>
+          <Link href="/admin/gallery/hero">
+            <Button variant="outline" className="flex items-center gap-2 text-gray-500">
+              Hero Background
+            </Button>
+          </Link>
           <Link href="/admin/gallery/upload">
             <Button className="flex items-center gap-2">
               <Upload className="h-4 w-4" />

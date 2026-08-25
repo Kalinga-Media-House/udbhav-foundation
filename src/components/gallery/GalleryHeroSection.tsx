@@ -8,13 +8,14 @@ import type { AdminPhotoItem } from "@/features/gallery/repository";
 
 interface GalleryHeroSectionProps {
   heroPhotos: AdminPhotoItem[];
+  backgroundImage?: string | null;
 }
 
 // User-specified exact depth values
 const DEPTH_SCALES = [1, 0.88, 0.78, 0.65, 0.55];
 const DEPTH_OPACITIES = [1, 0.78, 0.55, 0.35, 0];
 
-const GalleryHeroSection = ({ heroPhotos }: GalleryHeroSectionProps) => {
+const GalleryHeroSection = ({ heroPhotos, backgroundImage }: GalleryHeroSectionProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const [windowWidth, setWindowWidth] = useState(1200);
@@ -66,17 +67,35 @@ const GalleryHeroSection = ({ heroPhotos }: GalleryHeroSectionProps) => {
 
   return (
     <section 
-      className="relative w-full overflow-hidden bg-[#061A3A] min-h-[clamp(330px,50vh,480px)] flex items-center justify-center isolate py-8 md:py-12"
+      className={`relative w-full overflow-hidden ${!backgroundImage ? 'bg-[#061A3A]' : 'bg-gray-900'} min-h-[clamp(330px,50vh,480px)] flex items-center justify-center isolate py-8 md:py-12`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Premium Background Glows */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden">
-        <div className="absolute w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] bg-[#1a4a9c] rounded-full blur-[130px] opacity-[0.25] mix-blend-screen" />
-        <div className="absolute w-[400px] h-[400px] bg-cyan-400 rounded-full blur-[160px] opacity-[0.1]" />
-      </div>
+      {/* Background Image & Overlay */}
+      {backgroundImage && (
+        <div className="absolute inset-0 pointer-events-none -z-10">
+          <Image
+            src={backgroundImage}
+            alt="Gallery Background"
+            fill
+            className="object-cover"
+            priority
+            sizes="100vw"
+          />
+          {/* Subtle dark overlay to ensure carousel images stand out */}
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+        </div>
+      )}
 
-      <div className="relative w-full max-w-7xl mx-auto flex flex-col items-center justify-center h-full">
+      {/* Premium Background Glows (only show if no background image, or adapt them) */}
+      {!backgroundImage && (
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden -z-10">
+          <div className="absolute w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] bg-[#1a4a9c] rounded-full blur-[130px] opacity-[0.25] mix-blend-screen" />
+          <div className="absolute w-[400px] h-[400px] bg-cyan-400 rounded-full blur-[160px] opacity-[0.1]" />
+        </div>
+      )}
+
+      <div className="relative w-full max-w-7xl mx-auto flex flex-col items-center justify-center h-full z-10">
         
         {/* Carousel Track */}
         <div className="relative w-full h-[220px] sm:h-[300px] md:h-[360px] flex items-center justify-center perspective-[1200px]">
