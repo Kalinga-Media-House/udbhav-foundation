@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import {
   GraduationCap,
@@ -67,12 +67,74 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 function InitiativeDonationCard({
   initiative,
   animateProgress,
+  reducedMotion,
 }: {
   initiative: InitiativeItem;
   animateProgress: boolean;
+  reducedMotion: boolean;
 }) {
   const IconComponent = ICON_MAP[initiative.iconName] || Heart;
   const [imgError, setImgError] = useState(false);
+
+  const raisedRef = useRef<HTMLSpanElement>(null);
+  const availableRef = useRef<HTMLSpanElement>(null);
+  const percentageRef = useRef<HTMLSpanElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (reducedMotion || !animateProgress) {
+      if (raisedRef.current) raisedRef.current.textContent = initiative.formattedRaised;
+      if (availableRef.current) availableRef.current.textContent = initiative.formattedAvailable;
+      if (percentageRef.current) percentageRef.current.textContent = `${initiative.percentage}%`;
+      if (progressRef.current) progressRef.current.style.width = `${initiative.percentage}%`;
+      return;
+    }
+
+    const duration = 2000; // 2s count up
+    const pause = 1500; // 1.5s pause
+    const totalCycle = duration + pause;
+    let startTime: number | null = null;
+
+    const easeOutQuart = (x: number): number => {
+      return 1 - Math.pow(1 - x, 4);
+    };
+
+    const animate = (timestamp: number) => {
+      if (!startTime) startTime = timestamp;
+      const elapsed = timestamp - startTime;
+      const cycleTime = elapsed % totalCycle;
+
+      if (cycleTime < duration) {
+        // Counting up
+        const progress = cycleTime / duration;
+        const ease = easeOutQuart(progress);
+
+        const currentRaised = ease * initiative.raisedAmount;
+        const currentAvailable = ease * initiative.availableAmount;
+        const currentPercentage = ease * initiative.percentage;
+
+        if (raisedRef.current) raisedRef.current.textContent = `₹${Math.round(currentRaised).toLocaleString('en-IN')}`;
+        if (availableRef.current) availableRef.current.textContent = `₹${Math.round(currentAvailable).toLocaleString('en-IN')}`;
+        if (percentageRef.current) percentageRef.current.textContent = `${Math.round(currentPercentage)}%`;
+        if (progressRef.current) progressRef.current.style.width = `${currentPercentage}%`;
+      } else {
+        // Paused at final value
+        if (raisedRef.current) raisedRef.current.textContent = initiative.formattedRaised;
+        if (availableRef.current) availableRef.current.textContent = initiative.formattedAvailable;
+        if (percentageRef.current) percentageRef.current.textContent = `${initiative.percentage}%`;
+        if (progressRef.current) progressRef.current.style.width = `${initiative.percentage}%`;
+      }
+
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
+
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
+  }, [reducedMotion, animateProgress, initiative]);
 
   return (
     <article className="group relative w-[280px] sm:w-[320px] lg:w-[340px] flex flex-col justify-between bg-pure-white rounded-2xl sm:rounded-3xl border border-soft-border/80 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 ease-out overflow-hidden shrink-0 select-none">
@@ -130,23 +192,24 @@ function InitiativeDonationCard({
             </div>
             <div className="bg-warm-white/80 rounded-lg p-2 border border-soft-border/40">
               <span className="block text-[10px] text-text-secondary font-semibold uppercase tracking-wider">Raised</span>
-              <span className="block font-heading text-xs sm:text-sm font-bold text-impact-green mt-0.5">{initiative.formattedRaised}</span>
+              <span ref={raisedRef} className="block font-heading text-xs sm:text-sm font-bold text-impact-green mt-0.5">{initiative.formattedRaised}</span>
             </div>
             <div className="bg-warm-white/80 rounded-lg p-2 border border-soft-border/40">
               <span className="block text-[10px] text-text-secondary font-semibold uppercase tracking-wider">Available</span>
-              <span className="block font-heading text-xs sm:text-sm font-bold text-udbhav-blue-deep/80 mt-0.5">{initiative.formattedAvailable}</span>
+              <span ref={availableRef} className="block font-heading text-xs sm:text-sm font-bold text-udbhav-blue-deep/80 mt-0.5">{initiative.formattedAvailable}</span>
             </div>
           </div>
 
           <div>
             <div className="flex justify-between items-center text-xs font-semibold text-text-secondary mb-1.5">
               <span>Fundraising Progress</span>
-              <span className={`font-bold ${initiative.theme.badgeText}`}>{initiative.percentage}%</span>
+              <span ref={percentageRef} className={`font-bold ${initiative.theme.badgeText}`}>{initiative.percentage}%</span>
             </div>
             <div className="w-full h-2.5 rounded-full bg-soft-border/60 overflow-hidden relative">
               <div
-                className={`h-full rounded-full transition-all duration-1000 ease-out ${initiative.theme.progressFill}`}
-                style={{ width: animateProgress ? `${initiative.percentage}%` : "0%" }}
+                ref={progressRef}
+                className={`h-full rounded-full ${initiative.theme.progressFill}`}
+                style={{ width: "0%" }}
               />
             </div>
           </div>
@@ -413,6 +476,7 @@ export function SupportOurInitiativesClient({ initiatives }: { initiatives: Init
                   key={`${initiative.id}-dup-${index}`}
                   initiative={initiative}
                   animateProgress={isVisible || reducedMotion}
+                  reducedMotion={reducedMotion}
                 />
               ))}
             </div>
