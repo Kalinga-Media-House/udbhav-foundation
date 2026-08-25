@@ -14,6 +14,61 @@ export interface HeroCarouselProps {
   autoPlayInterval?: number;
 }
 
+import { ALL_GALLERY_PHOTOS } from "@/data/gallery-data";
+
+function HeroGalleryMarquee({ prefersReducedMotion }: { prefersReducedMotion: boolean }) {
+  const [images, setImages] = useState<string[]>([]);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    // Shuffle all photos and pick 12
+    const shuffled = [...ALL_GALLERY_PHOTOS].sort(() => 0.5 - Math.random());
+    // Get unique images
+    const selected = shuffled.slice(0, 12);
+    setImages(selected.map(p => p.imageUrl));
+  }, []);
+
+  if (!isMounted || images.length === 0) {
+    // Spacer while loading to prevent layout shift
+    return <div className="w-full h-[60px] sm:h-[75px] md:h-[90px] lg:h-[105px] mb-4 sm:mb-5 lg:mb-6 opacity-0" aria-hidden="true" />;
+  }
+
+  // Duplicate the array so we can scroll continuously
+  const marqueeImages = [...images, ...images];
+
+  return (
+    <div
+      className="w-full mb-4 sm:mb-5 lg:mb-6 overflow-hidden relative flex flex-col items-center"
+      style={{
+        maskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+        WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)',
+      }}
+    >
+      <div
+        className={`flex whitespace-nowrap will-change-transform ${prefersReducedMotion ? '' : 'animate-hero-marquee'}`}
+        style={{ width: 'max-content' }}
+      >
+        {marqueeImages.map((src, idx) => (
+          <div
+            key={idx}
+            className="relative w-[100px] h-[60px] min-[360px]:w-[120px] min-[360px]:h-[70px] sm:w-[135px] sm:h-[80px] md:w-[160px] md:h-[95px] lg:w-[190px] lg:h-[110px] flex-shrink-0 mx-1.5 sm:mx-2 md:mx-2.5 rounded-lg sm:rounded-xl overflow-hidden border border-white/15 shadow-[0_4px_12px_rgba(0,0,0,0.3)] bg-white/10"
+          >
+            <Image
+              src={src}
+              alt={idx < images.length ? ALL_GALLERY_PHOTOS.find(p => p.imageUrl === src)?.title || "Gallery image" : ""}
+              fill
+              sizes="(max-width: 640px) 120px, (max-width: 768px) 135px, (max-width: 1024px) 160px, 190px"
+              className="object-cover"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
 // Computes alternating Ken Burns motion styles safely derived from slide index
 function getCinematicTransform(index: number, isActive: boolean, reducedMotion: boolean) {
   if (reducedMotion) {
@@ -413,6 +468,13 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
       <div className="flex-1 flex flex-col justify-center w-full relative z-20">
         <Container className="flex flex-col items-center justify-center py-4 sm:py-6 lg:py-10">
           <style dangerouslySetInnerHTML={{ __html: `
+            @keyframes heroMarquee {
+              0% { transform: translate3d(0, 0, 0); }
+              100% { transform: translate3d(-50%, 0, 0); }
+            }
+            .animate-hero-marquee {
+              animation: heroMarquee 45s linear infinite;
+            }
             @keyframes heroGlassEntrance {
               0% {
                 opacity: 0;
@@ -439,7 +501,7 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
           <div className="flex flex-col items-center justify-center text-center w-full">
             {/* Animated Title */}
             {isMounted ? <TypewriterTitle prefersReducedMotion={prefersReducedMotion} /> : (
-              <h1 className="font-heading text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 sm:mb-12 md:mb-16 px-2 h-[48px] sm:h-[60px] md:h-[72px] lg:h-[84px] flex items-center justify-center drop-shadow-md">
+              <h1 className="font-heading text-[clamp(1.7rem,8vw,2.8rem)] sm:text-[clamp(2rem,6vw,3.5rem)] lg:text-[clamp(2.2rem,5vw,4rem)] font-extrabold text-white mb-6 sm:mb-8 md:mb-10 lg:mb-12 px-2 h-[40px] sm:h-[48px] md:h-[60px] lg:h-[72px] flex items-center justify-center drop-shadow-md">
                 UDBHAV FOUNDATION
               </h1>
             )}
@@ -450,39 +512,43 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
         </Container>
       </div>
 
-      {/* Minimal Plain Text Statistics Strip at the Absolute Bottom */}
+      {/* Gallery Marquee and Minimal Plain Text Statistics Strip at the Absolute Bottom */}
       <div
-        className="animate-glass-btn relative z-20 w-full px-3 sm:px-[5%] lg:px-[8%] pt-2.5 pb-3"
+        className="animate-glass-btn relative z-20 w-full px-0 sm:px-[2%] lg:px-[4%] pt-0 pb-3 flex flex-col items-center"
         style={{ animationDelay: "0.5s" }}
       >
-        <div className="w-full grid grid-cols-4 divide-x divide-white/20">
-          {isMounted ? (
-            <>
-              <AnimatedStatistic target={50} label="Communities Reached" prefersReducedMotion={prefersReducedMotion} />
-              <AnimatedStatistic target={1000} label="Lives Impacted" prefersReducedMotion={prefersReducedMotion} />
-              <AnimatedStatistic target={100} label="Volunteers" prefersReducedMotion={prefersReducedMotion} />
-              <AnimatedStatistic target={25} label="Initiatives" prefersReducedMotion={prefersReducedMotion} />
-            </>
-          ) : (
-            <>
-              <div className="flex flex-col items-center justify-center w-full px-1 opacity-100">
-                <div className="font-heading text-[16px] min-[360px]:text-[18px] sm:text-[21px] md:text-[24px] lg:text-[30px] font-bold text-white leading-none tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">50+</div>
-                <div className="mt-0.5 sm:mt-1 text-[7px] min-[360px]:text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium sm:font-semibold text-white/90 uppercase text-center leading-[1.1] tracking-[0.04em] lg:tracking-[0.08em] drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] max-w-[85px] sm:max-w-none">Communities Reached</div>
-              </div>
-              <div className="flex flex-col items-center justify-center w-full px-1 opacity-100">
-                <div className="font-heading text-[16px] min-[360px]:text-[18px] sm:text-[21px] md:text-[24px] lg:text-[30px] font-bold text-white leading-none tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">1000+</div>
-                <div className="mt-0.5 sm:mt-1 text-[7px] min-[360px]:text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium sm:font-semibold text-white/90 uppercase text-center leading-[1.1] tracking-[0.04em] lg:tracking-[0.08em] drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] max-w-[85px] sm:max-w-none">Lives Impacted</div>
-              </div>
-              <div className="flex flex-col items-center justify-center w-full px-1 opacity-100">
-                <div className="font-heading text-[16px] min-[360px]:text-[18px] sm:text-[21px] md:text-[24px] lg:text-[30px] font-bold text-white leading-none tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">100+</div>
-                <div className="mt-0.5 sm:mt-1 text-[7px] min-[360px]:text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium sm:font-semibold text-white/90 uppercase text-center leading-[1.1] tracking-[0.04em] lg:tracking-[0.08em] drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] max-w-[85px] sm:max-w-none">Volunteers</div>
-              </div>
-              <div className="flex flex-col items-center justify-center w-full px-1 opacity-100">
-                <div className="font-heading text-[16px] min-[360px]:text-[18px] sm:text-[21px] md:text-[24px] lg:text-[30px] font-bold text-white leading-none tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">25+</div>
-                <div className="mt-0.5 sm:mt-1 text-[7px] min-[360px]:text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium sm:font-semibold text-white/90 uppercase text-center leading-[1.1] tracking-[0.04em] lg:tracking-[0.08em] drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] max-w-[85px] sm:max-w-none">Initiatives</div>
-              </div>
-            </>
-          )}
+        <HeroGalleryMarquee prefersReducedMotion={prefersReducedMotion} />
+
+        <div className="w-full px-3 sm:px-[3%] lg:px-[4%]">
+          <div className="w-full grid grid-cols-4 divide-x divide-white/20">
+            {isMounted ? (
+              <>
+                <AnimatedStatistic target={50} label="Communities Reached" prefersReducedMotion={prefersReducedMotion} />
+                <AnimatedStatistic target={1000} label="Lives Impacted" prefersReducedMotion={prefersReducedMotion} />
+                <AnimatedStatistic target={100} label="Volunteers" prefersReducedMotion={prefersReducedMotion} />
+                <AnimatedStatistic target={25} label="Initiatives" prefersReducedMotion={prefersReducedMotion} />
+              </>
+            ) : (
+              <>
+                <div className="flex flex-col items-center justify-center w-full px-1 opacity-100">
+                  <div className="font-heading text-[16px] min-[360px]:text-[18px] sm:text-[21px] md:text-[24px] lg:text-[30px] font-bold text-white leading-none tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">50+</div>
+                  <div className="mt-0.5 sm:mt-1 text-[7px] min-[360px]:text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium sm:font-semibold text-white/90 uppercase text-center leading-[1.1] tracking-[0.04em] lg:tracking-[0.08em] drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] max-w-[85px] sm:max-w-none">Communities Reached</div>
+                </div>
+                <div className="flex flex-col items-center justify-center w-full px-1 opacity-100">
+                  <div className="font-heading text-[16px] min-[360px]:text-[18px] sm:text-[21px] md:text-[24px] lg:text-[30px] font-bold text-white leading-none tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">1000+</div>
+                  <div className="mt-0.5 sm:mt-1 text-[7px] min-[360px]:text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium sm:font-semibold text-white/90 uppercase text-center leading-[1.1] tracking-[0.04em] lg:tracking-[0.08em] drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] max-w-[85px] sm:max-w-none">Lives Impacted</div>
+                </div>
+                <div className="flex flex-col items-center justify-center w-full px-1 opacity-100">
+                  <div className="font-heading text-[16px] min-[360px]:text-[18px] sm:text-[21px] md:text-[24px] lg:text-[30px] font-bold text-white leading-none tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">100+</div>
+                  <div className="mt-0.5 sm:mt-1 text-[7px] min-[360px]:text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium sm:font-semibold text-white/90 uppercase text-center leading-[1.1] tracking-[0.04em] lg:tracking-[0.08em] drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] max-w-[85px] sm:max-w-none">Volunteers</div>
+                </div>
+                <div className="flex flex-col items-center justify-center w-full px-1 opacity-100">
+                  <div className="font-heading text-[16px] min-[360px]:text-[18px] sm:text-[21px] md:text-[24px] lg:text-[30px] font-bold text-white leading-none tracking-tight drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)]">25+</div>
+                  <div className="mt-0.5 sm:mt-1 text-[7px] min-[360px]:text-[8px] sm:text-[10px] md:text-[11px] lg:text-[12px] font-medium sm:font-semibold text-white/90 uppercase text-center leading-[1.1] tracking-[0.04em] lg:tracking-[0.08em] drop-shadow-[0_1px_4px_rgba(0,0,0,0.5)] max-w-[85px] sm:max-w-none">Initiatives</div>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </div>
 
