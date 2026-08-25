@@ -16,16 +16,20 @@ export async function addSocialLink(data: SocialLinkInsert) {
       return { success: false, error: 'Unauthorized' };
     }
 
-    const { error } = await supabase
+    // Use upsert to handle the unique constraint on platform.
+    // If a row with the same platform already exists, update it instead of inserting.
+    const { data: saved, error } = await supabase
       .from('site_social_links')
-      .insert(data);
+      .upsert(data, { onConflict: 'platform' })
+      .select()
+      .maybeSingle();
 
     if (error) {
       return { success: false, error: error.message };
     }
 
     revalidatePath('/', 'layout');
-    return { success: true };
+    return { success: true, data: saved };
   } catch (error: unknown) {
     return { success: false, error: error instanceof Error ? error.message : 'An error occurred' };
   }

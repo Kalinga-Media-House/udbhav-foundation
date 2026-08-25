@@ -63,6 +63,13 @@ export function SocialMediaSettings({ initialLinks }: Props) {
 
   const openAdd = () => {
     resetForm();
+    // If the default platform already exists, pre-fill with its data
+    const existing = links.find(l => l.platform === AVAILABLE_PLATFORMS[0].id);
+    if (existing) {
+      setEditingId(existing.id);
+      setUrl(existing.url);
+      setIsVisible(existing.is_visible);
+    }
     setIsAdding(true);
   };
 
@@ -73,6 +80,23 @@ export function SocialMediaSettings({ initialLinks }: Props) {
     setIsVisible(link.is_visible);
     setError('');
     setIsAdding(true);
+  };
+
+  const handlePlatformChange = (newPlatform: string) => {
+    setPlatform(newPlatform);
+    setError('');
+    // If the selected platform already has a saved record, switch to edit mode
+    const existing = links.find(l => l.platform === newPlatform);
+    if (existing) {
+      setEditingId(existing.id);
+      setUrl(existing.url);
+      setIsVisible(existing.is_visible);
+    } else {
+      // New platform — clear fields for fresh entry
+      setEditingId(null);
+      setUrl('');
+      setIsVisible(true);
+    }
   };
 
   const validateUrl = (urlStr: string) => {
@@ -188,13 +212,13 @@ export function SocialMediaSettings({ initialLinks }: Props) {
       <div className="p-6">
         {isAdding && (
           <div className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50/30 shadow-sm">
-            <h3 className="text-sm font-semibold mb-4">{editingId ? 'Edit Link' : 'Add New Link'}</h3>
+            <h3 className="text-sm font-semibold mb-4">{editingId ? `Edit ${AVAILABLE_PLATFORMS.find(p => p.id === platform)?.name || ''} Link` : 'Add New Link'}</h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 items-end">
               <div className="space-y-1.5">
                 <label className="text-xs font-medium text-gray-700">Platform</label>
                 <select 
                   value={platform} 
-                  onChange={e => setPlatform(e.target.value)}
+                  onChange={e => handlePlatformChange(e.target.value)}
                   className="w-full h-9 rounded-md border border-gray-300 px-3 text-sm"
                   disabled={isPending}
                 >
