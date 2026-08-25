@@ -3,7 +3,7 @@
 import { Image as ImageIcon, MapPin, Tag, Search, Star, CalendarDays, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 
 import { Container } from '@/components/shared/Container';
 import type { AdminPhotoItem, PublicGalleryFilterOptions } from '@/features/gallery/repository';
@@ -26,15 +26,8 @@ export function PhotoGridSection({ initialPhotos, totalPhotos, filterOptions, cu
   const currentSort = searchParams.get('sort') || 'newest';
   const currentProgram = searchParams.get('program') || 'all';
   const currentEvent = searchParams.get('event') || 'all';
-  const currentSearch = searchParams.get('search') || '';
   
-  const [searchQuery, setSearchQuery] = useState(currentSearch);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  
-  // Update local search if URL changes externally
-  useEffect(() => {
-    setSearchQuery(currentSearch);
-  }, [currentSearch]);
 
   const [filterMode, setFilterMode] = useState<'All' | 'Programmes' | 'Events'>(
     currentProgram !== 'all' ? 'Programmes' : currentEvent !== 'all' ? 'Events' : 'All'
@@ -59,39 +52,18 @@ export function PhotoGridSection({ initialPhotos, totalPhotos, filterOptions, cu
     });
   };
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateURL({ search: searchQuery });
-  };
-
   const hasMorePhotos = initialPhotos.length < totalPhotos;
 
   return (
     <section className="py-12 sm:py-16 bg-gray-50/50 min-h-[500px] relative">
       <Container>
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight text-gray-900">
-              Community Photos
-            </h2>
-            <p className="mt-2 text-sm text-gray-600 max-w-2xl">
-              Browse authentic moments from our programs, events, and community initiatives across Odisha.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-            <form onSubmit={handleSearchSubmit} className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Search photos..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full sm:w-64 pl-9 pr-4 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-colors"
-              />
-              <button type="submit" className="hidden" />
-            </form>
-          </div>
+        <div className="mb-10">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900">
+            Community Photos
+          </h2>
+          <p className="mt-2 text-sm text-gray-600 max-w-2xl">
+            Browse authentic moments from our programs, events, and community initiatives across Odisha.
+          </p>
         </div>
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -168,18 +140,17 @@ export function PhotoGridSection({ initialPhotos, totalPhotos, filterOptions, cu
         <div className={`transition-opacity duration-300 ${isPending ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
           {initialPhotos.length === 0 ? (
             <div className="bg-white rounded-xl border border-gray-100 p-12 text-center max-w-2xl mx-auto">
-              {currentSearch || currentProgram !== 'all' || currentEvent !== 'all' ? (
+              {currentProgram !== 'all' || currentEvent !== 'all' ? (
                 <>
                   <Search className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-gray-800">No photos found</h3>
                   <p className="text-sm text-gray-500 mt-1">
-                    Try changing your search or filter.
+                    Try changing your filter.
                   </p>
                   <button 
                     onClick={() => {
                       setFilterMode('All');
-                      setSearchQuery('');
-                      updateURL({ program: null, event: null, search: null, sort: null, page: null });
+                      updateURL({ program: null, event: null, sort: null, page: null });
                     }}
                     className="mt-4 text-emerald-600 font-medium text-sm hover:underline"
                   >

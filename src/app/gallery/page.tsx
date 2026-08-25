@@ -36,12 +36,11 @@ export default async function GalleryPage({ searchParams }: { searchParams: Sear
   const sort = (typeof resolvedParams.sort === 'string' ? resolvedParams.sort : 'newest') as PublicGallerySort;
   const program_id = typeof resolvedParams.program === 'string' ? resolvedParams.program : undefined;
   const event_id = typeof resolvedParams.event === 'string' ? resolvedParams.event : undefined;
-  const search = typeof resolvedParams.search === 'string' ? resolvedParams.search : undefined;
 
   const [photosResult, filtersResult, heroPhotosResult, heroBgResult] = await Promise.all([
     listPublicPhotosAction(
       { page: 1, limit: page * 16 }, 
-      { program_id, event_id, search },
+      { program_id, event_id },
       sort
     ),
     getPublicGalleryFiltersAction(),
