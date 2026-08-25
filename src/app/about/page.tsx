@@ -363,7 +363,7 @@ export default async function AboutPage() {
               <RevealCard as="div" index={2} direction="up" className="relative group">
                 <div className="absolute left-0 top-0 bottom-0 w-1 bg-impact-green transition-all duration-700 h-0 group-[.opacity-100]:h-full" />
                 <p className="text-udbhav-blue-deep text-xl font-medium sm:text-2xl leading-relaxed italic pl-8 py-2">
-                  "We are not just working for change — we are building a movement of purpose, compassion and action."
+                  "We are not just working for change, we are building a movement of purpose, compassion and action."
                 </p>
               </RevealCard>
             </div>
