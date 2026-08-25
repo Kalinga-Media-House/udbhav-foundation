@@ -8,6 +8,9 @@ export const metadata: Metadata = {
     canonical: '/',
   },
 };
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 import { GoverningBodySection } from '@/components/home/GoverningBodySection';
 import { HeroCarousel } from '@/components/home/HeroCarousel';
 import { OurMomentsGallerySection } from '@/components/home/OurMomentsGallerySection';
