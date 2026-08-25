@@ -508,39 +508,6 @@ export function HeroCarousel({ heroImages, autoPlayInterval = 6000 }: HeroCarous
           </button>
         </>
       )}
-
-      {/* Bottom Bar: Slide Indicators */}
-      {totalSlides > 1 && (
-        <div className="absolute bottom-6 sm:bottom-8 inset-x-0 z-30">
-          <Container className="flex items-center">
-            {/* Progress Indicators */}
-            <div
-              role="tablist"
-              aria-label="Hero slides"
-              className="flex items-center gap-2 sm:gap-2.5"
-            >
-              {images.map((_, index) => {
-                const isActive = index === activeIndex;
-                return (
-                  <button
-                    key={index}
-                    type="button"
-                    role="tab"
-                    aria-selected={isActive}
-                    aria-label={`Go to slide ${index + 1}`}
-                    onClick={() => goToSlide(index)}
-                    className={`h-2 sm:h-2.5 rounded-full transition-all duration-300 focus-visible:outline-2 focus-visible:outline-pure-white ${
-                      isActive
-                        ? "w-8 sm:w-10 bg-fresh-green"
-                        : "w-2.5 sm:w-3 bg-pure-white/45 hover:bg-pure-white/75"
-                    }`}
-                  />
-                );
-              })}
-            </div>
-          </Container>
-        </div>
-      )}
     </section>
   );
 }
