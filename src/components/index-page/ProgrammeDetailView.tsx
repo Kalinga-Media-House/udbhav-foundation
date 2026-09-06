@@ -14,6 +14,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
 
+import { SafeHtml } from "@/components/shared/SafeHtml";
 import { GalleryLightbox } from "@/components/gallery/GalleryLightbox";
 import type { AdminPhotoItem } from "@/features/gallery/repository";
 import type { IndexProgrammeDetail } from "@/types/index-programme";
@@ -233,9 +234,10 @@ export function ProgrammeDetailView({
             {/* Main Description */}
             <div className="md:col-span-2">
               <h2 className="text-xl font-heading font-bold text-[#172B6B] mb-4">About This Programme</h2>
-              <div className="prose prose-sm sm:prose-base prose-gray max-w-none text-gray-700 leading-relaxed whitespace-pre-wrap">
-                {programme.fullDescription || programme.shortDescription}
-              </div>
+              <SafeHtml 
+                className="prose prose-sm sm:prose-base prose-gray max-w-none text-gray-700 leading-relaxed" 
+                html={programme.fullDescription || programme.shortDescription} 
+              />
               
               {programme.purpose && (
                 <div className="mt-8">

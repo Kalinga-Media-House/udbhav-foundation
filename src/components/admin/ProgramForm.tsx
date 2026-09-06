@@ -6,6 +6,7 @@ import { useState, useTransition, useEffect } from 'react';
 
 import { ImageUploader } from '@/components/admin/ImageUploader';
 import type { UploadStatus } from '@/components/admin/ImageUploader';
+import { RichTextEditor } from '@/components/admin/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -220,13 +221,9 @@ export function ProgramForm({ initialData }: ProgramFormProps) {
 
       <div className="space-y-2">
         <Label htmlFor="full_description">Full Description</Label>
-        <textarea
-          id="full_description"
-          name="full_description"
+        <RichTextEditor
           value={formData.full_description || ''}
-          onChange={handleChange}
-          rows={6}
-          className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+          onChange={(val) => setFormData((prev) => ({ ...prev, full_description: val }))}
           placeholder="Detailed description of the program..."
         />
       </div>
